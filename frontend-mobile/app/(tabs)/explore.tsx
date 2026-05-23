@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { View, ScrollView, useWindowDimensions, DeviceEventEmitter } from 'react-native';
+import { View, ScrollView, useWindowDimensions, DeviceEventEmitter, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { ROUTES } from '@/constants';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,20 +14,11 @@ const MODULES = [
   {
     id: 'vocab-lab',
     title: 'Vocab Lab',
-    desc: 'Advanced flashcards with Spaced Repetition (SRS)',
+    desc: 'Advanced flashcards with Spaced Repetition (SRS) study plan',
     icon: 'flask',
     color: '#E11D48',
     gradient: ['#F43F5E', '#E11D48'],
     link: ROUTES.vocabLab,
-  },
-  {
-    id: 'vocab',
-    title: 'IELTS Vocabulary',
-    desc: 'Topic-based vocabulary lessons with interactive quizzes',
-    icon: 'book',
-    color: '#FF9800',
-    gradient: ['#FBBF24', '#F59E0B'],
-    link: ROUTES.foundationVocabulary,
   },
   {
     id: 'shadowing',
@@ -38,27 +29,10 @@ const MODULES = [
     gradient: ['#60A5FA', '#3B82F6'],
     link: ROUTES.practiceTools,
   },
-  {
-    id: 'grammar',
-    title: 'Grammar',
-    desc: 'Essential grammar structures for Band 7.0+',
-    icon: 'text',
-    color: '#10B981',
-    gradient: ['#34D399', '#10B981'],
-    link: ROUTES.foundationGrammar,
-  },
-  {
-    id: 'pronunciation',
-    title: 'Pronunciation',
-    desc: 'Master phonetics, word stress, and intonation',
-    icon: 'mic',
-    color: '#8B5CF6',
-    gradient: ['#A78BFA', '#8B5CF6'],
-    link: ROUTES.foundationPronunciation,
-  },
 ];
 
 export default function ExploreTab() {
+  const router = useRouter();
   const { width } = useWindowDimensions();
   const { colors, isDark } = useTheme();
   const { handleScroll } = useTabBarVisibility();
@@ -127,26 +101,32 @@ export default function ExploreTab() {
         onScroll={handleScroll}
         scrollEventThrottle={16}
       >
-        {/* Featured Banner */}
-        <View
+        {/* Featured Premium Pricing Banner */}
+        <TouchableOpacity
+          onPress={() => router.push('/pricing')}
+          activeOpacity={0.9}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Upgrade to Lexon Pro subscription now"
+          accessibilityHint="Double tap anywhere on this banner to view subscription plans"
           style={{
             borderRadius: 20,
             overflow: 'hidden',
             position: 'relative',
             padding: 24,
             marginBottom: 32,
-            shadowColor: '#000',
+            shadowColor: '#7C3AED',
             shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: isDark ? 0.35 : 0.1,
-            shadowRadius: 12,
+            shadowOpacity: isDark ? 0.4 : 0.15,
+            shadowRadius: 16,
             elevation: 8,
           }}
         >
           <LinearGradient
             colors={
               (isDark
-                ? ['#1E293B', '#0F172A']
-                : [colors.primary, '#FFA000']) as [string, string]
+                ? ['#2E1065', '#78350F']
+                : ['#7C3AED', '#F59E0B']) as [string, string]
             }
             style={{ ...fillObject }}
             start={{ x: 0, y: 0 }}
@@ -155,10 +135,10 @@ export default function ExploreTab() {
           <View style={{ zIndex: 2 }}>
             <View
               style={{
-                backgroundColor: bannerBadgeBg,
-                paddingHorizontal: 8,
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                paddingHorizontal: 10,
                 paddingVertical: 4,
-                borderRadius: 6,
+                borderRadius: 8,
                 alignSelf: 'flex-start',
                 marginBottom: 12,
               }}
@@ -167,82 +147,86 @@ export default function ExploreTab() {
                 variant="caption"
                 weight="bold"
                 style={{
-                  color: bannerBadgeText,
-                  letterSpacing: 1,
+                  color: '#FFFFFF',
+                  letterSpacing: 1.2,
+                  fontSize: 10,
                 }}
               >
-                FEATURED
+                PRO ACCESS
               </Text>
             </View>
             <Text
               variant="headline"
               weight="bold"
               style={{
-                color: bannerTextTitleColor,
+                color: '#FFFFFF',
                 marginBottom: 8,
+                fontSize: 22,
+                letterSpacing: -0.5,
               }}
             >
-              Vocab Lab is here!
+              Upgrade to Lexon Pro!
             </Text>
             <Text
               variant="body"
               style={{
-                color: bannerTextDescColor,
+                color: 'rgba(255, 255, 255, 0.85)',
                 marginBottom: 20,
                 lineHeight: 20,
                 width: '85%',
+                fontSize: 13,
               }}
             >
-              Supercharge your memory with our AI-powered SRS flashcards.
+              Unlock unlimited AI Evaluations, native Speaking grading, instant word lookups, and custom YouTube Video Studios.
             </Text>
-            <Link href={ROUTES.vocabLab} asChild>
-              <PressableCard
-                variant="elevated"
+            
+            {/* Visual Button Pill - Stable Layout */}
+            <View
+              style={{
+                backgroundColor: '#FFFFFF',
+                paddingVertical: 10,
+                paddingHorizontal: 18,
+                borderRadius: 12,
+                alignSelf: 'flex-start',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 2,
+              }}
+            >
+              <Text
+                weight="bold"
                 style={{
-                  backgroundColor: isDark ? '#FFFFFF' : '#1E293B',
-                  paddingVertical: 10,
-                  paddingHorizontal: 16,
-                  borderRadius: 12,
-                  alignSelf: 'flex-start',
-                  marginBottom: 0,
+                  fontSize: 14,
+                  color: '#7C3AED',
                 }}
-                accessibilityLabel="Try Vocab Lab featured module now"
-                accessibilityHint="Double tap to open the Vocab Lab SRS study tool"
               >
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text
-                    weight="bold"
-                    style={{
-                      fontSize: 14,
-                      color: isDark ? '#0F172A' : '#FFFFFF',
-                    }}
-                  >
-                    Try it now
-                  </Text>
-                  <Ionicons
-                    name="arrow-forward"
-                    size={14}
-                    color={isDark ? '#0F172A' : '#FFFFFF'}
-                  />
-                </View>
-              </PressableCard>
-            </Link>
+                Upgrade Now
+              </Text>
+              <Ionicons
+                name="sparkles"
+                size={14}
+                color="#7C3AED"
+              />
+            </View>
           </View>
           <Ionicons
-            name="flask"
+            name="sparkles"
             size={100}
-            color={
-              isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'
-            }
+            color="rgba(255,255,255,0.08)"
             style={{
               position: 'absolute',
-              right: -20,
-              bottom: -20,
+              right: -10,
+              bottom: -10,
               zIndex: 1,
-              transform: [{ rotate: '-10deg' }],
+              transform: [{ rotate: '-15deg' }],
             }}
           />
-        </View>
+        </TouchableOpacity>
 
         <Text
           variant="title"

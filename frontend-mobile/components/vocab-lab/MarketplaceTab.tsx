@@ -16,6 +16,7 @@ import { COLORS, SPACING, FONTS } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { useAuth } from '@/contexts/AuthContext';
 import { FeatureLock } from '@/components/ui/index';
+import SharedDeckDetailSheet from './SharedDeckDetailSheet';
 
 // ── Types ──────────────────────────────────────────────────────
 interface SharedDeck {
@@ -50,7 +51,15 @@ const CATEGORIES = [
 ];
 
 // ── SharedDeckCard ─────────────────────────────────────────────
-function SharedDeckCard({ deck, onImported }: { deck: SharedDeck; onImported?: () => void }) {
+function SharedDeckCard({
+  deck,
+  onImported,
+  onPress,
+}: {
+  deck: SharedDeck;
+  onImported?: () => void;
+  onPress?: () => void;
+}) {
   const [importing, setImporting] = useState(false);
   const [imported, setImported] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,43 +88,45 @@ function SharedDeckCard({ deck, onImported }: { deck: SharedDeck; onImported?: (
 
   return (
     <View style={s.deckCard}>
-      {/* Name + Description */}
-      <Text style={s.deckName} numberOfLines={2}>
-        {deck.name}
-      </Text>
-      {deck.description ? (
-        <Text style={s.deckDesc} numberOfLines={3}>
-          {deck.description}
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        {/* Name + Description */}
+        <Text style={s.deckName} numberOfLines={2}>
+          {deck.name}
         </Text>
-      ) : null}
+        {deck.description ? (
+          <Text style={s.deckDesc} numberOfLines={3}>
+            {deck.description}
+          </Text>
+        ) : null}
 
-      {/* Tags */}
-      {deck.tags.length > 0 && (
-        <View style={s.tagRow}>
-          {deck.tags.slice(0, 4).map((tag) => (
-            <View key={tag} style={s.tag}>
-              <Text style={s.tagText}>{tag}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {/* Divider */}
-      <View style={s.divider} />
-
-      {/* Meta + Publisher */}
-      <View style={s.metaRow}>
-        <Text style={s.metaText}>
-          <Text style={{ fontFamily: FONTS.bold }}>{deck.cardCount}</Text> cards
-        </Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Ionicons name="download-outline" size={13} color="#9ca3af" />
-            <Text style={s.metaText}>{deck.importCount}</Text>
+        {/* Tags */}
+        {deck.tags.length > 0 && (
+          <View style={s.tagRow}>
+            {deck.tags.slice(0, 4).map((tag) => (
+              <View key={tag} style={s.tag}>
+                <Text style={s.tagText}>{tag}</Text>
+              </View>
+            ))}
           </View>
-          <Text style={s.metaText}>{publishDate}</Text>
+        )}
+
+        {/* Divider */}
+        <View style={s.divider} />
+
+        {/* Meta + Publisher */}
+        <View style={s.metaRow}>
+          <Text style={s.metaText}>
+            <Text style={{ fontFamily: FONTS.bold }}>{deck.cardCount}</Text> cards
+          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <Ionicons name="download-outline" size={13} color="#9ca3af" />
+              <Text style={s.metaText}>{deck.importCount}</Text>
+            </View>
+            <Text style={s.metaText}>{publishDate}</Text>
+          </View>
         </View>
-      </View>
+      </TouchableOpacity>
 
       <View style={s.publisherRow}>
         {/* Avatar */}
@@ -170,6 +181,8 @@ export function MarketplaceTab() {
   const [pageTab, setPageTab] = useState<PageTab>('explore');
   const [decks, setDecks] = useState<SharedDeck[]>([]);
   const [featured, setFeatured] = useState<SharedDeck[]>([]);
+  const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
+  const [detailVisible, setDetailVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingFeatured, setLoadingFeatured] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -281,7 +294,14 @@ export function MarketplaceTab() {
               >
                 {featured.map((deck) => (
                   <View key={deck.id} style={{ width: 280 }}>
-                    <SharedDeckCard deck={deck} />
+                    <SharedDeckCard
+                      deck={deck}
+                      onPress={() => {
+                        setSelectedDeckId(deck.id);
+                        setDetailVisible(true);
+                      }}
+                      onImported={fetchDecks}
+                    />
                   </View>
                 ))}
               </ScrollView>
@@ -365,8 +385,28 @@ export function MarketplaceTab() {
             </Text>
           </View>
         ) : (
-          decks.map((deck) => <SharedDeckCard key={deck.id} deck={deck} onImported={fetchDecks} />)
+          decks.map((deck) => (
+            <SharedDeckCard
+              key={deck.id}
+              deck={deck}
+              onPress={() => {
+                setSelectedDeckId(deck.id);
+                setDetailVisible(true);
+              }}
+              onImported={fetchDecks}
+            />
+          ))
         )}
+
+        <SharedDeckDetailSheet
+          visible={detailVisible}
+          onClose={() => {
+            setDetailVisible(false);
+            setSelectedDeckId(null);
+          }}
+          deckId={selectedDeckId}
+          onImported={fetchDecks}
+        />
       </ScrollView>
     </FeatureLock>
   );

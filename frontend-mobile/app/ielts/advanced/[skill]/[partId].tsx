@@ -25,6 +25,7 @@ import TranscriptReview from '@/components/ielts/TranscriptReview';
 import PassageReview from '@/components/ielts/PassageReview';
 import { extractAllItemsFromPart, questionNumbersFromItems } from '@/lib/exam-parser';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 
 // ─── Question blocks ───────────────────────────────────────────────────────────
 
@@ -370,8 +371,16 @@ const createStyles = (colors: any) =>
 
 export default function AdvancedPartScreen() {
   const router = useRouter();
+  const { isPremium, loading: subLoading } = useSubscription();
   const { colors, isDark } = useTheme();
   const styles = createStyles(colors);
+
+  // Verify subscription status
+  useEffect(() => {
+    if (!subLoading && !isPremium) {
+      router.replace(ROUTES.pricing);
+    }
+  }, [isPremium, subLoading]);
   const { skill, partId } = useLocalSearchParams<{ skill: string; partId: string }>();
   const [part, setPart] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -422,7 +431,7 @@ export default function AdvancedPartScreen() {
     setConfirmSubmitVisible(true);
   };
 
-  if (loading) {
+  if (subLoading || loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={colors.primary} />

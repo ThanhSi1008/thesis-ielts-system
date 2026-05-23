@@ -56,7 +56,7 @@ export default function AdvancedWritingResultScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
-  const { isPremium } = useSubscription();
+  const { isPremium, loading: subLoading } = useSubscription();
 
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -65,10 +65,10 @@ export default function AdvancedWritingResultScreen() {
 
   // Verify Premium Tier
   useEffect(() => {
-    if (!isPremium) {
+    if (!subLoading && !isPremium) {
       router.replace(ROUTES.pricing);
     }
-  }, [isPremium]);
+  }, [isPremium, subLoading]);
 
   // Tip slider logic
   useEffect(() => {
@@ -492,7 +492,7 @@ export default function AdvancedWritingResultScreen() {
     },
   });
 
-  if (loading) {
+  if (subLoading || loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={activeColor} />
@@ -692,6 +692,16 @@ export default function AdvancedWritingResultScreen() {
             <Ionicons name="alert-circle-outline" size={24} color={colors.textMuted} />
             <Text style={styles.noFeedbackText}>No detailed evaluation details found.</Text>
           </View>
+        )}
+
+        {/* Community Essays Button */}
+        {prompt?.id && (
+          <TouchableOpacity
+            style={[styles.doneBtn, { backgroundColor: COLORS.skill.writing, borderColor: COLORS.skill.writing, marginTop: SPACING.md }]}
+            onPress={() => router.push(`/ielts/advanced/writing/${prompt.id}/community`)}
+          >
+            <Text style={[styles.doneBtnText, { color: '#fff' }]}>View Community Essays</Text>
+          </TouchableOpacity>
         )}
 
         {/* Action Button */}

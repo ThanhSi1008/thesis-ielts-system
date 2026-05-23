@@ -38,15 +38,11 @@ export default function PracticeToolsDashboard() {
       marginTop: 10,
     },
     backBtn: {
-      width: 40,
-      height: 40,
-      borderRadius: 12,
-      backgroundColor: colors.background,
-      alignItems: 'center',
+      width: 44,
+      height: 44,
       justifyContent: 'center',
-      borderWidth: 1,
-      borderColor: colors.border,
-      marginRight: 16,
+      alignItems: 'flex-start',
+      marginRight: 12,
     },
     headerTitleWrap: {
       flex: 1,
@@ -140,6 +136,9 @@ export default function PracticeToolsDashboard() {
     dictationIcon: {
       backgroundColor: 'rgba(245, 158, 11, 0.12)', // amber light
     },
+    myVideosIcon: {
+      backgroundColor: 'rgba(168, 85, 247, 0.12)', // purple light
+    },
     infoWrapper: {
       flex: 1,
     },
@@ -187,14 +186,18 @@ export default function PracticeToolsDashboard() {
             style={styles.backBtn}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              router.push(ROUTES.ielts);
+              if (router.canGoBack()) {
+                router.back();
+              } else {
+                router.push('/(tabs)/explore');
+              }
             }}
             accessible={true}
             accessibilityRole="button"
-            accessibilityLabel="Close"
-            accessibilityHint="Close Practice Tools dashboard and return to IELTS screen"
+            accessibilityLabel="Back"
+            accessibilityHint="Navigate back to explore screen"
           >
-            <Ionicons name="close" size={20} color={colors.text} />
+            <Ionicons name="chevron-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <View style={styles.headerTitleWrap}>
             <Text style={styles.eyebrow} allowFontScaling={true}>Lexon AI Suite</Text>
@@ -228,15 +231,15 @@ export default function PracticeToolsDashboard() {
         <Text style={styles.sectionTitle} allowFontScaling={true}>Select Practice Module</Text>
 
         <View style={styles.cardsContainer}>
-          {/* Shadowing Card */}
+          {/* Shadowing & Dictation Card */}
           <TouchableOpacity
             style={styles.toolCard}
             onPress={() => handlePress(ROUTES.practiceToolsShadowing)}
             activeOpacity={0.9}
             accessible={true}
             accessibilityRole="button"
-            accessibilityLabel="Shadowing Practitioner, Enter Studio. Sharpen speaking pronunciation, speed, and accent by echoing native speakers with real-time AI phoneme analysis."
-            accessibilityHint="Double tap to open shadowing lessons list"
+            accessibilityLabel="Shadowing and Dictation, Enter Studio. Sharpen speaking pronunciation by echoing native speakers, or practice listening comprehension and phonetic spelling in Dictation mode."
+            accessibilityHint="Double tap to open shadowing and dictation lessons list"
           >
             <View style={styles.cardContent}>
               <View style={[styles.iconWrapper, styles.shadowingIcon]}>
@@ -244,11 +247,11 @@ export default function PracticeToolsDashboard() {
               </View>
               <View style={styles.infoWrapper}>
                 <View style={styles.cardTitleRow}>
-                  <Text style={styles.cardTitle} allowFontScaling={true}>Shadowing Practitioner</Text>
+                  <Text style={styles.cardTitle} allowFontScaling={true}>Shadowing & Dictation</Text>
                 </View>
                 <Text style={styles.cardDesc} allowFontScaling={true}>
-                  Sharpen speaking pronunciation, speed, and accent by echoing native speakers with
-                  real-time AI phoneme analysis.
+                  Sharpen speaking pronunciation by echoing native speakers, or practice listening
+                  comprehension and phonetic spelling in Dictation mode with real-time AI feedback.
                 </Text>
               </View>
             </View>
@@ -258,32 +261,32 @@ export default function PracticeToolsDashboard() {
             </View>
           </TouchableOpacity>
 
-          {/* Dictation Card */}
+          {/* My Video Studio Card */}
           <TouchableOpacity
             style={styles.toolCard}
-            onPress={() => handlePress(ROUTES.practiceToolsDictation)}
+            onPress={() => handlePress(ROUTES.practiceToolsMyVideos)}
             activeOpacity={0.9}
             accessible={true}
             accessibilityRole="button"
-            accessibilityLabel="Dictation Lab, Start Practice. Improve listening comprehension, phonetic spelling, and grammar by writing down spoken sentences exactly as heard."
-            accessibilityHint="Double tap to open dictation exercises"
+            accessibilityLabel="My Video Studio, Start Practice. Import and practice shadowing and dictation with your own custom YouTube videos."
+            accessibilityHint="Double tap to open your custom imported videos studio"
           >
             <View style={styles.cardContent}>
-              <View style={[styles.iconWrapper, styles.dictationIcon]}>
-                <Ionicons name="create-outline" size={26} color="#d97706" />
+              <View style={[styles.iconWrapper, styles.myVideosIcon]}>
+                <Ionicons name="cloud-upload-outline" size={26} color="#a855f7" />
               </View>
               <View style={styles.infoWrapper}>
                 <View style={styles.cardTitleRow}>
-                  <Text style={styles.cardTitle} allowFontScaling={true}>Dictation Lab</Text>
+                  <Text style={styles.cardTitle} allowFontScaling={true}>My Video Studio</Text>
+                  <Ionicons name="lock-closed" size={14} color="#d97706" style={{ marginLeft: 6 }} />
                 </View>
                 <Text style={styles.cardDesc} allowFontScaling={true}>
-                  Improve listening comprehension, phonetic spelling, and grammar by writing down
-                  spoken sentences exactly as heard.
+                  Import and practice shadowing & dictation with your own custom YouTube videos.
                 </Text>
               </View>
             </View>
             <View style={styles.cardFooter}>
-              <Text style={styles.cardFooterText} allowFontScaling={true}>Start Practice</Text>
+              <Text style={styles.cardFooterText} allowFontScaling={true}>Enter Studio</Text>
               <Ionicons name="arrow-forward" size={14} color={COLORS.primary} />
             </View>
           </TouchableOpacity>

@@ -87,6 +87,7 @@ export const ROUTES = {
   practiceToolsShadowingLesson: (lessonId: string, mode: 'shadowing' | 'dictation') =>
     `/practice-tools/shadowing/${lessonId}/${mode}`,
   practiceToolsDictation: '/practice-tools/dictation',
+  practiceToolsMyVideos: '/practice-tools/my-videos',
 
   /** @deprecated Use foundationVocabulary instead */
   vocabulary: '/(tabs)/vocabulary',

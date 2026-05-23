@@ -16,6 +16,7 @@ import { toast } from '@/components/ui';
 
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui';
 import { ConfirmDialog, SuccessCelebration } from '@/components';
@@ -38,8 +39,16 @@ export default function ExamPlayerScreen() {
   const router = useRouter();
   const { examId } = useLocalSearchParams<{ examId: string }>();
   const { user } = useAuth();
+  const { isPremium, loading: subLoading } = useSubscription();
   const { colors, isDark } = useTheme();
   const styles = createStyles(colors, isDark);
+
+  // Verify subscription status
+  useEffect(() => {
+    if (!subLoading && !isPremium) {
+      router.replace(ROUTES.pricing);
+    }
+  }, [isPremium, subLoading]);
 
   const [examReady, setExamReady] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);
@@ -258,9 +267,9 @@ export default function ExamPlayerScreen() {
     }
   };
 
-  if (loading) {
+  if (subLoading || loading) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background }]} accessible={true} accessibilityLabel="Loading exam player, please wait.">
+      <View style={styles.center}>
         <ActivityIndicator size="large" color={colors.primary} />
         <Text allowFontScaling={true} style={[styles.loadingText, { color: colors.textSecondary }]}>Loading exam…</Text>
       </View>

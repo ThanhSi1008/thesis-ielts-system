@@ -18,6 +18,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { subscriptionsApi } from '@/services';
 import type { PricingPlan } from '@/services/features.api'; // keep import type from features.api or import it differently if needed, wait PricingPlan is in features.api
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { toast } from '@/components/ui/index';
 import { COLORS, FONTS, ROUTES } from '@/constants';
 
@@ -88,6 +89,7 @@ const CVal = ({ v }: { v: string | boolean }) => {
 export default function PricingScreen() {
   const router = useRouter();
   const { user } = useAuth();
+  const { refresh: refreshGlobalSub } = useSubscription();
   const [billing, setBilling] = useState<'month' | 'year'>('month');
   const [activeIdx, setActiveIdx] = useState(1);
   const [plans, setPlans] = useState<PricingPlan[]>([]);
@@ -167,6 +169,7 @@ export default function PricingScreen() {
     try {
       if (plan.tier === 'PREMIUM' && !trialUsed && currentTier === 'FREE') {
         await subscriptionsApi.startTrial();
+        await refreshGlobalSub(); // Refresh global subscription context immediately
         await fetchData(); // refresh subscription state
         router.back();
         return;
@@ -198,13 +201,16 @@ export default function PricingScreen() {
             return;
           }
 
+          await refreshGlobalSub(); // Refresh global subscription context immediately
           await fetchData();
           return;
         }
+        await refreshGlobalSub(); // Refresh global subscription context immediately
         await fetchData();
         router.back();
         return;
       }
+      await refreshGlobalSub(); // Refresh global subscription context immediately
       await fetchData();
       router.back();
     } catch (err: any) {

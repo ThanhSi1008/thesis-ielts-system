@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Animated } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Animated, TouchableOpacity } from 'react-native';
 import Svg, { G, Text as SvgText } from 'react-native-svg';
 import { COLORS, SPACING, FONT_SIZES, RADIUS } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
@@ -181,106 +181,135 @@ const l = StyleSheet.create({
 export function StatsTab() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [range, setRange] = useState<7 | 30 | 90 | undefined>(30);
 
   useEffect(() => {
+    setLoading(true);
     vocabLabApi
-      .getStats()
+      .getStats(range)
       .then(setStats)
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [range]);
 
-  if (loading)
-    return (
-      <View style={s.center}>
-        <ActivityIndicator color={COLORS.primary} />
-      </View>
-    );
-  if (!stats)
-    return (
-      <View style={s.center}>
-        <Text style={{ color: COLORS.textSecondary }}>No data yet.</Text>
-      </View>
-    );
-
-  const rawTotal = stats.totalCount ?? stats.totalCards ?? 0;
+  const rawTotal = stats?.totalCount ?? stats?.totalCards ?? 0;
   const total = Math.max(rawTotal, 1); // prevent /0
 
   const segments: Segment[] = [
     {
       label: 'New',
-      count: stats.newCount ?? 0,
+      count: stats?.newCount ?? 0,
       color: '#3B82F6',
-      pct: ((stats.newCount ?? 0) / total) * 100,
+      pct: ((stats?.newCount ?? 0) / total) * 100,
     },
     {
       label: 'Learning',
-      count: stats.learningCount ?? 0,
+      count: stats?.learningCount ?? 0,
       color: '#F97316',
-      pct: ((stats.learningCount ?? 0) / total) * 100,
+      pct: ((stats?.learningCount ?? 0) / total) * 100,
     },
     {
       label: 'Review',
-      count: stats.reviewCount ?? 0,
+      count: stats?.reviewCount ?? 0,
       color: '#10B981',
-      pct: ((stats.reviewCount ?? 0) / total) * 100,
+      pct: ((stats?.reviewCount ?? 0) / total) * 100,
     },
   ];
 
   // Fill remaining if counts don't add up (floating point, relearning, etc.)
-  const accounted = segments.reduce((a, s) => a + s.count, 0);
-  const other = rawTotal - accounted;
-  if (other > 0) {
-    segments.push({ label: 'Other', count: other, color: '#94A3B8', pct: (other / total) * 100 });
+  if (stats) {
+    const accounted = segments.reduce((a, s) => a + s.count, 0);
+    const other = rawTotal - accounted;
+    if (other > 0) {
+      segments.push({ label: 'Other', count: other, color: '#94A3B8', pct: (other / total) * 100 });
+    }
   }
 
   return (
     <ScrollView contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 100 }}>
-      <Text style={s.title}>Card Distribution</Text>
+      <Text style={s.title}>Vocabulary Stats</Text>
 
-      {/* Donut chart */}
-      <View style={s.chartContainer}>
-        {rawTotal === 0 ? (
-          <View style={s.emptyChart}>
-            <Text style={s.emptyEmoji}>📭</Text>
-            <Text style={s.emptyText}>No cards yet</Text>
+      {/* Range Selector */}
+      <View style={s.rangeRow}>
+        {[
+          { label: '7 Days', value: 7 },
+          { label: '30 Days', value: 30 },
+          { label: '90 Days', value: 90 },
+          { label: 'All Time', value: undefined },
+        ].map((opt) => {
+          const isSelected = range === opt.value;
+          return (
+            <TouchableOpacity
+              key={opt.label}
+              onPress={() => setRange(opt.value as any)}
+              style={[s.rangeChip, isSelected && s.rangeChipActive]}
+              activeOpacity={0.7}
+            >
+              <Text style={[s.rangeChipText, isSelected && s.rangeChipTextActive]}>
+                {opt.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {loading ? (
+        <View style={{ paddingVertical: 60, alignItems: 'center' }}>
+          <ActivityIndicator color={COLORS.primary} size="large" />
+        </View>
+      ) : !stats ? (
+        <View style={s.center}>
+          <Text style={{ color: COLORS.textSecondary }}>No data yet.</Text>
+        </View>
+      ) : (
+        <>
+          <Text style={[s.title, { fontSize: FONT_SIZES.lg, marginTop: SPACING.sm }]}>Card Distribution</Text>
+
+          {/* Donut chart */}
+          <View style={s.chartContainer}>
+            {rawTotal === 0 ? (
+              <View style={s.emptyChart}>
+                <Text style={s.emptyEmoji}>📭</Text>
+                <Text style={s.emptyText}>No cards yet</Text>
+              </View>
+            ) : (
+              <DonutChart segments={segments} total={rawTotal} />
+            )}
           </View>
-        ) : (
-          <DonutChart segments={segments} total={rawTotal} />
-        )}
-      </View>
 
-      {/* Legend + bar rows */}
-      <View style={s.legendCard}>
-        {segments.map((seg) => (
-          <LegendRow key={seg.label} {...seg} />
-        ))}
+          {/* Legend + bar rows */}
+          <View style={s.legendCard}>
+            {segments.map((seg) => (
+              <LegendRow key={seg.label} {...seg} />
+            ))}
 
-        <View style={s.divider} />
+            <View style={s.divider} />
 
-        {/* Total row */}
-        <View style={s.totalRow}>
-          <Text style={s.totalLabel}>Total Cards</Text>
-          <Text style={s.totalVal}>{rawTotal}</Text>
-        </View>
-      </View>
+            {/* Total row */}
+            <View style={s.totalRow}>
+              <Text style={s.totalLabel}>Total Cards</Text>
+              <Text style={s.totalVal}>{rawTotal}</Text>
+            </View>
+          </View>
 
-      {/* Maturity Distribution Donut Chart */}
-      <MaturityDonut maturityData={stats.maturityDistribution} />
+          {/* Maturity Distribution Donut Chart */}
+          <MaturityDonut maturityData={stats.maturityDistribution} />
 
-      {/* 30-Day / 7-Day Forecast Chart */}
-      <ForecastChart forecastData={stats.forecast} />
+          {/* 30-Day / 7-Day Forecast Chart */}
+          <ForecastChart forecastData={stats.forecast} />
 
-      {/* 24-Hour Hourly Activity Chart */}
-      <HourlyActivityChart hourlyData={stats.hourlyActivity} />
+          {/* 24-Hour Hourly Activity Chart */}
+          <HourlyActivityChart hourlyData={stats.hourlyActivity} />
 
-      {/* "No cards to review" hint */}
-      {rawTotal > 0 && (stats.newCount ?? 0) === rawTotal && (
-        <View style={s.hintCard}>
-          <Text style={s.hintText}>
-            🌱 All cards are new! Start a study session to begin learning.
-          </Text>
-        </View>
+          {/* "No cards to review" hint */}
+          {rawTotal > 0 && (stats.newCount ?? 0) === rawTotal && (
+            <View style={s.hintCard}>
+              <Text style={s.hintText}>
+                🌱 All cards are new! Start a study session to begin learning.
+              </Text>
+            </View>
+          )}
+        </>
       )}
     </ScrollView>
   );
@@ -332,4 +361,34 @@ const s = StyleSheet.create({
     borderColor: '#BFDBFE',
   },
   hintText: { fontSize: FONT_SIZES.sm, color: '#1D4ED8', fontWeight: '600', lineHeight: 20 },
+  rangeRow: {
+    flexDirection: 'row',
+    gap: SPACING.xs,
+    marginBottom: SPACING.lg,
+    alignItems: 'center',
+  },
+  rangeChip: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    borderRadius: RADIUS.xl,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  rangeChipActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  rangeChipText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#6b7280',
+  },
+  rangeChipTextActive: {
+    color: '#212529',
+    fontWeight: '700',
+  },
 });

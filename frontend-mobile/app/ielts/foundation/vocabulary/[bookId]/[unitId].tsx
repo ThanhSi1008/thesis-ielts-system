@@ -13,12 +13,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { vocabularyApi } from '@/services';
+import { vocabularyApi, vocabLabApi } from '@/services';
 import { COLORS, FONTS } from '@/constants';
 import { useAudioPlayer } from 'expo-audio';
 import type { VocabularyUnitWithContent, SubmitQuestionsResponse } from '@/types';
-import { Breadcrumb, ConfirmDialog } from '@/components';
+import { Breadcrumb, ConfirmDialog, TextWithLookup } from '@/components';
 import { toast } from '@/components/ui';
+import * as Haptics from 'expo-haptics';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Tab = 'flashcard' | 'reading' | 'exercise';
@@ -38,9 +39,13 @@ interface Word {
 function FlashCard({
   word,
   onEvaluate,
+  onSave,
+  isSaved,
 }: {
   word: Word;
   onEvaluate: (rating: 'again' | 'hard' | 'good' | 'easy') => void;
+  onSave: () => void;
+  isSaved: boolean;
 }) {
   const flipAnim = useRef(new Animated.Value(0)).current;
   const [flipped, setFlipped] = useState(false);
@@ -111,18 +116,33 @@ function FlashCard({
             ) : (
               <View />
             )}
-            {word.audioUrl ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <TouchableOpacity
-                style={fc.audioBtn}
-                onPress={handleSpeak}
+                style={fc.saveBtn}
+                onPress={onSave}
                 accessible={true}
                 accessibilityRole="button"
-                accessibilityLabel="Speak word"
-                accessibilityHint="Double tap to play the audio pronunciation for this word"
+                accessibilityLabel={isSaved ? "Saved to Vocab Lab" : "Save to Vocab Lab"}
               >
-                <Ionicons name="volume-high" size={24} color={COLORS.primary} />
+                <Ionicons
+                  name={isSaved ? 'bookmark' : 'bookmark-outline'}
+                  size={20}
+                  color={isSaved ? '#FF9800' : COLORS.primary}
+                />
               </TouchableOpacity>
-            ) : null}
+              {word.audioUrl ? (
+                <TouchableOpacity
+                  style={fc.audioBtn}
+                  onPress={handleSpeak}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel="Speak word"
+                  accessibilityHint="Double tap to play the audio pronunciation for this word"
+                >
+                  <Ionicons name="volume-high" size={24} color={COLORS.primary} />
+                </TouchableOpacity>
+              ) : null}
+            </View>
           </View>
 
           {/* Word content with Image */}
@@ -158,18 +178,33 @@ function FlashCard({
             ) : (
               <View />
             )}
-            {word.audioUrl ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <TouchableOpacity
-                style={fc.audioBtn}
-                onPress={handleSpeak}
+                style={fc.saveBtn}
+                onPress={onSave}
                 accessible={true}
                 accessibilityRole="button"
-                accessibilityLabel="Speak word"
-                accessibilityHint="Double tap to play the audio pronunciation for this word"
+                accessibilityLabel={isSaved ? "Saved to Vocab Lab" : "Save to Vocab Lab"}
               >
-                <Ionicons name="volume-high" size={24} color={COLORS.primary} />
+                <Ionicons
+                  name={isSaved ? 'bookmark' : 'bookmark-outline'}
+                  size={20}
+                  color={isSaved ? '#FF9800' : COLORS.primary}
+                />
               </TouchableOpacity>
-            ) : null}
+              {word.audioUrl ? (
+                <TouchableOpacity
+                  style={fc.audioBtn}
+                  onPress={handleSpeak}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel="Speak word"
+                  accessibilityHint="Double tap to play the audio pronunciation for this word"
+                >
+                  <Ionicons name="volume-high" size={24} color={COLORS.primary} />
+                </TouchableOpacity>
+              ) : null}
+            </View>
           </View>
 
           <ScrollView contentContainerStyle={fc.scrollBody} showsVerticalScrollIndicator={false}>
@@ -377,6 +412,15 @@ const fc = StyleSheet.create({
   srsBtn: { flex: 1, borderWidth: 1, borderRadius: 16, paddingVertical: 12, alignItems: 'center' },
   srsLabel: { fontFamily: FONTS.bold, fontSize: 14 },
   srsTime: { fontFamily: FONTS.medium, fontSize: 10, marginTop: 1 },
+  saveBtn: {
+    padding: 8,
+    backgroundColor: COLORS.surface,
+    borderRadius: 50,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
@@ -385,6 +429,8 @@ export default function VocabularyUnitScreen() {
   const { bookId, unitId } = useLocalSearchParams<{ bookId: string; unitId: string }>();
 
   const [unit, setUnit] = useState<VocabularyUnitWithContent | null>(null);
+  const [book, setBook] = useState<any>(null);
+  const [savedWordIds, setSavedWordIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('flashcard');
 
@@ -420,10 +466,31 @@ export default function VocabularyUnitScreen() {
 
   const load = useCallback(async () => {
     try {
-      const data = await vocabularyApi.getUnit(unitId!);
+      const [data, bookData] = await Promise.all([
+        vocabularyApi.getUnit(unitId!),
+        vocabularyApi.getBook(bookId!),
+      ]);
       setUnit(data);
+      setBook(bookData);
       setWordsState(data.words);
       setOriginalWordsCount(data.words.length);
+
+      // Load existing cards from VocabLab to mark bookmarks
+      try {
+        const cards = await vocabLabApi.browseCards();
+        const savedIds = new Set<string>();
+        data.words.forEach((w) => {
+          const hasCard = cards.some(
+            (c) => c.front.toLowerCase().trim() === w.word.toLowerCase().trim()
+          );
+          if (hasCard) {
+            savedIds.add(w.id);
+          }
+        });
+        setSavedWordIds(savedIds);
+      } catch (err) {
+        if (__DEV__) console.log('Failed to load card bookmark states', err);
+      }
 
       // Load progress to resume
       try {
@@ -470,6 +537,32 @@ export default function VocabularyUnitScreen() {
     load();
   }, [load]);
 
+  const handleSaveToVocab = async (word: Word) => {
+    try {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      await vocabLabApi.createFlashcardFromVocabulary({
+        bookName: book?.name || 'Foundation Vocabulary',
+        word: {
+          word: word.word,
+          phonetic: word.ipa,
+          definition: word.meaning,
+          example: word.example,
+          imageUrl: word.imageUrl,
+          audioUrl: word.audioUrl,
+        },
+      });
+      setSavedWordIds((prev) => {
+        const next = new Set(prev);
+        next.add(word.id);
+        return next;
+      });
+      toast.success(`Saved "${word.word}" to Vocab Lab!`);
+    } catch (err) {
+      if (__DEV__) console.log('Failed to save word', err);
+      toast.error('Failed to save word');
+    }
+  };
+
   const handleEvaluate = async (rating: 'again' | 'hard' | 'good' | 'easy') => {
     const currentWord = wordsState[cardIndex];
     if (!currentWord) return;
@@ -491,6 +584,36 @@ export default function VocabularyUnitScreen() {
       await vocabularyApi.updateWordProgress(unitId!, Math.min(newLearned, originalWordsCount));
     } catch (err) {
       if (__DEV__) console.log('Failed to update progress', err);
+    }
+
+    // Sync review to VocabLab
+    try {
+      const ratingMap: Record<'again' | 'hard' | 'good' | 'easy', 1 | 2 | 3 | 4> = {
+        again: 1,
+        hard: 2,
+        good: 3,
+        easy: 4,
+      };
+      await vocabLabApi.createFlashcardFromVocabularyWithReview({
+        bookName: book?.name || 'Foundation Vocabulary',
+        word: {
+          word: currentWord.word,
+          phonetic: currentWord.ipa,
+          definition: currentWord.meaning,
+          example: currentWord.example,
+          imageUrl: currentWord.imageUrl,
+          audioUrl: currentWord.audioUrl,
+        },
+        rating: ratingMap[rating],
+      });
+      // Visually toggle bookmark to filled state once reviewed
+      setSavedWordIds((prev) => {
+        const next = new Set(prev);
+        next.add(currentWord.id);
+        return next;
+      });
+    } catch (err) {
+      if (__DEV__) console.log('Failed to sync VocabLab flashcard review', err);
     }
 
     if (nextIndex < nextWords.length) {
@@ -696,7 +819,14 @@ export default function VocabularyUnitScreen() {
             </View>
           ) : (
             <View style={{ flex: 1 }}>
-              {currentWord && <FlashCard word={currentWord} onEvaluate={handleEvaluate} />}
+              {currentWord && (
+                <FlashCard
+                  word={currentWord}
+                  onEvaluate={handleEvaluate}
+                  onSave={() => handleSaveToVocab(currentWord)}
+                  isSaved={savedWordIds.has(currentWord.id)}
+                />
+              )}
               {!wordListComplete && (
                 <TouchableOpacity
                   style={styles.skipBtn}
@@ -723,9 +853,14 @@ export default function VocabularyUnitScreen() {
               {unit?.storyTitle || unit?.title}
             </Text>
             <View style={styles.storyCard} accessible={true} accessibilityLabel="Reading story content">
-              <Text style={styles.readingPara} allowFontScaling={true}>
-                {renderStoryContent(unit?.storyContent)}
-              </Text>
+              <TextWithLookup
+                content={renderStoryContent(unit?.storyContent)}
+                style={styles.readingPara}
+                foundationVocabMeta={{
+                  bookName: book?.name || 'Foundation Vocabulary',
+                  words: unit?.words || [],
+                }}
+              />
             </View>
             <TouchableOpacity
               style={styles.startExerciseBtn}

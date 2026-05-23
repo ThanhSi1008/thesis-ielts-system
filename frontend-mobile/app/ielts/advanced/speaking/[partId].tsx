@@ -14,7 +14,7 @@ import SpeakingExamBlock from '@/components/ielts/SpeakingExamBlock';
 export default function AdvancedSpeakingPracticeScreen() {
   const router = useRouter();
   const { partId } = useLocalSearchParams<{ partId: string }>();
-  const { isPremium } = useSubscription();
+  const { isPremium, loading: subLoading } = useSubscription();
   const { colors, isDark } = useTheme();
 
   const styles = StyleSheet.create({
@@ -103,10 +103,10 @@ export default function AdvancedSpeakingPracticeScreen() {
 
   // Verify subscription status
   useEffect(() => {
-    if (!isPremium) {
+    if (!subLoading && !isPremium) {
       router.replace(ROUTES.pricing);
     }
-  }, [isPremium]);
+  }, [isPremium, subLoading]);
 
   // Fetch part detail and initialize session
   useEffect(() => {
@@ -181,10 +181,10 @@ export default function AdvancedSpeakingPracticeScreen() {
     }
   };
 
-  if (loading) {
+  if (subLoading || loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.skill.speaking} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Initializing practice room...</Text>
       </View>
     );
@@ -231,6 +231,12 @@ export default function AdvancedSpeakingPracticeScreen() {
             {part.topic ?? part.title}
           </Text>
         </View>
+        <TouchableOpacity
+          style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center' }}
+          onPress={() => router.push(`/ielts/advanced/speaking/${partId}/community`)}
+        >
+          <Ionicons name="people-outline" size={22} color={isDark ? colors.text : '#fff'} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.body}>

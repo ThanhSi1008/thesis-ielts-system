@@ -66,7 +66,8 @@ export class SubscriptionsService {
   async getMySubscription(userId: string) {
     const sub = await this.getOrCreateSubscription(userId);
     const usage = await this.getCurrentUsage(sub.id);
-    const limits = TIER_LIMITS[sub.tier as TierKey];
+    const tier = sub?.tier || "FREE";
+    const limits = TIER_LIMITS[tier as TierKey] || TIER_LIMITS.FREE;
 
     return {
       ...sub,
@@ -103,13 +104,16 @@ export class SubscriptionsService {
 
     const usage: Record<string, { used: number; limit: number }> = {};
 
+    const sub = await this.prisma.subscription.findUnique({
+      where: { id: subscriptionId },
+      select: { tier: true },
+    });
+    const tier = sub?.tier || "FREE";
+
     for (const feature of QUOTA_FEATURES) {
       const record = records.find((r) => r.feature === feature);
-      const sub = await this.prisma.subscription.findUnique({
-        where: { id: subscriptionId },
-        select: { tier: true },
-      });
-      const limit = TIER_LIMITS[(sub?.tier ?? "FREE") as TierKey][feature];
+      const tierLimits = TIER_LIMITS[tier as TierKey] || TIER_LIMITS.FREE;
+      const limit = tierLimits[feature];
 
       usage[feature] = {
         used: record?.count ?? 0,

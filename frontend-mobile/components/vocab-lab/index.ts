@@ -13,3 +13,5 @@ export { ImportDeckModal } from './ImportDeckModal';
 export { ForecastChart } from './ForecastChart';
 export { HourlyActivityChart } from './HourlyActivityChart';
 export { MaturityDonut } from './MaturityDonut';
+export { default as SharedDeckDetailSheet } from './SharedDeckDetailSheet';
+

@@ -147,7 +147,7 @@ export default function AdvancedSpeakingResultScreen() {
   const router = useRouter();
   const { colors, isDark } = useTheme();
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
-  const { isPremium } = useSubscription();
+  const { isPremium, loading: subLoading } = useSubscription();
 
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -539,10 +539,10 @@ export default function AdvancedSpeakingResultScreen() {
 
   // Verify Premium Tier
   useEffect(() => {
-    if (!isPremium) {
+    if (!subLoading && !isPremium) {
       router.replace(ROUTES.pricing);
     }
-  }, [isPremium]);
+  }, [isPremium, subLoading]);
 
   // Tip slider logic
   useEffect(() => {
@@ -626,7 +626,7 @@ export default function AdvancedSpeakingResultScreen() {
     }
   }, [session]);
 
-  if (loading) {
+  if (subLoading || loading) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={activeColor} />
@@ -851,6 +851,16 @@ export default function AdvancedSpeakingResultScreen() {
             <Ionicons name="alert-circle-outline" size={24} color={colors.textMuted} />
             <Text style={styles.noFeedbackText}>No detailed evaluation details found.</Text>
           </View>
+        )}
+
+        {/* Community Answers Button */}
+        {part?.id && (
+          <TouchableOpacity
+            style={[styles.doneBtn, { backgroundColor: COLORS.skill.speaking, borderColor: COLORS.skill.speaking, marginTop: SPACING.md }]}
+            onPress={() => router.push(`/ielts/advanced/speaking/${part.id}/community`)}
+          >
+            <Text style={[styles.doneBtnText, { color: '#fff' }]}>View Community Answers</Text>
+          </TouchableOpacity>
         )}
 
         {/* Action Button */}

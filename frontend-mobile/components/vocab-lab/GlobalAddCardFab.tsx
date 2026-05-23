@@ -24,11 +24,13 @@ import {
   Platform,
   ScrollView,
   DeviceEventEmitter,
+  Keyboard,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
+import { toast } from '@/components/ui';
 
 const { height: SCREEN_H } = Dimensions.get('window');
 const SHEET_H = SCREEN_H * 0.72;
@@ -86,16 +88,25 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
   const [tagInput, setTagInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [vocabMeta, setVocabMeta] = useState<{ bookName: string; wordData: any } | undefined>(undefined);
   const [dataLoaded, setDataLoaded] = useState(false);
 
   // Open / close animations
   const openSheet = useCallback(
-    (prefill?: { front: string; back: string; tags?: string[]; audioUrl?: string }) => {
-      const prefillData =
-        prefill && typeof prefill === 'object' && 'front' in prefill ? prefill : undefined;
+    (prefill?: {
+      front?: string;
+      back?: string;
+      tags?: string[];
+      audioUrl?: string;
+      foundationVocabMeta?: { bookName: string; wordData: any };
+      AICardType?: any;
+      AIFieldValues?: Record<string, string>;
+    }) => {
+      const prefillData = prefill;
 
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       setOpen(true);
+      setVocabMeta(prefill?.foundationVocabMeta);
       Animated.parallel([
         Animated.spring(slideAnim, {
           toValue: 0,
@@ -130,7 +141,14 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
         }
 
         if (currentCardTypes.length > 0) {
-          const dt = currentCardTypes.find((t) => t.isBuiltIn) || currentCardTypes[0];
+          // Select preferred card type or fallback to first
+          let dt = currentCardTypes.find((t) => t.isBuiltIn) || currentCardTypes[0];
+          if (prefillData?.AICardType) {
+            const found = currentCardTypes.find(
+              (t) => t.id === prefillData.AICardType.id || t.name === prefillData.AICardType.name
+            );
+            if (found) dt = found;
+          }
           setCardTypeId(dt.id);
 
           const sortedFields = [...dt.fields].sort((a: any, b: any) => a.order - b.order);
@@ -138,15 +156,29 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
           dt.fields.forEach((f: any) => (iv[f.id] = ''));
 
           if (prefillData) {
-            if (sortedFields[0]) {
-              iv[sortedFields[0].id] = prefillData.front;
-            }
-            if (sortedFields[1]) {
-              let backVal = prefillData.back;
-              if (prefillData.audioUrl) {
-                backVal = `${backVal}\n<audio src="${prefillData.audioUrl}"></audio>`;
+            const aiFieldValues = prefillData.AIFieldValues;
+            if (aiFieldValues) {
+              // Web prefill style: match by field name (case-insensitive)
+              dt.fields.forEach((f: any) => {
+                const matchingKey = Object.keys(aiFieldValues).find(
+                  (key) => key.toLowerCase() === f.name.toLowerCase()
+                );
+                if (matchingKey) {
+                  iv[f.id] = aiFieldValues[matchingKey] || '';
+                }
+              });
+            } else {
+              // Legacy flat style
+              if (sortedFields[0]) {
+                iv[sortedFields[0].id] = prefillData.front || '';
               }
-              iv[sortedFields[1].id] = backVal;
+              if (sortedFields[1]) {
+                let backVal = prefillData.back || '';
+                if (prefillData.audioUrl) {
+                  backVal = `${backVal}\n<audio src="${prefillData.audioUrl}"></audio>`;
+                }
+                iv[sortedFields[1].id] = backVal;
+              }
             }
             if (prefillData.tags) {
               setTagsList(prefillData.tags);
@@ -166,7 +198,13 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
   useEffect(() => {
     const sub = DeviceEventEmitter.addListener(
       'OPEN_QUICK_ADD_CARD',
-      (payload: { front: string; back: string; tags?: string[]; audioUrl?: string }) => {
+      (payload: {
+        front: string;
+        back: string;
+        tags?: string[];
+        audioUrl?: string;
+        foundationVocabMeta?: { bookName: string; wordData: any };
+      }) => {
         openSheet(payload);
       },
     );
@@ -190,6 +228,7 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
   };
 
   const closeSheet = useCallback(() => {
+    Keyboard.dismiss();
     Animated.parallel([
       Animated.spring(slideAnim, {
         toValue: SHEET_H,
@@ -198,10 +237,16 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
         useNativeDriver: true,
       }),
       Animated.spring(fabScale, { toValue: 1, tension: 200, friction: 10, useNativeDriver: true }),
-    ]).start(() => setOpen(false));
-  }, []);
+    ]).start();
+
+    // Guarantees the modal is unmounted and touch interactions are restored on the underlying screen
+    setTimeout(() => {
+      setOpen(false);
+    }, 280);
+  }, [slideAnim, fabScale]);
 
   const handleSubmit = async () => {
+    Keyboard.dismiss();
     if (!selectedDeckId || !cardTypeId) return;
     const ct = cardTypes.find((t) => t.id === cardTypeId);
     if (!ct) return;
@@ -211,14 +256,21 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
 
     setSubmitting(true);
     try {
-      await vocabLabApi.createFlashcard({
-        deckId: selectedDeckId,
-        front: '',
-        back: '',
-        cardTypeId,
-        fieldValues,
-        tags: tagsList.length > 0 ? tagsList : undefined,
-      });
+      if (vocabMeta) {
+        await vocabLabApi.createFlashcardFromVocabulary({
+          bookName: vocabMeta.bookName,
+          word: vocabMeta.wordData,
+        });
+      } else {
+        await vocabLabApi.createFlashcard({
+          deckId: selectedDeckId,
+          front: '',
+          back: '',
+          cardTypeId,
+          fieldValues,
+          tags: tagsList.length > 0 ? tagsList : undefined,
+        });
+      }
 
       DeviceEventEmitter.emit('VOCAB_LAB_CARD_ADDED');
 
@@ -226,10 +278,15 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
       ct.fields.forEach((f: any) => (resetFields[f.id] = ''));
       setFieldValues(resetFields);
       setTagsList([]);
-      setShowToast(false);
-      setTimeout(() => setShowToast(true), 50);
+      setVocabMeta(undefined);
+      
+      closeSheet();
+      
+      setTimeout(() => {
+        toast.success('Success', 'Card added to Vocab Lab!');
+      }, 350);
     } catch {
-      // silent fail
+      toast.error('Error', 'Failed to add card. Please try again.');
     } finally {
       setSubmitting(false);
     }

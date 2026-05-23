@@ -67,7 +67,7 @@ const DRAWER_GROUPS: DrawerGroup[] = [
         label: 'Vocabulary',
         iconOutline: 'book-outline',
         iconFilled: 'book',
-        route: '/ielts/foundation/vocabulary',
+        route: '/vocab-lab',
       },
       {
         key: 'grammar',
@@ -149,6 +149,13 @@ const DRAWER_GROUPS: DrawerGroup[] = [
         iconOutline: 'map-outline',
         iconFilled: 'map',
         route: '/(tabs)/ielts',
+      },
+      {
+        key: 'shadowing',
+        label: 'Shadowing & Dictation',
+        iconOutline: 'headset-outline',
+        iconFilled: 'headset',
+        route: '/practice-tools/shadowing',
       },
       {
         key: 'student-teacher',

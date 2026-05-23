@@ -6,9 +6,18 @@ interface TextWithLookupProps {
   content: string;
   style?: StyleProp<TextStyle>;
   selectable?: boolean;
+  foundationVocabMeta?: {
+    bookName: string;
+    words: any[];
+  };
 }
 
-export function TextWithLookup({ content, style, selectable = true }: TextWithLookupProps) {
+export function TextWithLookup({
+  content,
+  style,
+  selectable = true,
+  foundationVocabMeta,
+}: TextWithLookupProps) {
   if (!content) return null;
 
   // Split text by word boundaries, preserving spaces and punctuation.
@@ -36,13 +45,35 @@ export function TextWithLookup({ content, style, selectable = true }: TextWithLo
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     // Find the sentence that contains this word.
-    const cleanWord = word.toLowerCase();
+    const cleanWord = word.toLowerCase().trim();
     const matchingSentence = sentences.find((s) => s.toLowerCase().includes(cleanWord)) || content;
+
+    // Find if the word exists in the vocabulary context
+    let vocabMetaPayload = undefined;
+    if (foundationVocabMeta?.words) {
+      const match = foundationVocabMeta.words.find(
+        (w) => w.word.toLowerCase().trim() === cleanWord
+      );
+      if (match) {
+        vocabMetaPayload = {
+          bookName: foundationVocabMeta.bookName,
+          wordData: {
+            word: match.word,
+            phonetic: match.ipa || match.phonetic,
+            definition: match.meaning || match.definition,
+            example: match.example,
+            imageUrl: match.imageUrl,
+            audioUrl: match.audioUrl,
+          },
+        };
+      }
+    }
 
     // Emit event to open dictionary
     DeviceEventEmitter.emit('OPEN_DICTIONARY', {
       word,
       sentence: matchingSentence.trim(),
+      foundationVocabMeta: vocabMetaPayload,
     });
   };
 

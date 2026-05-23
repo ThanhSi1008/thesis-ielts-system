@@ -61,7 +61,12 @@ const isPracticeOrExamOrAuth = (path: string): boolean => {
   if (!path) return false;
 
   // 1. Auth routes
-  if (path.includes('/login') || path.includes('/register') || path.includes('/(auth)')) {
+  if (
+    path.includes('/login') ||
+    path.includes('/register') ||
+    path.includes('/forgot-password') ||
+    path.includes('/(auth)')
+  ) {
     return true;
   }
   

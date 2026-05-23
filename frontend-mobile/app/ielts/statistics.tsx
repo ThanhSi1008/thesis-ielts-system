@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
-  Text,
+  Text as RNText,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
@@ -15,10 +15,28 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Polyline, Line, Circle, Text as SvgText, Rect, G } from 'react-native-svg';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
-import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services';
-import { SectionHeader, ScoreBadge, Badge, EmptyState, Chip } from '@/components/ui';
+import {
+  ieltsProfileApi,
+  ieltsExamsApi,
+  ieltsAdvancedApi,
+  ieltsStatisticsApi,
+} from '@/services';
+import { SectionHeader, ScoreBadge, Badge, EmptyState, Chip, FeatureLock } from '@/components/ui/index';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useThemedStyles } from '@/hooks/useThemedStyles';
+import {
+  OverviewStatsTab,
+  FoundationStatsTab,
+  BasicStatsTab,
+} from '@/components/ielts/stats';
+import { ProgressBar, Text } from '@/components/atoms';
+import {
+  IeltsOverviewStats,
+  IeltsFoundationStats,
+  IeltsBasicStats,
+  IeltsIntensiveStats,
+} from '@/types';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CHART_W = SCREEN_W - SPACING.lg * 2 - SPACING.lg * 2;
@@ -57,7 +75,7 @@ function BandChart({
   if (points.length < 2) {
     return (
       <View style={chartStyles.empty}>
-        <Text style={chartStyles.emptyText}>Not enough data yet</Text>
+        <RNText style={chartStyles.emptyText}>Not enough data yet</RNText>
       </View>
     );
   }
@@ -129,11 +147,37 @@ const SKILLS = [
   { key: 'SPEAKING', label: 'Speaking', color: COLORS.skill.speaking },
 ];
 
+const TABS = [
+  { key: 'overview', label: 'Overview' },
+  { key: 'foundation', label: 'Foundation' },
+  { key: 'basic', label: 'Basic' },
+  { key: 'advanced', label: 'Advanced' },
+] as const;
+
 export default function StatisticsScreen() {
   const router = useRouter();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
+  const styles = useThemedStyles(createStyles);
+  const insets = useSafeAreaInsets();
+
+  // Tab State
+  const [activeTab, setActiveTab] = useState<'overview' | 'foundation' | 'basic' | 'advanced'>('overview');
+
+  // Loading States
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [overviewLoading, setOverviewLoading] = useState(false);
+  const [foundationLoading, setFoundationLoading] = useState(false);
+  const [basicLoading, setBasicLoading] = useState(false);
+  const [advancedLoading, setAdvancedLoading] = useState(false);
+
+  // Tab Data States
+  const [overviewStats, setOverviewStats] = useState<IeltsOverviewStats | null>(null);
+  const [foundationStats, setFoundationStats] = useState<IeltsFoundationStats | null>(null);
+  const [basicStats, setBasicStats] = useState<IeltsBasicStats | null>(null);
+  const [intensiveStats, setIntensiveStats] = useState<IeltsIntensiveStats | null>(null);
+
+  // Legacy/Advanced Stats States
   const [profile, setProfile] = useState<any>(null);
   const [streak, setStreak] = useState<any>(null);
   const [mockHistory, setMockHistory] = useState<any[]>([]);
@@ -145,7 +189,7 @@ export default function StatisticsScreen() {
   const [activeSkill, setActiveSkill] = useState('LISTENING');
   const [volumeSkill, setVolumeSkill] = useState('ALL');
 
-  const insets = useSafeAreaInsets();
+  // Drawer Animation
   const [drawerOpen, setDrawerOpen] = useState(false);
   const drawerAnim = useRef(new Animated.Value(-280)).current;
   const backdropAnim = useRef(new Animated.Value(0)).current;
@@ -175,33 +219,112 @@ export default function StatisticsScreen() {
     }
   };
 
-  const fetchData = async () => {
+  // --- API FETHES (LAZY-LOADED) ---
+
+  const fetchOverview = async (showLoading = true) => {
+    if (showLoading) setOverviewLoading(true);
     try {
-      const [profileRes, streakRes, historyRes, advListRes, advReadRes, statsRes] =
-        await Promise.allSettled([
-          ieltsProfileApi.get(),
-          ieltsProfileApi.getStreak(),
-          ieltsExamsApi.getHistory(),
-          ieltsAdvancedApi.getListeningHistory(),
-          ieltsAdvancedApi.getReadingHistory(),
-          ieltsAdvancedApi.getStatistics(),
-        ]);
+      const [statsRes, profileRes, streakRes] = await Promise.allSettled([
+        ieltsStatisticsApi.getOverview(),
+        ieltsProfileApi.get(),
+        ieltsProfileApi.getStreak(),
+      ]);
+      if (statsRes.status === 'fulfilled') setOverviewStats(statsRes.value);
       if (profileRes.status === 'fulfilled') setProfile(profileRes.value);
       if (streakRes.status === 'fulfilled') setStreak(streakRes.value);
-      if (historyRes.status === 'fulfilled') setMockHistory(historyRes.value as any[]);
-      if (advListRes.status === 'fulfilled') setAdvListening(advListRes.value as any[]);
-      if (advReadRes.status === 'fulfilled') setAdvReading(advReadRes.value as any[]);
-      if (statsRes.status === 'fulfilled') setAdvStats(statsRes.value ?? {});
+    } catch (e) {
+      console.error('Failed to fetch Overview Stats:', e);
     } finally {
+      setOverviewLoading(false);
       setLoading(false);
-      setRefreshing(false);
     }
   };
 
+  const fetchFoundation = async (showLoading = true) => {
+    if (showLoading) setFoundationLoading(true);
+    try {
+      const res = await ieltsStatisticsApi.getFoundation();
+      setFoundationStats(res);
+    } catch (e) {
+      console.error('Failed to fetch Foundation Stats:', e);
+    } finally {
+      setFoundationLoading(false);
+    }
+  };
+
+  const fetchBasic = async (showLoading = true) => {
+    if (showLoading) setBasicLoading(true);
+    try {
+      const res = await ieltsStatisticsApi.getBasic();
+      setBasicStats(res);
+    } catch (e) {
+      console.error('Failed to fetch Basic Stats:', e);
+    } finally {
+      setBasicLoading(false);
+    }
+  };
+
+  const fetchAdvanced = async (showLoading = true) => {
+    if (showLoading) setAdvancedLoading(true);
+    try {
+      const [advRes, intRes, historyRes, listeningRes, readingRes] = await Promise.allSettled([
+        ieltsStatisticsApi.getAdvanced(),
+        ieltsStatisticsApi.getIntensive(),
+        ieltsExamsApi.getHistory(),
+        ieltsAdvancedApi.getListeningHistory(),
+        ieltsAdvancedApi.getReadingHistory(),
+      ]);
+
+      if (advRes.status === 'fulfilled' && advRes.value) {
+        // Sync listening & reading accuracy into a flat map for compatibility
+        const mergedAccuracy: Record<string, { correct: number; total: number; attempted: number }> = {};
+        if (advRes.value.listening?.accuracy) {
+          Object.assign(mergedAccuracy, advRes.value.listening.accuracy);
+        }
+        if (advRes.value.reading?.accuracy) {
+          Object.assign(mergedAccuracy, advRes.value.reading.accuracy);
+        }
+        setAdvStats(mergedAccuracy);
+      }
+      if (intRes.status === 'fulfilled') setIntensiveStats(intRes.value);
+      if (historyRes.status === 'fulfilled') setMockHistory(historyRes.value as any[]);
+      if (listeningRes.status === 'fulfilled') setAdvListening(listeningRes.value as any[]);
+      if (readingRes.status === 'fulfilled') setAdvReading(readingRes.value as any[]);
+    } catch (e) {
+      console.error('Failed to fetch Advanced Stats:', e);
+    } finally {
+      setAdvancedLoading(false);
+    }
+  };
+
+  // Handle lazy loading when tab switches
   useEffect(() => {
-    fetchData();
+    if (activeTab === 'overview' && !overviewStats) {
+      fetchOverview();
+    } else if (activeTab === 'foundation' && !foundationStats) {
+      fetchFoundation();
+    } else if (activeTab === 'basic' && !basicStats) {
+      fetchBasic();
+    } else if (activeTab === 'advanced' && !intensiveStats) {
+      fetchAdvanced();
+    }
+  }, [activeTab]);
+
+  // Initial load
+  useEffect(() => {
+    fetchOverview();
   }, []);
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    if (activeTab === 'overview') await fetchOverview(false);
+    else if (activeTab === 'foundation') await fetchFoundation(false);
+    else if (activeTab === 'basic') await fetchBasic(false);
+    else if (activeTab === 'advanced') await fetchAdvanced(false);
+    setRefreshing(false);
+  };
+
+  // Helper values for rendering Advanced Tab
   const skillHistory = mockHistory
     .filter((h) => h.skill === activeSkill)
     .sort((a, b) => new Date(a.dateTaken).getTime() - new Date(b.dateTaken).getTime())
@@ -214,12 +337,128 @@ export default function StatisticsScreen() {
   const latestBand = latestMock ? getBandForItem(latestMock) : null;
 
   const totalPractice = advListening.length + advReading.length;
-
   const skillColor = SKILLS.find((s) => s.key === activeSkill)?.color ?? COLORS.primary;
+
+  const renderActiveTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return <OverviewStatsTab stats={overviewStats} loading={overviewLoading} />;
+      case 'foundation':
+        return <FoundationStatsTab stats={foundationStats} loading={foundationLoading} />;
+      case 'basic':
+        return <BasicStatsTab stats={basicStats} loading={basicLoading} />;
+      case 'advanced':
+        return (
+          <FeatureLock requiredTier="PREMIUM" featureName="IELTS Advanced Statistics">
+            {advancedLoading ? (
+              <View style={styles.center}>
+                <ActivityIndicator size="large" color={COLORS.primary} />
+              </View>
+            ) : (
+              <View style={{ paddingBottom: 40 }}>
+                {/* Skill selector */}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm }}
+                >
+                  {SKILLS.map((s) => (
+                    <Chip
+                      key={s.key}
+                      label={s.label}
+                      active={activeSkill === s.key}
+                      onPress={() => setActiveSkill(s.key)}
+                    />
+                  ))}
+                </ScrollView>
+
+                {/* Band trend chart */}
+                <View style={styles.section}>
+                  <SectionHeader
+                    title={`${activeSkill.charAt(0) + activeSkill.slice(1).toLowerCase()} Trend`}
+                    subtitle="Last 10 mock tests"
+                    right={latestBand ? <ScoreBadge band={latestBand} /> : undefined}
+                  />
+                  <View style={styles.chartCard}>
+                    <BandChart points={skillHistory} color={skillColor} />
+                  </View>
+                </View>
+
+                {/* Submission Volume */}
+                <SubmissionVolumeSection
+                  history={mockHistory}
+                  volumeSkill={volumeSkill}
+                  setVolumeSkill={setVolumeSkill}
+                />
+
+                {/* Advanced practice summary */}
+                <View style={styles.section}>
+                  <SectionHeader title="Advanced Practice" subtitle="Listening & Reading parts" />
+                  <View style={styles.advRow}>
+                    <View style={[styles.advCard, { borderColor: COLORS.skill.listening, backgroundColor: colors.card }]}>
+                      <RNText style={styles.advIcon}>🎧</RNText>
+                      <RNText style={[styles.advCount, { color: colors.text }]}>{advListening.length}</RNText>
+                      <RNText style={styles.advLabel}>Listening</RNText>
+                    </View>
+                    <View style={[styles.advCard, { borderColor: COLORS.skill.reading, backgroundColor: colors.card }]}>
+                      <RNText style={styles.advIcon}>📖</RNText>
+                      <RNText style={[styles.advCount, { color: colors.text }]}>{advReading.length}</RNText>
+                      <RNText style={styles.advLabel}>Reading</RNText>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Intensive Section */}
+                {intensiveStats && <IntensiveStatsSection stats={intensiveStats} />}
+
+                {/* Question-type accuracy bars */}
+                <AdvancedStatsSection stats={advStats} />
+
+                {/* Recent history */}
+                <View style={styles.section}>
+                  <SectionHeader title="Recent Tests" />
+                  {mockHistory.length === 0 ? (
+                    <EmptyState
+                      icon="📝"
+                      title="No tests yet"
+                      subtitle="Complete a mock test to see results here"
+                    />
+                  ) : (
+                    mockHistory.slice(0, 8).map((h, i) => (
+                      <View key={i} style={[styles.historyRow, { borderColor: colors.border }]}>
+                        <View style={{ flex: 1 }}>
+                          <RNText style={[styles.historyTitle, { color: colors.text }]} numberOfLines={1}>
+                            {h.examTitle?.split(' - ')[1] ?? h.examTitle}
+                          </RNText>
+                          <RNText style={styles.historyDate}>
+                            {new Date(h.dateTaken).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
+                          </RNText>
+                        </View>
+                        <View style={styles.historyRight}>
+                          <Badge
+                            label={h.skill}
+                            color={SKILLS.find((s) => s.key === h.skill)?.color ?? COLORS.primary}
+                          />
+                          <ScoreBadge band={getBandForItem(h)} />
+                        </View>
+                      </View>
+                    ))
+                  )}
+                </View>
+              </View>
+            )}
+          </FeatureLock>
+        );
+    }
+  };
 
   if (loading) {
     return (
-      <View style={styles.center}>
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={COLORS.primary} />
       </View>
     );
@@ -256,8 +495,8 @@ export default function StatisticsScreen() {
         >
           <Ionicons name="menu" size={24} color={colors.text} />
         </TouchableOpacity>
-        
-        <Text
+
+        <RNText
           style={{
             flex: 1,
             color: colors.text,
@@ -267,151 +506,46 @@ export default function StatisticsScreen() {
           }}
         >
           My Statistics
-        </Text>
-        
+        </RNText>
+
         <View style={{ width: 44 }} />
+      </View>
+
+      {/* ── Tabs Pill Bar ── */}
+      <View style={[styles.tabBarContainer, { borderBottomColor: colors.border }]}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabBarScroll}>
+          {TABS.map((t) => {
+            const active = activeTab === t.key;
+            return (
+              <TouchableOpacity
+                key={t.key}
+                style={[
+                  styles.tabPill,
+                  { borderColor: colors.border },
+                  active && { backgroundColor: colors.primary, borderColor: colors.primary },
+                ]}
+                onPress={() => setActiveTab(t.key)}
+                activeOpacity={0.8}
+              >
+                <RNText style={[styles.tabPillText, { color: active ? '#212529' : colors.textSecondary }]}>
+                  {t.label}
+                </RNText>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              fetchData();
-            }}
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
         contentContainerStyle={{ paddingBottom: 100 }}
       >
-        {/* Profile summary */}
-        {profile && (
-          <View style={styles.profileCard}>
-            <View style={styles.profileRow}>
-              <View>
-                <Text style={styles.profileName}>
-                  {profile.user?.firstName || profile.user?.email || 'Student'}
-                </Text>
-                <Text style={styles.profileSub}>
-                  Target Band {profile.targetBand?.toFixed(1) ?? '—'} ·{' '}
-                  {profile.dailyCommitmentMins ?? 30}m/day
-                </Text>
-              </View>
-              <View style={styles.streakPill}>
-                <Text style={styles.streakFire}>🔥</Text>
-                <Text style={styles.streakVal}>{streak?.currentStreak ?? 0}</Text>
-              </View>
-            </View>
-
-            <View style={styles.overviewRow}>
-              <View style={styles.overviewItem}>
-                <Text style={styles.overviewValue}>{mockHistory.length}</Text>
-                <Text style={styles.overviewLabel}>Mock Tests</Text>
-              </View>
-              <View style={[styles.overviewItem, styles.overviewMid]}>
-                <Text style={styles.overviewValue}>{totalPractice}</Text>
-                <Text style={styles.overviewLabel}>Practice Sessions</Text>
-              </View>
-              <View style={styles.overviewItem}>
-                <Text style={styles.overviewValue}>{streak?.longestStreak ?? 0}</Text>
-                <Text style={styles.overviewLabel}>Best Streak</Text>
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* Skill selector */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm }}
-        >
-          {SKILLS.map((s) => (
-            <Chip
-              key={s.key}
-              label={s.label}
-              active={activeSkill === s.key}
-              onPress={() => setActiveSkill(s.key)}
-            />
-          ))}
-        </ScrollView>
-
-        {/* Band trend chart */}
-        <View style={styles.section}>
-          <SectionHeader
-            title={`${activeSkill.charAt(0) + activeSkill.slice(1).toLowerCase()} Trend`}
-            subtitle="Last 10 mock tests"
-            right={latestBand ? <ScoreBadge band={latestBand} /> : undefined}
-          />
-          <View style={styles.chartCard}>
-            <BandChart points={skillHistory} color={skillColor} />
-          </View>
-        </View>
-
-        {/* Submission Volume */}
-        <SubmissionVolumeSection
-          history={mockHistory}
-          volumeSkill={volumeSkill}
-          setVolumeSkill={setVolumeSkill}
-        />
-
-        {/* Advanced practice summary */}
-        <View style={styles.section}>
-          <SectionHeader title="Advanced Practice" subtitle="Listening & Reading parts" />
-          <View style={styles.advRow}>
-            <View style={[styles.advCard, { borderColor: COLORS.skill.listening }]}>
-              <Text style={styles.advIcon}>🎧</Text>
-              <Text style={styles.advCount}>{advListening.length}</Text>
-              <Text style={styles.advLabel}>Listening</Text>
-            </View>
-            <View style={[styles.advCard, { borderColor: COLORS.skill.reading }]}>
-              <Text style={styles.advIcon}>📖</Text>
-              <Text style={styles.advCount}>{advReading.length}</Text>
-              <Text style={styles.advLabel}>Reading</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Question-type accuracy bars */}
-        <AdvancedStatsSection stats={advStats} />
-
-        {/* Recent history */}
-        <View style={styles.section}>
-          <SectionHeader title="Recent Tests" />
-          {mockHistory.length === 0 ? (
-            <EmptyState
-              icon="📝"
-              title="No tests yet"
-              subtitle="Complete a mock test to see results here"
-            />
-          ) : (
-            mockHistory.slice(0, 8).map((h, i) => (
-              <View key={i} style={styles.historyRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.historyTitle} numberOfLines={1}>
-                    {h.examTitle?.split(' - ')[1] ?? h.examTitle}
-                  </Text>
-                  <Text style={styles.historyDate}>
-                    {new Date(h.dateTaken).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </Text>
-                </View>
-                <View style={styles.historyRight}>
-                  <Badge
-                    label={h.skill}
-                    color={SKILLS.find((s) => s.key === h.skill)?.color ?? COLORS.primary}
-                  />
-                  <ScoreBadge band={getBandForItem(h)} />
-                </View>
-              </View>
-            ))
-          )}
-        </View>
+        {renderActiveTabContent()}
       </ScrollView>
+
       <SharedDrawer
         drawerOpen={drawerOpen}
         drawerAnim={drawerAnim}
@@ -464,6 +598,8 @@ function SubmissionVolumeSection({
   volumeSkill: string;
   setVolumeSkill: (s: string) => void;
 }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const months = getMonthlyVolume(history, volumeSkill);
   const maxCount = Math.max(...months.map((m) => m.count), 1);
   const total = months.reduce((s, m) => s + m.count, 0);
@@ -490,24 +626,31 @@ function SubmissionVolumeSection({
           return (
             <TouchableOpacity
               key={s.key}
-              style={[vs.pill, active && { backgroundColor: s.color, borderColor: s.color }]}
+              style={[
+                vs.pill,
+                { borderColor: colors.border, backgroundColor: colors.card },
+                active && { backgroundColor: s.color, borderColor: s.color },
+              ]}
               onPress={() => setVolumeSkill(s.key)}
               activeOpacity={0.8}
             >
-              <Text style={[vs.pillText, active && { color: '#fff' }]}>{s.label}</Text>
+              <RNText style={[vs.pillText, { color: colors.textSecondary }, active && { color: '#fff' }]}>{s.label}</RNText>
             </TouchableOpacity>
           );
         })}
       </View>
 
       <View
-        style={[styles.chartCard, { paddingHorizontal: SPACING.sm, paddingVertical: SPACING.md }]}
+        style={[
+          styles.chartCard,
+          { paddingHorizontal: SPACING.sm, paddingVertical: SPACING.md, backgroundColor: colors.card, borderColor: colors.border },
+        ]}
       >
         {total === 0 ? (
           <View style={{ height: BAR_H, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: COLORS.textMuted, fontSize: FONT_SIZES.sm }}>
+            <RNText style={{ color: COLORS.textMuted, fontSize: FONT_SIZES.sm }}>
               No submissions yet
-            </Text>
+            </RNText>
           </View>
         ) : (
           <Svg width={BAR_W} height={BAR_H}>
@@ -601,10 +744,8 @@ const vs = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: RADIUS.full,
     borderWidth: 1.5,
-    borderColor: COLORS.border,
-    backgroundColor: '#fff',
   },
-  pillText: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.bold, color: COLORS.textSecondary },
+  pillText: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.bold },
 });
 
 // ─── Question-type label map ─────────────────────────────────────────────────
@@ -639,17 +780,17 @@ function AccuracyBar({ type, correct, total }: { type: string; correct: number; 
   return (
     <View style={ab.row}>
       <View style={ab.labelRow}>
-        <Text style={ab.typeName} numberOfLines={1}>
+        <RNText style={ab.typeName} numberOfLines={1}>
           {label}
-        </Text>
-        <Text style={[ab.pct, { color }]}>{pct}%</Text>
+        </RNText>
+        <RNText style={[ab.pct, { color }]}>{pct}%</RNText>
       </View>
       <View style={ab.track}>
         <View style={[ab.fill, { width: `${pct}%` as any, backgroundColor: color }]} />
       </View>
-      <Text style={ab.fraction}>
+      <RNText style={ab.fraction}>
         {correct}/{total} correct
-      </Text>
+      </RNText>
     </View>
   );
 }
@@ -680,9 +821,10 @@ const ab = StyleSheet.create({
 function AdvancedStatsSection({
   stats,
 }: {
-  stats: Record<string, { correct: number; total: number; attempted: number }>;
+  stats: Record<string, { correct: number; total: number; attempted: number }> | null | undefined;
 }) {
-  const entries = Object.entries(stats).sort((a, b) => {
+  const { colors } = useTheme();
+  const entries = Object.entries(stats || {}).sort((a, b) => {
     const pctA = a[1].total > 0 ? a[1].correct / a[1].total : 0;
     const pctB = b[1].total > 0 ? b[1].correct / b[1].total : 0;
     return pctB - pctA; // highest accuracy first
@@ -695,12 +837,12 @@ function AdvancedStatsSection({
           title="Question-Type Accuracy"
           subtitle="Complete practice sessions to see data"
         />
-        <View style={as.empty}>
-          <Text style={as.emptyIcon}>📊</Text>
-          <Text style={as.emptyText}>No practice data yet</Text>
-          <Text style={as.emptySub}>
+        <View style={[as.empty, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <RNText style={as.emptyIcon}>📊</RNText>
+          <RNText style={as.emptyText}>No practice data yet</RNText>
+          <RNText style={as.emptySub}>
             Start an advanced practice session to track accuracy per question type.
-          </Text>
+          </RNText>
         </View>
       </View>
     );
@@ -729,12 +871,12 @@ function AdvancedStatsSection({
       />
 
       {/* Overall accuracy summary pill */}
-      <View style={as.overallCard}>
+      <View style={[as.overallCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <View style={as.overallLeft}>
-          <Text style={as.overallLabel}>Overall Accuracy</Text>
-          <Text style={as.overallSub}>
+          <RNText style={[as.overallLabel, { color: colors.text }]}>Overall Accuracy</RNText>
+          <RNText style={as.overallSub}>
             {totalCorrect}/{totalAttempted} correct across all types
-          </Text>
+          </RNText>
         </View>
         <View
           style={[
@@ -742,7 +884,7 @@ function AdvancedStatsSection({
             { backgroundColor: overallColor + '15', borderColor: overallColor + '40' },
           ]}
         >
-          <Text style={[as.overallPct, { color: overallColor }]}>{overallPct}%</Text>
+          <RNText style={[as.overallPct, { color: overallColor }]}>{overallPct}%</RNText>
         </View>
       </View>
 
@@ -751,31 +893,31 @@ function AdvancedStatsSection({
         <View style={as.zonesRow}>
           {strongTypes.length > 0 && (
             <View style={[as.zoneChip, as.zoneGreen]}>
-              <Text style={as.zoneIcon}>💪</Text>
+              <RNText style={as.zoneIcon}>💪</RNText>
               <View>
-                <Text style={[as.zoneTitle, { color: '#16a34a' }]}>Strong</Text>
-                <Text style={as.zoneSub} numberOfLines={1}>
+                <RNText style={[as.zoneTitle, { color: '#16a34a' }]}>Strong</RNText>
+                <RNText style={as.zoneSub} numberOfLines={1}>
                   {strongTypes
                     .slice(0, 2)
                     .map(([t]) => QT_LABEL[t] ?? t)
                     .join(', ')}
                   {strongTypes.length > 2 ? ` +${strongTypes.length - 2}` : ''}
-                </Text>
+                </RNText>
               </View>
             </View>
           )}
           {weakTypes.length > 0 && (
             <View style={[as.zoneChip, as.zoneRed]}>
-              <Text style={as.zoneIcon}>⚠️</Text>
+              <RNText style={as.zoneIcon}>⚠️</RNText>
               <View>
-                <Text style={[as.zoneTitle, { color: '#DC2626' }]}>Needs Work</Text>
-                <Text style={as.zoneSub} numberOfLines={1}>
+                <RNText style={[as.zoneTitle, { color: '#DC2626' }]}>Needs Work</RNText>
+                <RNText style={as.zoneSub} numberOfLines={1}>
                   {weakTypes
                     .slice(0, 2)
                     .map(([t]) => QT_LABEL[t] ?? t)
                     .join(', ')}
                   {weakTypes.length > 2 ? ` +${weakTypes.length - 2}` : ''}
-                </Text>
+                </RNText>
               </View>
             </View>
           )}
@@ -783,7 +925,7 @@ function AdvancedStatsSection({
       )}
 
       {/* Per-type accuracy bars */}
-      <View style={as.barsCard}>
+      <View style={[as.barsCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
         {entries.map(([type, { correct, total }]) => (
           <AccuracyBar key={type} type={type} correct={correct} total={total} />
         ))}
@@ -797,13 +939,11 @@ const as = StyleSheet.create({
   empty: {
     alignItems: 'center',
     paddingVertical: SPACING.xxl,
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     borderWidth: 1,
-    borderColor: COLORS.border,
   },
   emptyIcon: { fontSize: 40, marginBottom: SPACING.sm },
-  emptyText: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text },
+  emptyText: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold },
   emptySub: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
@@ -815,11 +955,9 @@ const as = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     marginBottom: SPACING.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -828,7 +966,7 @@ const as = StyleSheet.create({
     elevation: 2,
   },
   overallLeft: { flex: 1 },
-  overallLabel: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: COLORS.text },
+  overallLabel: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold },
   overallSub: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
   overallBadge: {
     paddingHorizontal: SPACING.md,
@@ -854,11 +992,9 @@ const as = StyleSheet.create({
   zoneTitle: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold },
   zoneSub: { fontSize: 11, color: COLORS.textMuted, marginTop: 1, maxWidth: 120 },
   barsCard: {
-    backgroundColor: '#fff',
     borderRadius: RADIUS.xl,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
@@ -867,104 +1003,200 @@ const as = StyleSheet.create({
   },
 });
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  header: {
-    backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+// ─── Intensive Stats Section Component ──────────────────────────────────────────
+function IntensiveStatsSection({ stats }: { stats: IeltsIntensiveStats | null }) {
+  const { colors } = useTheme();
+  if (!stats) return null;
+
+  const skillColorMap = {
+    listening: COLORS.skill.listening,
+    reading: COLORS.skill.reading,
+    writing: COLORS.skill.writing,
+    speaking: COLORS.skill.speaking,
+  };
+
+  return (
+    <View style={intensiveStyles.container}>
+      <SectionHeader title="Intensive Exam Progress" subtitle="Mock tests analytics" />
+      <View style={[intensiveStyles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <View style={intensiveStyles.summaryRow}>
+          <View style={intensiveStyles.summaryItem}>
+            <RNText style={[intensiveStyles.summaryValue, { color: colors.text }]}>
+              {stats.completedExams} / {stats.totalExams}
+            </RNText>
+            <RNText style={intensiveStyles.summaryLabel}>Exams Taken</RNText>
+          </View>
+          <View
+            style={[
+              intensiveStyles.summaryItem,
+              { borderLeftWidth: 1, borderRightWidth: 1, borderColor: colors.border },
+            ]}
+          >
+            <RNText style={[intensiveStyles.summaryValue, { color: COLORS.primary }]}>
+              {stats.averageBand?.toFixed(1) ?? '—'}
+            </RNText>
+            <RNText style={intensiveStyles.summaryLabel}>Avg Band</RNText>
+          </View>
+          <View style={intensiveStyles.summaryItem}>
+            <RNText style={[intensiveStyles.summaryValue, { color: colors.success }]}>
+              {stats.bestBand?.toFixed(1) ?? '—'}
+            </RNText>
+            <RNText style={intensiveStyles.summaryLabel}>Best Band</RNText>
+          </View>
+        </View>
+
+        <View style={intensiveStyles.divider} />
+
+        <RNText style={[intensiveStyles.sectionTitle, { color: colors.text }]}>Intensive Skill Breakdown</RNText>
+        <View style={intensiveStyles.skillsList}>
+          {(Object.keys(stats.skillBreakdown || {}) as Array<keyof typeof stats.skillBreakdown>).map((skill) => {
+            const val = stats.skillBreakdown?.[skill];
+            const percent = val ? (val / 9.0) * 100 : 0;
+            const skillColor = skillColorMap[skill] || colors.primary;
+
+            return (
+              <View key={skill} style={intensiveStyles.skillRow}>
+                <View style={intensiveStyles.skillHeader}>
+                  <RNText style={[intensiveStyles.skillLabel, { color: colors.textSecondary }]}>
+                    {skill.toUpperCase()}
+                  </RNText>
+                  <RNText style={[intensiveStyles.skillValue, { color: skillColor }]}>
+                    {val ? `Band ${val.toFixed(1)}` : '—'}
+                  </RNText>
+                </View>
+                <ProgressBar value={percent} max={100} height={6} color={skillColor} />
+              </View>
+            );
+          })}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const intensiveStyles = StyleSheet.create({
+  container: {
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
+    marginTop: SPACING.lg,
   },
-  headerTitle: { color: '#fff', fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold },
-  profileCard: {
-    margin: SPACING.lg,
-    backgroundColor: '#fff',
+  card: {
     borderRadius: RADIUS.xl,
     padding: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
     elevation: 2,
   },
-  profileRow: {
+  summaryRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: SPACING.lg,
   },
-  profileName: { fontSize: FONT_SIZES.lg, fontFamily: FONTS.bold, color: COLORS.text },
-  profileSub: {
-    fontSize: FONT_SIZES.sm,
-    fontFamily: FONTS.medium,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  streakPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-    borderRadius: RADIUS.full,
-  },
-  streakFire: { fontSize: 18 },
-  streakVal: { fontSize: FONT_SIZES.md, fontFamily: FONTS.bold, color: '#D97706' },
-  overviewRow: { flexDirection: 'row' },
-  overviewItem: { flex: 1, alignItems: 'center' },
-  overviewMid: { borderLeftWidth: 1, borderRightWidth: 1, borderColor: COLORS.border },
-  overviewValue: { fontSize: FONT_SIZES.xl, fontFamily: FONTS.bold, color: COLORS.text },
-  overviewLabel: {
-    fontSize: FONT_SIZES.xs,
-    fontFamily: FONTS.medium,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  section: { paddingHorizontal: SPACING.lg, marginTop: SPACING.lg },
-  chartCard: {
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 2,
-    overflow: 'hidden',
-  },
-  advRow: { flexDirection: 'row', gap: SPACING.md },
-  advCard: {
+  summaryItem: {
     flex: 1,
     alignItems: 'center',
-    padding: SPACING.lg,
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl,
-    borderWidth: 2,
   },
-  advIcon: { fontSize: 28, marginBottom: SPACING.sm },
-  advCount: { fontSize: FONT_SIZES.xxl, fontFamily: FONTS.bold, color: COLORS.text },
-  advLabel: {
-    fontSize: FONT_SIZES.sm,
+  summaryValue: {
+    fontSize: FONT_SIZES.xl,
+    fontFamily: FONTS.bold,
+  },
+  summaryLabel: {
+    fontSize: 10,
     fontFamily: FONTS.medium,
     color: COLORS.textSecondary,
-    marginTop: 4,
+    marginTop: 2,
   },
-  historyRow: {
+  divider: {
+    height: 1,
+    backgroundColor: COLORS.border,
+    marginVertical: SPACING.md,
+  },
+  sectionTitle: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.bold,
+    marginBottom: SPACING.md,
+  },
+  skillsList: {
+    gap: SPACING.md,
+  },
+  skillRow: {
+    marginBottom: 2,
+  },
+  skillHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 1,
-    borderColor: COLORS.border,
+    justifyContent: 'space-between',
+    marginBottom: 6,
   },
-  historyTitle: { fontSize: FONT_SIZES.sm, fontWeight: '600', color: COLORS.text },
-  historyDate: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
-  historyRight: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
+  skillLabel: {
+    fontSize: 11,
+    fontFamily: FONTS.bold,
+  },
+  skillValue: {
+    fontSize: 11,
+    fontFamily: FONTS.bold,
+  },
 });
+
+function createStyles(colors: any) {
+  return StyleSheet.create({
+    center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    tabBarContainer: {
+      paddingHorizontal: SPACING.sm,
+      paddingVertical: SPACING.sm,
+      borderBottomWidth: 1,
+    },
+    tabBarScroll: {
+      gap: SPACING.sm,
+    },
+    tabPill: {
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: 6,
+      borderRadius: RADIUS.full,
+      borderWidth: 1.5,
+      marginHorizontal: 2,
+    },
+    tabPillText: {
+      fontSize: FONT_SIZES.sm,
+      fontFamily: FONTS.bold,
+    },
+    section: { paddingHorizontal: SPACING.lg, marginTop: SPACING.lg },
+    chartCard: {
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      padding: SPACING.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.04,
+      shadowRadius: 8,
+      elevation: 2,
+      overflow: 'hidden',
+    },
+    advRow: { flexDirection: 'row', gap: SPACING.md },
+    advCard: {
+      flex: 1,
+      alignItems: 'center',
+      padding: SPACING.lg,
+      borderRadius: RADIUS.xl,
+      borderWidth: 2,
+    },
+    advIcon: { fontSize: 28, marginBottom: SPACING.sm },
+    advCount: { fontSize: FONT_SIZES.xxl, fontFamily: FONTS.bold },
+    advLabel: {
+      fontSize: FONT_SIZES.sm,
+      fontFamily: FONTS.medium,
+      color: COLORS.textSecondary,
+      marginTop: 4,
+    },
+    historyRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: SPACING.md,
+      borderBottomWidth: 1,
+    },
+    historyTitle: { fontSize: FONT_SIZES.sm, fontWeight: '600' },
+    historyDate: { fontSize: FONT_SIZES.xs, color: COLORS.textSecondary, marginTop: 2 },
+    historyRight: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
+  });
+}

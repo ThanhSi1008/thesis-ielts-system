@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   TextInput,
   Dimensions,
+  LayoutAnimation,
 } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -73,6 +74,7 @@ export default function ShadowingPracticeScreen() {
     trackWidth,
     setTrackWidth,
     playerRef,
+    isCropped,
     difficulty,
     setDifficulty,
     revealedWords,
@@ -104,6 +106,11 @@ export default function ShadowingPracticeScreen() {
   const [showTranslation, setShowTranslation] = useState(false);
   const [showPhonetics, setShowPhonetics] = useState(true);
   const inputsRef = useRef<Record<number, TextInput | null>>({});
+
+  useEffect(() => {
+    // Smoothly animate the crop/zoom transition whenever the crop state changes
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  }, [isCropped]);
 
   const styles = createStyles(colors);
 
@@ -174,21 +181,23 @@ export default function ShadowingPracticeScreen() {
         {/* Media Player */}
         <View style={styles.mediaSection}>
           {youtubeId ? (
-            <View style={styles.videoContainer}>
-              <YoutubePlayer
-                ref={playerRef}
-                height={VIDEO_H}
-                width={SCREEN_W}
-                videoId={youtubeId}
-                play={playing}
-                playbackRate={playbackSpeed}
-                onChangeState={handleYoutubeStateChange}
-                initialPlayerParams={{
-                  controls: true,
-                  modestbranding: true,
-                  rel: false,
-                }}
-              />
+            <View style={styles.videoContainer} pointerEvents="none">
+              <View style={isCropped ? styles.videoCropWrapper : styles.videoUncropped}>
+                <YoutubePlayer
+                  ref={playerRef}
+                  height={isCropped ? VIDEO_H * 1.35 : VIDEO_H}
+                  width={isCropped ? SCREEN_W * 1.15 : SCREEN_W}
+                  videoId={youtubeId}
+                  play={playing}
+                  playbackRate={playbackSpeed}
+                  onChangeState={handleYoutubeStateChange}
+                  initialPlayerParams={{
+                    controls: false,
+                    modestbranding: true,
+                    rel: false,
+                  }}
+                />
+              </View>
             </View>
           ) : (
             <View
@@ -715,34 +724,7 @@ export default function ShadowingPracticeScreen() {
         </View>
       </ScrollView>
 
-      {/* Dictionary Modal */}
-      {selectedWord && (
-        <View style={styles.dictModalOverlay}>
-          <TouchableOpacity
-            style={styles.dictModalBg}
-            onPress={() => setSelectedWord(null)}
-            accessible={true}
-            accessibilityLabel="Close overlay modal background"
-          />
-          <View style={styles.dictModalContent} accessible={true} accessibilityRole="alert">
-            <View style={styles.dictModalHeader}>
-              <Text style={styles.dictModalTitle} allowFontScaling={true} accessibilityRole="header">Dictionary lookup</Text>
-              <TouchableOpacity
-                onPress={() => setSelectedWord(null)}
-                accessible={true}
-                accessibilityRole="button"
-                accessibilityLabel="Close lookup modal"
-              >
-                <Ionicons name="close" size={24} color={COLORS.text} />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.dictWord} allowFontScaling={true}>{selectedWord}</Text>
-            <Text style={styles.dictDef} allowFontScaling={true}>
-              Definition and phonetics for "{selectedWord}" will be loaded from the backend.
-            </Text>
-          </View>
-        </View>
-      )}
+
 
       {/* Lesson Complete Confirm Dialog */}
       <ConfirmDialog
@@ -818,7 +800,27 @@ const createStyles = (colors: any) =>
       elevation: 2,
       marginBottom: SPACING.md,
     },
-    videoContainer: { width: SCREEN_W, height: VIDEO_H, backgroundColor: '#000' },
+    videoContainer: {
+      width: SCREEN_W,
+      height: VIDEO_H,
+      backgroundColor: '#000',
+      overflow: 'hidden',
+      position: 'relative',
+    },
+    videoCropWrapper: {
+      position: 'absolute',
+      top: -VIDEO_H * 0.17,
+      left: -SCREEN_W * 0.075,
+      width: SCREEN_W * 1.15,
+      height: VIDEO_H * 1.35,
+    },
+    videoUncropped: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: SCREEN_W,
+      height: VIDEO_H,
+    },
     audioPlaceholder: {
       height: VIDEO_H * 0.8,
       alignItems: 'center',

@@ -33,7 +33,7 @@ const MAX_TOP_HEIGHT = 500;
 export default function AdvancedWritingPracticeScreen() {
   const router = useRouter();
   const { promptId } = useLocalSearchParams<{ promptId: string }>();
-  const { isPremium } = useSubscription();
+  const { isPremium, loading: subLoading } = useSubscription();
   const { submitAndTrack } = useGrading();
   const { colors, isDark } = useTheme();
 
@@ -70,10 +70,10 @@ export default function AdvancedWritingPracticeScreen() {
 
   // Verify subscription status
   useEffect(() => {
-    if (!isPremium) {
+    if (!subLoading && !isPremium) {
       router.replace(ROUTES.pricing);
     }
-  }, [isPremium]);
+  }, [isPremium, subLoading]);
 
   // Fetch or resume writing session
   useEffect(() => {
@@ -471,10 +471,10 @@ export default function AdvancedWritingPracticeScreen() {
     [colors],
   );
 
-  if (loading) {
+  if (subLoading || loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={COLORS.skill.writing} />
+        <ActivityIndicator size="large" color={colors.primary} />
         <Text style={styles.loadingText}>Initializing practice room...</Text>
       </View>
     );
@@ -504,6 +504,12 @@ export default function AdvancedWritingPracticeScreen() {
             {prompt.title}
           </Text>
         </View>
+        <TouchableOpacity
+          style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center', marginRight: SPACING.xs }}
+          onPress={() => router.push(`/ielts/advanced/writing/${promptId}/community`)}
+        >
+          <Ionicons name="people-outline" size={22} color={isDark ? colors.text : '#fff'} />
+        </TouchableOpacity>
         <View style={[styles.timerContainer, isTimeCritical && styles.timerContainerCritical]}>
           <Ionicons
             name="time-outline"
