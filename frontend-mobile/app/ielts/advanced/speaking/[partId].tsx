@@ -231,6 +231,12 @@ export default function AdvancedSpeakingPracticeScreen() {
             {part.topic ?? part.title}
           </Text>
         </View>
+        <TouchableOpacity
+          style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center' }}
+          onPress={() => router.push(`/ielts/advanced/speaking/${partId}/community`)}
+        >
+          <Ionicons name="people-outline" size={22} color={isDark ? colors.text : '#fff'} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.body}>

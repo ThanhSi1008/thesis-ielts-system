@@ -504,6 +504,12 @@ export default function AdvancedWritingPracticeScreen() {
             {prompt.title}
           </Text>
         </View>
+        <TouchableOpacity
+          style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center', marginRight: SPACING.xs }}
+          onPress={() => router.push(`/ielts/advanced/writing/${promptId}/community`)}
+        >
+          <Ionicons name="people-outline" size={22} color={isDark ? colors.text : '#fff'} />
+        </TouchableOpacity>
         <View style={[styles.timerContainer, isTimeCritical && styles.timerContainerCritical]}>
           <Ionicons
             name="time-outline"

@@ -1,5 +1,14 @@
 import { apiClient } from './api-client';
 import { clientCache } from './cache';
+import {
+  IeltsOverviewStats,
+  IeltsFoundationStats,
+  IeltsBasicStats,
+  IeltsAdvancedStats,
+  IeltsIntensiveStats,
+  CommunityWritingAnswer,
+  CommunitySpeakingAnswer,
+} from '../types';
 
 // ==================== IELTS PROFILE ====================
 export const ieltsProfileApi = {
@@ -110,6 +119,43 @@ export const ieltsAdvancedApi = {
     apiClient.get<any>(`/ielts/advanced/speaking/sessions/${sessionId}`),
   getSpeakingHistory: () => apiClient.get<any[]>('/ielts/advanced/speaking/history'),
   getSpeakingStats: () => apiClient.get<any>('/ielts/advanced/speaking/stats'),
+
+  // --- Community Answers ---
+  getCommunityWritingAnswers: (
+    promptId: string,
+    params?: { page?: number; limit?: number; sortBy?: 'band' | 'date' },
+  ) => {
+    const q = new URLSearchParams();
+    if (params?.page) q.set('page', String(params.page));
+    if (params?.limit) q.set('limit', String(params.limit));
+    if (params?.sortBy) q.set('sortBy', params.sortBy);
+    const qs = q.toString();
+    return apiClient.get<{ data: CommunityWritingAnswer[]; total: number }>(
+      `/ielts/advanced/writing/prompts/${promptId}/community${qs ? `?${qs}` : ''}`,
+    );
+  },
+  getCommunityWritingAnswer: (promptId: string, sessionId: string) =>
+    apiClient.get<CommunityWritingAnswer>(
+      `/ielts/advanced/writing/prompts/${promptId}/community/${sessionId}`,
+    ),
+
+  getCommunitySpeakingAnswers: (
+    partId: string,
+    params?: { page?: number; limit?: number; sortBy?: 'band' | 'date' },
+  ) => {
+    const q = new URLSearchParams();
+    if (params?.page) q.set('page', String(params.page));
+    if (params?.limit) q.set('limit', String(params.limit));
+    if (params?.sortBy) q.set('sortBy', params.sortBy);
+    const qs = q.toString();
+    return apiClient.get<{ data: CommunitySpeakingAnswer[]; total: number }>(
+      `/ielts/advanced/speaking/parts/${partId}/community${qs ? `?${qs}` : ''}`,
+    );
+  },
+  getCommunitySpeakingAnswer: (partId: string, sessionId: string) =>
+    apiClient.get<CommunitySpeakingAnswer>(
+      `/ielts/advanced/speaking/parts/${partId}/community/${sessionId}`,
+    ),
 };
 
 // ==================== IELTS EXAMS (Mock Tests) ====================
@@ -145,6 +191,15 @@ export const studentTeacherApi = {
   linkTeacher: (teacherId: string) => apiClient.post<any>('/users/link-teacher', { teacherId }),
   unlinkTeacher: (teacherId: string) => apiClient.delete<any>(`/users/unlink-teacher/${teacherId}`),
   getStudentStats: (studentId: string) => apiClient.get<any>(`/users/student/${studentId}/stats`),
+};
+
+// ==================== IELTS STATISTICS ====================
+export const ieltsStatisticsApi = {
+  getOverview: () => apiClient.get<IeltsOverviewStats>('/ielts-statistics/overview'),
+  getFoundation: () => apiClient.get<IeltsFoundationStats>('/ielts-statistics/foundation'),
+  getBasic: () => apiClient.get<IeltsBasicStats>('/ielts-statistics/basic'),
+  getAdvanced: () => apiClient.get<IeltsAdvancedStats>('/ielts-statistics/advanced'),
+  getIntensive: () => apiClient.get<IeltsIntensiveStats>('/ielts-statistics/intensive'),
 };
 
 import { vocabularyApi as newVocabularyApi, grammarApi as newGrammarApi } from './learning.api';

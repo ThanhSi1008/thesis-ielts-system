@@ -694,6 +694,16 @@ export default function AdvancedWritingResultScreen() {
           </View>
         )}
 
+        {/* Community Essays Button */}
+        {prompt?.id && (
+          <TouchableOpacity
+            style={[styles.doneBtn, { backgroundColor: COLORS.skill.writing, borderColor: COLORS.skill.writing, marginTop: SPACING.md }]}
+            onPress={() => router.push(`/ielts/advanced/writing/${prompt.id}/community`)}
+          >
+            <Text style={[styles.doneBtnText, { color: '#fff' }]}>View Community Essays</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Action Button */}
         <TouchableOpacity
           style={styles.doneBtn}

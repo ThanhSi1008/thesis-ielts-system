@@ -15,7 +15,13 @@ export {
 } from './features.api';
 
 // Expose individual apis from ielts.api
-export { ieltsProfileApi, ieltsAdvancedApi, ieltsExamsApi, studentTeacherApi } from './ielts.api';
+export {
+  ieltsProfileApi,
+  ieltsAdvancedApi,
+  ieltsExamsApi,
+  studentTeacherApi,
+  ieltsStatisticsApi,
+} from './ielts.api';
 
 export { learningApi } from './learning.api';
 export { notesApi } from './notes.api';

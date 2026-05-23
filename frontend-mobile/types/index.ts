@@ -667,4 +667,134 @@ export interface DictationProgress {
   difficulty?: string;
 }
 
+// ==================== IELTS STATISTICS ====================
+
+export interface IeltsOverviewStats {
+  weeklyXp: number;
+  currentStreak: number;
+  longestStreak: number;
+  predictedBand: number | null;
+  skillAnalysis: {
+    listening: number;
+    reading: number;
+    writing: number;
+    speaking: number;
+  };
+  recentActivity: { date: string; type: string; score?: number }[];
+  totalStudyTime: number; // minutes
+}
+
+export interface IeltsFoundationStats {
+  vocabulary: {
+    totalBooks: number;
+    booksCompleted: number;
+    totalWords: number;
+    wordsLearned: number;
+    progress: number; // 0-100
+    books: {
+      id: string;
+      name: string;
+      totalUnits: number;
+      completedUnits: number;
+      progress: number;
+    }[];
+  };
+  grammar: {
+    totalBooks: number;
+    booksCompleted: number;
+    progress: number;
+    books: {
+      id: string;
+      name: string;
+      slug: string;
+      totalUnits: number;
+      completedUnits: number;
+      progress: number;
+    }[];
+  };
+  pronunciation: {
+    totalSounds: number;
+    soundsPracticed: number;
+    soundsMastered: number; // score >= 80
+    averageScore: number;
+    progress: number;
+  };
+}
+
+export interface IeltsBasicStats {
+  skills: {
+    skill: string; // 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING'
+    totalLessons: number;
+    completedLessons: number;
+    totalExercises: number;
+    completedExercises: number;
+    progress: number;
+    averageScore: number | null;
+  }[];
+  overallProgress: number;
+  lastActivity: string | null;
+}
+
+export interface IeltsAdvancedStats {
+  listening: { accuracy: Record<string, { correct: number; total: number; attempted: number }> };
+  reading: { accuracy: Record<string, { correct: number; total: number; attempted: number }> };
+  writing: { totalSessions: number; averageBand: number | null; lastSession: string | null };
+  speaking: { totalSessions: number; averageBand: number | null; lastSession: string | null };
+}
+
+export interface IeltsIntensiveStats {
+  totalExams: number;
+  completedExams: number;
+  averageBand: number | null;
+  bandHistory: { date: string; band: number; examTitle: string }[];
+  skillBreakdown: {
+    listening: number | null;
+    reading: number | null;
+    writing: number | null;
+    speaking: number | null;
+  };
+  bestBand: number | null;
+  lastExamDate: string | null;
+}
+
+// ==================== IELTS COMMUNITY ====================
+
+export interface CommunityWritingAnswer {
+  sessionId: string;
+  userId: string;
+  userName: string;
+  userAvatar: string | null;
+  bandScore: number | null;
+  submittedAt: string;
+  essay: string;
+  feedback?: {
+    taskAchievement?: number;
+    coherenceCohesion?: number;
+    lexicalResource?: number;
+    grammaticalRange?: number;
+    overallBand?: number;
+    comments?: string;
+  };
+}
+
+export interface CommunitySpeakingAnswer {
+  sessionId: string;
+  userId: string;
+  userName: string;
+  userAvatar: string | null;
+  bandScore: number | null;
+  submittedAt: string;
+  audioAnswers: Record<string, string>; // questionId -> audioUrl
+  feedback?: {
+    fluency?: number;
+    vocabulary?: number;
+    grammar?: number;
+    pronunciation?: number;
+    overallBand?: number;
+    comments?: string;
+  };
+}
+
+export type CommunityAnswerType = 'writing' | 'speaking';
+
 

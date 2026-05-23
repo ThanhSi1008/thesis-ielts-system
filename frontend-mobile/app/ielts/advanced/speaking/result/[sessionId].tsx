@@ -853,6 +853,16 @@ export default function AdvancedSpeakingResultScreen() {
           </View>
         )}
 
+        {/* Community Answers Button */}
+        {part?.id && (
+          <TouchableOpacity
+            style={[styles.doneBtn, { backgroundColor: COLORS.skill.speaking, borderColor: COLORS.skill.speaking, marginTop: SPACING.md }]}
+            onPress={() => router.push(`/ielts/advanced/speaking/${part.id}/community`)}
+          >
+            <Text style={[styles.doneBtnText, { color: '#fff' }]}>View Community Answers</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Action Button */}
         <TouchableOpacity
           style={styles.doneBtn}
