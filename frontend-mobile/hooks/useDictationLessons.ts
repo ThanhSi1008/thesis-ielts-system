@@ -1,18 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { shadowingApi } from '@/services/features.api';
-import { ShadowingVideo } from '@/types';
+import { dictationApi } from '@/services/features.api';
+import { DictationVideo } from '@/types';
 import { toast } from '@/components/ui/index';
 
 const POLL_INTERVAL_MS = 5000;
 
-export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
-  const [mode, setMode] = useState<'shadowing' | 'dictation'>(initialMode || 'shadowing');
-
-  useEffect(() => {
-    if (initialMode) {
-      setMode(initialMode);
-    }
-  }, [initialMode]);
+export function useDictationLessons() {
+  const [mode] = useState<'shadowing' | 'dictation'>('dictation');
   const [status, setStatus] = useState('all');
   const [showSearch, setShowSearch] = useState(false);
   const [search, setSearch] = useState('');
@@ -20,8 +14,8 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [videoToDelete, setVideoToDelete] = useState<{ id: string; title: string } | null>(null);
 
-  const [systemLessons, setSystemLessons] = useState<ShadowingVideo[]>([]);
-  const [userVideos, setUserVideos] = useState<ShadowingVideo[]>([]);
+  const [systemLessons, setSystemLessons] = useState<DictationVideo[]>([]);
+  const [userVideos, setUserVideos] = useState<DictationVideo[]>([]);
   const [progress, setProgress] = useState<
     Record<string, { shadowing: number; dictation: number }>
   >({});
@@ -41,7 +35,7 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
 
   // Process data update and trigger ready toasts
   const applyVideosAndLessons = useCallback(
-    (videos: ShadowingVideo[], lessons: ShadowingVideo[], rawProgress: any) => {
+    (videos: DictationVideo[], lessons: DictationVideo[], rawProgress: any) => {
       // 1. Detect if any video just finished processing
       videos.forEach((video) => {
         const wasProcessing = processingRef.current.has(video.id);
@@ -72,9 +66,10 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
       [...lessons, ...videos].forEach((lesson) => {
         const p = rawProgress[lesson.id];
         const total = lesson.sentences?.length || 1;
+        const compCount = p?.completedSentences?.length || 0;
         computed[lesson.id] = {
-          shadowing: p?.shadowing ? Math.round((p.shadowing.length / total) * 100) : 0,
-          dictation: p?.dictation ? Math.round((p.dictation.length / total) * 100) : 0,
+          shadowing: 0, // dictation progress doesn't map to shadowing
+          dictation: Math.round((compCount / total) * 100),
         };
       });
       setProgress(computed);
@@ -86,9 +81,9 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
   const fetchSilent = useCallback(async () => {
     try {
       const [videos, lessons, rawProgress] = await Promise.all([
-        shadowingApi.getVideos(),
-        shadowingApi.getLessons(),
-        shadowingApi.getAllProgress(),
+        dictationApi.getVideos(),
+        dictationApi.getLessons(),
+        dictationApi.getAllProgress(),
       ]);
 
       applyVideosAndLessons(videos, lessons, rawProgress);
@@ -97,7 +92,7 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
       if (!hasProcessing) {
         stopPolling();
       }
-    } catch (e) {
+    } catch {
       // Silently catch polling errors to avoid interrupting the user experience
     }
   }, [applyVideosAndLessons, stopPolling]);
@@ -112,9 +107,9 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
   const fetchData = useCallback(async () => {
     try {
       const [videos, lessons, rawProgress] = await Promise.all([
-        shadowingApi.getVideos(),
-        shadowingApi.getLessons(),
-        shadowingApi.getAllProgress(),
+        dictationApi.getVideos(),
+        dictationApi.getLessons(),
+        dictationApi.getAllProgress(),
       ]);
 
       applyVideosAndLessons(videos, lessons, rawProgress);
@@ -126,8 +121,8 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
         stopPolling();
       }
     } catch (e) {
-      console.error('Failed to fetch shadowing data:', e);
-      toast.error('Error', 'Failed to load lessons. Please try again.');
+      console.error('Failed to fetch dictation data:', e);
+      toast.error('Error', 'Failed to load dictation lessons. Please try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -155,7 +150,7 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
     if (!videoToDelete) return;
     const { id, title } = videoToDelete;
     try {
-      await shadowingApi.deleteVideo(id);
+      await dictationApi.deleteVideo(id);
       toast.success('Deleted', `"${title}" has been deleted.`);
       setUserVideos((prev) => prev.filter((v) => v.id !== id));
       processingRef.current.delete(id);
@@ -194,7 +189,6 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
 
   return {
     mode,
-    setMode,
     status,
     setStatus,
     search,

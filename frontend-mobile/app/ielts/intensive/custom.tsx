@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { toast } from '@/components/ui';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -85,8 +86,16 @@ function OptionChip({
 // ─── Main screen ──────────────────────────────────────────────────────────────
 export default function CustomPracticeScreen() {
   const router = useRouter();
+  const { isPremium } = useSubscription();
   const { colors, isDark } = useTheme();
   const styles = createStyles(colors, isDark);
+
+  // Verify subscription status
+  useEffect(() => {
+    if (!isPremium) {
+      router.replace(ROUTES.pricing);
+    }
+  }, [isPremium]);
 
   const [skill, setSkill] = useState<IeltsSkill>('LISTENING');
   const [catalog, setCatalog] = useState<any>(null);

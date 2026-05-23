@@ -394,7 +394,7 @@ export default function HomeTab() {
                       <Text style={styles.progressPercent} allowFontScaling={true}>
                         {act.progressPercent}%
                       </Text>
-                      {act.score && (
+                      {!!act.score && (
                         <Text style={styles.scoreText} allowFontScaling={true}>
                           Score: {act.score}
                         </Text>

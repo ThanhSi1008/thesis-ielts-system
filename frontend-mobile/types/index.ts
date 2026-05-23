@@ -639,3 +639,32 @@ export interface SubscriptionError {
   currentTier?: SubscriptionTier;
   upgradeUrl?: string;
 }
+
+export interface DictationSentence {
+  id: string;
+  english: string;
+  words?: string[];
+  audioStart: number;
+  audioEnd: number;
+}
+
+export interface DictationVideo {
+  id: string;
+  title: string;
+  youtubeVideoId: string | null;
+  audioUrl?: string;
+  imageUrl?: string;
+  tags?: string[];
+  folder?: string;
+  category?: string;
+  duration: string;
+  sentences: DictationSentence[];
+  status?: string;
+}
+
+export interface DictationProgress {
+  completedSentences: number[];
+  difficulty?: string;
+}
+
+

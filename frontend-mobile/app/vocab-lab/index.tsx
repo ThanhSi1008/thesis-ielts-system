@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -38,6 +39,7 @@ const NAV_ITEMS = [
 ];
 
 export default function VocabLabScreen() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<Tab>('decks');
@@ -79,7 +81,8 @@ export default function VocabLabScreen() {
       borderBottomWidth: 1,
       borderColor: colors.border,
     },
-    menuBtn: { width: 40, height: 40, justifyContent: 'center' },
+    backBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'flex-start' },
+    menuBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'flex-end' },
     headerTitle: { fontSize: FONT_SIZES.lg, fontWeight: '700', color: colors.text },
   });
 
@@ -87,6 +90,23 @@ export default function VocabLabScreen() {
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header */}
       <View style={[s.header, { paddingTop: insets.top + 8 }]}>
+        <TouchableOpacity
+          style={s.backBtn}
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.push('/(tabs)/explore');
+            }
+          }}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          accessibilityHint="Go back to the previous screen"
+        >
+          <Ionicons name="chevron-back" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={s.headerTitle} allowFontScaling={true}>Vocab Lab</Text>
         <TouchableOpacity
           style={s.menuBtn}
           onPress={openDrawer}
@@ -97,8 +117,6 @@ export default function VocabLabScreen() {
         >
           <Ionicons name="menu" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={s.headerTitle} allowFontScaling={true}>Vocab Lab</Text>
-        <View style={{ width: 40 }} />
       </View>
 
       {/* Content */}

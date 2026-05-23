@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Svg, { Polyline, Line, Circle, Text as SvgText, Rect, G } from 'react-native-svg';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import { ieltsProfileApi, ieltsExamsApi, ieltsAdvancedApi } from '@/services';
-import { SectionHeader, ScoreBadge, Badge, EmptyState, Chip } from '@/components/ui';
+import { SectionHeader, ScoreBadge, Badge, EmptyState, Chip, FeatureLock } from '@/components/ui/index';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -272,146 +272,148 @@ export default function StatisticsScreen() {
         <View style={{ width: 44 }} />
       </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              fetchData();
-            }}
-          />
-        }
-        contentContainerStyle={{ paddingBottom: 100 }}
-      >
-        {/* Profile summary */}
-        {profile && (
-          <View style={styles.profileCard}>
-            <View style={styles.profileRow}>
-              <View>
-                <Text style={styles.profileName}>
-                  {profile.user?.firstName || profile.user?.email || 'Student'}
-                </Text>
-                <Text style={styles.profileSub}>
-                  Target Band {profile.targetBand?.toFixed(1) ?? '—'} ·{' '}
-                  {profile.dailyCommitmentMins ?? 30}m/day
-                </Text>
-              </View>
-              <View style={styles.streakPill}>
-                <Text style={styles.streakFire}>🔥</Text>
-                <Text style={styles.streakVal}>{streak?.currentStreak ?? 0}</Text>
-              </View>
-            </View>
-
-            <View style={styles.overviewRow}>
-              <View style={styles.overviewItem}>
-                <Text style={styles.overviewValue}>{mockHistory.length}</Text>
-                <Text style={styles.overviewLabel}>Mock Tests</Text>
-              </View>
-              <View style={[styles.overviewItem, styles.overviewMid]}>
-                <Text style={styles.overviewValue}>{totalPractice}</Text>
-                <Text style={styles.overviewLabel}>Practice Sessions</Text>
-              </View>
-              <View style={styles.overviewItem}>
-                <Text style={styles.overviewValue}>{streak?.longestStreak ?? 0}</Text>
-                <Text style={styles.overviewLabel}>Best Streak</Text>
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* Skill selector */}
+      <FeatureLock requiredTier="PREMIUM" featureName="IELTS Advanced Statistics">
         <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm }}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                fetchData();
+              }}
+            />
+          }
+          contentContainerStyle={{ paddingBottom: 100 }}
         >
-          {SKILLS.map((s) => (
-            <Chip
-              key={s.key}
-              label={s.label}
-              active={activeSkill === s.key}
-              onPress={() => setActiveSkill(s.key)}
-            />
-          ))}
-        </ScrollView>
-
-        {/* Band trend chart */}
-        <View style={styles.section}>
-          <SectionHeader
-            title={`${activeSkill.charAt(0) + activeSkill.slice(1).toLowerCase()} Trend`}
-            subtitle="Last 10 mock tests"
-            right={latestBand ? <ScoreBadge band={latestBand} /> : undefined}
-          />
-          <View style={styles.chartCard}>
-            <BandChart points={skillHistory} color={skillColor} />
-          </View>
-        </View>
-
-        {/* Submission Volume */}
-        <SubmissionVolumeSection
-          history={mockHistory}
-          volumeSkill={volumeSkill}
-          setVolumeSkill={setVolumeSkill}
-        />
-
-        {/* Advanced practice summary */}
-        <View style={styles.section}>
-          <SectionHeader title="Advanced Practice" subtitle="Listening & Reading parts" />
-          <View style={styles.advRow}>
-            <View style={[styles.advCard, { borderColor: COLORS.skill.listening }]}>
-              <Text style={styles.advIcon}>🎧</Text>
-              <Text style={styles.advCount}>{advListening.length}</Text>
-              <Text style={styles.advLabel}>Listening</Text>
-            </View>
-            <View style={[styles.advCard, { borderColor: COLORS.skill.reading }]}>
-              <Text style={styles.advIcon}>📖</Text>
-              <Text style={styles.advCount}>{advReading.length}</Text>
-              <Text style={styles.advLabel}>Reading</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Question-type accuracy bars */}
-        <AdvancedStatsSection stats={advStats} />
-
-        {/* Recent history */}
-        <View style={styles.section}>
-          <SectionHeader title="Recent Tests" />
-          {mockHistory.length === 0 ? (
-            <EmptyState
-              icon="📝"
-              title="No tests yet"
-              subtitle="Complete a mock test to see results here"
-            />
-          ) : (
-            mockHistory.slice(0, 8).map((h, i) => (
-              <View key={i} style={styles.historyRow}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.historyTitle} numberOfLines={1}>
-                    {h.examTitle?.split(' - ')[1] ?? h.examTitle}
+          {/* Profile summary */}
+          {profile && (
+            <View style={styles.profileCard}>
+              <View style={styles.profileRow}>
+                <View>
+                  <Text style={styles.profileName}>
+                    {profile.user?.firstName || profile.user?.email || 'Student'}
                   </Text>
-                  <Text style={styles.historyDate}>
-                    {new Date(h.dateTaken).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
+                  <Text style={styles.profileSub}>
+                    Target Band {profile.targetBand?.toFixed(1) ?? '—'} ·{' '}
+                    {profile.dailyCommitmentMins ?? 30}m/day
                   </Text>
                 </View>
-                <View style={styles.historyRight}>
-                  <Badge
-                    label={h.skill}
-                    color={SKILLS.find((s) => s.key === h.skill)?.color ?? COLORS.primary}
-                  />
-                  <ScoreBadge band={getBandForItem(h)} />
+                <View style={styles.streakPill}>
+                  <Text style={styles.streakFire}>🔥</Text>
+                  <Text style={styles.streakVal}>{streak?.currentStreak ?? 0}</Text>
                 </View>
               </View>
-            ))
+
+              <View style={styles.overviewRow}>
+                <View style={styles.overviewItem}>
+                  <Text style={styles.overviewValue}>{mockHistory.length}</Text>
+                  <Text style={styles.overviewLabel}>Mock Tests</Text>
+                </View>
+                <View style={[styles.overviewItem, styles.overviewMid]}>
+                  <Text style={styles.overviewValue}>{totalPractice}</Text>
+                  <Text style={styles.overviewLabel}>Practice Sessions</Text>
+                </View>
+                <View style={styles.overviewItem}>
+                  <Text style={styles.overviewValue}>{streak?.longestStreak ?? 0}</Text>
+                  <Text style={styles.overviewLabel}>Best Streak</Text>
+                </View>
+              </View>
+            </View>
           )}
-        </View>
-      </ScrollView>
+
+          {/* Skill selector */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm }}
+          >
+            {SKILLS.map((s) => (
+              <Chip
+                key={s.key}
+                label={s.label}
+                active={activeSkill === s.key}
+                onPress={() => setActiveSkill(s.key)}
+              />
+            ))}
+          </ScrollView>
+
+          {/* Band trend chart */}
+          <View style={styles.section}>
+            <SectionHeader
+              title={`${activeSkill.charAt(0) + activeSkill.slice(1).toLowerCase()} Trend`}
+              subtitle="Last 10 mock tests"
+              right={latestBand ? <ScoreBadge band={latestBand} /> : undefined}
+            />
+            <View style={styles.chartCard}>
+              <BandChart points={skillHistory} color={skillColor} />
+            </View>
+          </View>
+
+          {/* Submission Volume */}
+          <SubmissionVolumeSection
+            history={mockHistory}
+            volumeSkill={volumeSkill}
+            setVolumeSkill={setVolumeSkill}
+          />
+
+          {/* Advanced practice summary */}
+          <View style={styles.section}>
+            <SectionHeader title="Advanced Practice" subtitle="Listening & Reading parts" />
+            <View style={styles.advRow}>
+              <View style={[styles.advCard, { borderColor: COLORS.skill.listening }]}>
+                <Text style={styles.advIcon}>🎧</Text>
+                <Text style={styles.advCount}>{advListening.length}</Text>
+                <Text style={styles.advLabel}>Listening</Text>
+              </View>
+              <View style={[styles.advCard, { borderColor: COLORS.skill.reading }]}>
+                <Text style={styles.advIcon}>📖</Text>
+                <Text style={styles.advCount}>{advReading.length}</Text>
+                <Text style={styles.advLabel}>Reading</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Question-type accuracy bars */}
+          <AdvancedStatsSection stats={advStats} />
+
+          {/* Recent history */}
+          <View style={styles.section}>
+            <SectionHeader title="Recent Tests" />
+            {mockHistory.length === 0 ? (
+              <EmptyState
+                icon="📝"
+                title="No tests yet"
+                subtitle="Complete a mock test to see results here"
+              />
+            ) : (
+              mockHistory.slice(0, 8).map((h, i) => (
+                <View key={i} style={styles.historyRow}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.historyTitle} numberOfLines={1}>
+                      {h.examTitle?.split(' - ')[1] ?? h.examTitle}
+                    </Text>
+                    <Text style={styles.historyDate}>
+                      {new Date(h.dateTaken).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </Text>
+                  </View>
+                  <View style={styles.historyRight}>
+                    <Badge
+                      label={h.skill}
+                      color={SKILLS.find((s) => s.key === h.skill)?.color ?? COLORS.primary}
+                    />
+                    <ScoreBadge band={getBandForItem(h)} />
+                  </View>
+                </View>
+              ))
+            )}
+          </View>
+        </ScrollView>
+      </FeatureLock>
       <SharedDrawer
         drawerOpen={drawerOpen}
         drawerAnim={drawerAnim}

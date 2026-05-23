@@ -9,12 +9,15 @@ import {
   TextInput,
   RefreshControl,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, ROUTES, SPACING, RADIUS } from '@/constants';
-import { useShadowingLessons, useDictationLessons } from '@/hooks';
+import { FeatureLock } from '@/components/ui/index';
+import { AddVideoModal } from '@/components/shadowing';
+import { ConfirmDialog } from '@/components';
+import { useShadowingLessons } from '@/hooks';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const STATUS_FILTERS = [
@@ -24,25 +27,14 @@ const STATUS_FILTERS = [
   { id: 'completed', label: 'Completed' },
 ];
 
-export default function ShadowingScreen() {
+export default function MyVideosScreen() {
   const router = useRouter();
-  const { mode: urlMode } = useLocalSearchParams<{ mode?: 'shadowing' | 'dictation' }>();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
 
   const [activeMode, setActiveMode] = useState<'shadowing' | 'dictation'>('shadowing');
 
-  // Sync state if URL search param changes
-  useEffect(() => {
-    if (urlMode === 'shadowing' || urlMode === 'dictation') {
-      setActiveMode(urlMode);
-    }
-  }, [urlMode]);
-
-  const shadowing = useShadowingLessons('shadowing');
-  const dictation = useDictationLessons();
-
-  const activeHook = activeMode === 'shadowing' ? shadowing : dictation;
+  const activeHook = useShadowingLessons();
 
   const {
     status,
@@ -51,21 +43,26 @@ export default function ShadowingScreen() {
     setSearch,
     showSearch,
     setShowSearch,
-    filteredSystem: filtered,
-    systemLessons: tabLessons,
+    showAddModal,
+    setShowAddModal,
+    filteredUser: filtered,
+    userVideos: tabLessons,
     progress,
     loading,
     refreshing,
     handleRefresh,
+    handleDeleteVideo,
+    deleteConfirmVisible,
+    setDeleteConfirmVisible,
+    videoToDelete,
+    executeDeleteVideo,
   } = activeHook;
-
-  const accentColor = activeMode === 'shadowing' ? COLORS.info : COLORS.warning;
 
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
     header: {
       paddingHorizontal: 20,
-      paddingBottom: 16,
+      paddingBottom: 20,
       backgroundColor: colors.surface,
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
@@ -97,10 +94,9 @@ export default function ShadowingScreen() {
     },
     headerTitle: {
       fontFamily: FONTS.bold,
-      fontSize: 21,
+      fontSize: 22,
       color: colors.text,
-      letterSpacing: -0.25,
-      lineHeight: 26,
+      letterSpacing: -0.5,
     },
     searchBtn: {
       width: 36,
@@ -167,16 +163,16 @@ export default function ShadowingScreen() {
       backgroundColor: colors.background,
     },
     chipActive: {
-      backgroundColor: accentColor,
-      borderColor: accentColor,
-      shadowColor: accentColor,
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+      shadowColor: colors.primary,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.5,
       shadowRadius: 8,
       elevation: 2,
     },
     chipText: { fontFamily: FONTS.bold, fontSize: 11, color: colors.textSecondary },
-    chipTextActive: { color: '#FFF' },
+    chipTextActive: { color: colors.text },
 
     listWrap: { flex: 1, paddingHorizontal: 20, paddingTop: 16 },
     countText: {
@@ -222,7 +218,7 @@ export default function ShadowingScreen() {
       backgroundColor: 'rgba(255,255,255,0.15)',
       borderRadius: 999,
     },
-    thumbProgFill: { height: '100%', backgroundColor: accentColor, borderRadius: 999 },
+    thumbProgFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 999 },
 
     metaWrap: { flex: 1, justifyContent: 'center' },
     lessonTitle: {
@@ -241,6 +237,11 @@ export default function ShadowingScreen() {
       paddingHorizontal: 6,
       borderRadius: 4,
     },
+    folderBadge: {
+      backgroundColor: 'rgba(255, 198, 0, 0.08)',
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
     catText: { fontFamily: FONTS.bold, fontSize: 10, color: colors.textSecondary },
 
     progBarRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 },
@@ -251,7 +252,7 @@ export default function ShadowingScreen() {
       borderRadius: 999,
       overflow: 'hidden',
     },
-    progBarFill: { height: '100%', backgroundColor: accentColor, borderRadius: 999 },
+    progBarFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 999 },
     progBarText: { fontFamily: FONTS.bold, fontSize: 10, color: colors.textSecondary },
 
     actionRow: {
@@ -269,10 +270,27 @@ export default function ShadowingScreen() {
       alignItems: 'center',
       gap: 8,
     },
+    deleteBtn: {
+      width: 30,
+      height: 30,
+      borderRadius: RADIUS.md,
+      backgroundColor: 'rgba(244, 67, 54, 0.08)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    processingWrap: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    processingText: {
+      fontFamily: FONTS.bold,
+      fontSize: 10,
+      color: colors.textMuted,
+    },
     actionBtn: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999 },
     actionBtnStart: {
-      backgroundColor: accentColor,
-      shadowColor: accentColor,
+      backgroundColor: colors.primary,
+      shadowColor: colors.primary,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.5,
       shadowRadius: 8,
@@ -286,20 +304,79 @@ export default function ShadowingScreen() {
     actionBtnTextStart: { color: '#FFF' },
     actionBtnTextComp: { color: colors.textSecondary },
     actionBtnTextDisabled: { color: colors.textMuted },
+
+    fab: {
+      position: 'absolute',
+      bottom: 24,
+      right: 24,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      shadowColor: colors.primary,
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.4,
+      shadowRadius: 10,
+      elevation: 6,
+      zIndex: 99,
+    },
+    emptyCard: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 50,
+      backgroundColor: colors.surface,
+      borderRadius: RADIUS.xl,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderStyle: 'dashed',
+      marginTop: 20,
+    },
+    emptyText: {
+      fontFamily: FONTS.medium,
+      fontSize: 14,
+      color: colors.textSecondary,
+      marginTop: 10,
+      textAlign: 'center',
+    },
+    importBtnInline: {
+      marginTop: 16,
+      backgroundColor: colors.primary,
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: RADIUS.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    importBtnInlineText: {
+      fontFamily: FONTS.bold,
+      fontSize: 13,
+      color: '#0F172A',
+    },
   });
 
   const renderLessonList = () => {
     if (loading) {
-      return <ActivityIndicator size="large" color={accentColor} style={{ marginTop: 40 }} />;
+      return <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 40 }} />;
     }
 
     if (filtered.length === 0) {
       return (
-        <View style={{ alignItems: 'center', justifyContent: 'center', paddingVertical: 40 }}>
-          <Ionicons name="search-outline" size={48} color={colors.textMuted} />
-          <Text style={{ fontFamily: FONTS.medium, fontSize: 14, color: colors.textSecondary, marginTop: 10 }}>
-            No lessons found matching active filters.
+        <View style={styles.emptyCard}>
+          <Ionicons name="cloud-upload-outline" size={48} color={colors.textMuted} />
+          <Text style={styles.emptyText} allowFontScaling={true}>
+            No videos imported for this mode yet.
           </Text>
+          <TouchableOpacity
+            style={styles.importBtnInline}
+            onPress={() => setShowAddModal(true)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="add" size={18} color="#0F172A" />
+            <Text style={styles.importBtnInlineText}>Import your first video</Text>
+          </TouchableOpacity>
         </View>
       );
     }
@@ -311,7 +388,7 @@ export default function ShadowingScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            colors={[accentColor]}
+            colors={[colors.primary]}
           />
         }
         contentContainerStyle={{ paddingBottom: 100 }}
@@ -320,28 +397,32 @@ export default function ShadowingScreen() {
           const p = progress[lesson.id]?.[activeMode] || 0;
           const isComp = p === 100;
           const isIP = p > 0 && p < 100;
-          const cat = lesson.category || lesson.tags?.[0] || 'English';
+          const isProcessing = (lesson as any).status === 'PROCESSING';
+          const accent = activeMode === 'shadowing' ? COLORS.info : COLORS.warning;
+          const cat = lesson.category || lesson.tags?.[0] || 'YouTube';
 
           return (
             <View
               key={lesson.id}
               style={styles.lessonCard}
               accessible={true}
-              accessibilityLabel={`Lesson: ${lesson.title}. Category: ${cat}. Duration: ${
-                lesson.duration || '5 min'
+              accessibilityLabel={`Lesson: ${lesson.title}. Category: ${cat}. ${
+                isProcessing ? 'Transcribing and processing' : `Duration: ${lesson.duration || '5 min'}`
               }. Status: ${isComp ? 'Completed' : isIP ? `${p} percent completed` : 'Not started'}`}
             >
               {/* Thumbnail */}
               <View style={styles.thumbWrap}>
                 <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.thumbBg}>
-                  <View style={[styles.thumbGlow, { backgroundColor: accentColor }]} />
-                  {isComp ? (
+                  <View style={[styles.thumbGlow, { backgroundColor: accent }]} />
+                  {isProcessing ? (
+                    <ActivityIndicator size="small" color={colors.primary} />
+                  ) : isComp ? (
                     <Ionicons name="checkmark-circle" size={24} color={COLORS.status.success} />
                   ) : (
                     <Ionicons name="play-circle" size={24} color="rgba(255,255,255,0.65)" />
                   )}
                 </LinearGradient>
-                {isIP && (
+                {isIP && !isProcessing && (
                   <View style={styles.thumbProgBg}>
                     <View style={[styles.thumbProgFill, { width: `${p}%` as any }]} />
                   </View>
@@ -357,15 +438,26 @@ export default function ShadowingScreen() {
                   <View style={styles.durWrap}>
                     <Ionicons name="time-outline" size={11} color={colors.textMuted} />
                     <Text style={styles.durText} allowFontScaling={true}>
-                      {lesson.duration || '5 min'}
+                      {isProcessing ? 'Analyzing...' : lesson.duration || '5 min'}
                     </Text>
                   </View>
                   <View style={styles.catWrap}>
                     <Text style={styles.catText} allowFontScaling={true}>{cat}</Text>
                   </View>
+                  {lesson.folder && (
+                    <View style={[styles.catWrap, styles.folderBadge]}>
+                      <Ionicons
+                        name="folder-outline"
+                        size={10}
+                        color={colors.textSecondary}
+                        style={{ marginRight: 2 }}
+                      />
+                      <Text style={styles.catText} allowFontScaling={true}>{lesson.folder}</Text>
+                    </View>
+                  )}
                 </View>
 
-                {isIP && (
+                {isIP && !isProcessing && (
                   <View style={styles.progBarRow}>
                     <View style={styles.progBarBg}>
                       <View style={[styles.progBarFill, { width: `${p}%` as any }]} />
@@ -376,7 +468,16 @@ export default function ShadowingScreen() {
 
                 <View style={styles.actionRow}>
                   <View style={{ flex: 1 }}>
-                    {p === 0 ? (
+                    {isProcessing ? (
+                      <View style={styles.processingWrap}>
+                        <ActivityIndicator
+                          size="small"
+                          color={colors.primary}
+                          style={{ marginRight: 4 }}
+                        />
+                        <Text style={styles.processingText} allowFontScaling={true}>Transcribing...</Text>
+                      </View>
+                    ) : p === 0 ? (
                       <Text style={styles.statusText} allowFontScaling={true}>Not started</Text>
                     ) : isComp ? (
                       <View style={styles.compWrap}>
@@ -388,9 +489,26 @@ export default function ShadowingScreen() {
 
                   <View style={styles.actionGroup}>
                     <TouchableOpacity
+                      style={styles.deleteBtn}
+                      onPress={() => handleDeleteVideo(lesson.id, lesson.title)}
+                      activeOpacity={0.7}
+                      accessible={true}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Delete ${lesson.title}`}
+                      accessibilityHint="Double tap to remove this imported video"
+                    >
+                      <Ionicons name="trash-outline" size={15} color={COLORS.status.error} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      disabled={isProcessing}
                       style={[
                         styles.actionBtn,
-                        isComp ? styles.actionBtnComp : styles.actionBtnStart,
+                        isProcessing
+                          ? styles.actionBtnDisabled
+                          : isComp
+                            ? styles.actionBtnComp
+                            : styles.actionBtnStart,
                       ]}
                       onPress={() =>
                         router.push(ROUTES.practiceToolsShadowingLesson(lesson.id, activeMode) as any)
@@ -398,16 +516,20 @@ export default function ShadowingScreen() {
                       accessible={true}
                       accessibilityRole="button"
                       accessibilityLabel={`${isComp ? 'Redo' : isIP ? 'Continue' : 'Start'} lesson ${lesson.title}`}
-                      accessibilityHint={`Double tap to open shadowing exercise in ${activeMode} mode`}
+                      accessibilityHint="Double tap to open shadowing exercise"
                     >
                       <Text
                         style={[
                           styles.actionBtnText,
-                          isComp ? styles.actionBtnTextComp : styles.actionBtnTextStart,
+                          isProcessing
+                            ? styles.actionBtnTextDisabled
+                            : isComp
+                              ? styles.actionBtnTextComp
+                              : styles.actionBtnTextStart,
                         ]}
                         allowFontScaling={true}
                       >
-                        {isIP ? 'CONTINUE' : isComp ? 'REDO' : 'START'}
+                        {isProcessing ? 'ETA ~1M' : isIP ? 'CONTINUE' : isComp ? 'REDO' : 'START'}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -419,6 +541,8 @@ export default function ShadowingScreen() {
       </ScrollView>
     );
   };
+
+  const hasVideos = tabLessons.length > 0;
 
   return (
     <View style={styles.container}>
@@ -437,39 +561,41 @@ export default function ShadowingScreen() {
             accessible={true}
             accessibilityRole="button"
             accessibilityLabel="Back"
-            accessibilityHint="Navigate back to practice tools screen"
+            accessibilityHint="Navigate back to practice tools dashboard"
           >
             <Ionicons name="chevron-back" size={24} color={colors.text} />
           </TouchableOpacity>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.eyebrow} allowFontScaling={true}>Lexon Practice Tools</Text>
-            <Text style={styles.headerTitle} allowFontScaling={true}>Shadowing & Dictation</Text>
+          <View style={styles.headerTitleWrap}>
+            <Text style={styles.eyebrow} allowFontScaling={true}>Lexon Custom Lab</Text>
+            <Text style={styles.headerTitle} allowFontScaling={true}>My Video Studio</Text>
           </View>
-          <TouchableOpacity
-            style={styles.searchBtn}
-            onPress={() => setShowSearch(!showSearch)}
-            accessible={true}
-            accessibilityRole="button"
-            accessibilityLabel="Search lessons"
-            accessibilityHint="Double tap to toggle search input bar"
-            accessibilityState={{ expanded: showSearch }}
-          >
-            <Ionicons name="search" size={18} color={colors.text} />
-          </TouchableOpacity>
+          {hasVideos && (
+            <TouchableOpacity
+              style={styles.searchBtn}
+              onPress={() => setShowSearch(!showSearch)}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Search lessons"
+              accessibilityHint="Double tap to toggle search input bar"
+              accessibilityState={{ expanded: showSearch }}
+            >
+              <Ionicons name="search" size={18} color={colors.text} />
+            </TouchableOpacity>
+          )}
         </View>
 
-        {showSearch && (
+        {hasVideos && showSearch && (
           <View style={styles.searchWrap}>
             <Ionicons name="search" size={16} color={colors.textMuted} style={{ marginRight: 8 }} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search lessons..."
+              placeholder="Search custom videos..."
               value={search}
               onChangeText={setSearch}
               placeholderTextColor={colors.textMuted}
               accessible={true}
               accessibilityLabel="Search lessons"
-              accessibilityHint="Type keywords here to filter shadowed lessons list"
+              accessibilityHint="Type keywords here to filter custom lessons list"
               allowFontScaling={true}
             />
             {search.length > 0 && (
@@ -532,47 +658,93 @@ export default function ShadowingScreen() {
         </View>
 
         {/* Status filter chips */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.statusFilters}
-          accessible={true}
-          accessibilityRole="radiogroup"
-          accessibilityLabel="Status filters"
-        >
-          {STATUS_FILTERS.map((f) => {
-            const on = status === f.id;
-            return (
-              <TouchableOpacity
-                key={f.id}
-                onPress={() => setStatus(f.id)}
-                style={[styles.chip, on && styles.chipActive]}
-                accessible={true}
-                accessibilityRole="radio"
-                accessibilityLabel={f.label}
-                accessibilityState={{ checked: on }}
-                accessibilityHint={`Filters practice lessons list by progress status ${f.label}`}
-              >
-                <Text
-                  style={[styles.chipText, on && styles.chipTextActive]}
-                  allowFontScaling={true}
+        {hasVideos && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.statusFilters}
+            accessible={true}
+            accessibilityRole="radiogroup"
+            accessibilityLabel="Status filters"
+          >
+            {STATUS_FILTERS.map((f) => {
+              const on = status === f.id;
+              return (
+                <TouchableOpacity
+                  key={f.id}
+                  onPress={() => setStatus(f.id)}
+                  style={[styles.chip, on && styles.chipActive]}
+                  accessible={true}
+                  accessibilityRole="radio"
+                  accessibilityLabel={f.label}
+                  accessibilityState={{ checked: on }}
+                  accessibilityHint={`Filters practice lessons list by progress status ${f.label}`}
                 >
-                  {f.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
+                  <Text
+                    style={[styles.chipText, on && styles.chipTextActive]}
+                    allowFontScaling={true}
+                  >
+                    {f.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        )}
       </View>
 
-      {/* List content */}
-      <View style={styles.listWrap}>
-        <Text style={styles.countText} allowFontScaling={true}>
-          {filtered.length} of {tabLessons.length} lessons
-        </Text>
+      <FeatureLock requiredTier="PREMIUM" featureName="My Video Studio">
+        {/* List content */}
+        <View style={styles.listWrap}>
+          {hasVideos && (
+            <Text style={styles.countText} allowFontScaling={true}>
+              {filtered.length} of {tabLessons.length} custom videos
+            </Text>
+          )}
 
-        {renderLessonList()}
-      </View>
+          {renderLessonList()}
+        </View>
+
+        {/* Floating Action Button (FAB) inside premium wrapper */}
+        {!loading && hasVideos && (
+          <TouchableOpacity
+            style={styles.fab}
+            onPress={() => setShowAddModal(true)}
+            activeOpacity={0.85}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Import new video"
+            accessibilityHint="Double tap to open YouTube link import window"
+          >
+            <Ionicons name="add" size={24} color="#FFF" />
+          </TouchableOpacity>
+        )}
+      </FeatureLock>
+
+      {/* YouTube Import Modal */}
+      <AddVideoModal
+        visible={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={handleRefresh}
+        mode="shadowing"
+      />
+
+      {/* Confirm deletion dialog */}
+      <ConfirmDialog
+        visible={deleteConfirmVisible}
+        onClose={() => setDeleteConfirmVisible(false)}
+        title="Delete Video"
+        message={`Are you sure you want to delete "${videoToDelete?.title}"? This action cannot be undone.`}
+        variant="destructive"
+        primaryAction={{
+          title: 'Delete',
+          onPress: executeDeleteVideo,
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setDeleteConfirmVisible(false),
+        }}
+      />
     </View>
   );
 }

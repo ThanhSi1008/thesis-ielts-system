@@ -9,7 +9,7 @@ export default function DictationRedirectScreen() {
   const { colors } = useTheme();
 
   useEffect(() => {
-    // Seamlessly redirect to the actual, premium Dictation lesson list
+    // Seamlessly redirect to the unified, premium Shadowing & Dictation lesson library
     router.replace('/practice-tools/shadowing?mode=dictation');
   }, [router]);
 

@@ -12,6 +12,7 @@ import {
   IeltsExercise,
   GamificationProfile,
   AchievementItem,
+  DictationVideo,
 } from '@/types';
 
 // ==================== VOCAB LAB ====================
@@ -137,6 +138,41 @@ export const shadowingApi = {
     apiClient.get<ShadowingProgress>(`/shadowing/progress/${encodeURIComponent(lessonId)}`),
   upsertProgress: (dto: ShadowingProgress) => apiClient.post<void>('/shadowing/progress', dto),
 };
+
+// ==================== DICTATION ====================
+export const dictationApi = {
+  getLessons: () => apiClient.get<DictationVideo[]>('/dictation/lessons'),
+  getLessonById: (id: string) => apiClient.get<DictationVideo>(`/dictation/lessons/${id}`),
+  getVideos: () => apiClient.get<DictationVideo[]>('/dictation/videos'),
+  getVideoById: (id: string) => apiClient.get<DictationVideo>(`/dictation/videos/${id}`),
+  createVideo: (dto: {
+    title: string;
+    youtubeVideoId: string;
+    folder?: string;
+    category?: string;
+    duration: string;
+    sentences: any[];
+  }) => apiClient.post<DictationVideo>('/dictation/videos', dto),
+  importVideo: (dto: { youtubeUrl: string; title: string; folder?: string }) =>
+    apiClient.post<DictationVideo>('/dictation/videos/import', dto),
+  deleteVideo: (id: string) => apiClient.delete<void>(`/dictation/videos/${id}`),
+  getFolders: () => apiClient.get<string[]>('/dictation/folders'),
+  createFolder: (name: string) => apiClient.post<void>('/dictation/folders', { name }),
+  getAllProgress: () =>
+    apiClient.get<Record<string, { completedSentences: number[]; difficulty?: string }>>(
+      '/dictation/progress',
+    ),
+  getProgress: (lessonId: string) =>
+    apiClient.get<any>(`/dictation/progress/${encodeURIComponent(lessonId)}`),
+  upsertProgress: (dto: {
+    lessonId: string;
+    completedSentences: number[];
+    difficulty?: string;
+    lessonTitle?: string;
+    totalSentences?: number;
+  }) => apiClient.post<void>('/dictation/progress', dto),
+};
+
 
 // ==================== IELTS BASIC LESSONS ====================
 export const ieltsBasicApi = {

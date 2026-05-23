@@ -14,8 +14,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
+import { FeatureLock } from '@/components/ui/index';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
-import { EmptyState } from '@/components/ui';
+import { EmptyState } from '@/components/ui/index';
 import { getQuestionTypeLabel } from '@/constants/ieltsQuestionTypes';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -285,173 +286,175 @@ export default function AdvancedScreen() {
         </View>
       </View>
 
-      {/* Skill tabs */}
-      <View style={styles.tabBar}>
-        {TABS.map((t) => (
-          <TouchableOpacity
-            key={t.key}
-            style={[styles.tab, activeTab === t.key && { borderBottomColor: t.color }]}
-            onPress={() => handleTabChange(t.key as any)}
-          >
-            <Text
-              style={[
-                styles.tabLabel,
-                activeTab === t.key && { color: t.color, fontWeight: '700' },
-              ]}
+      <FeatureLock requiredTier="PREMIUM" featureName="IELTS Advanced Practice">
+        {/* Skill tabs */}
+        <View style={styles.tabBar}>
+          {TABS.map((t) => (
+            <TouchableOpacity
+              key={t.key}
+              style={[styles.tab, activeTab === t.key && { borderBottomColor: t.color }]}
+              onPress={() => handleTabChange(t.key as any)}
             >
-              {t.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Question type filter chips */}
-      {!loading && availableTypes.length > 0 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.filterScroll}
-          contentContainerStyle={styles.filterContent}
-        >
-          {/* "All" chip */}
-          <TouchableOpacity
-            style={[
-              styles.filterChip,
-              !selectedType && { backgroundColor: color, borderColor: color },
-            ]}
-            onPress={() => setSelectedType(null)}
-          >
-            <Text style={[styles.filterChipText, !selectedType && { color: '#fff' }]}>All</Text>
-          </TouchableOpacity>
-
-          {availableTypes.map((type) => {
-            const active = selectedType === type;
-            return (
-              <TouchableOpacity
-                key={type}
+              <Text
                 style={[
-                  styles.filterChip,
-                  active && { backgroundColor: color, borderColor: color },
+                  styles.tabLabel,
+                  activeTab === t.key && { color: t.color, fontWeight: '700' },
                 ]}
-                onPress={() => setSelectedType(active ? null : type)}
               >
-                <Text style={[styles.filterChipText, active && { color: '#fff' }]}>
-                  {getQuestionTypeLabel(type)}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-      )}
-
-      {loading ? (
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
-      ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 100 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => {
-                setRefreshing(true);
-                fetchData();
-              }}
-            />
-          }
-        >
-          {/* History banner */}
-          <TouchableOpacity
-            style={styles.historyBanner}
-            onPress={() => router.push(ROUTES.ieltsAdvancedHistory)}
-            activeOpacity={0.85}
-          >
-            <Ionicons name="time-outline" size={16} color={color} />
-            <Text style={[styles.historyBannerText, { color }]}>View Practice History</Text>
-            <Ionicons
-              name="chevron-forward"
-              size={14}
-              color={color}
-              style={{ marginLeft: 'auto' }}
-            />
-          </TouchableOpacity>
-
-          {/* Active filter badge */}
-          {selectedType && (
-            <View
-              style={[
-                styles.activeFilter,
-                { borderColor: color + '40', backgroundColor: color + '0C' },
-              ]}
-            >
-              <Ionicons name="funnel" size={12} color={color} />
-              <Text style={[styles.activeFilterText, { color }]}>
-                Filtered: {getQuestionTypeLabel(selectedType)}
+                {t.label}
               </Text>
-              <TouchableOpacity onPress={() => setSelectedType(null)} hitSlop={8}>
-                <Ionicons name="close-circle" size={16} color={color} />
-              </TouchableOpacity>
-            </View>
-          )}
+            </TouchableOpacity>
+          ))}
+        </View>
 
-          {parts.length === 0 ? (
-            <EmptyState
-              icon="🔍"
-              title={selectedType ? 'No matching parts' : 'No practice parts yet'}
-              subtitle={
-                selectedType
-                  ? 'Try a different question type filter.'
-                  : 'Check back soon for new content.'
-              }
-            />
-          ) : (
-            parts.map((part: any) => (
-              <TouchableOpacity
-                key={part.id}
-                style={styles.partCard}
-                onPress={() => router.push(ROUTES.ieltsAdvancedSkillPart(activeTab, part.id))}
-                activeOpacity={0.85}
-              >
-                <View style={[styles.partBadge, { backgroundColor: color + '18' }]}>
-                  <Text style={[styles.partBadgeText, { color }]}>Part {part.partNumber}</Text>
-                </View>
-                <View style={styles.partInfo}>
-                  <Text style={styles.partTitle} numberOfLines={2}>
-                    {part.title}
+        {/* Question type filter chips */}
+        {!loading && availableTypes.length > 0 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.filterScroll}
+            contentContainerStyle={styles.filterContent}
+          >
+            {/* "All" chip */}
+            <TouchableOpacity
+              style={[
+                styles.filterChip,
+                !selectedType && { backgroundColor: color, borderColor: color },
+              ]}
+              onPress={() => setSelectedType(null)}
+            >
+              <Text style={[styles.filterChipText, !selectedType && { color: '#fff' }]}>All</Text>
+            </TouchableOpacity>
+
+            {availableTypes.map((type) => {
+              const active = selectedType === type;
+              return (
+                <TouchableOpacity
+                  key={type}
+                  style={[
+                    styles.filterChip,
+                    active && { backgroundColor: color, borderColor: color },
+                  ]}
+                  onPress={() => setSelectedType(active ? null : type)}
+                >
+                  <Text style={[styles.filterChipText, active && { color: '#fff' }]}>
+                    {getQuestionTypeLabel(type)}
                   </Text>
-                  <View style={styles.partTypes}>
-                    {(part.questionTypes || []).map((qt: string) => (
-                      <TouchableOpacity
-                        key={qt}
-                        style={[
-                          styles.qtChip,
-                          selectedType === qt && {
-                            backgroundColor: color + '15',
-                            borderColor: color + '50',
-                          },
-                        ]}
-                        onPress={() => setSelectedType(selectedType === qt ? null : qt)}
-                      >
-                        <Text
-                          style={[
-                            styles.qtChipText,
-                            selectedType === qt && { color, fontWeight: '700' },
-                          ]}
-                        >
-                          {qt.replace(/_/g, ' ')}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        )}
+
+        {loading ? (
+          <View style={styles.center}>
+            <ActivityIndicator size="large" color={colors.primary} />
+          </View>
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 100 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={() => {
+                  setRefreshing(true);
+                  fetchData();
+                }}
+              />
+            }
+          >
+            {/* History banner */}
+            <TouchableOpacity
+              style={styles.historyBanner}
+              onPress={() => router.push(ROUTES.ieltsAdvancedHistory)}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="time-outline" size={16} color={color} />
+              <Text style={[styles.historyBannerText, { color }]}>View Practice History</Text>
+              <Ionicons
+                name="chevron-forward"
+                size={14}
+                color={color}
+                style={{ marginLeft: 'auto' }}
+              />
+            </TouchableOpacity>
+
+            {/* Active filter badge */}
+            {selectedType && (
+              <View
+                style={[
+                  styles.activeFilter,
+                  { borderColor: color + '40', backgroundColor: color + '0C' },
+                ]}
+              >
+                <Ionicons name="funnel" size={12} color={color} />
+                <Text style={[styles.activeFilterText, { color }]}>
+                  Filtered: {getQuestionTypeLabel(selectedType)}
+                </Text>
+                <TouchableOpacity onPress={() => setSelectedType(null)} hitSlop={8}>
+                  <Ionicons name="close-circle" size={16} color={color} />
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {parts.length === 0 ? (
+              <EmptyState
+                icon="🔍"
+                title={selectedType ? 'No matching parts' : 'No practice parts yet'}
+                subtitle={
+                  selectedType
+                    ? 'Try a different question type filter.'
+                    : 'Check back soon for new content.'
+                }
+              />
+            ) : (
+              parts.map((part: any) => (
+                <TouchableOpacity
+                  key={part.id}
+                  style={styles.partCard}
+                  onPress={() => router.push(ROUTES.ieltsAdvancedSkillPart(activeTab, part.id))}
+                  activeOpacity={0.85}
+                >
+                  <View style={[styles.partBadge, { backgroundColor: color + '18' }]}>
+                    <Text style={[styles.partBadgeText, { color }]}>Part {part.partNumber}</Text>
                   </View>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
-              </TouchableOpacity>
-            ))
-          )}
-        </ScrollView>
-      )}
+                  <View style={styles.partInfo}>
+                    <Text style={styles.partTitle} numberOfLines={2}>
+                      {part.title}
+                    </Text>
+                    <View style={styles.partTypes}>
+                      {(part.questionTypes || []).map((qt: string) => (
+                        <TouchableOpacity
+                          key={qt}
+                          style={[
+                            styles.qtChip,
+                            selectedType === qt && {
+                              backgroundColor: color + '15',
+                              borderColor: color + '50',
+                            },
+                          ]}
+                          onPress={() => setSelectedType(selectedType === qt ? null : qt)}
+                        >
+                          <Text
+                            style={[
+                              styles.qtChipText,
+                              selectedType === qt && { color, fontWeight: '700' },
+                            ]}
+                          >
+                            {qt.replace(/_/g, ' ')}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
+                </TouchableOpacity>
+              ))
+            )}
+          </ScrollView>
+        )}
+      </FeatureLock>
       <SharedDrawer
         drawerOpen={drawerOpen}
         drawerAnim={drawerAnim}

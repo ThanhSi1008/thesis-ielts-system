@@ -8,6 +8,7 @@ export { useWritingAutosave } from './useWritingAutosave';
 export { useTimer } from './useTimer';
 
 export { useShadowingLessons } from './useShadowingLessons';
+export { useDictationLessons } from './useDictationLessons';
 export { useThemedStyles } from './useThemedStyles';
 export { useAnswerState } from './useAnswerState';
 export { useExamSession } from './useExamSession';

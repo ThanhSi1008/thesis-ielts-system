@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, RADIUS, SPACING } from '@/constants';
-import { shadowingApi } from '@/services/features.api';
+import { shadowingApi, dictationApi } from '@/services/features.api';
 import { toast } from '../ui/Toaster';
 import FolderPicker from './FolderPicker';
 
@@ -23,6 +23,7 @@ interface AddVideoModalProps {
   visible: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  mode?: 'shadowing' | 'dictation';
 }
 
 const PRESET_CATEGORIES = [
@@ -35,7 +36,7 @@ const PRESET_CATEGORIES = [
   'Business / Tech',
 ];
 
-export default function AddVideoModal({ visible, onClose, onSuccess }: AddVideoModalProps) {
+export default function AddVideoModal({ visible, onClose, onSuccess, mode = 'shadowing' }: AddVideoModalProps) {
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('General');
@@ -87,8 +88,9 @@ export default function AddVideoModal({ visible, onClose, onSuccess }: AddVideoM
 
     setLoading(true);
     try {
-      // Trigger import on backend
-      const response = await shadowingApi.importVideo({
+      // Trigger import on backend depending on mode
+      const api = mode === 'dictation' ? dictationApi : shadowingApi;
+      const response = await api.importVideo({
         youtubeUrl: trimmedUrl,
         title: trimmedTitle,
         folder: folder || 'General',

@@ -20,6 +20,7 @@ import { Chip, EmptyState, ExamCardSkeleton } from '@/components';
 import { EmptyStates } from '@/assets/empty-states';
 import { useTheme } from '@/contexts/ThemeContext';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
+import { FeatureLock } from '@/components/ui/index';
 
 const SKILLS = [
   { key: 'LISTENING', label: 'Listening', icon: '🎧', color: COLORS.skill.listening },
@@ -565,156 +566,158 @@ export default function IntensiveScreen() {
         </View>
       </View>
 
-      {/* Skill tabs */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.tabs}
-        contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm }}
-      >
-        {SKILLS.map((s) => (
-          <Chip
-            key={s.key}
-            label={`${s.icon} ${s.label}`}
-            active={activeSkill === s.key}
-            onPress={() => setActiveSkill(s.key)}
-          />
-        ))}
-      </ScrollView>
-
-      {loading ? (
+      <FeatureLock requiredTier="PREMIUM" featureName="IELTS Intensive Practice">
+        {/* Skill tabs */}
         <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: SPACING.lg }}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.tabs}
+          contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm }}
         >
-          <ExamCardSkeleton count={3} />
+          {SKILLS.map((s) => (
+            <Chip
+              key={s.key}
+              label={`${s.icon} ${s.label}`}
+              active={activeSkill === s.key}
+              onPress={() => setActiveSkill(s.key)}
+            />
+          ))}
         </ScrollView>
-      ) : (
-        <>
-          {/* Search bar */}
-          <View style={styles.searchRow}>
-            <View style={styles.searchBox}>
-              <Ionicons
-                name="search-outline"
-                size={16}
-                color={colors.textMuted}
-                style={{ marginRight: 6 }}
-              />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search tests…"
-                placeholderTextColor={colors.textMuted}
-                value={search}
-                onChangeText={setSearch}
-                returnKeyType="search"
-                clearButtonMode="while-editing"
-                accessible={true}
-                accessibilityLabel="Search tests"
-                accessibilityHint="Type here to filter Mock Tests by name or number"
-                allowFontScaling={true}
-              />
-            </View>
-            {hasActiveFilter && (
-              <TouchableOpacity
-                onPress={() => {
-                  setSearch('');
-                  setStatusFilter('all');
-                }}
-                style={styles.clearBtn}
-                activeOpacity={0.7}
-                accessible={true}
-                accessibilityRole="button"
-                accessibilityLabel="Clear Search"
-                accessibilityHint="Resets the search query and status filters"
-              >
-                <Text style={styles.clearBtnText} allowFontScaling={true}>Clear</Text>
-              </TouchableOpacity>
-            )}
-          </View>
 
-          {/* Status filter chips */}
-          <View style={styles.filterRow}>
-            {(['all', 'taken', 'not-taken'] as StatusFilter[]).map((f) => {
-              const labels: Record<StatusFilter, string> = {
-                all: 'All',
-                taken: '✓ Taken',
-                'not-taken': '○ Not Taken',
-              };
-              const active = statusFilter === f;
-              const color =
-                f === 'taken' ? '#16a34a' : f === 'not-taken' ? colors.textMuted : skillInfo.color;
-              return (
-                <TouchableOpacity
-                  key={f}
-                  style={[
-                    styles.filterChip,
-                    active && { backgroundColor: color + '18', borderColor: color },
-                  ]}
-                  onPress={() => setStatusFilter(f)}
-                  activeOpacity={0.8}
-                  accessible={true}
-                  accessibilityRole="radio"
-                  accessibilityLabel={labels[f]}
-                  accessibilityState={{ checked: active }}
-                  accessibilityHint={`Filter results by status ${labels[f]}`}
-                >
-                  <Text
-                    style={[styles.filterChipText, active && { color, fontFamily: FONTS.bold }]}
-                    allowFontScaling={true}
-                  >
-                    {labels[f]}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-            {hasActiveFilter && (
-              <Text style={styles.resultCount} allowFontScaling={true}>
-                {totalVisible} test{totalVisible !== 1 ? 's' : ''}
-              </Text>
-            )}
-          </View>
-
+        {loading ? (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={() => {
-                  setRefreshing(true);
-                  fetchCatalog(activeSkill);
-                }}
-              />
-            }
-            contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingBottom: 100 }}
+            contentContainerStyle={{ paddingHorizontal: SPACING.lg }}
           >
-            {filteredGroups.length === 0 ? (
-              <EmptyState
-                illustration={hasActiveFilter ? EmptyStates.search : EmptyStates.bookmarks}
-                title={hasActiveFilter ? 'No matches' : 'No tests available'}
-                description={
-                  hasActiveFilter
-                    ? 'Try adjusting your search or filter.'
-                    : `No ${skillInfo.label} tests found.`
-                }
-              />
-            ) : (
-              filteredGroups.map((group: any) => (
-                <AccordionGroup
-                  key={group.id}
-                  group={group}
-                  isCollapsed={collapsedGroups[group.id] ?? false}
-                  onToggle={() => toggleGroup(group.id)}
-                  skillColor={skillInfo.color}
-                  activeSkill={activeSkill}
-                  onTestPress={(examId: string) =>
-                    router.push(ROUTES.ieltsIntensiveExam(examId) as any)
+            <ExamCardSkeleton count={3} />
+          </ScrollView>
+        ) : (
+          <>
+            {/* Search bar */}
+            <View style={styles.searchRow}>
+              <View style={styles.searchBox}>
+                <Ionicons
+                  name="search-outline"
+                  size={16}
+                  color={colors.textMuted}
+                  style={{ marginRight: 6 }}
+                />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search tests…"
+                  placeholderTextColor={colors.textMuted}
+                  value={search}
+                  onChangeText={setSearch}
+                  returnKeyType="search"
+                  clearButtonMode="while-editing"
+                  accessible={true}
+                  accessibilityLabel="Search tests"
+                  accessibilityHint="Type here to filter Mock Tests by name or number"
+                  allowFontScaling={true}
+                />
+              </View>
+              {hasActiveFilter && (
+                <TouchableOpacity
+                  onPress={() => {
+                    setSearch('');
+                    setStatusFilter('all');
+                  }}
+                  style={styles.clearBtn}
+                  activeOpacity={0.7}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel="Clear Search"
+                  accessibilityHint="Resets the search query and status filters"
+                >
+                  <Text style={styles.clearBtnText} allowFontScaling={true}>Clear</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Status filter chips */}
+            <View style={styles.filterRow}>
+              {(['all', 'taken', 'not-taken'] as StatusFilter[]).map((f) => {
+                const labels: Record<StatusFilter, string> = {
+                  all: 'All',
+                  taken: '✓ Taken',
+                  'not-taken': '○ Not Taken',
+                };
+                const active = statusFilter === f;
+                const color =
+                  f === 'taken' ? '#16a34a' : f === 'not-taken' ? colors.textMuted : skillInfo.color;
+                return (
+                  <TouchableOpacity
+                    key={f}
+                    style={[
+                      styles.filterChip,
+                      active && { backgroundColor: color + '18', borderColor: color },
+                    ]}
+                    onPress={() => setStatusFilter(f)}
+                    activeOpacity={0.8}
+                    accessible={true}
+                    accessibilityRole="radio"
+                    accessibilityLabel={labels[f]}
+                    accessibilityState={{ checked: active }}
+                    accessibilityHint={`Filter results by status ${labels[f]}`}
+                  >
+                    <Text
+                      style={[styles.filterChipText, active && { color, fontFamily: FONTS.bold }]}
+                      allowFontScaling={true}
+                    >
+                      {labels[f]}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+              {hasActiveFilter && (
+                <Text style={styles.resultCount} allowFontScaling={true}>
+                  {totalVisible} test{totalVisible !== 1 ? 's' : ''}
+                </Text>
+              )}
+            </View>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={() => {
+                    setRefreshing(true);
+                    fetchCatalog(activeSkill);
+                  }}
+                />
+              }
+              contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingBottom: 100 }}
+            >
+              {filteredGroups.length === 0 ? (
+                <EmptyState
+                  illustration={hasActiveFilter ? EmptyStates.search : EmptyStates.bookmarks}
+                  title={hasActiveFilter ? 'No matches' : 'No tests available'}
+                  description={
+                    hasActiveFilter
+                      ? 'Try adjusting your search or filter.'
+                      : `No ${skillInfo.label} tests found.`
                   }
                 />
-              ))
-            )}
-          </ScrollView>
-        </>
-      )}
+              ) : (
+                filteredGroups.map((group: any) => (
+                  <AccordionGroup
+                    key={group.id}
+                    group={group}
+                    isCollapsed={collapsedGroups[group.id] ?? false}
+                    onToggle={() => toggleGroup(group.id)}
+                    skillColor={skillInfo.color}
+                    activeSkill={activeSkill}
+                    onTestPress={(examId: string) =>
+                      router.push(ROUTES.ieltsIntensiveExam(examId) as any)
+                    }
+                  />
+                ))
+              )}
+            </ScrollView>
+          </>
+        )}
+      </FeatureLock>
       <SharedDrawer
         drawerOpen={drawerOpen}
         drawerAnim={drawerAnim}

@@ -16,6 +16,7 @@ import { toast } from '@/components/ui';
 
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui';
 import { ConfirmDialog, SuccessCelebration } from '@/components';
@@ -38,8 +39,16 @@ export default function ExamPlayerScreen() {
   const router = useRouter();
   const { examId } = useLocalSearchParams<{ examId: string }>();
   const { user } = useAuth();
+  const { isPremium } = useSubscription();
   const { colors, isDark } = useTheme();
   const styles = createStyles(colors, isDark);
+
+  // Verify subscription status
+  useEffect(() => {
+    if (!isPremium) {
+      router.replace(ROUTES.pricing);
+    }
+  }, [isPremium]);
 
   const [examReady, setExamReady] = useState(false);
   const [timerRunning, setTimerRunning] = useState(false);

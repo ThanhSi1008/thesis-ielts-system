@@ -17,6 +17,7 @@ import { useAudioPlayer } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useRouter } from 'expo-router';
 
 const { height: SCREEN_H } = Dimensions.get('window');
 const SHEET_H = SCREEN_H * 0.65;
@@ -32,6 +33,7 @@ export function DictionaryPopup() {
   const [dictData, setDictData] = useState<any>(null);
   const [viTranslation, setViTranslation] = useState('');
   const { colors } = useTheme();
+  const router = useRouter();
 
   const slideAnim = useRef(new Animated.Value(SHEET_H)).current;
 
@@ -128,16 +130,28 @@ export function DictionaryPopup() {
   const handleAddToVocabLab = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const definition = dictData?.meanings?.[0]?.definitions?.[0]?.definition || viTranslation || '';
+    const formattedBack = sentence
+      ? `${definition}\n\nExample sentence: ${sentence}`
+      : definition;
 
     // Emit quick add event to be captured by GlobalVocabFab
     DeviceEventEmitter.emit('OPEN_QUICK_ADD_CARD', {
       front: word,
-      back: definition,
+      back: formattedBack,
       tags: ['lookup'],
       audioUrl: audioUrl || undefined,
     });
 
     closeSheet();
+  };
+
+  const handleAskAI = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    closeSheet();
+    router.push({
+      pathname: '/chat-ai',
+      params: { word, context: sentence },
+    });
   };
 
   const styles = StyleSheet.create({
@@ -211,6 +225,14 @@ export function DictionaryPopup() {
       height: 36,
       borderRadius: 18,
       backgroundColor: '#FF980015',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    aiBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: '#8B5CF615',
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -419,6 +441,26 @@ export function DictionaryPopup() {
       fontSize: FONT_SIZES.md,
       fontFamily: FONTS.bold,
     },
+    aiInteractiveBtn: {
+      backgroundColor: '#8B5CF6',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: SPACING.xs,
+      borderRadius: RADIUS.lg,
+      paddingVertical: SPACING.sm,
+      marginTop: SPACING.sm,
+      shadowColor: '#8B5CF6',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 6,
+      elevation: 3,
+    },
+    aiInteractiveBtnText: {
+      color: '#fff',
+      fontSize: FONT_SIZES.sm,
+      fontFamily: FONTS.bold,
+    },
   });
 
   return (
@@ -443,6 +485,9 @@ export function DictionaryPopup() {
             ) : null}
             <TouchableOpacity style={styles.addBtn} onPress={handleAddToVocabLab}>
               <Ionicons name="star" size={20} color="#FF9800" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.aiBtn} onPress={handleAskAI}>
+              <Ionicons name="sparkles" size={20} color="#8B5CF6" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.closeBtn} onPress={closeSheet}>
               <Ionicons name="close" size={20} color={colors.textMuted} />
@@ -530,6 +575,10 @@ export function DictionaryPopup() {
                       .
                     </Text>
                   </View>
+                  <TouchableOpacity style={styles.aiInteractiveBtn} onPress={handleAskAI}>
+                    <Ionicons name="sparkles" size={16} color="#FFF" />
+                    <Text style={styles.aiInteractiveBtnText}>Chat with Lexon AI</Text>
+                  </TouchableOpacity>
 
                   <View style={styles.generalBox}>
                     <Text style={styles.sectionLabel}>General Definition</Text>

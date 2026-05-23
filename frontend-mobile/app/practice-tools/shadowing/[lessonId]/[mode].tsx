@@ -715,34 +715,7 @@ export default function ShadowingPracticeScreen() {
         </View>
       </ScrollView>
 
-      {/* Dictionary Modal */}
-      {selectedWord && (
-        <View style={styles.dictModalOverlay}>
-          <TouchableOpacity
-            style={styles.dictModalBg}
-            onPress={() => setSelectedWord(null)}
-            accessible={true}
-            accessibilityLabel="Close overlay modal background"
-          />
-          <View style={styles.dictModalContent} accessible={true} accessibilityRole="alert">
-            <View style={styles.dictModalHeader}>
-              <Text style={styles.dictModalTitle} allowFontScaling={true} accessibilityRole="header">Dictionary lookup</Text>
-              <TouchableOpacity
-                onPress={() => setSelectedWord(null)}
-                accessible={true}
-                accessibilityRole="button"
-                accessibilityLabel="Close lookup modal"
-              >
-                <Ionicons name="close" size={24} color={COLORS.text} />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.dictWord} allowFontScaling={true}>{selectedWord}</Text>
-            <Text style={styles.dictDef} allowFontScaling={true}>
-              Definition and phonetics for "{selectedWord}" will be loaded from the backend.
-            </Text>
-          </View>
-        </View>
-      )}
+
 
       {/* Lesson Complete Confirm Dialog */}
       <ConfirmDialog
