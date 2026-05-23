@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, ScrollView, useWindowDimensions, DeviceEventEmitter } from 'react-native';
+import { View, ScrollView, useWindowDimensions, DeviceEventEmitter, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
 import { ROUTES } from '@/constants';
@@ -102,7 +102,13 @@ export default function ExploreTab() {
         scrollEventThrottle={16}
       >
         {/* Featured Premium Pricing Banner */}
-        <View
+        <TouchableOpacity
+          onPress={() => router.push('/pricing')}
+          activeOpacity={0.9}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Upgrade to Lexon Pro subscription now"
+          accessibilityHint="Double tap anywhere on this banner to view subscription plans"
           style={{
             borderRadius: 20,
             overflow: 'hidden',
@@ -173,38 +179,40 @@ export default function ExploreTab() {
             >
               Unlock unlimited AI Evaluations, native Speaking grading, instant word lookups, and custom YouTube Video Studios.
             </Text>
-            <PressableCard
-              onPress={() => router.push('/pricing')}
-              variant="elevated"
+            
+            {/* Visual Button Pill - Stable Layout */}
+            <View
               style={{
                 backgroundColor: '#FFFFFF',
                 paddingVertical: 10,
                 paddingHorizontal: 18,
                 borderRadius: 12,
                 alignSelf: 'flex-start',
-                marginBottom: 0,
-                borderWidth: 0,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+                elevation: 2,
               }}
-              accessibilityLabel="Upgrade to Lexon Pro subscription now"
-              accessibilityHint="Double tap to open subscription plans modal"
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text
-                  weight="bold"
-                  style={{
-                    fontSize: 14,
-                    color: '#7C3AED',
-                  }}
-                >
-                  Upgrade Now
-                </Text>
-                <Ionicons
-                  name="sparkles"
-                  size={14}
-                  color="#7C3AED"
-                />
-              </View>
-            </PressableCard>
+              <Text
+                weight="bold"
+                style={{
+                  fontSize: 14,
+                  color: '#7C3AED',
+                }}
+              >
+                Upgrade Now
+              </Text>
+              <Ionicons
+                name="sparkles"
+                size={14}
+                color="#7C3AED"
+              />
+            </View>
           </View>
           <Ionicons
             name="sparkles"
@@ -218,7 +226,7 @@ export default function ExploreTab() {
               transform: [{ rotate: '-15deg' }],
             }}
           />
-        </View>
+        </TouchableOpacity>
 
         <Text
           variant="title"
