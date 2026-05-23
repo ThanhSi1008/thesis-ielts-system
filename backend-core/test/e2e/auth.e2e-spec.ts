@@ -165,11 +165,14 @@ describe('Auth E2E — real Postgres (schema=test)', () => {
       expect(decoded).not.toBeNull();
       expect(decoded.sub).toBeDefined();
 
-      // Tạo token mới với cùng payload
+      // Tạo token mới với cùng payload nhưng iat khác
+      // NOTE: JWT iat có độ chính xác giây, nếu sign trong cùng 1 giây
+      // thì token sẽ giống hệt → dùng iat thủ công để đảm bảo khác biệt
       const newToken = jwtService.sign({
         email: decoded.email,
         sub: decoded.sub,
         role: decoded.role,
+        iat: Math.floor(Date.now() / 1000) + 60, // iat khác → token khác
       });
       expect(newToken).toBeDefined();
       expect(typeof newToken).toBe('string');
