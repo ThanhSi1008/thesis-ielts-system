@@ -83,16 +83,19 @@ export function CreatePostModal({
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsMultipleSelection: true,
-      quality: 0.8,
+      quality: 0.5,
       selectionLimit: 4 - images.length,
     });
     if (!result.canceled) {
-      const picked = result.assets.map((a) => ({
-        uri: a.uri,
-        name: a.fileName ?? `photo_${Date.now()}.jpg`,
-      }));
+      const picked = result.assets.map((a, idx) => {
+        const ext = a.uri.split('.').pop()?.toLowerCase() || 'jpg';
+        return {
+          uri: a.uri,
+          name: `photo_${Date.now()}_${idx}.${ext}`,
+        };
+      });
       setImages((prev) => [...prev, ...picked].slice(0, 4));
     }
   };
@@ -109,7 +112,10 @@ export function CreatePostModal({
         const uploads = await Promise.all(
           images.map((img) => {
             const fd = new FormData();
-            fd.append('file', { uri: img.uri, name: img.name, type: 'image/jpeg' } as any);
+            const ext = img.name.split('.').pop()?.toLowerCase() || 'jpeg';
+            const mimeType = ext === 'png' ? 'image/png' : ext === 'gif' ? 'image/gif' : 'image/jpeg';
+            
+            fd.append('file', { uri: img.uri, name: img.name, type: mimeType } as any);
             return postsApi.uploadImage(fd);
           }),
         );
@@ -127,8 +133,10 @@ export function CreatePostModal({
       onCreated(post);
       reset();
       onClose();
-    } catch {
-      toast.error('Error', 'Failed to create post. Please try again.');
+    } catch (err: any) {
+      if (__DEV__) console.error('[CreatePost] Failed to create post:', err);
+      const msg = err?.message ?? 'Failed to create post. Please try again.';
+      toast.error('Error', msg);
     } finally {
       setLoading(false);
       setUploading(false);
