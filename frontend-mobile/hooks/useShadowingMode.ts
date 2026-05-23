@@ -81,8 +81,8 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
   const current = useMemo(() => sentences[currentIdx] || sentences[0], [sentences, currentIdx]);
   const progress = Math.round((completed.length / sentences.length) * 100);
 
-  // Phase 1: Media Sync States
   const [playing, setPlaying] = useState(false);
+  const [isCropped, setIsCropped] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [currentTime, setCurrentTime] = useState(0);
   const [trackWidth, setTrackWidth] = useState(0);
@@ -181,6 +181,7 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
       setCurrentTime(value);
       sentenceStartSecRef.current = value;
       playStartTimeRef.current = Date.now();
+      setIsCropped(false);
       if (lesson?.youtubeVideoId && playerRef.current) {
         playerRef.current.seekTo(value, true);
       } else if (lesson?.audioUrl) {
@@ -367,22 +368,45 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
     (targetSentence?: any) => {
       const sentence = targetSentence ?? currentRef.current;
       if (!sentence) return;
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
 
       sentenceStartSecRef.current = sentence.audioStart;
       playStartTimeRef.current = Date.now();
+      setIsCropped(false);
 
       const startInterval = (audioEnd: number) => {
-        timerRef.current = setInterval(() => {
-          const elapsed = (Date.now() - playStartTimeRef.current) / 1000;
-          const t = sentenceStartSecRef.current + elapsed;
+        timerRef.current = setInterval(async () => {
+          let t = 0;
+          if (lesson?.youtubeVideoId && playerRef.current) {
+            try {
+              // Asynchronously query the actual playhead time on the native YouTube player
+              t = await playerRef.current.getCurrentTime();
+            } catch (e) {
+              const elapsed = (Date.now() - playStartTimeRef.current) / 1000;
+              t = sentenceStartSecRef.current + elapsed;
+            }
+          } else {
+            const elapsed = (Date.now() - playStartTimeRef.current) / 1000;
+            t = sentenceStartSecRef.current + elapsed;
+          }
+
           setCurrentTime(t);
+
+          if (t - sentenceStartSecRef.current >= 2) {
+            setIsCropped(true);
+          }
+
           if (t >= audioEnd) {
             setPlaying(false);
-            if (timerRef.current) clearInterval(timerRef.current);
-            if (lesson?.youtubeVideoId && playerRef.current) {
-              // No-op
-            } else if (lesson?.audioUrl) {
+            setIsCropped(false);
+            if (timerRef.current) {
+              clearInterval(timerRef.current);
+              timerRef.current = null;
+            }
+            if (!lesson?.youtubeVideoId && lesson?.audioUrl) {
               audioPlayer.pause();
             }
           }
@@ -409,12 +433,14 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
 
   const togglePlay = useCallback(() => {
     if (playing) {
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (lesson?.youtubeVideoId && playerRef.current) {
-        setPlaying(false);
-      } else if (lesson?.audioUrl) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      setPlaying(false);
+      setIsCropped(false);
+      if (!lesson?.youtubeVideoId && lesson?.audioUrl) {
         audioPlayer.pause();
-        setPlaying(false);
       }
     } else {
       playSentence(current);
@@ -430,7 +456,14 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
   const handleYoutubeStateChange = useCallback((state: string) => {
     if (state === 'ended' || state === 'paused') {
       setPlaying(false);
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    } else if (state === 'playing') {
+      if (timerRef.current !== null) {
+        setPlaying(true);
+      }
     }
   }, []);
 
@@ -488,15 +521,19 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
     setSpokenTranscript('');
     setShowAnswer(false);
     setPlaying(false);
+    setIsCropped(false);
     if (isRecording) stopRecording();
-    if (timerRef.current) clearInterval(timerRef.current);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
 
     if (currentIdx < sentences.length - 1) {
       setCurrentIdx((i) => i + 1);
     } else {
       handleFinish();
     }
-  }, [currentIdx, sentences.length, isRecording, stopRecording, handleFinish, markCompleted]);
+  }, [currentIdx, sentences.length, isRecording, stopRecording, handleFinish, markCompleted, lesson]);
 
   return {
     userInputs,
@@ -555,6 +592,8 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
     setIsRecording,
     spokenTranscript,
     setSpokenTranscript,
+    isCropped,
+    setIsCropped,
     startShadowingRecording,
     stopShadowingRecording,
     stopRecording,
