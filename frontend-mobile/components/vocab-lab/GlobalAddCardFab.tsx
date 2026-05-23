@@ -86,16 +86,24 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
   const [tagInput, setTagInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [vocabMeta, setVocabMeta] = useState<{ bookName: string; wordData: any } | undefined>(undefined);
   const [dataLoaded, setDataLoaded] = useState(false);
 
   // Open / close animations
   const openSheet = useCallback(
-    (prefill?: { front: string; back: string; tags?: string[]; audioUrl?: string }) => {
+    (prefill?: {
+      front: string;
+      back: string;
+      tags?: string[];
+      audioUrl?: string;
+      foundationVocabMeta?: { bookName: string; wordData: any };
+    }) => {
       const prefillData =
         prefill && typeof prefill === 'object' && 'front' in prefill ? prefill : undefined;
 
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       setOpen(true);
+      setVocabMeta(prefill?.foundationVocabMeta);
       Animated.parallel([
         Animated.spring(slideAnim, {
           toValue: 0,
@@ -166,7 +174,13 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
   useEffect(() => {
     const sub = DeviceEventEmitter.addListener(
       'OPEN_QUICK_ADD_CARD',
-      (payload: { front: string; back: string; tags?: string[]; audioUrl?: string }) => {
+      (payload: {
+        front: string;
+        back: string;
+        tags?: string[];
+        audioUrl?: string;
+        foundationVocabMeta?: { bookName: string; wordData: any };
+      }) => {
         openSheet(payload);
       },
     );
@@ -211,14 +225,21 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
 
     setSubmitting(true);
     try {
-      await vocabLabApi.createFlashcard({
-        deckId: selectedDeckId,
-        front: '',
-        back: '',
-        cardTypeId,
-        fieldValues,
-        tags: tagsList.length > 0 ? tagsList : undefined,
-      });
+      if (vocabMeta) {
+        await vocabLabApi.createFlashcardFromVocabulary({
+          bookName: vocabMeta.bookName,
+          word: vocabMeta.wordData,
+        });
+      } else {
+        await vocabLabApi.createFlashcard({
+          deckId: selectedDeckId,
+          front: '',
+          back: '',
+          cardTypeId,
+          fieldValues,
+          tags: tagsList.length > 0 ? tagsList : undefined,
+        });
+      }
 
       DeviceEventEmitter.emit('VOCAB_LAB_CARD_ADDED');
 
@@ -226,6 +247,7 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
       ct.fields.forEach((f: any) => (resetFields[f.id] = ''));
       setFieldValues(resetFields);
       setTagsList([]);
+      setVocabMeta(undefined);
       setShowToast(false);
       setTimeout(() => setShowToast(true), 50);
     } catch {

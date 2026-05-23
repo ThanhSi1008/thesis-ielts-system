@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { shadowingApi } from '@/services/features.api';
-import { ShadowingVideo } from '@/types';
+import { shadowingApi, dictationApi } from '@/services/features.api';
+import { ShadowingVideo, DictationVideo } from '@/types';
 import { toast } from '@/components/ui/index';
 
 const POLL_INTERVAL_MS = 5000;
@@ -84,23 +84,24 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
 
   // Background silent polling fetch
   const fetchSilent = useCallback(async () => {
+    const api = mode === 'shadowing' ? shadowingApi : dictationApi;
     try {
       const [videos, lessons, rawProgress] = await Promise.all([
-        shadowingApi.getVideos(),
-        shadowingApi.getLessons(),
-        shadowingApi.getAllProgress(),
+        api.getVideos(),
+        api.getLessons(),
+        api.getAllProgress(),
       ]);
 
-      applyVideosAndLessons(videos, lessons, rawProgress);
+      applyVideosAndLessons(videos as any, lessons as any, rawProgress);
 
-      const hasProcessing = videos.some((v: any) => v.status === 'PROCESSING');
+      const hasProcessing = (videos as any[]).some((v: any) => v.status === 'PROCESSING');
       if (!hasProcessing) {
         stopPolling();
       }
     } catch (e) {
       // Silently catch polling errors to avoid interrupting the user experience
     }
-  }, [applyVideosAndLessons, stopPolling]);
+  }, [mode, applyVideosAndLessons, stopPolling]);
 
   // Start polling
   const startPolling = useCallback(() => {
@@ -110,29 +111,30 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
 
   // Full fetch with loading states
   const fetchData = useCallback(async () => {
+    const api = mode === 'shadowing' ? shadowingApi : dictationApi;
     try {
       const [videos, lessons, rawProgress] = await Promise.all([
-        shadowingApi.getVideos(),
-        shadowingApi.getLessons(),
-        shadowingApi.getAllProgress(),
+        api.getVideos(),
+        api.getLessons(),
+        api.getAllProgress(),
       ]);
 
-      applyVideosAndLessons(videos, lessons, rawProgress);
+      applyVideosAndLessons(videos as any, lessons as any, rawProgress);
 
-      const hasProcessing = videos.some((v: any) => v.status === 'PROCESSING');
+      const hasProcessing = (videos as any[]).some((v: any) => v.status === 'PROCESSING');
       if (hasProcessing) {
         startPolling();
       } else {
         stopPolling();
       }
     } catch (e) {
-      console.error('Failed to fetch shadowing data:', e);
+      console.error(`Failed to fetch ${mode} data:`, e);
       toast.error('Error', 'Failed to load lessons. Please try again.');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [applyVideosAndLessons, startPolling, stopPolling]);
+  }, [mode, applyVideosAndLessons, startPolling, stopPolling]);
 
   useEffect(() => {
     fetchData();
@@ -167,6 +169,52 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
       setVideoToDelete(null);
     }
   }, [videoToDelete]);
+
+  // Folder rename handler
+  const handleRenameFolder = useCallback(async (name: string, newName: string) => {
+    const api = mode === 'shadowing' ? shadowingApi : dictationApi;
+    try {
+      await api.renameFolder(name, newName);
+      toast.success('Thành công', `Đã đổi tên thư mục thành "${newName}".`);
+      setUserVideos((prev) =>
+        prev.map((v) => (v.folder === name ? { ...v, folder: newName } : v))
+      );
+    } catch (e) {
+      console.error('Failed to rename folder:', e);
+      toast.error('Lỗi', 'Không thể đổi tên thư mục.');
+      throw e;
+    }
+  }, [mode]);
+
+  // Folder delete handler
+  const handleDeleteFolder = useCallback(async (name: string) => {
+    const api = mode === 'shadowing' ? shadowingApi : dictationApi;
+    try {
+      await api.deleteFolder(name);
+      toast.success('Thành công', `Đã xóa thư mục "${name}".`);
+      setUserVideos((prev) => prev.filter((v) => v.folder !== name));
+    } catch (e) {
+      console.error('Failed to delete folder:', e);
+      toast.error('Lỗi', 'Không thể xóa thư mục.');
+      throw e;
+    }
+  }, [mode]);
+
+  // Video update handler
+  const handleUpdateVideo = useCallback(async (id: string, dto: { title?: string; folder?: string; category?: string }) => {
+    const api = mode === 'shadowing' ? shadowingApi : dictationApi;
+    try {
+      await api.updateVideo(id, dto);
+      toast.success('Thành công', 'Đã cập nhật thông tin video.');
+      setUserVideos((prev) =>
+        prev.map((v) => (v.id === id ? { ...v, ...dto } : v))
+      );
+    } catch (e) {
+      console.error('Failed to update video:', e);
+      toast.error('Lỗi', 'Không thể cập nhật video.');
+      throw e;
+    }
+  }, [mode]);
 
   // Filter built-in system lessons
   const filteredSystem = systemLessons.map((l) => ({ ...l, tags: l.tags || ['English'] })).filter((l) => {
@@ -217,5 +265,8 @@ export function useShadowingLessons(initialMode?: 'shadowing' | 'dictation') {
     setDeleteConfirmVisible,
     videoToDelete,
     executeDeleteVideo,
+    handleRenameFolder,
+    handleDeleteFolder,
+    handleUpdateVideo,
   };
 }

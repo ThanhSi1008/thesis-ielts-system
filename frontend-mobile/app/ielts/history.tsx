@@ -441,12 +441,11 @@ export default function HistoryScreen() {
         navigation.push(`/ielts/advanced/writing/result/${id}`);
         return;
       }
-      if (item.practicePart) {
-        // Practice → advanced result
-        const skillPath = item.skill?.toLowerCase() ?? 'listening';
-        navigation.push(ROUTES.ieltsAdvancedSkillPartResult(skillPath, item.examId, id));
+      if (item.practicePart !== null && item.practicePart !== undefined) {
+        // Intensive practice -> dedicated practice result screen
+        navigation.push(`/ielts/intensive/practice/result/${id}`);
       } else {
-        // Mock → intensive result
+        // Mock -> intensive result
         navigation.push(ROUTES.ieltsIntensiveResult(id));
       }
     },

@@ -39,6 +39,7 @@ export function CardTypeEditorModal({
   // Local state
   const [fields, setFields] = useState<CardField[]>([]);
   const [templates, setTemplates] = useState<CardTemplate[]>([]);
+  const [description, setDescription] = useState('');
   const [saving, setSaving] = useState(false);
   const [fontSizeSelectorVisible, setFontSizeSelectorVisible] = useState(false);
   const [activeFieldIdForSize, setActiveFieldIdForSize] = useState<string | null>(null);
@@ -59,13 +60,28 @@ export function CardTypeEditorModal({
     if (visible && cardType) {
       // deep clone to avoid mutating props directly
       setFields(JSON.parse(JSON.stringify(cardType.fields || [])));
+      setDescription(cardType.description || '');
 
-      const defaultTpls = [
-        { id: Date.now().toString(), name: 'Default', frontFields: [], backFields: [] },
-      ];
-      setTemplates(
-        cardType.templates?.length ? JSON.parse(JSON.stringify(cardType.templates)) : defaultTpls,
-      );
+      const fetchTemplatesAndSet = async () => {
+        try {
+          const fetched = await vocabLabApi.getTemplates(cardType.id);
+          if (fetched && fetched.length > 0) {
+            setTemplates(fetched);
+            return;
+          }
+        } catch (e) {
+          // ignore or fallback to cardType.templates
+        }
+        
+        const defaultTpls = [
+          { id: Date.now().toString(), name: 'Default', frontFields: [], backFields: [] },
+        ];
+        setTemplates(
+          cardType.templates?.length ? JSON.parse(JSON.stringify(cardType.templates)) : defaultTpls,
+        );
+      };
+
+      fetchTemplatesAndSet();
       setTab('fields');
     }
   }, [visible, cardType]);
@@ -160,6 +176,12 @@ export function CardTypeEditorModal({
   const handleSave = async () => {
     setSaving(true);
     try {
+      // 0. Update description if modified
+      if (description !== (cardType.description || '')) {
+        await vocabLabApi.updateCardTypeDescription(cardType.id, description.trim() || null);
+        cardType.description = description.trim();
+      }
+
       // 1. Process fields
       const originalFields = cardType.fields || [];
       const currentFields = fields;
@@ -500,6 +522,20 @@ export function CardTypeEditorModal({
                 <Text style={s.sectionDesc}>
                   Define the data fields for this card type. Reorder them to change input order.
                 </Text>
+
+                <View style={{ marginBottom: SPACING.md }}>
+                  <Text style={{ fontSize: 12, fontWeight: 'bold', color: COLORS.text, marginBottom: 6 }}>
+                    Card Type Description
+                  </Text>
+                  <TextInput
+                    style={[s.input, { backgroundColor: '#f9fafb', borderColor: COLORS.border }]}
+                    value={description}
+                    onChangeText={setDescription}
+                    placeholder="Enter a description for this card type..."
+                    placeholderTextColor={COLORS.textMuted}
+                    maxLength={150}
+                  />
+                </View>
 
                 {fields.map((f, i) => (
                   <View key={f.id} style={s.fieldRow}>

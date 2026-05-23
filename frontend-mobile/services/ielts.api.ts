@@ -8,6 +8,7 @@ import {
   IeltsIntensiveStats,
   CommunityWritingAnswer,
   CommunitySpeakingAnswer,
+  PracticeCatalogResponse,
 } from '../types';
 
 // ==================== IELTS PROFILE ====================
@@ -180,6 +181,12 @@ export const ieltsExamsApi = {
   saveProgress: (sessionId: string, answers: Record<string, any>, timeTaken?: number) =>
     apiClient.patch<any>(`/exams/sessions/${sessionId}/progress`, { answers, timeTaken }),
   deleteSession: (sessionId: string) => apiClient.delete<any>(`/exams/sessions/${sessionId}`),
+  getPracticeCatalog: async (skill?: 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING'): Promise<PracticeCatalogResponse> => {
+    const url = skill
+      ? `/exams/intensive/practice-catalog?skill=${skill}`
+      : '/exams/intensive/practice-catalog';
+    return apiClient.get<PracticeCatalogResponse>(url);
+  },
   uploadSpeakingAudio: (formData: FormData): Promise<{ url: string }> =>
     apiClient.postForm<{ url: string }>('/exams/audio/upload', formData),
 };

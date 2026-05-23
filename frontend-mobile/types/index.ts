@@ -416,6 +416,7 @@ export interface CardTemplate {
 export interface CardType {
   id: string;
   name: string;
+  description?: string | null;
   isBuiltIn: boolean;
   fields: CardField[];
   templates?: CardTemplate[];
@@ -796,5 +797,43 @@ export interface CommunitySpeakingAnswer {
 }
 
 export type CommunityAnswerType = 'writing' | 'speaking';
+
+// ==================== IELTS INTENSIVE PRACTICE ====================
+
+export interface PracticeExamItem {
+  id: string;
+  title: string;
+  description?: string;
+  skill: 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING';
+  partNumber: number;
+  difficulty?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  questionCount: number;
+  estimatedMinutes: number;
+  tags?: string[];
+  isNew?: boolean;
+  completedCount?: number;
+}
+
+export interface PracticeCatalogResponse {
+  listening: PracticeExamItem[];
+  reading: PracticeExamItem[];
+  writing: PracticeExamItem[];
+  speaking: PracticeExamItem[];
+}
+
+export interface SharedDeck {
+  id: string;
+  name: string;
+  description?: string | null;
+  tags?: string[];
+  publisherId: string;
+  publisherName: string;
+  publisherAvatar?: string | null;
+  cardCount: number;
+  importCount: number;
+  category?: string;
+  previewCards?: { front: string; back: string }[];
+  createdAt: string;
+}
 
 

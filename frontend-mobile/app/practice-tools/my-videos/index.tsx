@@ -15,7 +15,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, ROUTES, SPACING, RADIUS } from '@/constants';
 import { FeatureLock } from '@/components/ui/index';
-import { AddVideoModal } from '@/components/shadowing';
+import { AddVideoModal, FolderManageSheet, EditVideoSheet } from '@/components/shadowing';
 import { ConfirmDialog } from '@/components';
 import { useShadowingLessons } from '@/hooks';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -34,7 +34,12 @@ export default function MyVideosScreen() {
 
   const [activeMode, setActiveMode] = useState<'shadowing' | 'dictation'>('shadowing');
 
-  const activeHook = useShadowingLessons();
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [folderSheetVisible, setFolderSheetVisible] = useState(false);
+  const [videoToEdit, setVideoToEdit] = useState<{ id: string; title: string; folder?: string; category?: string } | null>(null);
+  const [editVideoVisible, setEditVideoVisible] = useState(false);
+
+  const activeHook = useShadowingLessons(activeMode);
 
   const {
     status,
@@ -56,7 +61,28 @@ export default function MyVideosScreen() {
     setDeleteConfirmVisible,
     videoToDelete,
     executeDeleteVideo,
+    handleRenameFolder,
+    handleDeleteFolder,
+    handleUpdateVideo,
   } = activeHook;
+
+  const videosByFolder = React.useMemo(() => {
+    return filtered.reduce((acc, v) => {
+      const folder = v.folder || 'General';
+      if (!acc[folder]) acc[folder] = [];
+      acc[folder].push(v);
+      return acc;
+    }, {} as Record<string, typeof filtered>);
+  }, [filtered]);
+
+  const foldersList = React.useMemo(() => {
+    return Object.keys(videosByFolder).sort((a, b) => {
+      if (a === 'General') return -1;
+      if (b === 'General') return 1;
+      return a.localeCompare(b);
+    });
+  }, [videosByFolder]);
+
 
   const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: colors.background },
@@ -355,6 +381,53 @@ export default function MyVideosScreen() {
       fontSize: 13,
       color: '#0F172A',
     },
+    folderHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: colors.surface,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderRadius: RADIUS.xl,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      marginTop: 16,
+      marginBottom: 10,
+    },
+    folderHeaderLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    folderTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 14,
+      color: colors.text,
+    },
+    folderCountBadge: {
+      backgroundColor: 'rgba(255, 198, 0, 0.08)',
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: RADIUS.sm,
+      borderWidth: 0.5,
+      borderColor: 'rgba(255, 198, 0, 0.2)',
+    },
+    folderCountText: {
+      fontFamily: FONTS.bold,
+      fontSize: 10,
+      color: colors.textSecondary,
+    },
+    folderMenuBtn: {
+      padding: 4,
+    },
+    editBtn: {
+      width: 30,
+      height: 30,
+      borderRadius: RADIUS.md,
+      backgroundColor: 'rgba(255, 198, 0, 0.08)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
   });
 
   const renderLessonList = () => {
@@ -381,6 +454,174 @@ export default function MyVideosScreen() {
       );
     }
 
+    const showFolders = foldersList.length > 1 || (foldersList.length === 1 && foldersList[0] !== 'General');
+
+    const renderVideoCard = (lesson: typeof filtered[0]) => {
+      const p = progress[lesson.id]?.[activeMode] || 0;
+      const isComp = p === 100;
+      const isIP = p > 0 && p < 100;
+      const isProcessing = (lesson as any).status === 'PROCESSING';
+      const accent = activeMode === 'shadowing' ? COLORS.info : COLORS.warning;
+      const cat = lesson.category || lesson.tags?.[0] || 'YouTube';
+
+      return (
+        <View
+          key={lesson.id}
+          style={styles.lessonCard}
+          accessible={true}
+          accessibilityLabel={`Lesson: ${lesson.title}. Category: ${cat}. ${
+            isProcessing ? 'Transcribing and processing' : `Duration: ${lesson.duration || '5 min'}`
+          }. Status: ${isComp ? 'Completed' : isIP ? `${p} percent completed` : 'Not started'}`}
+        >
+          {/* Thumbnail */}
+          <View style={styles.thumbWrap}>
+            <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.thumbBg}>
+              <View style={[styles.thumbGlow, { backgroundColor: accent }]} />
+              {isProcessing ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : isComp ? (
+                <Ionicons name="checkmark-circle" size={24} color={COLORS.status.success} />
+              ) : (
+                <Ionicons name="play-circle" size={24} color="rgba(255,255,255,0.65)" />
+              )}
+            </LinearGradient>
+            {isIP && !isProcessing && (
+              <View style={styles.thumbProgBg}>
+                <View style={[styles.thumbProgFill, { width: `${p}%` as any }]} />
+              </View>
+            )}
+          </View>
+
+          {/* Meta */}
+          <View style={styles.metaWrap}>
+            <Text style={styles.lessonTitle} numberOfLines={2} allowFontScaling={true}>
+              {lesson.title}
+            </Text>
+            <View style={styles.metaRow}>
+              <View style={styles.durWrap}>
+                <Ionicons name="time-outline" size={11} color={colors.textMuted} />
+                <Text style={styles.durText} allowFontScaling={true}>
+                  {isProcessing ? 'Analyzing...' : lesson.duration || '5 min'}
+                </Text>
+              </View>
+              <View style={styles.catWrap}>
+                <Text style={styles.catText} allowFontScaling={true}>{cat}</Text>
+              </View>
+              {lesson.folder && (
+                <View style={[styles.catWrap, styles.folderBadge]}>
+                  <Ionicons
+                    name="folder-outline"
+                    size={10}
+                    color={colors.textSecondary}
+                    style={{ marginRight: 2 }}
+                  />
+                  <Text style={styles.catText} allowFontScaling={true}>{lesson.folder}</Text>
+                </View>
+              )}
+            </View>
+
+            {isIP && !isProcessing && (
+              <View style={styles.progBarRow}>
+                <View style={styles.progBarBg}>
+                  <View style={[styles.progBarFill, { width: `${p}%` as any }]} />
+                </View>
+                <Text style={styles.progBarText} allowFontScaling={true}>{p}%</Text>
+              </View>
+            )}
+
+            <View style={styles.actionRow}>
+              <View style={{ flex: 1 }}>
+                {isProcessing ? (
+                  <View style={styles.processingWrap}>
+                    <ActivityIndicator
+                      size="small"
+                      color={colors.primary}
+                      style={{ marginRight: 4 }}
+                    />
+                    <Text style={styles.processingText} allowFontScaling={true}>Transcribing...</Text>
+                  </View>
+                ) : p === 0 ? (
+                  <Text style={styles.statusText} allowFontScaling={true}>Not started</Text>
+                ) : isComp ? (
+                  <View style={styles.compWrap}>
+                    <Ionicons name="checkmark" size={11} color={COLORS.status.success} />
+                    <Text style={styles.compText} allowFontScaling={true}>Completed</Text>
+                  </View>
+                ) : null}
+              </View>
+
+              <View style={styles.actionGroup}>
+                <TouchableOpacity
+                  style={styles.editBtn}
+                  onPress={() => {
+                    setVideoToEdit({
+                      id: lesson.id,
+                      title: lesson.title,
+                      folder: lesson.folder || 'General',
+                      category: cat,
+                    });
+                    setEditVideoVisible(true);
+                  }}
+                  activeOpacity={0.7}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Edit ${lesson.title}`}
+                  accessibilityHint="Double tap to edit this video metadata"
+                >
+                  <Ionicons name="pencil-outline" size={14} color={colors.primary} />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.deleteBtn}
+                  onPress={() => handleDeleteVideo(lesson.id, lesson.title)}
+                  activeOpacity={0.7}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Delete ${lesson.title}`}
+                  accessibilityHint="Double tap to remove this imported video"
+                >
+                  <Ionicons name="trash-outline" size={15} color={COLORS.status.error} />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  disabled={isProcessing}
+                  style={[
+                    styles.actionBtn,
+                    isProcessing
+                      ? styles.actionBtnDisabled
+                      : isComp
+                        ? styles.actionBtnComp
+                        : styles.actionBtnStart,
+                  ]}
+                  onPress={() =>
+                    router.push(ROUTES.practiceToolsShadowingLesson(lesson.id, activeMode) as any)
+                  }
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${isComp ? 'Redo' : isIP ? 'Continue' : 'Start'} lesson ${lesson.title}`}
+                  accessibilityHint="Double tap to open shadowing exercise"
+                >
+                  <Text
+                    style={[
+                      styles.actionBtnText,
+                      isProcessing
+                        ? styles.actionBtnTextDisabled
+                        : isComp
+                          ? styles.actionBtnTextComp
+                          : styles.actionBtnTextStart,
+                    ]}
+                    allowFontScaling={true}
+                  >
+                    {isProcessing ? 'ETA ~1M' : isIP ? 'CONTINUE' : isComp ? 'REDO' : 'START'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      );
+    };
+
     return (
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -393,151 +634,44 @@ export default function MyVideosScreen() {
         }
         contentContainerStyle={{ paddingBottom: 100 }}
       >
-        {filtered.map((lesson) => {
-          const p = progress[lesson.id]?.[activeMode] || 0;
-          const isComp = p === 100;
-          const isIP = p > 0 && p < 100;
-          const isProcessing = (lesson as any).status === 'PROCESSING';
-          const accent = activeMode === 'shadowing' ? COLORS.info : COLORS.warning;
-          const cat = lesson.category || lesson.tags?.[0] || 'YouTube';
-
-          return (
-            <View
-              key={lesson.id}
-              style={styles.lessonCard}
-              accessible={true}
-              accessibilityLabel={`Lesson: ${lesson.title}. Category: ${cat}. ${
-                isProcessing ? 'Transcribing and processing' : `Duration: ${lesson.duration || '5 min'}`
-              }. Status: ${isComp ? 'Completed' : isIP ? `${p} percent completed` : 'Not started'}`}
-            >
-              {/* Thumbnail */}
-              <View style={styles.thumbWrap}>
-                <LinearGradient colors={['#0f172a', '#1e293b']} style={styles.thumbBg}>
-                  <View style={[styles.thumbGlow, { backgroundColor: accent }]} />
-                  {isProcessing ? (
-                    <ActivityIndicator size="small" color={colors.primary} />
-                  ) : isComp ? (
-                    <Ionicons name="checkmark-circle" size={24} color={COLORS.status.success} />
-                  ) : (
-                    <Ionicons name="play-circle" size={24} color="rgba(255,255,255,0.65)" />
-                  )}
-                </LinearGradient>
-                {isIP && !isProcessing && (
-                  <View style={styles.thumbProgBg}>
-                    <View style={[styles.thumbProgFill, { width: `${p}%` as any }]} />
-                  </View>
-                )}
-              </View>
-
-              {/* Meta */}
-              <View style={styles.metaWrap}>
-                <Text style={styles.lessonTitle} numberOfLines={2} allowFontScaling={true}>
-                  {lesson.title}
-                </Text>
-                <View style={styles.metaRow}>
-                  <View style={styles.durWrap}>
-                    <Ionicons name="time-outline" size={11} color={colors.textMuted} />
-                    <Text style={styles.durText} allowFontScaling={true}>
-                      {isProcessing ? 'Analyzing...' : lesson.duration || '5 min'}
+        {showFolders ? (
+          foldersList.map((folderName) => {
+            const folderVideos = videosByFolder[folderName] || [];
+            if (folderVideos.length === 0) return null;
+            return (
+              <View key={folderName}>
+                <View style={styles.folderHeader}>
+                  <View style={styles.folderHeaderLeft}>
+                    <Ionicons name="folder" size={18} color={colors.primary} />
+                    <Text style={styles.folderTitle} allowFontScaling={true}>
+                      {folderName}
                     </Text>
-                  </View>
-                  <View style={styles.catWrap}>
-                    <Text style={styles.catText} allowFontScaling={true}>{cat}</Text>
-                  </View>
-                  {lesson.folder && (
-                    <View style={[styles.catWrap, styles.folderBadge]}>
-                      <Ionicons
-                        name="folder-outline"
-                        size={10}
-                        color={colors.textSecondary}
-                        style={{ marginRight: 2 }}
-                      />
-                      <Text style={styles.catText} allowFontScaling={true}>{lesson.folder}</Text>
-                    </View>
-                  )}
-                </View>
-
-                {isIP && !isProcessing && (
-                  <View style={styles.progBarRow}>
-                    <View style={styles.progBarBg}>
-                      <View style={[styles.progBarFill, { width: `${p}%` as any }]} />
-                    </View>
-                    <Text style={styles.progBarText} allowFontScaling={true}>{p}%</Text>
-                  </View>
-                )}
-
-                <View style={styles.actionRow}>
-                  <View style={{ flex: 1 }}>
-                    {isProcessing ? (
-                      <View style={styles.processingWrap}>
-                        <ActivityIndicator
-                          size="small"
-                          color={colors.primary}
-                          style={{ marginRight: 4 }}
-                        />
-                        <Text style={styles.processingText} allowFontScaling={true}>Transcribing...</Text>
-                      </View>
-                    ) : p === 0 ? (
-                      <Text style={styles.statusText} allowFontScaling={true}>Not started</Text>
-                    ) : isComp ? (
-                      <View style={styles.compWrap}>
-                        <Ionicons name="checkmark" size={11} color={COLORS.status.success} />
-                        <Text style={styles.compText} allowFontScaling={true}>Completed</Text>
-                      </View>
-                    ) : null}
-                  </View>
-
-                  <View style={styles.actionGroup}>
-                    <TouchableOpacity
-                      style={styles.deleteBtn}
-                      onPress={() => handleDeleteVideo(lesson.id, lesson.title)}
-                      activeOpacity={0.7}
-                      accessible={true}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Delete ${lesson.title}`}
-                      accessibilityHint="Double tap to remove this imported video"
-                    >
-                      <Ionicons name="trash-outline" size={15} color={COLORS.status.error} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      disabled={isProcessing}
-                      style={[
-                        styles.actionBtn,
-                        isProcessing
-                          ? styles.actionBtnDisabled
-                          : isComp
-                            ? styles.actionBtnComp
-                            : styles.actionBtnStart,
-                      ]}
-                      onPress={() =>
-                        router.push(ROUTES.practiceToolsShadowingLesson(lesson.id, activeMode) as any)
-                      }
-                      accessible={true}
-                      accessibilityRole="button"
-                      accessibilityLabel={`${isComp ? 'Redo' : isIP ? 'Continue' : 'Start'} lesson ${lesson.title}`}
-                      accessibilityHint="Double tap to open shadowing exercise"
-                    >
-                      <Text
-                        style={[
-                          styles.actionBtnText,
-                          isProcessing
-                            ? styles.actionBtnTextDisabled
-                            : isComp
-                              ? styles.actionBtnTextComp
-                              : styles.actionBtnTextStart,
-                        ]}
-                        allowFontScaling={true}
-                      >
-                        {isProcessing ? 'ETA ~1M' : isIP ? 'CONTINUE' : isComp ? 'REDO' : 'START'}
+                    <View style={styles.folderCountBadge}>
+                      <Text style={styles.folderCountText} allowFontScaling={true}>
+                        {folderVideos.length} {folderVideos.length === 1 ? 'video' : 'videos'}
                       </Text>
-                    </TouchableOpacity>
+                    </View>
                   </View>
+                  <TouchableOpacity
+                    style={styles.folderMenuBtn}
+                    onPress={() => {
+                      setSelectedFolder(folderName);
+                      setFolderSheetVisible(true);
+                    }}
+                    accessible={true}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Manage folder ${folderName}`}
+                  >
+                    <Ionicons name="ellipsis-vertical" size={16} color={colors.textSecondary} />
+                  </TouchableOpacity>
                 </View>
+                {folderVideos.map((lesson) => renderVideoCard(lesson))}
               </View>
-            </View>
-          );
-        })}
+            );
+          })
+        ) : (
+          filtered.map((lesson) => renderVideoCard(lesson))
+        )}
       </ScrollView>
     );
   };
@@ -743,6 +877,40 @@ export default function MyVideosScreen() {
         secondaryAction={{
           title: 'Cancel',
           onPress: () => setDeleteConfirmVisible(false),
+        }}
+      />
+
+      {/* Folder Management Bottom Sheet */}
+      {selectedFolder && (
+        <FolderManageSheet
+          visible={folderSheetVisible}
+          onClose={() => {
+            setFolderSheetVisible(false);
+            setSelectedFolder(null);
+          }}
+          folderName={selectedFolder}
+          onRename={async (name, newName) => {
+            await handleRenameFolder(name, newName);
+            handleRefresh();
+          }}
+          onDelete={async (name) => {
+            await handleDeleteFolder(name);
+            handleRefresh();
+          }}
+        />
+      )}
+
+      {/* Edit Video Bottom Sheet */}
+      <EditVideoSheet
+        visible={editVideoVisible}
+        onClose={() => {
+          setEditVideoVisible(false);
+          setVideoToEdit(null);
+        }}
+        video={videoToEdit}
+        onSave={async (id, dto) => {
+          await handleUpdateVideo(id, dto);
+          handleRefresh();
         }}
       />
     </View>

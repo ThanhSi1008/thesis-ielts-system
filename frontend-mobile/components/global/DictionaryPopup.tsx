@@ -32,6 +32,7 @@ export function DictionaryPopup() {
   const [loading, setLoading] = useState(true);
   const [dictData, setDictData] = useState<any>(null);
   const [viTranslation, setViTranslation] = useState('');
+  const [vocabMeta, setVocabMeta] = useState<{ bookName: string; wordData: any } | undefined>(undefined);
   const { colors } = useTheme();
   const router = useRouter();
 
@@ -41,9 +42,18 @@ export function DictionaryPopup() {
   useEffect(() => {
     const sub = DeviceEventEmitter.addListener(
       'OPEN_DICTIONARY',
-      ({ word: queryWord, sentence: contextSentence }: { word: string; sentence: string }) => {
+      ({
+        word: queryWord,
+        sentence: contextSentence,
+        foundationVocabMeta,
+      }: {
+        word: string;
+        sentence: string;
+        foundationVocabMeta?: { bookName: string; wordData: any };
+      }) => {
         setWord(queryWord);
         setSentence(contextSentence);
+        setVocabMeta(foundationVocabMeta);
         setActiveTab('VI');
         setOpen(true);
         Animated.spring(slideAnim, {
@@ -140,6 +150,7 @@ export function DictionaryPopup() {
       back: formattedBack,
       tags: ['lookup'],
       audioUrl: audioUrl || undefined,
+      foundationVocabMeta: vocabMeta,
     });
 
     closeSheet();

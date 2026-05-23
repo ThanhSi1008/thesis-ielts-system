@@ -13,6 +13,8 @@ import {
   GamificationProfile,
   AchievementItem,
   DictationVideo,
+  SharedDeck,
+  CardTemplate,
 } from '@/types';
 
 // ==================== VOCAB LAB ====================
@@ -26,7 +28,10 @@ export const vocabLabApi = {
   getStudyCards: (deckId: string) => apiClient.get<Flashcard[]>(`/vocab-lab/study/${deckId}`),
   submitReview: (payload: { flashcardId: string; rating: number }) =>
     apiClient.post<void>('/vocab-lab/review', payload),
-  getStats: () => apiClient.get<VocabStats>('/vocab-lab/stats'),
+  getStats: (range?: number) => {
+    const url = range ? `/vocab-lab/stats?range=${range}` : '/vocab-lab/stats';
+    return apiClient.get<VocabStats>(url);
+  },
   getCardTypes: () => apiClient.get<CardType[]>('/vocab-lab/card-types'),
   createCardType: (payload: { name: string }) =>
     apiClient.post<CardType>('/vocab-lab/card-types', payload),
@@ -98,6 +103,12 @@ export const vocabLabApi = {
   },
   importSharedDeck: (id: string) =>
     apiClient.post<void>(`/vocab-lab/community/decks/${id}/import`, {}),
+  getSharedDeck: (id: string) =>
+    apiClient.get<SharedDeck>(`/vocab-lab/community/decks/${id}`),
+  getTemplates: (cardTypeId: string) =>
+    apiClient.get<CardTemplate[]>(`/vocab-lab/card-types/${cardTypeId}/templates`),
+  updateCardTypeDescription: (id: string, description: string | null) =>
+    apiClient.patch<CardType>(`/vocab-lab/card-types/${id}/description`, { description }),
   unpublishDeck: (id: string) => apiClient.delete<void>(`/vocab-lab/community/decks/${id}`),
   publishDeck: (id: string, payload: { name: string; description?: string; tags?: string[] }) =>
     apiClient.post<any>(`/vocab-lab/decks/${id}/publish`, payload),
@@ -109,6 +120,29 @@ export const vocabLabApi = {
       cardsImported: number;
     }>('/vocab-lab/decks/import', lexonData),
   exportDeck: (id: string) => apiClient.get<any>(`/vocab-lab/decks/${id}/export`),
+  createFlashcardFromVocabulary: (payload: {
+    bookName: string;
+    word: {
+      word: string;
+      phonetic?: string;
+      definition: string;
+      example?: string;
+      imageUrl?: string;
+      audioUrl?: string;
+    };
+  }) => apiClient.post<Flashcard>('/vocab-lab/from-foundationVocabWord', payload),
+  createFlashcardFromVocabularyWithReview: (payload: {
+    bookName: string;
+    word: {
+      word: string;
+      phonetic?: string;
+      definition: string;
+      example?: string;
+      imageUrl?: string;
+      audioUrl?: string;
+    };
+    rating: 1 | 2 | 3 | 4;
+  }) => apiClient.post<Flashcard>('/vocab-lab/from-foundationVocabWord/with-review', payload),
 };
 
 // ==================== SHADOWING ====================
@@ -137,6 +171,15 @@ export const shadowingApi = {
   getProgress: (lessonId: string) =>
     apiClient.get<ShadowingProgress>(`/shadowing/progress/${encodeURIComponent(lessonId)}`),
   upsertProgress: (dto: ShadowingProgress) => apiClient.post<void>('/shadowing/progress', dto),
+  renameFolder: (name: string, newName: string) =>
+    apiClient.patch<void>(`/shadowing/folders/${encodeURIComponent(name)}`, { newName }),
+  deleteFolder: (name: string) =>
+    apiClient.delete<void>(`/shadowing/folders/${encodeURIComponent(name)}`),
+  updateVideo: (id: string, dto: {
+    title?: string;
+    folder?: string;
+    category?: string;
+  }) => apiClient.patch<ShadowingVideo>(`/shadowing/videos/${id}`, dto),
 };
 
 // ==================== DICTATION ====================
@@ -171,6 +214,15 @@ export const dictationApi = {
     lessonTitle?: string;
     totalSentences?: number;
   }) => apiClient.post<void>('/dictation/progress', dto),
+  renameFolder: (name: string, newName: string) =>
+    apiClient.patch<void>(`/dictation/folders/${encodeURIComponent(name)}`, { newName }),
+  deleteFolder: (name: string) =>
+    apiClient.delete<void>(`/dictation/folders/${encodeURIComponent(name)}`),
+  updateVideo: (id: string, dto: {
+    title?: string;
+    folder?: string;
+    category?: string;
+  }) => apiClient.patch<DictationVideo>(`/dictation/videos/${id}`, dto),
 };
 
 
