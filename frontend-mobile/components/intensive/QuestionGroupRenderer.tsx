@@ -1,0 +1,774 @@
+import React from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
+
+import DiagramMapBlock from '@/components/ielts/DiagramMapBlock';
+import MatchingBlock from '@/components/ielts/MatchingBlock';
+
+// ─── MCQ Question ────────────────────────────────────────────────────────────
+export function MCQQuestion({
+  q,
+  answers,
+  onAnswer,
+}: {
+  q: any;
+  answers: Record<string, string>;
+  onAnswer: (key: string, value: string) => void;
+}) {
+  const { colors, isDark } = useTheme();
+  const qStyles = createQStyles(colors, isDark);
+
+  const rawOptions = q.options;
+  const optionEntries: { letter: string; label: string }[] =
+    rawOptions && !Array.isArray(rawOptions) && typeof rawOptions === 'object'
+      ? Object.entries(rawOptions).map(([letter, label]) => ({ letter, label: String(label) }))
+      : Array.isArray(rawOptions)
+        ? rawOptions.map((opt: any, i: number) => ({
+            letter: opt.letter || String.fromCharCode(65 + i),
+            label: opt.text || String(opt),
+          }))
+        : [];
+
+  const questionText = q.question_text || q.question || q.text || '';
+
+  const qNums: string[] = q.question_numbers
+    ? (q.question_numbers as number[]).map(String)
+    : q.question_number != null
+      ? [String(q.question_number)]
+      : [];
+  const isMulti = qNums.length > 1;
+  const displayNum = qNums.join(' & ');
+
+  const selectedLetters: string[] = qNums.map((k) => answers[k] || '').filter(Boolean);
+  const isSelected = (letter: string) => selectedLetters.includes(letter);
+
+  const handlePress = (letter: string) => {
+    if (!isMulti) {
+      const key = qNums[0];
+      if (!key) return;
+      onAnswer(key, answers[key] === letter ? '' : letter);
+      return;
+    }
+    if (isSelected(letter)) {
+      const slotKey = qNums.find((k) => answers[k] === letter);
+      if (slotKey) onAnswer(slotKey, '');
+    } else {
+      const emptySlot = qNums.find((k) => !answers[k]);
+      if (emptySlot) onAnswer(emptySlot, letter);
+      else onAnswer(qNums[qNums.length - 1], letter);
+    }
+  };
+
+  return (
+    <View style={[qStyles.block, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{displayNum}</Text>
+      {isMulti && (
+        <Text
+          style={[
+            qStyles.multiHint,
+            isDark
+              ? { backgroundColor: 'rgba(217, 119, 6, 0.15)', color: '#fbbf24' }
+              : { backgroundColor: '#FEF3C7', color: '#D97706' },
+          ]}
+        >
+          Choose {qNums.length} letters
+        </Text>
+      )}
+      <Text style={[qStyles.qText, { color: colors.text }]}>{questionText}</Text>
+      {optionEntries.map(({ letter, label }) => {
+        const sel = isSelected(letter);
+        return (
+          <TouchableOpacity
+            key={letter}
+            style={[
+              qStyles.option,
+              { backgroundColor: colors.surface, borderColor: colors.border },
+              sel && { borderColor: colors.primary, backgroundColor: colors.primary + '18' },
+            ]}
+            onPress={() => handlePress(letter)}
+            activeOpacity={0.8}
+          >
+            <View
+              style={[
+                qStyles.optionBullet,
+                { backgroundColor: colors.card, borderColor: colors.border },
+                sel && { backgroundColor: colors.primary, borderColor: colors.primary },
+                isMulti && qStyles.optionBulletMulti,
+                isMulti && sel && { backgroundColor: colors.primary, borderColor: colors.primary },
+              ]}
+            >
+              {isMulti && sel ? (
+                <Ionicons name="checkmark" size={12} color="#fff" />
+              ) : (
+                <Text
+                  style={[
+                    qStyles.optionLetter,
+                    { color: colors.textSecondary },
+                    sel && { color: '#fff' },
+                  ]}
+                >
+                  {letter}
+                </Text>
+              )}
+            </View>
+            <Text
+              style={[
+                qStyles.optionText,
+                { color: colors.text },
+                sel && { color: colors.primary, fontWeight: '600' },
+              ]}
+            >
+              {label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+// ─── Fill blank Question ──────────────────────────────────────────────────────
+export function FillQuestion({
+  q,
+  answer,
+  onAnswer,
+}: {
+  q: any;
+  answer: string;
+  onAnswer: (v: string) => void;
+}) {
+  const { colors, isDark } = useTheme();
+  const qStyles = createQStyles(colors, isDark);
+  const questionText = q.question_text || q.question || q.text || '';
+  const contextNote = q.note || q.additional_info || q.context || null;
+  const qNums: string[] = q.question_numbers
+    ? (q.question_numbers as number[]).map(String)
+    : q.question_number != null
+      ? [String(q.question_number)]
+      : [];
+
+  return (
+    <View style={[qStyles.block, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{qNums.join(' & ')}</Text>
+      {questionText ? (
+        <Text style={[qStyles.qText, { color: colors.text }]}>{questionText}</Text>
+      ) : null}
+      {contextNote ? (
+        <View
+          style={[
+            qStyles.contextNote,
+            { backgroundColor: colors.surface, borderColor: colors.border + '80' },
+          ]}
+        >
+          <Ionicons name="information-circle-outline" size={13} color={colors.textSecondary} />
+          <Text style={[qStyles.contextNoteText, { color: colors.textSecondary }]}>
+            {contextNote}
+          </Text>
+        </View>
+      ) : null}
+      <TextInput
+        style={[qStyles.input, { borderColor: colors.border, color: colors.text }]}
+        value={answer}
+        onChangeText={onAnswer}
+        placeholder="Type your answer…"
+        placeholderTextColor={colors.textMuted}
+        returnKeyType="done"
+      />
+    </View>
+  );
+}
+
+// ─── Summary Blank Selector ──────────────────────────────────────────────────
+export function SummaryBlankSelector({
+  qNum,
+  value,
+  displayLabel,
+  options,
+  answers,
+  onSelect,
+  onClear,
+}: {
+  qNum: number;
+  value: string;
+  displayLabel: string;
+  options: Record<string, string>;
+  answers: Record<string, string>;
+  onSelect: (letter: string) => void;
+  onClear: () => void;
+}) {
+  const { colors, isDark } = useTheme();
+  const qStyles = createQStyles(colors, isDark);
+  const [open, setOpen] = React.useState(false);
+  const filled = !!value;
+  const usedLetters = new Set(Object.values(answers).filter((v) => v && v !== value));
+
+  return (
+    <View
+      style={[qStyles.selectorRow, { backgroundColor: colors.card, borderColor: colors.border }]}
+    >
+      <TouchableOpacity
+        style={[qStyles.selectorChip, filled && { backgroundColor: colors.primary + '08' }]}
+        onPress={() => setOpen((o) => !o)}
+        activeOpacity={0.75}
+      >
+        <View style={qStyles.selectorChipLeft}>
+          <View style={[qStyles.summaryQBadge, { backgroundColor: colors.primary + '18' }]}>
+            <Text style={[qStyles.summaryQBadgeText, { color: colors.primary }]}>{qNum}</Text>
+          </View>
+          {filled ? (
+            <Text style={[qStyles.selectorChipValue, { color: colors.primary }]}>
+              {displayLabel}
+            </Text>
+          ) : (
+            <Text style={[qStyles.selectorChipPlaceholder, { color: colors.textSecondary }]}>
+              Tap to select an answer…
+            </Text>
+          )}
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          {filled && (
+            <TouchableOpacity
+              onPress={(e) => {
+                e.stopPropagation?.();
+                onClear();
+                setOpen(false);
+              }}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
+              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+            </TouchableOpacity>
+          )}
+          <Ionicons
+            name={open ? 'chevron-up' : 'chevron-down'}
+            size={16}
+            color={colors.textSecondary}
+          />
+        </View>
+      </TouchableOpacity>
+
+      {open && (
+        <ScrollView
+          style={[qStyles.selectorList, { borderTopColor: colors.border + '80' }]}
+          nestedScrollEnabled
+        >
+          {Object.entries(options).map(([letter, text]) => {
+            const isActive = value === letter;
+            const isUsed = !isActive && usedLetters.has(letter);
+            return (
+              <TouchableOpacity
+                key={letter}
+                style={[
+                  qStyles.selectorListItem,
+                  { borderBottomColor: colors.border + '40' },
+                  isActive && { backgroundColor: colors.primary + '15' },
+                ]}
+                onPress={() => {
+                  onSelect(letter);
+                  setOpen(false);
+                }}
+                disabled={isUsed}
+                activeOpacity={0.7}
+              >
+                <View
+                  style={[
+                    qStyles.selectorListLetter,
+                    { backgroundColor: isDark ? colors.surface : '#EFF6FF' },
+                    isActive && { backgroundColor: colors.primary },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      qStyles.selectorListLetterText,
+                      { color: colors.primary },
+                      isActive && { color: '#fff' },
+                    ]}
+                  >
+                    {letter}
+                  </Text>
+                </View>
+                <Text
+                  style={[
+                    qStyles.selectorListText,
+                    { color: colors.text },
+                    isUsed && { color: colors.textDisabled },
+                  ]}
+                >
+                  {String(text)}
+                </Text>
+                {isActive && <Ionicons name="checkmark" size={16} color={colors.primary} />}
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      )}
+    </View>
+  );
+}
+
+const DIAGRAM_TYPES = new Set([
+  'diagram_labelling',
+  'diagram_completion',
+  'map_labelling',
+  'plan_labelling',
+]);
+const MATCHING_TYPES = new Set([
+  'matching',
+  'matching_headings',
+  'matching_features',
+  'matching_information',
+  'matching_sentence_endings',
+]);
+
+// ─── Render question groups ──────────────────────────────────────────────────
+export function renderGroup(
+  group: any,
+  answers: Record<string, string>,
+  setAnswer: (k: string, v: string) => void,
+  groupIdx = 0,
+  partIdx = 0,
+  colors?: any,
+  isDark?: boolean,
+) {
+  const type = group.question_type ?? group.type ?? 'fill';
+  const qStyles = createQStyles(colors ?? {}, isDark ?? false);
+  const baseKey = `p${partIdx}-g${groupIdx}-${type}`;
+
+  let questions: any[] = [];
+
+  if (Array.isArray(group.items)) {
+    questions = group.items;
+  } else if (Array.isArray(group.content)) {
+    const firstItem = group.content[0];
+    if (firstItem && Array.isArray(firstItem.points)) {
+      questions = group.content.flatMap((section: any) => section.points ?? []);
+    } else {
+      questions = group.content;
+    }
+  } else if (Array.isArray(group.points)) {
+    questions = group.points;
+  }
+  const answerableQuestions = questions.filter(
+    (q: any) => q.question_number != null || Array.isArray(q.question_numbers),
+  );
+
+  const isMatchingType = MATCHING_TYPES.has(type.toLowerCase().replace(/ /g, '_'));
+  const isDiagramType = DIAGRAM_TYPES.has(type.toLowerCase().replace(/ /g, '_'));
+  const isMCQ = type.toLowerCase().includes('multiple') || Array.isArray(group.items);
+
+  const isTFNG = /true.false|yes.no/i.test(type);
+  const tfOptions = /yes.no/i.test(type)
+    ? { YES: 'Yes', NO: 'No', 'NOT GIVEN': 'Not Given' }
+    : { TRUE: 'True', FALSE: 'False', 'NOT GIVEN': 'Not Given' };
+
+  const optionsBox = group.options_box ?? null;
+
+  if (isDiagramType) {
+    return <DiagramMapBlock key={baseKey} group={group} answers={answers} onAnswer={setAnswer} />;
+  }
+
+  if (isMatchingType) {
+    return <MatchingBlock key={baseKey} group={group} answers={answers} onAnswer={setAnswer} />;
+  }
+
+  const hasSections =
+    Array.isArray(group.content) && group.content[0] && Array.isArray(group.content[0].points);
+
+  const renderPassageContext = (rawText: string, cKey: string) => {
+    const regex = /(\d+)\s*\[blank\]/g;
+    const segments: { type: 'text' | 'badge'; content: string }[] = [];
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(rawText)) !== null) {
+      if (match.index > lastIndex) {
+        segments.push({ type: 'text', content: rawText.slice(lastIndex, match.index) });
+      }
+      segments.push({ type: 'badge', content: match[1] });
+      lastIndex = regex.lastIndex;
+    }
+    if (lastIndex < rawText.length) {
+      segments.push({ type: 'text', content: rawText.slice(lastIndex) });
+    }
+
+    return (
+      <View
+        style={[
+          qStyles.passageContextWrap,
+          colors && {
+            backgroundColor: isDark ? colors.surface : '#F8F9FA',
+            borderColor: colors.border,
+            borderLeftColor: colors.primary + '80',
+          },
+        ]}
+      >
+        <Text style={[qStyles.passageContextText, colors && { color: colors.text }]}>
+          {segments.map((seg, i) =>
+            seg.type === 'badge' ? (
+              <Text
+                key={`${cKey}-seg${i}`}
+                style={[qStyles.blankBadge, colors && { backgroundColor: colors.primary }]}
+              >
+                {' '}
+                {seg.content}{' '}
+              </Text>
+            ) : (
+              <Text key={`${cKey}-seg${i}`}>{seg.content}</Text>
+            ),
+          )}
+        </Text>
+      </View>
+    );
+  };
+
+  const renderSummaryInline = (section: any, sKey: string) => {
+    const rawText: string = section.text || '';
+    const points: { question_number: number }[] = (section.points || []).filter(
+      (p: any) => typeof p.question_number === 'number',
+    );
+    const hasWordBank = !!(optionsBox && optionsBox.options);
+
+    return (
+      <View key={sKey} style={qStyles.sectionBlock}>
+        {section.heading && (
+          <Text
+            style={[
+              qStyles.sectionHeading,
+              colors && { color: colors.primary, borderBottomColor: colors.border + '60' },
+            ]}
+          >
+            {section.heading}
+          </Text>
+        )}
+        {rawText.length > 0 && renderPassageContext(rawText, sKey)}
+        <View style={qStyles.summaryAnswerList}>
+          {points.map((p) => {
+            const qNum = p.question_number;
+            const qKey = String(qNum);
+            const currentVal = answers[qKey] || '';
+
+            if (hasWordBank) {
+              const displayLabel = optionsBox!.options[currentVal]
+                ? `${currentVal} — ${optionsBox!.options[currentVal]}`
+                : '';
+              return (
+                <SummaryBlankSelector
+                  key={qKey}
+                  qNum={qNum}
+                  value={currentVal}
+                  displayLabel={displayLabel}
+                  options={optionsBox!.options}
+                  answers={answers}
+                  onSelect={(letter) => setAnswer(qKey, letter)}
+                  onClear={() => setAnswer(qKey, '')}
+                />
+              );
+            }
+
+            return (
+              <View
+                key={qKey}
+                style={[
+                  qStyles.summaryAnswerRow,
+                  colors && { backgroundColor: colors.card, borderColor: colors.border },
+                ]}
+              >
+                <View
+                  style={[
+                    qStyles.summaryQBadge,
+                    colors && { backgroundColor: colors.primary + '18' },
+                  ]}
+                >
+                  <Text style={[qStyles.summaryQBadgeText, colors && { color: colors.primary }]}>
+                    {qNum}
+                  </Text>
+                </View>
+                <TextInput
+                  style={[
+                    qStyles.summaryAnswerInput,
+                    colors && { color: colors.text, borderBottomColor: colors.border },
+                  ]}
+                  value={currentVal}
+                  onChangeText={(v) => setAnswer(qKey, v)}
+                  placeholder="Type answer..."
+                  placeholderTextColor={colors ? colors.textMuted : '#94A3B8'}
+                  returnKeyType="done"
+                />
+              </View>
+            );
+          })}
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <View key={baseKey}>
+      {group.instructions && <Text style={[qStyles.instructions]}>{group.instructions}</Text>}
+
+      {hasSections
+        ? group.content.map((section: any, si: number) => {
+            const sKey = `${baseKey}-s${si}`;
+            const sectionPoints = section.points ?? [];
+            const hasSummaryText =
+              typeof section.text === 'string' && section.text.includes('[blank]');
+
+            if (hasSummaryText) {
+              return renderSummaryInline(section, sKey);
+            }
+
+            return (
+              <View key={sKey} style={qStyles.sectionBlock}>
+                {section.heading && (
+                  <Text
+                    style={[
+                      qStyles.sectionHeading,
+                      colors && { color: colors.primary, borderBottomColor: colors.border + '60' },
+                    ]}
+                  >
+                    {section.heading}
+                  </Text>
+                )}
+                {section.text && (
+                  <Text style={[qStyles.sectionText, colors && { color: colors.text }]}>
+                    {section.text}
+                  </Text>
+                )}
+                {sectionPoints
+                  .filter((q: any) => q.question_number != null)
+                  .map((q: any) => {
+                    const num = String(q.question_number);
+                    const qKey = `${sKey}-${num}`;
+                    if (isTFNG) {
+                      return (
+                        <MCQQuestion
+                          key={qKey}
+                          q={{ ...q, options: tfOptions }}
+                          answers={answers}
+                          onAnswer={setAnswer}
+                        />
+                      );
+                    }
+                    if (optionsBox) {
+                      return (
+                        <MCQQuestion
+                          key={qKey}
+                          q={{ ...q, options: optionsBox.options }}
+                          answers={answers}
+                          onAnswer={setAnswer}
+                        />
+                      );
+                    }
+                    return (
+                      <FillQuestion
+                        key={qKey}
+                        q={q}
+                        answer={answers[num] || ''}
+                        onAnswer={(v) => setAnswer(num, v)}
+                      />
+                    );
+                  })}
+              </View>
+            );
+          })
+        : answerableQuestions.map((q: any, qi: number) => {
+            const num =
+              q.question_number != null ? String(q.question_number) : `${baseKey}-qi${qi}`;
+            const qKey = `${baseKey}-${num}`;
+
+            if (isTFNG) {
+              return (
+                <MCQQuestion
+                  key={qKey}
+                  q={{ ...q, options: tfOptions }}
+                  answers={answers}
+                  onAnswer={setAnswer}
+                />
+              );
+            }
+            if (isMCQ) {
+              return <MCQQuestion key={qKey} q={q} answers={answers} onAnswer={setAnswer} />;
+            }
+            return (
+              <FillQuestion
+                key={qKey}
+                q={q}
+                answer={answers[num] || ''}
+                onAnswer={(v) => setAnswer(num, v)}
+              />
+            );
+          })}
+    </View>
+  );
+}
+
+const createQStyles = (colors: any, isDark: boolean) =>
+  StyleSheet.create({
+    block: {
+      marginBottom: SPACING.xl,
+      padding: SPACING.lg,
+      borderRadius: RADIUS.xl,
+      borderWidth: 1,
+    },
+    qNumber: {
+      fontSize: FONT_SIZES.xs,
+      fontWeight: '700',
+      marginBottom: 4,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    multiHint: {
+      fontSize: FONT_SIZES.xs,
+      fontWeight: '600',
+      marginBottom: SPACING.sm,
+      alignSelf: 'flex-start',
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+      borderRadius: 99,
+    },
+    qText: { fontSize: FONT_SIZES.md, marginBottom: SPACING.md, lineHeight: 22 },
+    option: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: SPACING.md,
+      borderRadius: RADIUS.lg,
+      borderWidth: 1,
+      marginBottom: SPACING.sm,
+    },
+    optionBullet: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      borderWidth: 1.5,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: SPACING.md,
+    },
+    optionBulletMulti: { borderRadius: 6 },
+    optionLetter: { fontWeight: '700', fontSize: FONT_SIZES.sm },
+    optionText: { flex: 1, fontSize: FONT_SIZES.md },
+    input: {
+      borderWidth: 1,
+      borderRadius: RADIUS.md,
+      padding: SPACING.md,
+      fontSize: FONT_SIZES.md,
+    },
+    contextNote: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 4,
+      marginBottom: SPACING.sm,
+      padding: SPACING.sm,
+      borderRadius: RADIUS.sm,
+      borderWidth: 1,
+    },
+    contextNoteText: {
+      flex: 1,
+      fontSize: FONT_SIZES.xs,
+      lineHeight: 18,
+    },
+    sectionBlock: { marginBottom: SPACING.lg },
+    sectionHeading: {
+      fontSize: FONT_SIZES.sm,
+      fontWeight: '700',
+      marginBottom: SPACING.sm,
+      paddingBottom: 4,
+      borderBottomWidth: 1,
+    },
+    sectionText: {
+      fontSize: FONT_SIZES.sm,
+      lineHeight: 22,
+      marginBottom: SPACING.md,
+    },
+    passageContextWrap: {
+      borderRadius: RADIUS.lg,
+      borderWidth: 1,
+      borderLeftWidth: 3,
+      padding: SPACING.md,
+      marginBottom: SPACING.lg,
+    },
+    passageContextText: {
+      fontSize: FONT_SIZES.sm,
+      lineHeight: 26,
+    },
+    blankBadge: {
+      color: '#fff',
+      fontWeight: '800',
+      fontSize: 11,
+      borderRadius: 4,
+      paddingHorizontal: 5,
+      overflow: 'hidden',
+    },
+    summaryAnswerList: { gap: SPACING.sm, marginTop: SPACING.sm },
+    summaryAnswerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.sm,
+      borderRadius: RADIUS.md,
+      borderWidth: 1,
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.sm,
+    },
+    summaryQBadge: {
+      width: 30,
+      height: 30,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
+    summaryQBadgeText: { fontSize: FONT_SIZES.xs, fontWeight: '800' },
+    summaryAnswerInput: {
+      flex: 1,
+      fontSize: FONT_SIZES.sm,
+      paddingVertical: 4,
+      borderBottomWidth: 1.5,
+    },
+    selectorRow: {
+      borderRadius: RADIUS.md,
+      borderWidth: 1,
+      marginBottom: SPACING.sm,
+      overflow: 'hidden',
+    },
+    selectorChip: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.md,
+    },
+    selectorChipLeft: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, flex: 1 },
+    selectorChipLabel: { fontSize: FONT_SIZES.sm },
+    selectorChipValue: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
+    selectorChipPlaceholder: { fontSize: FONT_SIZES.sm },
+    selectorList: {
+      borderTopWidth: 1,
+      maxHeight: 220,
+    },
+    selectorListItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: SPACING.md,
+      paddingHorizontal: SPACING.md,
+      paddingVertical: 10,
+      borderBottomWidth: 1,
+    },
+    selectorListLetter: {
+      width: 28,
+      height: 28,
+      borderRadius: 6,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    selectorListLetterText: { fontSize: 13, fontWeight: '800' },
+    selectorListText: { flex: 1, fontSize: FONT_SIZES.sm },
+    instructions: {
+      fontSize: FONT_SIZES.sm,
+      fontStyle: 'italic',
+      marginBottom: SPACING.md,
+      padding: SPACING.md,
+      borderRadius: RADIUS.md,
+      borderLeftWidth: 3,
+    },
+  });

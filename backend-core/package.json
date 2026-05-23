@@ -1,8 +1,8 @@
 {
   "name": "backend-core",
   "version": "1.0.0",
-  "description": "TOEIC Master AI - Core Backend (NestJS Modular Monolith)",
-  "author": "TOEIC Master AI Team",
+  "description": "IELTS Master AI - Core Backend (NestJS Modular Monolith)",
+  "author": "IELTS Master AI Team",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -20,7 +20,9 @@
     "test:unit": "jest --coverage",
     "test:report": "jest --silent --reporters=\"<rootDir>/../test/reporters/markdown-reporter.js\"",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "NODE_ENV=test jest --config jest-e2e.json",
+    "test:coverage": "jest --coverage --coverageReporters=text --coverageReporters=html",
+    "test:e2e": "NODE_ENV=test jest --config jest-e2e.json --runInBand",
+    "test:all": "npm run test && npm run test:e2e",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",

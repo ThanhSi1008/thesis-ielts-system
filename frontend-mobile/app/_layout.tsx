@@ -1,7 +1,27 @@
+import { FONTS } from '@/constants';
 import { Stack } from 'expo-router';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
+import { GradingProvider } from '@/contexts/GradingContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
+import { StatusBar } from 'expo-status-bar';
+import { Toaster, UpgradeModal } from '@/components/ui/index';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import {
+  DictionaryPopup,
+  GlobalAddCardFab,
+  NotificationPermissionBanner,
+} from '@/components';
 import { useFonts } from 'expo-font';
-import { Farro_300Light, Farro_400Regular, Farro_500Medium, Farro_700Bold } from '@expo-google-fonts/farro';
+import { CustomTabBar } from '@/components/global/CustomTabBar';
+
+import {
+  Farro_300Light,
+  Farro_400Regular,
+  Farro_500Medium,
+  Farro_700Bold,
+} from '@expo-google-fonts/farro';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { Text, TextInput } from 'react-native';
@@ -15,11 +35,15 @@ interface TextInputWithDefaultProps extends TextInput {
   defaultProps?: { style?: any };
 }
 
-((Text as unknown) as TextWithDefaultProps).defaultProps = ((Text as unknown) as TextWithDefaultProps).defaultProps || {};
-((Text as unknown) as TextWithDefaultProps).defaultProps!.style = { fontFamily: 'Farro-Bold' };
+(Text as unknown as TextWithDefaultProps).defaultProps =
+  (Text as unknown as TextWithDefaultProps).defaultProps || {};
+(Text as unknown as TextWithDefaultProps).defaultProps!.style = { fontFamily: FONTS.bold };
 
-((TextInput as unknown) as TextInputWithDefaultProps).defaultProps = ((TextInput as unknown) as TextInputWithDefaultProps).defaultProps || {};
-((TextInput as unknown) as TextInputWithDefaultProps).defaultProps!.style = { fontFamily: 'Farro-Bold' };
+(TextInput as unknown as TextInputWithDefaultProps).defaultProps =
+  (TextInput as unknown as TextInputWithDefaultProps).defaultProps || {};
+(TextInput as unknown as TextInputWithDefaultProps).defaultProps!.style = {
+  fontFamily: FONTS.bold,
+};
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -38,26 +62,73 @@ export default function RootLayout() {
   if (!loaded) return null;
 
   return (
-    <AuthProvider>
-      <Stack screenOptions={{ headerShown: false }}>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <SubscriptionProvider>
+              <GradingProvider>
+                <RootNavigator />
+              </GradingProvider>
+            </SubscriptionProvider>
+          </NotificationProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
+  );
+}
+
+function RootNavigator() {
+  const { resolvedTheme } = useTheme();
+
+  return (
+    <>
+      <StatusBar style={resolvedTheme === 'dark' ? 'light' : 'dark'} />
+      <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right', animationDuration: 250 }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="notification" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="chat-ai" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="notification" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+        <Stack.Screen name="chat-ai" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
 
-        {/* Vocabulary nested */}
-        <Stack.Screen name="vocabulary/[bookId]" options={{ headerShown: true, title: 'Units', headerStyle: { backgroundColor: '#FFC600' }, headerTintColor: '#FFFFFF' }} />
-        <Stack.Screen name="vocabulary/[bookId]/[unitId]" options={{ headerShown: true, title: 'Learning', headerStyle: { backgroundColor: '#FFC600' }, headerTintColor: '#FFFFFF' }} />
+        {/* Vocabulary nested (legacy redirect paths) */}
+        <Stack.Screen
+          name="vocabulary/[bookId]"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="vocabulary/[bookId]/[unitId]"
+          options={{
+            headerShown: false,
+          }}
+        />
 
-        {/* Grammar nested */}
-        <Stack.Screen name="grammar/[bookSlug]" options={{ headerShown: true, title: 'Units', headerStyle: { backgroundColor: '#5B9557' }, headerTintColor: '#FFFFFF' }} />
-        <Stack.Screen name="grammar/[bookSlug]/[unitId]" options={{ headerShown: true, title: 'Lesson', headerStyle: { backgroundColor: '#5B9557' }, headerTintColor: '#FFFFFF' }} />
+        {/* Grammar nested (legacy redirect paths) */}
+        <Stack.Screen
+          name="grammar/[bookSlug]"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="grammar/[bookSlug]/[unitId]"
+          options={{
+            headerShown: false,
+          }}
+        />
 
         {/* IELTS screens */}
         <Stack.Screen name="ielts/intensive/index" />
         <Stack.Screen name="ielts/intensive/[examId]" />
         <Stack.Screen name="ielts/intensive/result/[sessionId]" />
         <Stack.Screen name="ielts/advanced/index" />
+        <Stack.Screen name="ielts/advanced/writing/index" />
+        <Stack.Screen name="ielts/advanced/writing/[promptId]" />
+        <Stack.Screen name="ielts/advanced/writing/result/[sessionId]" />
+        <Stack.Screen name="ielts/advanced/speaking/index" />
+        <Stack.Screen name="ielts/advanced/speaking/[partId]" />
+        <Stack.Screen name="ielts/advanced/speaking/result/[sessionId]" />
         <Stack.Screen name="ielts/advanced/history/index" />
         <Stack.Screen name="ielts/advanced/[skill]/[partId]" />
         <Stack.Screen name="ielts/advanced/[skill]/[partId]/result/[resultId]" />
@@ -68,28 +139,50 @@ export default function RootLayout() {
         <Stack.Screen name="ielts/intensive/custom" />
         <Stack.Screen name="ielts/student-teacher/index" />
         <Stack.Screen name="ielts/student-teacher/[studentId]" />
-        <Stack.Screen name="ielts/grammar/index" />
-        <Stack.Screen name="ielts/grammar/[bookSlug]" />
-        <Stack.Screen name="ielts/grammar/[bookSlug]/[unitId]" />
-        <Stack.Screen name="ielts/pronunciation/index" />
-        <Stack.Screen name="ielts/pronunciation/[symbol]" />
 
-        {/* Shadowing */}
-        <Stack.Screen name="shadowing/index" />
-        <Stack.Screen name="shadowing/[lessonId]/[mode]" />
+        {/* Foundation (IELTS Foundation Modules) */}
+        <Stack.Screen name="ielts/foundation/vocabulary/index" />
+        <Stack.Screen name="ielts/foundation/vocabulary/[bookId]" />
+        <Stack.Screen name="ielts/foundation/vocabulary/[bookId]/[unitId]" />
+        <Stack.Screen name="ielts/foundation/grammar/index" />
+        <Stack.Screen name="ielts/foundation/grammar/[bookSlug]" />
+        <Stack.Screen name="ielts/foundation/grammar/[bookSlug]/[unitId]" />
+        <Stack.Screen name="ielts/foundation/pronunciation/index" />
+        <Stack.Screen name="ielts/foundation/pronunciation/[symbol]" />
+
+        {/* Practice Tools */}
+        <Stack.Screen name="practice-tools/index" />
+        <Stack.Screen name="practice-tools/dictation/index" />
+        <Stack.Screen name="practice-tools/shadowing/index" />
+        <Stack.Screen name="practice-tools/shadowing/[lessonId]/[mode]" />
+
+        {/* Legacy redirects */}
+        <Stack.Screen name="ielts/pronunciation/index" options={{ headerShown: false }} />
+        <Stack.Screen name="ielts/pronunciation/[symbol]" options={{ headerShown: false }} />
+
+        {/* Shadowing (legacy redirect paths) */}
+        <Stack.Screen name="shadowing/index" options={{ headerShown: false }} />
+        <Stack.Screen name="shadowing/[lessonId]/[mode]" options={{ headerShown: false }} />
 
         {/* Vocab Lab */}
         <Stack.Screen name="vocab-lab/index" />
         <Stack.Screen name="vocab-lab/[deckId]" />
         <Stack.Screen name="vocab-lab/study/[deckId]" />
 
-        {/* Student / Teacher */}
-        <Stack.Screen name="student-teacher/index" />
-        <Stack.Screen name="student-teacher/[studentId]" />
 
         {/* Pricing / Subscription */}
-        <Stack.Screen name="pricing" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="pricing" options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: false }} />
+        <Stack.Screen name="payment/vnpay-return" options={{ headerShown: false }} />
+
+        {/* Dev Sandbox Route */}
+        <Stack.Screen name="_dev/atom-gallery" options={{ headerShown: true }} />
       </Stack>
-    </AuthProvider>
+      <Toaster />
+      <UpgradeModal />
+      <GlobalAddCardFab hideFab={true} />
+      <DictionaryPopup />
+      <NotificationPermissionBanner />
+      <CustomTabBar />
+    </>
   );
 }

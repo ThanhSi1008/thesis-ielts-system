@@ -1,6 +1,6 @@
 # Luồng hoạt động: Thi thử Speaking — IELTS Intensive (Mock Test)
 
-> Hệ thống: **IELTS Master AI** — thesis-toeic-system
+> Hệ thống: **IELTS Master AI** — thesis-ielts-system
 > Tính năng: **Intensive Speaking Mock Test** tại `/ielts/intensive`
 > Đây là bài thi toàn phần (Full Test) dựa trên đề Cambridge thực
 

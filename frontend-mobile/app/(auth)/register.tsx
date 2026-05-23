@@ -1,13 +1,23 @@
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform, Alert, ActivityIndicator, ScrollView } from 'react-native';
+import { useState, useEffect } from 'react';
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { toast } from '@/components/ui/index';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import { useEffect } from 'react';
+import * as Haptics from 'expo-haptics';
+import { Button, FormField, Text, PasswordStrengthIndicator } from '@/components';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -17,10 +27,13 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const { register: registerUser, loginWithGoogle, isLoading } = useAuth();
+  const { colors } = useTheme();
   const router = useRouter();
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || 'your-google-client-id.apps.googleusercontent.com',
+    webClientId:
+      process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ||
+      'your-google-client-id.apps.googleusercontent.com',
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
   });
@@ -32,34 +45,33 @@ export default function RegisterScreen() {
         handleGoogleSuccess(id_token);
       }
     } else if (response?.type === 'error') {
-      Alert.alert('Google Login Failed', 'Authentication failed or was canceled.');
+      toast.error('Google Login Failed', 'Authentication failed or was canceled.');
     }
   }, [response]);
 
   const handleGoogleSuccess = async (idToken: string) => {
     try {
       await loginWithGoogle(idToken);
-      // Redirect handled by AuthContext
     } catch (error: any) {
-      Alert.alert('Google Login Failed', error.message || 'Something went wrong');
+      toast.error('Google Login Failed', error.message || 'Something went wrong');
     }
   };
 
   const handleRegister = async () => {
     if (!email || !fullName || !password || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields');
+      toast.error('Error', 'Please fill in all fields');
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      toast.error('Error', 'Passwords do not match');
       return;
     }
 
     try {
       let firstName = 'User';
       let lastName = 'User';
-      
+
       if (fullName.trim()) {
         const parts = fullName.trim().split(/\s+/);
         if (parts.length > 1) {
@@ -70,110 +82,129 @@ export default function RegisterScreen() {
           lastName = parts[0];
         }
       }
-      
+
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       await registerUser({ email, password, firstName, lastName });
-      Alert.alert(
-        'Success', 
-        'Account created successfully! Please log in.',
-        [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
-      );
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      toast.success('Success', 'Account created successfully! Redirecting...');
+      setTimeout(() => {
+        router.replace(ROUTES.login);
+      }, 1500);
     } catch (error: any) {
-      Alert.alert('Registration Failed', error.message || 'Something went wrong');
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      toast.error('Registration Failed', error.message || 'Something went wrong');
     }
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <StatusBar style="dark" />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        
         <View style={styles.header}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Join IELTS Master AI today</Text>
+          <Text variant="display" color="primary" weight="bold" style={styles.title}>
+            Create Account
+          </Text>
+          <Text variant="body" style={[styles.subtitle, { color: colors.textSecondary }]}>
+            Join IELTS Master AI today
+          </Text>
         </View>
 
         <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Full Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your full name"
-              value={fullName}
-              onChangeText={setFullName}
-            />
-          </View>
+          <FormField
+            label="Full Name"
+            placeholder="Enter your full name"
+            value={fullName}
+            onChangeText={setFullName}
+            leftIcon="person-outline"
+            accessibilityLabel="Full Name input field"
+            accessibilityHint="Double tap to enter your full name"
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your email"
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-            />
-          </View>
+          <FormField
+            label="Email"
+            placeholder="Enter your email"
+            value={email}
+            onChangeText={setEmail}
+            leftIcon="mail-outline"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            accessibilityLabel="Email Address input field"
+            accessibilityHint="Double tap to enter your email address"
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
+          <View style={styles.passwordContainer}>
+            <FormField
+              label="Password"
               placeholder="Create a password"
               value={password}
               onChangeText={setPassword}
+              leftIcon="lock-closed-outline"
               secureTextEntry
+              accessibilityLabel="Password input field"
+              accessibilityHint="Double tap to enter your desired password"
             />
+            <PasswordStrengthIndicator password={password} />
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Confirm Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm your password"
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              secureTextEntry
-            />
-          </View>
+          <FormField
+            label="Confirm Password"
+            placeholder="Confirm your password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            leftIcon="lock-closed-outline"
+            secureTextEntry
+            accessibilityLabel="Confirm Password input field"
+            accessibilityHint="Double tap to re-enter your password to confirm it"
+          />
 
-          <TouchableOpacity 
-            style={[styles.button, isLoading && styles.buttonDisabled]} 
+          <Button
+            title="Sign Up"
             onPress={handleRegister}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text style={styles.buttonText}>Sign Up</Text>
-            )}
-          </TouchableOpacity>
+            loading={isLoading}
+            fullWidth
+            style={styles.registerButton}
+            accessibilityLabel="Sign Up button"
+            accessibilityHint="Double tap to create your new account"
+          />
 
           <View style={styles.dividerContainer}>
-            <View style={styles.divider} />
-            <Text style={styles.dividerText}>OR</Text>
-            <View style={styles.divider} />
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
+            <Text variant="caption" style={[styles.dividerText, { color: colors.textSecondary }]}>
+              OR
+            </Text>
+            <View style={[styles.divider, { backgroundColor: colors.border }]} />
           </View>
 
-          <TouchableOpacity 
-            style={styles.googleButton} 
+          <Button
+            title="Continue with Google"
             onPress={() => {
               if (request) promptAsync();
             }}
+            variant="outline"
+            leftIcon="logo-google"
             disabled={!request || isLoading}
-          >
-            <Ionicons name="logo-google" size={20} color="#4285F4" style={styles.googleIcon} />
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-          </TouchableOpacity>
+            fullWidth
+            accessibilityLabel="Continue with Google button"
+            accessibilityHint="Double tap to sign in or sign up with your Google account"
+          />
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account? </Text>
+            <Text variant="body" style={{ color: colors.textSecondary }}>
+              Already have an account?{' '}
+            </Text>
             <Link href="/(auth)/login" asChild>
-              <TouchableOpacity>
-                <Text style={styles.link}>Log In</Text>
+              <TouchableOpacity
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Log In link"
+                accessibilityHint="Double tap to return to the login screen"
+              >
+                <Text variant="body" color="primary" weight="bold">
+                  Log In
+                </Text>
               </TouchableOpacity>
             </Link>
           </View>
@@ -186,7 +217,6 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -200,68 +230,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.primary,
     marginBottom: SPACING.xs,
   },
   subtitle: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.textSecondary,
     textAlign: 'center',
   },
   form: {
     width: '100%',
   },
-  inputGroup: {
-    marginBottom: SPACING.lg,
+  passwordContainer: {
+    marginBottom: SPACING.md,
   },
-  label: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
-    marginBottom: SPACING.xs,
-    fontWeight: '500',
-  },
-  input: {
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.md,
-    padding: SPACING.md,
-    fontSize: FONT_SIZES.md,
-    color: COLORS.text,
-  },
-  button: {
-    backgroundColor: COLORS.primary,
-    padding: SPACING.lg,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
+  registerButton: {
     marginTop: SPACING.md,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: FONT_SIZES.lg,
-    fontWeight: 'bold',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: SPACING.xxl,
-  },
-  footerText: {
-    color: COLORS.textSecondary,
-    fontSize: FONT_SIZES.md,
-  },
-  link: {
-    color: COLORS.primary,
-    fontSize: FONT_SIZES.md,
-    fontWeight: 'bold',
   },
   dividerContainer: {
     flexDirection: 'row',
@@ -271,35 +253,15 @@ const styles = StyleSheet.create({
   divider: {
     flex: 1,
     height: 1,
-    backgroundColor: COLORS.border,
   },
   dividerText: {
     marginHorizontal: SPACING.md,
-    color: COLORS.textSecondary,
     fontSize: FONT_SIZES.sm,
     fontWeight: '500',
   },
-  googleButton: {
+  footer: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    padding: SPACING.lg,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  googleIcon: {
-    marginRight: SPACING.sm,
-  },
-  googleButtonText: {
-    color: COLORS.text,
-    fontSize: FONT_SIZES.md,
-    fontWeight: 'bold',
+    marginTop: SPACING.xxl,
   },
 });

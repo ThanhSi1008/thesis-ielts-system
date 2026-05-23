@@ -1,9 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  TextInput, ActivityIndicator, Alert, Modal, Pressable,
-  Animated, Dimensions, KeyboardAvoidingView, Platform,
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  Animated,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import ConfirmDialog from '../organisms/ConfirmDialog';
+import { toast } from '@/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
@@ -22,9 +34,9 @@ interface CardDetailSheetProps {
 
 // ─── State badge ──────────────────────────────────────────────────────────────
 const STATE_STYLE: Record<string, { bg: string; color: string }> = {
-  NEW:        { bg: '#EFF6FF', color: '#2563EB' },
-  LEARNING:   { bg: '#FEF9C3', color: '#CA8A04' },
-  REVIEW:     { bg: '#DCFCE7', color: '#16A34A' },
+  NEW: { bg: '#EFF6FF', color: '#2563EB' },
+  LEARNING: { bg: '#FEF9C3', color: '#CA8A04' },
+  REVIEW: { bg: '#DCFCE7', color: '#16A34A' },
   RELEARNING: { bg: '#FFF1F2', color: '#BE123C' },
 };
 
@@ -43,7 +55,13 @@ const b = StyleSheet.create({
 });
 
 // ─── CardDetailSheet ─────────────────────────────────────────────────────────
-export function CardDetailSheet({ card, visible, onClose, onSaved, onDeleted }: CardDetailSheetProps) {
+export function CardDetailSheet({
+  card,
+  visible,
+  onClose,
+  onSaved,
+  onDeleted,
+}: CardDetailSheetProps) {
   // Slide animation
   const slideAnim = useRef(new Animated.Value(SHEET_MAX_H)).current;
 
@@ -66,6 +84,7 @@ export function CardDetailSheet({ card, visible, onClose, onSaved, onDeleted }: 
   const [editFieldValues, setEditFieldValues] = useState<Record<string, string>>({});
   const [editTags, setEditTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
 
   // Sync form when card changes or edit mode is opened
   const startEdit = useCallback(() => {
@@ -87,7 +106,8 @@ export function CardDetailSheet({ card, visible, onClose, onSaved, onDeleted }: 
     if (!card) return;
     setSaving(true);
     try {
-      const hasCustomFields = card.cardType?.fields?.length > 0 && Object.keys(editFieldValues).length > 0;
+      const hasCustomFields =
+        card.cardType?.fields?.length > 0 && Object.keys(editFieldValues).length > 0;
       const payload = hasCustomFields
         ? { fieldValues: editFieldValues, tags: editTags }
         : { front: editFront, back: editBack, tags: editTags };
@@ -96,32 +116,31 @@ export function CardDetailSheet({ card, visible, onClose, onSaved, onDeleted }: 
       onSaved({ ...card, ...updated, fieldValues: editFieldValues, tags: editTags });
       setEditing(false);
     } catch {
-      Alert.alert('Error', 'Failed to save changes.');
+      toast.error('Error', 'Failed to save changes.');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = () => {
-    Alert.alert('Delete Card', 'This will permanently delete this card.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete', style: 'destructive', onPress: async () => {
-          try {
-            await vocabLabApi.deleteFlashcard(card.id);
-            onDeleted(card.id);
-            onClose();
-          } catch {
-            Alert.alert('Error', 'Failed to delete card.');
-          }
-        }
-      }
-    ]);
+    setDeleteConfirmVisible(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!card) return;
+    try {
+      await vocabLabApi.deleteFlashcard(card.id);
+      onDeleted(card.id);
+      onClose();
+      toast.success('Success', 'Card deleted successfully.');
+    } catch {
+      toast.error('Error', 'Failed to delete card.');
+    }
   };
 
   const handleAddTag = () => {
     const t = tagInput.trim().replace(/,$/, '');
-    if (t && !editTags.includes(t)) setEditTags(prev => [...prev, t]);
+    if (t && !editTags.includes(t)) setEditTags((prev) => [...prev, t]);
     setTagInput('');
   };
 
@@ -133,16 +152,25 @@ export function CardDetailSheet({ card, visible, onClose, onSaved, onDeleted }: 
 
   // Display text for read mode
   const displayFront = card.front || Object.values(card.fieldValues ?? {})[0] || '';
-  const displayBack  = card.back  || Object.values(card.fieldValues ?? {})[1] || '';
+  const displayBack = card.back || Object.values(card.fieldValues ?? {})[1] || '';
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
       {/* Backdrop */}
-      <Pressable style={s.backdrop} onPress={() => { cancelEdit(); onClose(); }} />
+      <Pressable
+        style={s.backdrop}
+        onPress={() => {
+          cancelEdit();
+          onClose();
+        }}
+      />
 
       {/* Sheet */}
       <Animated.View style={[s.sheet, { transform: [{ translateY: slideAnim }] }]}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1 }}
+        >
           {/* Handle bar */}
           <View style={s.handle} />
 
@@ -151,13 +179,9 @@ export function CardDetailSheet({ card, visible, onClose, onSaved, onDeleted }: 
             <View style={{ flex: 1, gap: 4 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.sm }}>
                 <StateBadge state={card.cardState ?? card.state} />
-                {card.cardType && (
-                  <Text style={s.typeBadge}>{card.cardType.name}</Text>
-                )}
+                {card.cardType && <Text style={s.typeBadge}>{card.cardType.name}</Text>}
               </View>
-              {card.deck?.name && (
-                <Text style={s.deckLabel}>📦 {card.deck.name}</Text>
-              )}
+              {card.deck?.name && <Text style={s.deckLabel}>📦 {card.deck.name}</Text>}
             </View>
 
             <View style={s.headerActions}>
@@ -171,7 +195,13 @@ export function CardDetailSheet({ card, visible, onClose, onSaved, onDeleted }: 
                   </TouchableOpacity>
                 </>
               )}
-              <TouchableOpacity style={s.iconBtn} onPress={() => { cancelEdit(); onClose(); }}>
+              <TouchableOpacity
+                style={s.iconBtn}
+                onPress={() => {
+                  cancelEdit();
+                  onClose();
+                }}
+              >
                 <Ionicons name="close" size={20} color={COLORS.text} />
               </TouchableOpacity>
             </View>
@@ -185,49 +215,133 @@ export function CardDetailSheet({ card, visible, onClose, onSaved, onDeleted }: 
             {/* ── Read mode ──────────────────────────────────────────────── */}
             {!editing && (
               <>
-                <View style={[
-                  { borderRadius: RADIUS.lg, padding: SPACING.md, marginBottom: SPACING.lg },
-                  card.cardType?.templates?.[0]?.cardStyle || {}
-                ]}>
-                  {hasCustomType
-                    ? ctFields
-                        .sort((a: any, b: any) => a.order - b.order)
-                        .map((field: any) => {
-                          const val = card.fieldValues?.[field.id] ?? '';
-                          if (!val) return null;
-                          const isMediaHtml = /<(img|audio)/i.test(val);
-                          const cleanVal = isMediaHtml
-                            ? val.replace(/<(img|audio)[^>]*>(<\/audio>)?/gi, '[media]')
-                            : val;
-                          return (
-                            <View key={field.id} style={s.readField}>
-                              <Text style={[s.fieldLabel, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.6 } : null]}>{field.name}</Text>
-                              <Text style={[s.fieldValue, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color } : null]}>{cleanVal || '—'}</Text>
-                            </View>
-                          );
-                        })
-                    : (
-                      <>
-                        <View style={s.readField}>
-                          <Text style={[s.fieldLabel, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.6 } : null]}>Front</Text>
-                          <Text style={[s.fieldValue, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color } : null]}>{String(displayFront) || '—'}</Text>
-                        </View>
-                        <View style={s.readField}>
-                          <Text style={[s.fieldLabel, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.6 } : null]}>Back</Text>
-                          <Text style={[s.fieldValue, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color } : null]}>{String(displayBack) || '—'}</Text>
-                        </View>
-                      </>
-                    )
-                  }
+                <View
+                  style={[
+                    { borderRadius: RADIUS.lg, padding: SPACING.md, marginBottom: SPACING.lg },
+                    card.cardType?.templates?.[0]?.cardStyle || {},
+                  ]}
+                >
+                  {hasCustomType ? (
+                    ctFields
+                      .sort((a: any, b: any) => a.order - b.order)
+                      .map((field: any) => {
+                        const val = card.fieldValues?.[field.id] ?? '';
+                        if (!val) return null;
+                        const isMediaHtml = /<(img|audio)/i.test(val);
+                        const cleanVal = isMediaHtml
+                          ? val.replace(/<(img|audio)[^>]*>(<\/audio>)?/gi, '[media]')
+                          : val;
+                        return (
+                          <View key={field.id} style={s.readField}>
+                            <Text
+                              style={[
+                                s.fieldLabel,
+                                card.cardType?.templates?.[0]?.cardStyle?.color
+                                  ? {
+                                      color: card.cardType.templates[0].cardStyle.color,
+                                      opacity: 0.6,
+                                    }
+                                  : null,
+                              ]}
+                            >
+                              {field.name}
+                            </Text>
+                            <Text
+                              style={[
+                                s.fieldValue,
+                                card.cardType?.templates?.[0]?.cardStyle?.color
+                                  ? { color: card.cardType.templates[0].cardStyle.color }
+                                  : null,
+                              ]}
+                            >
+                              {cleanVal || '—'}
+                            </Text>
+                          </View>
+                        );
+                      })
+                  ) : (
+                    <>
+                      <View style={s.readField}>
+                        <Text
+                          style={[
+                            s.fieldLabel,
+                            card.cardType?.templates?.[0]?.cardStyle?.color
+                              ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.6 }
+                              : null,
+                          ]}
+                        >
+                          Front
+                        </Text>
+                        <Text
+                          style={[
+                            s.fieldValue,
+                            card.cardType?.templates?.[0]?.cardStyle?.color
+                              ? { color: card.cardType.templates[0].cardStyle.color }
+                              : null,
+                          ]}
+                        >
+                          {String(displayFront) || '—'}
+                        </Text>
+                      </View>
+                      <View style={s.readField}>
+                        <Text
+                          style={[
+                            s.fieldLabel,
+                            card.cardType?.templates?.[0]?.cardStyle?.color
+                              ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.6 }
+                              : null,
+                          ]}
+                        >
+                          Back
+                        </Text>
+                        <Text
+                          style={[
+                            s.fieldValue,
+                            card.cardType?.templates?.[0]?.cardStyle?.color
+                              ? { color: card.cardType.templates[0].cardStyle.color }
+                              : null,
+                          ]}
+                        >
+                          {String(displayBack) || '—'}
+                        </Text>
+                      </View>
+                    </>
+                  )}
 
                   {/* Tags (read) */}
                   {card.tags?.length > 0 && (
                     <View style={s.readField}>
-                      <Text style={[s.fieldLabel, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.6 } : null]}>Tags</Text>
+                      <Text
+                        style={[
+                          s.fieldLabel,
+                          card.cardType?.templates?.[0]?.cardStyle?.color
+                            ? { color: card.cardType.templates[0].cardStyle.color, opacity: 0.6 }
+                            : null,
+                        ]}
+                      >
+                        Tags
+                      </Text>
                       <View style={s.tagsRow}>
                         {card.tags.map((t: string) => (
-                          <View key={t} style={[s.tagChip, card.cardType?.templates?.[0]?.cardStyle?.color ? { borderColor: card.cardType.templates[0].cardStyle.color + '40' } : null]}>
-                            <Text style={[s.tagText, card.cardType?.templates?.[0]?.cardStyle?.color ? { color: card.cardType.templates[0].cardStyle.color } : null]}>#{t}</Text>
+                          <View
+                            key={t}
+                            style={[
+                              s.tagChip,
+                              card.cardType?.templates?.[0]?.cardStyle?.color
+                                ? { borderColor: card.cardType.templates[0].cardStyle.color + '40' }
+                                : null,
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                s.tagText,
+                                card.cardType?.templates?.[0]?.cardStyle?.color
+                                  ? { color: card.cardType.templates[0].cardStyle.color }
+                                  : null,
+                              ]}
+                            >
+                              #{t}
+                            </Text>
                           </View>
                         ))}
                       </View>
@@ -260,64 +374,66 @@ export function CardDetailSheet({ card, visible, onClose, onSaved, onDeleted }: 
             {/* ── Edit mode ──────────────────────────────────────────────── */}
             {editing && (
               <>
-                {hasCustomType
-                  ? ctFields
-                      .sort((a: any, b: any) => a.order - b.order)
-                      .map((field: any, idx: number) => (
-                        <View key={field.id} style={{ marginBottom: SPACING.lg }}>
-                          <Text style={s.editLabel}>{field.name}{idx === 0 ? ' *' : ''}</Text>
-                          <TextInput
-                            style={s.editInput}
-                            value={editFieldValues[field.id] ?? ''}
-                            onChangeText={text =>
-                              setEditFieldValues(prev => ({ ...prev, [field.id]: text }))
-                            }
-                            placeholder={`Enter ${field.name.toLowerCase()}…`}
-                            placeholderTextColor={COLORS.textMuted}
-                            multiline
-                            textAlignVertical="top"
-                          />
-                        </View>
-                      ))
-                  : (
-                    <>
-                      <View style={{ marginBottom: SPACING.lg }}>
-                        <Text style={s.editLabel}>Front *</Text>
+                {hasCustomType ? (
+                  ctFields
+                    .sort((a: any, b: any) => a.order - b.order)
+                    .map((field: any, idx: number) => (
+                      <View key={field.id} style={{ marginBottom: SPACING.lg }}>
+                        <Text style={s.editLabel}>
+                          {field.name}
+                          {idx === 0 ? ' *' : ''}
+                        </Text>
                         <TextInput
                           style={s.editInput}
-                          value={editFront}
-                          onChangeText={setEditFront}
-                          placeholder="Front side…"
+                          value={editFieldValues[field.id] ?? ''}
+                          onChangeText={(text) =>
+                            setEditFieldValues((prev) => ({ ...prev, [field.id]: text }))
+                          }
+                          placeholder={`Enter ${field.name.toLowerCase()}…`}
                           placeholderTextColor={COLORS.textMuted}
                           multiline
                           textAlignVertical="top"
                         />
                       </View>
-                      <View style={{ marginBottom: SPACING.lg }}>
-                        <Text style={s.editLabel}>Back</Text>
-                        <TextInput
-                          style={s.editInput}
-                          value={editBack}
-                          onChangeText={setEditBack}
-                          placeholder="Back side…"
-                          placeholderTextColor={COLORS.textMuted}
-                          multiline
-                          textAlignVertical="top"
-                        />
-                      </View>
-                    </>
-                  )
-                }
+                    ))
+                ) : (
+                  <>
+                    <View style={{ marginBottom: SPACING.lg }}>
+                      <Text style={s.editLabel}>Front *</Text>
+                      <TextInput
+                        style={s.editInput}
+                        value={editFront}
+                        onChangeText={setEditFront}
+                        placeholder="Front side…"
+                        placeholderTextColor={COLORS.textMuted}
+                        multiline
+                        textAlignVertical="top"
+                      />
+                    </View>
+                    <View style={{ marginBottom: SPACING.lg }}>
+                      <Text style={s.editLabel}>Back</Text>
+                      <TextInput
+                        style={s.editInput}
+                        value={editBack}
+                        onChangeText={setEditBack}
+                        placeholder="Back side…"
+                        placeholderTextColor={COLORS.textMuted}
+                        multiline
+                        textAlignVertical="top"
+                      />
+                    </View>
+                  </>
+                )}
 
                 {/* Tags (edit) */}
                 <View style={{ marginBottom: SPACING.lg }}>
                   <Text style={s.editLabel}>Tags</Text>
                   <View style={s.tagsInput}>
-                    {editTags.map(t => (
+                    {editTags.map((t) => (
                       <TouchableOpacity
                         key={t}
                         style={s.tagChipEdit}
-                        onPress={() => setEditTags(prev => prev.filter(x => x !== t))}
+                        onPress={() => setEditTags((prev) => prev.filter((x) => x !== t))}
                       >
                         <Text style={s.tagText}>#{t}</Text>
                         <Ionicons name="close" size={12} color={COLORS.textSecondary} />
@@ -346,10 +462,14 @@ export function CardDetailSheet({ card, visible, onClose, onSaved, onDeleted }: 
                     onPress={handleSave}
                     disabled={saving}
                   >
-                    {saving
-                      ? <ActivityIndicator size="small" color="#fff" />
-                      : <><Ionicons name="checkmark" size={16} color="#fff" /><Text style={s.saveBtnText}>Save</Text></>
-                    }
+                    {saving ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <>
+                        <Ionicons name="checkmark" size={16} color="#fff" />
+                        <Text style={s.saveBtnText}>Save</Text>
+                      </>
+                    )}
                   </TouchableOpacity>
                 </View>
               </>
@@ -357,6 +477,22 @@ export function CardDetailSheet({ card, visible, onClose, onSaved, onDeleted }: 
           </ScrollView>
         </KeyboardAvoidingView>
       </Animated.View>
+
+      <ConfirmDialog
+        visible={deleteConfirmVisible}
+        onClose={() => setDeleteConfirmVisible(false)}
+        title="Delete Card"
+        message="This will permanently delete this card."
+        variant="destructive"
+        primaryAction={{
+          title: 'Delete',
+          onPress: confirmDelete,
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => {},
+        }}
+      />
     </Modal>
   );
 }
@@ -384,7 +520,8 @@ const s = StyleSheet.create({
     elevation: 16,
   },
   handle: {
-    width: 40, height: 4,
+    width: 40,
+    height: 4,
     backgroundColor: COLORS.border,
     borderRadius: 2,
     alignSelf: 'center',
@@ -401,35 +538,52 @@ const s = StyleSheet.create({
     gap: SPACING.sm,
   },
   typeBadge: {
-    fontSize: 11, fontWeight: '700', color: COLORS.textSecondary,
-    backgroundColor: COLORS.background, paddingHorizontal: SPACING.sm,
-    paddingVertical: 2, borderRadius: RADIUS.sm,
-    borderWidth: 1, borderColor: COLORS.border,
+    fontSize: 11,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+    backgroundColor: COLORS.background,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 2,
+    borderRadius: RADIUS.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   deckLabel: { fontSize: FONT_SIZES.xs, color: COLORS.textMuted },
   headerActions: { flexDirection: 'row', gap: SPACING.xs },
   iconBtn: {
-    width: 36, height: 36, borderRadius: RADIUS.lg,
-    justifyContent: 'center', alignItems: 'center',
+    width: 36,
+    height: 36,
+    borderRadius: RADIUS.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: COLORS.background,
   },
 
   // Read fields
   readField: { marginBottom: SPACING.lg },
   fieldLabel: {
-    fontSize: FONT_SIZES.xs, fontWeight: '800', color: COLORS.textMuted,
-    textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: SPACING.xs,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '800',
+    color: COLORS.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: SPACING.xs,
   },
   fieldValue: {
-    fontSize: FONT_SIZES.md, color: COLORS.text, lineHeight: 22,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text,
+    lineHeight: 22,
   },
 
   // Tags
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.xs },
   tagChip: {
-    paddingHorizontal: SPACING.sm, paddingVertical: 4,
-    backgroundColor: COLORS.background, borderRadius: RADIUS.full,
-    borderWidth: 1, borderColor: COLORS.border,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 4,
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   tagText: { fontSize: 11, fontWeight: '600', color: COLORS.textSecondary },
 
@@ -449,49 +603,83 @@ const s = StyleSheet.create({
 
   // Edit button (read mode)
   editBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: SPACING.xs, borderWidth: 1.5, borderColor: COLORS.primary,
-    borderRadius: RADIUS.xl, paddingVertical: SPACING.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.xs,
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+    borderRadius: RADIUS.xl,
+    paddingVertical: SPACING.md,
   },
   editBtnText: { color: COLORS.primary, fontWeight: '700', fontSize: FONT_SIZES.md },
 
   // Edit form
   editLabel: {
-    fontSize: FONT_SIZES.xs, fontWeight: '800', color: COLORS.textMuted,
-    textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: SPACING.xs,
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '800',
+    color: COLORS.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: SPACING.xs,
   },
   editInput: {
-    borderWidth: 1.5, borderColor: COLORS.border, borderRadius: RADIUS.lg,
-    padding: SPACING.md, fontSize: FONT_SIZES.md, color: COLORS.text,
-    backgroundColor: '#fff', minHeight: 80,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text,
+    backgroundColor: '#fff',
+    minHeight: 80,
   },
 
   // Tag edit
   tagsInput: {
-    flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.xs,
-    borderWidth: 1.5, borderColor: COLORS.border, borderRadius: RADIUS.lg,
-    padding: SPACING.md, minHeight: 48, backgroundColor: '#fff',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.xs,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    minHeight: 48,
+    backgroundColor: '#fff',
   },
   tagChipEdit: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: COLORS.background, paddingHorizontal: SPACING.sm,
-    paddingVertical: 4, borderRadius: RADIUS.full,
-    borderWidth: 1, borderColor: COLORS.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: COLORS.background,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   tagTextInput: { flex: 1, minWidth: 80, fontSize: FONT_SIZES.sm, color: COLORS.text },
 
   // Save / Cancel
   editActions: { flexDirection: 'row', gap: SPACING.md, marginTop: SPACING.xs },
   cancelBtn: {
-    flex: 1, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1.5, borderColor: COLORS.border, borderRadius: RADIUS.xl,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.xl,
     paddingVertical: SPACING.md,
   },
   cancelBtnText: { color: COLORS.textSecondary, fontWeight: '700', fontSize: FONT_SIZES.md },
   saveBtn: {
-    flex: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: SPACING.xs, backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.xl, paddingVertical: SPACING.md,
+    flex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: SPACING.xs,
+    backgroundColor: COLORS.primary,
+    borderRadius: RADIUS.xl,
+    paddingVertical: SPACING.md,
   },
   saveBtnText: { color: '#fff', fontWeight: '800', fontSize: FONT_SIZES.md },
 });

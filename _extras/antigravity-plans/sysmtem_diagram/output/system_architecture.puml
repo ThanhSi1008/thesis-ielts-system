@@ -14,7 +14,7 @@ skinparam legendBackgroundColor #FFFFFF
 skinparam legendBorderColor #616161
 skinparam legendFontSize 10
 
-title TOEIC Master AI — System Architecture Diagram
+title IELTS Master AI — System Architecture Diagram
 
 caption Generated from codebase analysis. All connections are code-verified.
 
@@ -105,7 +105,7 @@ skinparam cloud<<External>> {
   FontColor #000000
 }
 
-rectangle "TOEIC system (top → bottom)" as PLATFORM #FAFAFA {
+rectangle "IELTS system (top → bottom)" as PLATFORM #FAFAFA {
 
   rectangle "1 · Presentation layer" as PRES_LAYER #E3F2FD {
     rectangle "Frontend Web\nNext.js + Tailwind · :3001\nAxios · localStorage · → Core :3000/api/v1\n→ AI chat :8000/api/v1/chat" <<FrontendWeb>> as FW
@@ -142,14 +142,14 @@ rectangle "TOEIC system (top → bottom)" as PLATFORM #FAFAFA {
 
   rectangle "3 · Data layer" as DATA_LAYER #FFF3E0 {
     together {
-      database "PostgreSQL 16 · toeic_db\n:5433→5432 · toeic-postgres\nPrisma (Core) + psycopg2 (AI)" as PG
-      database "Redis 7 · :6379 · toeic-redis\nAOF · **Core only**" as RD
-      queue "RabbitMQ 3 · :5672 / :15672\ntoeic-rabbitmq" as RMQ {
+      database "PostgreSQL 16 · ielts_db\n:5433→5432 · ielts-postgres\nPrisma (Core) + psycopg2 (AI)" as PG
+      database "Redis 7 · :6379 · ielts-redis\nAOF · **Core only**" as RD
+      queue "RabbitMQ 3 · :5672 / :15672\nielts-rabbitmq" as RMQ {
         card "exam-grading-queue" <<DataCard>> as Q_GRADING
         card "pronunciation-check-queue" <<DataCard>> as Q_PRON
         card "dictation-transcription-queue" <<DataCard>> as Q_DICT
       }
-      rectangle "MinIO (dev) · :9000 / :9001\ntoeic-minio · S3 · **dashed = non-prod**" <<DevOnly>> as MINIO
+      rectangle "MinIO (dev) · :9000 / :9001\nielts-minio · S3 · **dashed = non-prod**" <<DevOnly>> as MINIO
     }
   }
 

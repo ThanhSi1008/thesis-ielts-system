@@ -89,8 +89,82 @@ export interface VocabularyBookWithUnits {
 export interface VocabularyUnitWithContent {
   id: string;
   title: string;
+  order: number;
   book: { id: string; name: string };
   words: VocabularyWord[];
+  questions: FoundationVocabQuestion[];
+  storyTitle?: string;
+  storyContent?: string;
+  storyImageUrl?: string;
+}
+
+export type BookWithUnits = VocabularyBookWithUnits;
+export type UnitWithContent = VocabularyUnitWithContent;
+
+export interface FoundationVocabBook {
+  id: string;
+  name: string;
+  imageUrl: string;
+  wordCount: number;
+  _count?: { units: number };
+}
+
+export interface FoundationVocabUnit {
+  id: string;
+  title: string;
+  order: number;
+}
+
+export interface FoundationVocabItem {
+  id: string;
+  word: string;
+  meaning: string;
+  ipa?: string;
+  partOfSpeech?: string;
+  example?: string;
+  imageUrl?: string;
+  audioUrl?: string;
+  lessonId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FoundationVocabQuestion {
+  id: string;
+  question: string;
+  type: 'multiple_choice' | 'fill_blank';
+  options?: string[];
+  answer: string;
+  order: number;
+}
+
+export interface VocabularyUnitProgress {
+  id: string;
+  title: string;
+  order: number;
+  totalWords: number;
+  wordsLearned: number;
+  questionScore?: number;
+  isCompleted: boolean;
+}
+
+export interface VocabularyBookProgress {
+  book: { id: string; name: string };
+  units: VocabularyUnitProgress[];
+}
+
+export interface QuestionResult {
+  questionId: string;
+  userAnswer: string;
+  correctAnswer: string;
+  isCorrect: boolean;
+}
+
+export interface SubmitQuestionsResponse {
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  results: QuestionResult[];
 }
 
 // ==================== GRAMMAR ====================
@@ -117,21 +191,58 @@ export interface GrammarExercise {
   id: string;
   question: string;
   answer: string;
+  options?: string[];
+  correctAnswer?: string;
 }
 
 export interface GrammarBookWithUnits {
   id: string;
   slug: string;
   name: string;
+  level?: string;
+  author?: string;
   units: GrammarUnit[];
 }
 
 export interface GrammarUnitWithContent {
   id: string;
   title: string;
+  order?: number;
   theoryContent?: string;
+  explanation?: string;
+  theory?: string;
+  examples?: string[];
+  notes?: string;
   book: { id: string; slug: string; name: string };
   exercises: GrammarExercise[];
+}
+
+export interface FoundationGrammarBook {
+  id: string;
+  slug: string;
+  name: string;
+  author: string;
+  level: string;
+  imageUrl: string;
+  color: string;
+  unitCount: number;
+  _count?: { units: number };
+}
+
+export interface FoundationGrammarUnit {
+  id: string;
+  title: string;
+  order: number;
+  theoryContent?: string;
+}
+
+export interface GrammarUnitProgress {
+  unitOrder: number;
+  theoryCompleted: boolean;
+  exerciseScore: number | null;
+  exerciseTotal: number | null;
+  isCompleted: boolean;
+  completedAt: string | null;
 }
 
 // ==================== PRONUNCIATION ====================
@@ -176,6 +287,61 @@ export interface PronunciationCheckResponse {
   // Populated later when AI processing completes
   score?: PronunciationScore;
   audioUrl?: string;
+}
+
+export interface FoundationPronunciationSound {
+  id: string;
+  symbol: string;
+  name?: string;
+  type: string;
+  word: string;
+  description?: string;
+  tip?: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  audioUrl?: string;
+  voiced?: boolean;
+  order: number;
+  exampleWords: FoundationSoundExample[];
+}
+
+export interface FoundationSoundExample {
+  id: string;
+  word: string;
+  ipa?: string;
+  audioUrl?: string;
+  order: number;
+}
+
+export interface SoundProgress {
+  soundId: string;
+  symbol: string;
+  type: string;
+  status: 'NEW' | 'PRACTICING' | 'MASTERED';
+  practiceCount: number;
+  bestScore: number | null;
+  lastPracticedAt: string | null;
+}
+
+export interface PronunciationStats {
+  totalSounds: number;
+  masteredCount: number;
+  practicingCount: number;
+  newCount: number;
+  overallMastery: number;
+}
+
+export interface WordProgress {
+  word: string;
+  bestScore: number | null;
+  attemptCount: number;
+  status: 'NEW' | 'PRACTICING' | 'MASTERED';
+}
+
+export interface PronunciationData {
+  monophthongs: FoundationPronunciationSound[];
+  diphthongs: FoundationPronunciationSound[];
+  consonants: FoundationPronunciationSound[];
 }
 
 // ==================== EXAMS ====================
@@ -250,6 +416,7 @@ export interface CardTemplate {
 export interface CardType {
   id: string;
   name: string;
+  description?: string | null;
   isBuiltIn: boolean;
   fields: CardField[];
   templates?: CardTemplate[];
@@ -288,6 +455,7 @@ export interface ShadowingVideo {
   category?: string;
   duration: string;
   sentences: ShadowingSentence[];
+  tags?: string[];
 }
 
 export interface ShadowingProgress {
@@ -437,4 +605,235 @@ export interface PostListParams {
   tag?: string;
   authorId?: string;
   limit?: number;
+  bookmarkedOnly?: boolean;
 }
+
+// ==================== SUBSCRIPTION ====================
+
+export type SubscriptionTier = 'FREE' | 'PREMIUM' | 'PRO';
+export type SubscriptionStatus = 'ACTIVE' | 'TRIALING' | 'PAST_DUE' | 'CANCELED' | 'EXPIRED';
+
+export interface UserSubscription {
+  id: string;
+  userId: string;
+  tier: SubscriptionTier;
+  status: SubscriptionStatus;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  canceledAt: string | null;
+  trialEndsAt: string | null;
+  trialUsed: boolean;
+  usage: Record<string, { used: number; limit: number }>;
+  limits: Record<string, unknown>;
+}
+
+export interface SubscriptionError {
+  statusCode: 403;
+  error:
+    | 'SUBSCRIPTION_REQUIRED'
+    | 'QUOTA_EXCEEDED'
+    | 'DECK_LIMIT_REACHED'
+    | 'CARD_LIMIT_REACHED'
+    | 'DAILY_QUOTA_EXCEEDED';
+  message: string;
+  requiredTier?: SubscriptionTier;
+  currentTier?: SubscriptionTier;
+  upgradeUrl?: string;
+}
+
+export interface DictationSentence {
+  id: string;
+  english: string;
+  words?: string[];
+  audioStart: number;
+  audioEnd: number;
+}
+
+export interface DictationVideo {
+  id: string;
+  title: string;
+  youtubeVideoId: string | null;
+  audioUrl?: string;
+  imageUrl?: string;
+  tags?: string[];
+  folder?: string;
+  category?: string;
+  duration: string;
+  sentences: DictationSentence[];
+  status?: string;
+}
+
+export interface DictationProgress {
+  completedSentences: number[];
+  difficulty?: string;
+}
+
+// ==================== IELTS STATISTICS ====================
+
+export interface IeltsOverviewStats {
+  weeklyXp: number;
+  currentStreak: number;
+  longestStreak: number;
+  predictedBand: number | null;
+  skillAnalysis: {
+    listening: number;
+    reading: number;
+    writing: number;
+    speaking: number;
+  };
+  recentActivity: { date: string; type: string; score?: number }[];
+  totalStudyTime: number; // minutes
+}
+
+export interface IeltsFoundationStats {
+  vocabulary: {
+    totalBooks: number;
+    booksCompleted: number;
+    totalWords: number;
+    wordsLearned: number;
+    progress: number; // 0-100
+    books: {
+      id: string;
+      name: string;
+      totalUnits: number;
+      completedUnits: number;
+      progress: number;
+    }[];
+  };
+  grammar: {
+    totalBooks: number;
+    booksCompleted: number;
+    progress: number;
+    books: {
+      id: string;
+      name: string;
+      slug: string;
+      totalUnits: number;
+      completedUnits: number;
+      progress: number;
+    }[];
+  };
+  pronunciation: {
+    totalSounds: number;
+    soundsPracticed: number;
+    soundsMastered: number; // score >= 80
+    averageScore: number;
+    progress: number;
+  };
+}
+
+export interface IeltsBasicStats {
+  skills: {
+    skill: string; // 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING'
+    totalLessons: number;
+    completedLessons: number;
+    totalExercises: number;
+    completedExercises: number;
+    progress: number;
+    averageScore: number | null;
+  }[];
+  overallProgress: number;
+  lastActivity: string | null;
+}
+
+export interface IeltsAdvancedStats {
+  listening: { accuracy: Record<string, { correct: number; total: number; attempted: number }> };
+  reading: { accuracy: Record<string, { correct: number; total: number; attempted: number }> };
+  writing: { totalSessions: number; averageBand: number | null; lastSession: string | null };
+  speaking: { totalSessions: number; averageBand: number | null; lastSession: string | null };
+}
+
+export interface IeltsIntensiveStats {
+  totalExams: number;
+  completedExams: number;
+  averageBand: number | null;
+  bandHistory: { date: string; band: number; examTitle: string }[];
+  skillBreakdown: {
+    listening: number | null;
+    reading: number | null;
+    writing: number | null;
+    speaking: number | null;
+  };
+  bestBand: number | null;
+  lastExamDate: string | null;
+}
+
+// ==================== IELTS COMMUNITY ====================
+
+export interface CommunityWritingAnswer {
+  sessionId: string;
+  userId: string;
+  userName: string;
+  userAvatar: string | null;
+  bandScore: number | null;
+  submittedAt: string;
+  essay: string;
+  feedback?: {
+    taskAchievement?: number;
+    coherenceCohesion?: number;
+    lexicalResource?: number;
+    grammaticalRange?: number;
+    overallBand?: number;
+    comments?: string;
+  };
+}
+
+export interface CommunitySpeakingAnswer {
+  sessionId: string;
+  userId: string;
+  userName: string;
+  userAvatar: string | null;
+  bandScore: number | null;
+  submittedAt: string;
+  audioAnswers: Record<string, string>; // questionId -> audioUrl
+  feedback?: {
+    fluency?: number;
+    vocabulary?: number;
+    grammar?: number;
+    pronunciation?: number;
+    overallBand?: number;
+    comments?: string;
+  };
+}
+
+export type CommunityAnswerType = 'writing' | 'speaking';
+
+// ==================== IELTS INTENSIVE PRACTICE ====================
+
+export interface PracticeExamItem {
+  id: string;
+  title: string;
+  description?: string;
+  skill: 'LISTENING' | 'READING' | 'WRITING' | 'SPEAKING';
+  partNumber: number;
+  difficulty?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  questionCount: number;
+  estimatedMinutes: number;
+  tags?: string[];
+  isNew?: boolean;
+  completedCount?: number;
+}
+
+export interface PracticeCatalogResponse {
+  listening: PracticeExamItem[];
+  reading: PracticeExamItem[];
+  writing: PracticeExamItem[];
+  speaking: PracticeExamItem[];
+}
+
+export interface SharedDeck {
+  id: string;
+  name: string;
+  description?: string | null;
+  tags?: string[];
+  publisherId: string;
+  publisherName: string;
+  publisherAvatar?: string | null;
+  cardCount: number;
+  importCount: number;
+  category?: string;
+  previewCards?: { front: string; back: string }[];
+  createdAt: string;
+}
+
+

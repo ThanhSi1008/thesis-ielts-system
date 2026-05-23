@@ -34,7 +34,7 @@ export default function PricingPage() {
         id: "free-plan-id",
         tier: "FREE",
         name: "Basic",
-        description: "Essential tools to get started with TOEIC Master AI",
+        description: "Essential tools to get started with IELTS Master AI",
         priceAmount: 0,
         currency: "USD",
         interval: "month",

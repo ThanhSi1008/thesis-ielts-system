@@ -33,7 +33,7 @@ research_paper/
 Open **PowerShell** or **Command Prompt** and navigate to the `research_paper` folder:
 
 ```powershell
-cd "C:\Users\Admin\Desktop\thesis\my videos\thesis-toeic-system\_extras\research_paper"
+cd "C:\Users\Admin\Desktop\thesis\my videos\thesis-ielts-system\_extras\research_paper"
 ```
 
 ---

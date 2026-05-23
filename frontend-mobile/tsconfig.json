@@ -3,10 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "target": "ESNext",
-    "lib": [
-      "DOM",
-      "ESNext"
-    ],
+    "lib": ["DOM", "ESNext"],
     "jsx": "react-native",
     "module": "ESNext",
     "moduleResolution": "bundler",
@@ -18,52 +15,21 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@/types": [
-        "./types"
-      ],
-      "@/types/*": [
-        "./types/*"
-      ],
-      "@/constants": [
-        "./constants"
-      ],
-      "@/constants/*": [
-        "./constants/*"
-      ],
-      "@/hooks": [
-        "./hooks"
-      ],
-      "@/hooks/*": [
-        "./hooks/*"
-      ],
-      "@/services": [
-        "./services"
-      ],
-      "@/services/*": [
-        "./services/*"
-      ],
-      "@/components": [
-        "./components"
-      ],
-      "@/components/*": [
-        "./components/*"
-      ],
-      "@/app/*": [
-        "./app/*"
-      ]
+      "@/*": ["./*"],
+      "@/types": ["./types"],
+      "@/types/*": ["./types/*"],
+      "@/constants": ["./constants"],
+      "@/constants/*": ["./constants/*"],
+      "@/hooks": ["./hooks"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/services": ["./services"],
+      "@/services/*": ["./services/*"],
+      "@/components": ["./components"],
+      "@/components/*": ["./components/*"],
+      "@/app/*": ["./app/*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "nativewind-env.d.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"],
+  "exclude": ["node_modules"]
 }

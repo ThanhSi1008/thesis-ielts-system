@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
 
 @Injectable()
@@ -27,7 +27,9 @@ export class NotesService {
     });
   }
 
-  async deleteNote(id: string) {
+  async deleteNote(id: string, userId: string) {
+    const notes = await this.prisma.questionNote.findMany({ where: { id, userId }, take: 1 });
+    if (!notes?.length) throw new NotFoundException('Note not found');
     return this.prisma.questionNote.delete({ where: { id } });
   }
 }

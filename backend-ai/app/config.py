@@ -11,24 +11,24 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables"""
 
     # RabbitMQ Configuration
-    rabbitmq_url: str = "amqp://toeic:toeic_password@localhost:5672"
+    rabbitmq_url: str = "amqp://ielts:ielts_password@localhost:5672"
     rabbitmq_queue_grading: str = "exam-grading-queue"
     rabbitmq_queue_pronunciation: str = "pronunciation-check-queue"
-    rabbitmq_exchange: str = "toeic-exchange"
+    rabbitmq_exchange: str = "ielts-exchange"
 
     # Database Configuration
-    database_url: str = "postgresql://toeic_user:toeic_password@localhost:5432/toeic_db"
+    database_url: str = "postgresql://ielts_user:ielts_password@localhost:5432/ielts_db"
 
     # Object Storage Configuration
     storage_endpoint: str = "http://localhost:9000"
     storage_access_key: str = "minioadmin"
     storage_secret_key: str = "minioadmin"
-    storage_bucket: str = "toeic-files"
+    storage_bucket: str = "ielts-files"
     storage_region: str = "us-east-1"
     storage_use_ssl: bool = False
 
     # Google Cloud Storage
-    gcs_bucket_name: str = "toeic-files"
+    gcs_bucket_name: str = "ielts-files"
     gcs_project_id: str = ""
     google_application_credentials: str = ""
 

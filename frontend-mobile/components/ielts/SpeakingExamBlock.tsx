@@ -1,16 +1,30 @@
 /**
  * SpeakingExamBlock — Sequential Mobile Speaking Test Flow
- * 
+ *
  * Implements:
  * 1. 7-state video-think-record machine per question
  * 2. Sequential "Next/Skip" navigation (no scrolling between questions)
  * 3. Part 2 Notes area during THINKING
  */
 
-import React, { useState, useRef, useCallback, useEffect, useMemo, useImperativeHandle } from 'react';
+import React, {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useImperativeHandle,
+} from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ActivityIndicator, Platform, KeyboardAvoidingView, ScrollView,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Platform,
+  KeyboardAvoidingView,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
@@ -20,7 +34,8 @@ import {
   requestRecordingPermissionsAsync,
   setAudioModeAsync,
 } from 'expo-audio';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import SpeakingVideoPlayer from './SpeakingVideoPlayer';
 import { RecordButton } from '../voice/RecordButton';
@@ -53,7 +68,8 @@ interface Props {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const PART_COLORS = ['#2563EB', '#059669', '#D97706'];
+const PART_COLORS_LIGHT = ['#2563EB', '#059669', '#D97706'];
+const PART_COLORS_DARK = ['#3B82F6', '#10B981', '#F59E0B'];
 
 function getThinkTime(partNumber?: number) {
   return partNumber === 2 ? 60 : 2;
@@ -68,7 +84,11 @@ function getMaxRecordTime(partNumber?: number) {
 function RecordingTimer({ seconds }: { seconds: number }) {
   const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
   const ss = String(seconds % 60).padStart(2, '0');
-  return <Text style={rt.text}>{mm}:{ss}</Text>;
+  return (
+    <Text style={rt.text}>
+      {mm}:{ss}
+    </Text>
+  );
 }
 const rt = StyleSheet.create({
   text: { fontSize: FONT_SIZES.sm, fontFamily: FONTS.bold, color: '#ef4444', letterSpacing: 1 },
@@ -77,12 +97,13 @@ const rt = StyleSheet.create({
 function ThinkTimer({
   seconds,
   onDone,
-  showSkip = false
+  showSkip = false,
 }: {
   seconds: number;
   onDone: () => void;
   showSkip?: boolean;
 }) {
+  const { colors, isDark } = useTheme();
   const [left, setLeft] = useState(seconds);
   const doneCalledRef = useRef(false);
 
@@ -99,7 +120,7 @@ function ThinkTimer({
       }
       return;
     }
-    const t = setTimeout(() => setLeft(l => l - 1), 1000);
+    const t = setTimeout(() => setLeft((l) => l - 1), 1000);
     return () => clearTimeout(t);
   }, [left, onDone]);
 
@@ -108,15 +129,29 @@ function ThinkTimer({
 
   return (
     <View style={tt.container}>
-      <View style={tt.wrap}>
-        <Ionicons name="time-outline" size={16} color={COLORS.primary} />
-        <Text style={tt.label}>Preparation Time</Text>
-        <Text style={tt.time}>{mm}:{ss}</Text>
+      <View
+        style={[
+          tt.wrap,
+          {
+            backgroundColor: isDark ? colors.infoBg : '#EEF2FF',
+            borderColor: isDark ? colors.border : '#C7D2FE',
+          },
+        ]}
+      >
+        <Ionicons name="time-outline" size={16} color={colors.primary} />
+        <Text style={[tt.label, { color: colors.primary }]}>Preparation Time</Text>
+        <Text style={[tt.time, { color: colors.primary }]}>
+          {mm}:{ss}
+        </Text>
       </View>
       {showSkip && left > 0 && (
-        <TouchableOpacity style={tt.skipBtn} onPress={onDone} activeOpacity={0.8}>
-          <Text style={tt.skipText}>Start Speaking Now</Text>
-          <Ionicons name="arrow-forward" size={14} color="#16a34a" />
+        <TouchableOpacity
+          style={[tt.skipBtn, { backgroundColor: isDark ? colors.successBg : '#dcfce7' }]}
+          onPress={onDone}
+          activeOpacity={0.8}
+        >
+          <Text style={[tt.skipText, { color: colors.success }]}>Start Speaking Now</Text>
+          <Ionicons name="arrow-forward" size={14} color={colors.success} />
         </TouchableOpacity>
       )}
     </View>
@@ -125,34 +160,37 @@ function ThinkTimer({
 const tt = StyleSheet.create({
   container: { alignItems: 'center', marginBottom: SPACING.lg },
   wrap: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#EEF2FF', paddingHorizontal: SPACING.lg,
-    paddingVertical: 12, borderRadius: RADIUS.full,
-    borderWidth: 1, borderColor: '#C7D2FE',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: 12,
+    borderRadius: RADIUS.full,
+    borderWidth: 1,
   },
-  label: { fontSize: FONT_SIZES.sm, color: COLORS.primary, fontWeight: '700' },
+  label: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
   time: {
-    fontSize: FONT_SIZES.md, fontWeight: '900', color: COLORS.primary,
+    fontSize: FONT_SIZES.md,
+    fontWeight: '900',
     fontVariant: ['tabular-nums'],
   },
   skipBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    marginTop: SPACING.sm, paddingHorizontal: SPACING.md, paddingVertical: 6,
-    backgroundColor: '#dcfce7', borderRadius: RADIUS.full,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: SPACING.sm,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 6,
+    borderRadius: RADIUS.full,
   },
-  skipText: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: '#16a34a' }
+  skipText: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: '#16a34a' },
 });
 
 // ─── Metering Waveform (isolated so 100ms polling never re-renders the ScrollView) ──
 
 function MeteringWaveform({ recorder }: { recorder: ReturnType<typeof useAudioRecorder> }) {
   const recorderState = useAudioRecorderState(recorder, 100);
-  return (
-    <Waveform
-      isRecording={true}
-      metering={recorderState.metering ?? -160}
-    />
-  );
+  return <Waveform isRecording={true} metering={recorderState.metering ?? -160} />;
 }
 
 // ─── Recording Controller ─────────────────────────────────────────────────────
@@ -171,8 +209,24 @@ interface RecordingControllerProps {
 }
 
 const RecordingController = React.forwardRef<RecordingControllerHandle, RecordingControllerProps>(
-  ({ answerKey, partNumber, maxRecordTime, answer, currentStep, isDisabled, onAnswerChange, onStepChange }, ref) => {
-    const recorder = useAudioRecorder({ ...RecordingPresets.HIGH_QUALITY, isMeteringEnabled: true });
+  (
+    {
+      answerKey,
+      partNumber,
+      maxRecordTime,
+      answer,
+      currentStep,
+      isDisabled,
+      onAnswerChange,
+      onStepChange,
+    },
+    ref,
+  ) => {
+    const { colors } = useTheme();
+    const recorder = useAudioRecorder({
+      ...RecordingPresets.HIGH_QUALITY,
+      isMeteringEnabled: true,
+    });
     const isDegradedRef = useRef(false);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const [recordTimeElapsed, setRecordTimeElapsed] = useState(0);
@@ -183,7 +237,9 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
     const isUploading = currentStep === 'UPLOADING';
 
     useEffect(() => {
-      return () => { if (timerRef.current) clearInterval(timerRef.current); };
+      return () => {
+        if (timerRef.current) clearInterval(timerRef.current);
+      };
     }, []);
 
     const stopAndUpload = useCallback(async () => {
@@ -192,7 +248,11 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
         await recorder.stop();
         await setAudioModeAsync({ allowsRecording: false });
         const uri = recorder.uri;
-        if (!uri) { setUploadError('No audio file.'); onStepChange('RECORDED'); return; }
+        if (!uri) {
+          setUploadError('No audio file.');
+          onStepChange('RECORDED');
+          return;
+        }
 
         onStepChange('UPLOADING');
 
@@ -229,7 +289,7 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
 
         if (timerRef.current) clearInterval(timerRef.current);
         timerRef.current = setInterval(() => {
-          setRecordTimeElapsed(prev => {
+          setRecordTimeElapsed((prev) => {
             if (prev >= maxRecordTime - 1) {
               stopAndUpload();
               return maxRecordTime;
@@ -241,7 +301,11 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
         const msg = String(e?.message ?? e ?? '');
         // Error -50 = invalid param (iOS simulator has no real mic). Flag as
         // degraded so we never retry and perpetuate the failure loop.
-        if (msg.includes('-50') || msg.includes('ENODEV') || msg.toLowerCase().includes('no device')) {
+        if (
+          msg.includes('-50') ||
+          msg.includes('ENODEV') ||
+          msg.toLowerCase().includes('no device')
+        ) {
           isDegradedRef.current = true;
         }
         setUploadError('Could not start recording.');
@@ -251,32 +315,44 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
     useImperativeHandle(ref, () => ({ start, stopAndUpload }), [start, stopAndUpload]);
 
     return (
-      <View style={aq.controlsPanel}>
+      <View
+        style={[aq.controlsPanel, { backgroundColor: colors.surface, borderColor: colors.border }]}
+      >
         <View style={aq.statusArea}>
           {currentStep === 'PLAYING' || currentStep === 'PLAYING_2' ? (
-            <Text style={aq.statusText}>Listen to the examiner...</Text>
+            <Text style={[aq.statusText, { color: colors.textSecondary }]}>
+              Listen to the examiner...
+            </Text>
           ) : isRecording ? (
             <RecordingTimer seconds={recordTimeElapsed} />
           ) : isUploading ? (
             <View style={aq.recordStatus}>
-              <ActivityIndicator size="small" color={COLORS.primary} />
-              <Text style={aq.statusText}>Uploading audio...</Text>
+              <ActivityIndicator size="small" color={colors.primary} />
+              <Text style={[aq.statusText, { color: colors.textSecondary }]}>
+                Uploading audio...
+              </Text>
             </View>
           ) : audioUploaded ? (
             <View style={aq.recordStatus}>
-              <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
-              <Text style={[aq.statusText, { color: '#22c55e', fontWeight: '700' }]}>Audio saved</Text>
+              <Ionicons name="checkmark-circle" size={20} color={colors.success} />
+              <Text style={[aq.statusText, { color: colors.success, fontWeight: '700' }]}>
+                Audio saved
+              </Text>
             </View>
           ) : uploadError ? (
-            <Text style={[aq.statusText, { color: '#ef4444' }]}>{uploadError}</Text>
+            <Text style={[aq.statusText, { color: colors.error }]}>{uploadError}</Text>
           ) : (
-            <Text style={aq.statusText}>Tap mic to start recording</Text>
+            <Text style={[aq.statusText, { color: colors.textSecondary }]}>
+              Tap mic to start recording
+            </Text>
           )}
         </View>
 
         <RecordButton
           isRecording={isRecording}
-          isDisabled={isDisabled || isUploading || currentStep === 'PLAYING' || currentStep === 'PLAYING_2'}
+          isDisabled={
+            isDisabled || isUploading || currentStep === 'PLAYING' || currentStep === 'PLAYING_2'
+          }
           onPress={isRecording ? stopAndUpload : start}
           size={48}
         />
@@ -284,7 +360,7 @@ const RecordingController = React.forwardRef<RecordingControllerHandle, Recordin
         {isRecording && <MeteringWaveform recorder={recorder} />}
       </View>
     );
-  }
+  },
 );
 
 // ─── Active Question View (VoiceRecorder + Notes) ────────────────────────────
@@ -330,8 +406,9 @@ function ActiveQuestionBlock({
   isCueCard,
   onNext,
   onSkip,
-  isLastQuestion
+  isLastQuestion,
 }: ActiveQuestionProps) {
+  const { colors, isDark } = useTheme();
   const scrollRef = useRef<ScrollView>(null);
   const recorderRef = useRef<RecordingControllerHandle>(null);
 
@@ -372,10 +449,13 @@ function ActiveQuestionBlock({
   }, [video2Uri]);
 
   const videoCaptionText =
-    step === 'LISTEN_CAPTION' ? 'Listen to the question' :
-    step === 'THINK_CAPTION' ? 'Time to think' : undefined;
+    step === 'LISTEN_CAPTION'
+      ? 'Listen to the question'
+      : step === 'THINK_CAPTION'
+        ? 'Time to think'
+        : undefined;
 
-  const activeVideoUri = step === 'PLAYING_2' ? video2Uri : (videoUri || video2Uri);
+  const activeVideoUri = step === 'PLAYING_2' ? video2Uri : videoUri || video2Uri;
 
   return (
     <View style={aq.container}>
@@ -393,22 +473,27 @@ function ActiveQuestionBlock({
       )}
 
       {step === 'THINKING' && (
-        <ThinkTimer
-          seconds={thinkTime}
-          onDone={handleThinkDone}
-          showSkip={isCueCard}
-        />
+        <ThinkTimer seconds={thinkTime} onDone={handleThinkDone} showSkip={isCueCard} />
       )}
 
       {isCueCard && step === 'THINKING' && (
         <View style={aq.notesWrap}>
-          <Text style={aq.notesLabel}>Your Notes (optional, not graded)</Text>
+          <Text style={[aq.notesLabel, { color: colors.textSecondary }]}>
+            Your Notes (optional, not graded)
+          </Text>
           <TextInput
-            style={aq.notesInput}
+            style={[
+              aq.notesInput,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+                color: colors.text,
+              },
+            ]}
             value={notes}
             onChangeText={setNotes}
             placeholder="Type quick notes here..."
-            placeholderTextColor={COLORS.textMuted}
+            placeholderTextColor={colors.textMuted}
             multiline
             textAlignVertical="top"
           />
@@ -426,9 +511,26 @@ function ActiveQuestionBlock({
         keyboardShouldPersistTaps="handled"
       >
         {/* Question Text / Cue Card */}
-        <View style={isCueCard ? aq.cueCard : aq.questionCard}>
-          {isCueCard && <Text style={aq.cueLabel}>Cue Card Topic</Text>}
-          <Text style={isCueCard ? aq.cueText : aq.questionText}>{questionText}</Text>
+        <View
+          style={[
+            isCueCard ? aq.cueCard : aq.questionCard,
+            isCueCard
+              ? {
+                  backgroundColor: isDark ? colors.warningBg : '#FFFBEB',
+                  borderColor: isDark ? colors.border : '#FDE68A',
+                }
+              : {
+                  backgroundColor: colors.card,
+                  borderColor: colors.border,
+                },
+          ]}
+        >
+          {isCueCard && (
+            <Text style={[aq.cueLabel, { color: colors.warning }]}>Cue Card Topic</Text>
+          )}
+          <Text style={[isCueCard ? aq.cueText : aq.questionText, { color: colors.text }]}>
+            {questionText}
+          </Text>
         </View>
 
         {/* Recording Controls — isolated component; useAudioRecorder lives here,
@@ -448,11 +550,15 @@ function ActiveQuestionBlock({
         {/* Navigation (Next / Skip) */}
         <View style={aq.navRow}>
           <TouchableOpacity style={aq.skipBtn} onPress={onSkip} activeOpacity={0.8}>
-            <Text style={aq.skipBtnText}>Skip Question</Text>
+            <Text style={[aq.skipBtnText, { color: colors.textMuted }]}>Skip Question</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[aq.nextBtn, (!audioUploaded || step === 'RECORDING' || step === 'UPLOADING') && { opacity: 0.5 }]}
+            style={[
+              aq.nextBtn,
+              { backgroundColor: colors.success },
+              (!audioUploaded || step === 'RECORDING' || step === 'UPLOADING') && { opacity: 0.5 },
+            ]}
             onPress={onNext}
             disabled={!audioUploaded || step === 'RECORDING' || step === 'UPLOADING'}
             activeOpacity={0.8}
@@ -470,69 +576,104 @@ const aq = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { padding: SPACING.lg, flexGrow: 1, paddingBottom: 100 },
   questionCard: {
-    backgroundColor: '#fff', borderRadius: RADIUS.lg, padding: SPACING.lg,
-    marginBottom: SPACING.lg, borderWidth: 1, borderColor: COLORS.border,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
+    marginBottom: SPACING.lg,
+    borderWidth: 1,
   },
-  questionText: { fontSize: FONT_SIZES.lg, color: COLORS.text, fontWeight: '600', lineHeight: 26 },
+  questionText: { fontSize: FONT_SIZES.lg, fontWeight: '600', lineHeight: 26 },
   cueCard: {
-    backgroundColor: '#FFFBEB', borderRadius: RADIUS.lg, padding: SPACING.lg,
-    marginBottom: SPACING.lg, borderWidth: 1, borderColor: '#FDE68A',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
+    marginBottom: SPACING.lg,
+    borderWidth: 1,
   },
-  cueLabel: { fontSize: FONT_SIZES.xs, fontWeight: '700', color: '#D97706', textTransform: 'uppercase', marginBottom: 8 },
-  cueText: { fontSize: FONT_SIZES.md, color: COLORS.text, lineHeight: 24 },
+  cueLabel: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    marginBottom: 8,
+  },
+  cueText: { fontSize: FONT_SIZES.md, lineHeight: 24 },
   videoWrap: { marginBottom: SPACING.lg },
   notesWrap: { marginBottom: SPACING.lg },
-  notesLabel: { fontSize: FONT_SIZES.xs, fontWeight: '600', color: COLORS.textSecondary, marginBottom: 8 },
+  notesLabel: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
   notesInput: {
-    backgroundColor: '#fff', borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.md,
-    padding: SPACING.md, height: 100, fontSize: FONT_SIZES.sm, color: COLORS.text,
+    borderWidth: 1,
+    borderRadius: RADIUS.md,
+    padding: SPACING.md,
+    height: 100,
+    fontSize: FONT_SIZES.sm,
   },
   controlsPanel: {
-    backgroundColor: COLORS.surface, borderRadius: RADIUS.lg, padding: SPACING.lg,
-    borderWidth: 1, borderColor: COLORS.border, marginBottom: SPACING.xl,
-    alignItems: 'center', gap: SPACING.md,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.lg,
+    borderWidth: 1,
+    marginBottom: SPACING.xl,
+    alignItems: 'center',
+    gap: SPACING.md,
   },
   statusArea: { alignItems: 'center' },
-  statusText: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontWeight: '500' },
+  statusText: { fontSize: FONT_SIZES.sm, fontWeight: '500' },
   recordStatus: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   navRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   skipBtn: { paddingVertical: SPACING.md, paddingHorizontal: SPACING.sm },
-  skipBtnText: { color: COLORS.textMuted, fontSize: FONT_SIZES.sm, fontWeight: '600' },
+  skipBtnText: { fontSize: FONT_SIZES.sm, fontWeight: '600' },
   nextBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    backgroundColor: '#10b981', paddingHorizontal: SPACING.xl, paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#10b981',
+    paddingHorizontal: SPACING.xl,
+    paddingVertical: 12,
     borderRadius: RADIUS.full,
   },
   nextBtnText: { color: '#fff', fontSize: FONT_SIZES.md, fontWeight: '700' },
 });
 
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 function SpeakingExamBlock({ parts, answers, onChange, onSubmit }: Props) {
+  const { colors, isDark } = useTheme();
   const [activePartIdx, setActivePartIdx] = useState(0);
   const [activeQIdx, setActiveQIdx] = useState(0);
 
   // Flatten questions list for sequential navigation
   const flatQuestions = useMemo(() => {
-    const list: { partIdx: number, qIdx: number, part: SpeakingPart, questionText: string, videoUri?: string, video2Uri?: string, isCueCard: boolean }[] = [];
+    const list: {
+      partIdx: number;
+      qIdx: number;
+      part: SpeakingPart;
+      questionText: string;
+      videoUri?: string;
+      video2Uri?: string;
+      isCueCard: boolean;
+    }[] = [];
     parts.forEach((part, pIdx) => {
       if (part.cue_card) {
         list.push({
-          partIdx: pIdx, qIdx: 0, part,
+          partIdx: pIdx,
+          qIdx: 0,
+          part,
           questionText: part.cue_card,
           videoUri: part.video,
           video2Uri: part.video2,
-          isCueCard: true
+          isCueCard: true,
         });
       } else if (part.questions) {
         part.questions.forEach((q, qIdx) => {
           list.push({
-            partIdx: pIdx, qIdx, part,
+            partIdx: pIdx,
+            qIdx,
+            part,
             questionText: q.text || q.question || '',
             videoUri: q.video,
             video2Uri: q.video2,
-            isCueCard: false
+            isCueCard: false,
           });
         });
       }
@@ -542,9 +683,9 @@ function SpeakingExamBlock({ parts, answers, onChange, onSubmit }: Props) {
 
   // Sync active part tab with sequential flat index
   const currentFlatIdx = flatQuestions.findIndex(
-    q => q.partIdx === activePartIdx && q.qIdx === activeQIdx
+    (q) => q.partIdx === activePartIdx && q.qIdx === activeQIdx,
   );
-  
+
   const currentQ = flatQuestions[currentFlatIdx];
   const isLastQuestion = currentFlatIdx === flatQuestions.length - 1;
 
@@ -571,23 +712,27 @@ function SpeakingExamBlock({ parts, answers, onChange, onSubmit }: Props) {
   const answerKey = currentQ ? `${currentQ.partIdx}-${currentQ.qIdx}` : '';
 
   if (!currentQ) {
-    return <View style={styles.container}><ActivityIndicator /></View>;
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <ActivityIndicator color={colors.primary} />
+      </View>
+    );
   }
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 110 : 0}
     >
       {/* Part tabs (read-only indicator) */}
-      <View style={styles.tabs}>
+      <View style={[styles.tabs, { backgroundColor: colors.card, borderColor: colors.border }]}>
         {parts.map((part, idx) => {
-          const color = PART_COLORS[idx] || COLORS.primary;
+          const color = isDark ? PART_COLORS_DARK[idx] : PART_COLORS_LIGHT[idx] || colors.primary;
           const active = activePartIdx === idx;
           return (
             <View key={idx} style={[styles.tab, active && { borderBottomColor: color }]}>
-              <Text style={[styles.tabLabel, active && { color }]}>
+              <Text style={[styles.tabLabel, { color: colors.textSecondary }, active && { color }]}>
                 Part {part.part_number || idx + 1}
               </Text>
             </View>
@@ -621,11 +766,17 @@ export default React.memo(SpeakingExamBlock, (prev, next) => {
 });
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc', paddingBottom: 90 },
-  tabs: { flexDirection: 'row', borderBottomWidth: 1, borderColor: COLORS.border, backgroundColor: '#fff' },
-  tab: {
-    flex: 1, alignItems: 'center', paddingVertical: SPACING.md,
-    borderBottomWidth: 3, borderBottomColor: 'transparent',
+  container: { flex: 1, paddingBottom: 90 },
+  tabs: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
   },
-  tabLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600', color: COLORS.textSecondary },
+  tab: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
+  },
+  tabLabel: { fontSize: FONT_SIZES.sm, fontWeight: '600' },
 });

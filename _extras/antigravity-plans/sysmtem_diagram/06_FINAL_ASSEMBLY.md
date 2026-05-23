@@ -28,7 +28,7 @@ end legend
 
 ## Step 3: Add Title and Metadata
 ```plantuml
-title TOEIC Master AI — System Architecture Diagram
+title IELTS Master AI — System Architecture Diagram
 caption Generated from codebase analysis. All connections are code-verified.
 ```
 

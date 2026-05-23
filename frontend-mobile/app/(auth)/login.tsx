@@ -1,27 +1,42 @@
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import { useState, useEffect } from 'react';
+import { View, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Link, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { toast } from '@/components/ui/index';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import { makeRedirectUri } from 'expo-auth-session';
-import { useEffect } from 'react';
-import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Haptics from 'expo-haptics';
+import { Button, FormField, Text } from '@/components';
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('test1@gmail.com');
-  const [password, setPassword] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const { login, loginWithGoogle, isLoading } = useAuth();
+  const { colors } = useTheme();
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    webClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || 'your-google-client-id.apps.googleusercontent.com',
+    webClientId:
+      process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID ||
+      'your-google-client-id.apps.googleusercontent.com',
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
   });
+
+  useEffect(() => {
+    AsyncStorage.getItem('@remembered_email').then((savedEmail) => {
+      if (savedEmail) {
+        setEmail(savedEmail);
+        setRememberMe(true);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (response?.type === 'success') {
@@ -30,7 +45,7 @@ export default function LoginScreen() {
         handleGoogleSuccess(id_token);
       }
     } else if (response?.type === 'error') {
-      Alert.alert('Google Login Failed', 'Authentication failed or was canceled.');
+      toast.error('Google Login Failed', 'Authentication failed or was canceled.');
     }
   }, [response]);
 
@@ -39,18 +54,23 @@ export default function LoginScreen() {
       await loginWithGoogle(idToken);
       // Redirect handled by AuthContext
     } catch (error: any) {
-      Alert.alert('Google Login Failed', error.message || 'Something went wrong');
+      toast.error('Google Login Failed', error.message || 'Something went wrong');
     }
   };
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      toast.error('Error', 'Please fill in all fields');
       return;
     }
 
     try {
       await login({ email, password });
+      if (rememberMe) {
+        await AsyncStorage.setItem('@remembered_email', email);
+      } else {
+        await AsyncStorage.removeItem('@remembered_email');
+      }
       // Redirect handled by AuthContext
     } catch (error: any) {
       let message = 'An error occurred during login';
@@ -59,80 +79,132 @@ export default function LoginScreen() {
       } else if (error.message) {
         message = error.message;
       }
-      Alert.alert('Login Failed', message);
+      toast.error('Login Failed', message);
     }
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
     >
       <StatusBar style="dark" />
-      
+
       <View style={styles.header}>
-        <Text style={styles.title}>Welcome Back!</Text>
-        <Text style={styles.subtitle}>Sign in to continue your learning journey</Text>
+        <Text variant="display" color="primary" weight="bold" style={styles.title}>
+          Welcome Back!
+        </Text>
+        <Text variant="body" style={[styles.subtitle, { color: colors.textSecondary }]}>
+          Sign in to continue your learning journey
+        </Text>
       </View>
 
       <View style={styles.form}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
+        <FormField
+          label="Email"
+          placeholder="Enter your email"
+          value={email}
+          onChangeText={setEmail}
+          leftIcon="mail-outline"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          onClear={() => setEmail('')}
+          accessibilityLabel="Email Address input field"
+          accessibilityHint="Double tap to enter your email address"
+        />
+
+        <FormField
+          label="Password"
+          placeholder="Enter your password"
+          value={password}
+          onChangeText={setPassword}
+          leftIcon="lock-closed-outline"
+          secureTextEntry
+          accessibilityLabel="Password input field"
+          accessibilityHint="Double tap to enter your password"
+        />
+
+        <View style={styles.rememberForgotRow}>
+          <TouchableOpacity
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setRememberMe(!rememberMe);
+            }}
+            style={styles.rememberMeContainer}
+            accessible={true}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: rememberMe }}
+            accessibilityLabel="Remember email checkbox"
+            accessibilityHint="Double tap to toggle remembering your email address"
+          >
+            <Ionicons
+              name={rememberMe ? 'checkbox' : 'square-outline'}
+              size={20}
+              color={rememberMe ? COLORS.primary : colors.textMuted}
+            />
+            <Text variant="body" style={{ color: colors.text }}>
+              Remember me
+            </Text>
+          </TouchableOpacity>
+
+          <Link href="/(auth)/forgot-password" asChild>
+            <TouchableOpacity
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Forgot Password link"
+              accessibilityHint="Double tap to open the password recovery screen"
+            >
+              <Text variant="body" color="primary" weight="bold">
+                Forgot Password?
+              </Text>
+            </TouchableOpacity>
+          </Link>
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-        </View>
-
-        <TouchableOpacity 
-          style={[styles.button, isLoading && styles.buttonDisabled]} 
-          onPress={handleLogin}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.buttonText}>Log In</Text>
-          )}
-        </TouchableOpacity>
+        <Button 
+          title="Log In" 
+          onPress={handleLogin} 
+          loading={isLoading} 
+          fullWidth 
+          accessibilityLabel="Log In button"
+          accessibilityHint="Double tap to log into your account"
+        />
 
         <View style={styles.dividerContainer}>
-          <View style={styles.divider} />
-          <Text style={styles.dividerText}>OR</Text>
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          <Text variant="caption" style={[styles.dividerText, { color: colors.textSecondary }]}>
+            OR
+          </Text>
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
         </View>
 
-        <TouchableOpacity 
-          style={styles.googleButton} 
+        <Button
+          title="Continue with Google"
           onPress={() => {
             if (request) promptAsync();
           }}
+          variant="outline"
+          leftIcon="logo-google"
           disabled={!request || isLoading}
-        >
-          <Ionicons name="logo-google" size={20} color="#4285F4" style={styles.googleIcon} />
-          <Text style={styles.googleButtonText}>Continue with Google</Text>
-        </TouchableOpacity>
+          fullWidth
+          accessibilityLabel="Continue with Google button"
+          accessibilityHint="Double tap to sign in with your Google account"
+        />
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
+          <Text variant="body" style={{ color: colors.textSecondary }}>
+            Don't have an account?{' '}
+          </Text>
           <Link href="/(auth)/register" asChild>
-            <TouchableOpacity>
-              <Text style={styles.link}>Sign Up</Text>
+            <TouchableOpacity
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Sign Up"
+              accessibilityHint="Double tap to open the registration screen"
+            >
+              <Text variant="body" color="primary" weight="bold">
+                Sign Up
+              </Text>
             </TouchableOpacity>
           </Link>
         </View>
@@ -144,7 +216,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
     justifyContent: 'center',
     padding: SPACING.xl,
   },
@@ -160,63 +231,22 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.textSecondary,
     textAlign: 'center',
   },
   form: {
     width: '100%',
   },
-  inputGroup: {
-    marginBottom: SPACING.lg,
-  },
-  label: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
-    marginBottom: SPACING.xs,
-    fontWeight: '500',
-  },
-  input: {
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.md,
-    padding: SPACING.md,
-    fontSize: FONT_SIZES.md,
-    color: COLORS.text,
-  },
-  button: {
-    backgroundColor: COLORS.primary,
-    padding: SPACING.lg,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
-    marginTop: SPACING.md,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: FONT_SIZES.lg,
-    fontWeight: 'bold',
-  },
-  footer: {
+  rememberForgotRow: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: SPACING.xxl,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.xl,
+    marginTop: -SPACING.sm,
   },
-  footerText: {
-    color: COLORS.textSecondary,
-    fontSize: FONT_SIZES.md,
-  },
-  link: {
-    color: COLORS.primary,
-    fontSize: FONT_SIZES.md,
-    fontWeight: 'bold',
+  rememberMeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   dividerContainer: {
     flexDirection: 'row',
@@ -226,35 +256,15 @@ const styles = StyleSheet.create({
   divider: {
     flex: 1,
     height: 1,
-    backgroundColor: COLORS.border,
   },
   dividerText: {
     marginHorizontal: SPACING.md,
-    color: COLORS.textSecondary,
     fontSize: FONT_SIZES.sm,
     fontWeight: '500',
   },
-  googleButton: {
+  footer: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    padding: SPACING.lg,
-    borderRadius: RADIUS.md,
-    alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  googleIcon: {
-    marginRight: SPACING.sm,
-  },
-  googleButtonText: {
-    color: COLORS.text,
-    fontSize: FONT_SIZES.md,
-    fontWeight: 'bold',
+    marginTop: SPACING.xxl,
   },
 });

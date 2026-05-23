@@ -9,16 +9,16 @@ Create the foundational data/infrastructure layer of the architecture diagram. T
 - **Label**: `PostgreSQL 16`
 - **Sublabel**: `Primary Relational Database`
 - **Port**: `:5433 → 5432` (host → container)
-- **Container name**: `toeic-postgres`
+- **Container name**: `ielts-postgres`
 - **Color**: Orange (data store)
 - **Key fact**: This is a **single shared database**. Both `backend-core` (via Prisma ORM) and `backend-ai` (via raw psycopg2 SQL) connect to it. This dual-access pattern is critical to show.
-- **Database name**: `toeic_db`
+- **Database name**: `ielts_db`
 
 ### Node 2: Redis
 - **Label**: `Redis 7`
 - **Sublabel**: `Cache & Session Store`
 - **Port**: `:6379`
-- **Container name**: `toeic-redis`
+- **Container name**: `ielts-redis`
 - **Color**: Orange (data store)
 - **Key fact**: Used **ONLY by backend-core** (via `ioredis` library). The AI backend does NOT use Redis. Do NOT draw any arrow from backend-ai to Redis.
 - **Features**: append-only persistence enabled
@@ -27,7 +27,7 @@ Create the foundational data/infrastructure layer of the architecture diagram. T
 - **Label**: `RabbitMQ 3`
 - **Sublabel**: `Message Broker (AMQP)`
 - **Ports**: `:5672` (AMQP protocol), `:15672` (Management UI)
-- **Container name**: `toeic-rabbitmq`
+- **Container name**: `ielts-rabbitmq`
 - **Color**: Orange (data store / infrastructure)
 - **Key fact**: Contains exactly **3 queues** (detail them as sub-labels or notes):
   1. `exam-grading-queue` — Writing & Speaking grading tasks (has DLQ: `exam-grading-dlq`, TTL: 5 min)
@@ -39,7 +39,7 @@ Create the foundational data/infrastructure layer of the architecture diagram. T
 - **Label**: `MinIO`
 - **Sublabel**: `S3-Compatible Object Storage (Dev)`
 - **Ports**: `:9000` (API), `:9001` (Console UI)
-- **Container name**: `toeic-minio`
+- **Container name**: `ielts-minio`
 - **Color**: Orange (data store), but with a **dashed border** to indicate "development only"
 - **Key fact**: Used **only in development**. In production, Cloudinary (backend-core) and direct HTTP downloads (backend-ai) replace it. Only `backend-ai`'s `PronunciationConsumer` accesses MinIO via S3 protocol (boto3).
 

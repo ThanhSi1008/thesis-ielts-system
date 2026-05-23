@@ -1,4 +1,4 @@
-// Prisma Schema for TOEIC Master AI
+// Prisma Schema for IELTS Master AI
 // Database: PostgreSQL with pgvector extension
 
 generator client {
@@ -66,6 +66,7 @@ model User {
   postLikes     PostLike[]           @relation("UserPostLikes")
   bookmarks     PostBookmark[]       @relation("UserBookmarks")
   subscription  Subscription?
+  pushTokens    PushToken[]
 
   @@map("users")
 }
@@ -1343,4 +1344,17 @@ model PricingPlan {
   updatedAt     DateTime         @updatedAt
 
   @@map("pricing_plans")
+}
+
+model PushToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  platform  String   // "ios" | "android"
+  lastUsed  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("push_tokens")
 }

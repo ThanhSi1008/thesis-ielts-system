@@ -110,7 +110,7 @@ Your schema has **4 distinct IELTS learning modules** but the model names don't 
 
 | Current Model | Assessment | Recommendation |
 |:---|:---|:---|
-| `LearningMaterial` | Generic content model — likely from early TOEIC era | Check if still used. If not, **remove** |
+| `LearningMaterial` | Generic content model — likely from early IELTS era | Check if still used. If not, **remove** |
 | `LearningProgress` | Same — generic progress tracker | Check if still used. If not, **remove** |
 
 ---
@@ -121,7 +121,7 @@ Your schema has **4 distinct IELTS learning modules** but the model names don't 
 |:---|:---|:---|
 | `ExamType` | `IeltsIntensiveExamType` | Matches the `IeltsIntensiveExam` model |
 | `SessionStatus` | `IeltsIntensiveSessionStatus` | Matches `IeltsIntensiveSession` |
-| `MaterialType` | _(remove if unused)_ | Likely legacy from TOEIC era |
+| `MaterialType` | _(remove if unused)_ | Likely legacy from IELTS era |
 | `Difficulty` | _(keep as-is)_ | Shared across modules — genuinely generic |
 
 ---

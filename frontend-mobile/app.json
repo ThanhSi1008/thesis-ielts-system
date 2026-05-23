@@ -2,6 +2,7 @@
   "expo": {
     "name": "IELTS Master AI",
     "slug": "ielts-master-ai",
+    "icon": "./assets/images/splash.png",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -10,9 +11,7 @@
       "backgroundColor": "#3B82F6",
       "resizeMode": "contain"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "bundleIdentifier": "com.ieltsmasterai.app",
       "infoPlist": {
@@ -29,7 +28,10 @@
       "package": "com.ieltsmasterai.app",
       "usesCleartextTraffic": true,
       "permissions": [
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.INTERNET",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.POST_NOTIFICATIONS"
       ]
     },
     "plugins": [
@@ -50,8 +52,9 @@
       "expo-video",
       "@react-native-community/datetimepicker",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-tracking-transparency"
     ],
-    "scheme": "ielts-master-ai"
+    "scheme": "iemai"
   }
 }

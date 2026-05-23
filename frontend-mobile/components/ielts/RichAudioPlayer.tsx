@@ -33,17 +33,29 @@ export default function RichAudioPlayer({ audioUrl, accentColor = COLORS.primary
     }
   }, [status.playing, player]);
 
-  const skip = useCallback((delta: number) => {
-    const next = Math.max(0, Math.min(duration, position + delta));
-    player.seekTo(next);
-  }, [position, duration, player]);
+  const skip = useCallback(
+    (delta: number) => {
+      const next = Math.max(0, Math.min(duration, position + delta));
+      player.seekTo(next);
+    },
+    [position, duration, player],
+  );
 
-  const onSlidingComplete = useCallback((value: number) => {
-    player.seekTo(value);
-  }, [player]);
+  const onSlidingComplete = useCallback(
+    (value: number) => {
+      player.seekTo(value);
+    },
+    [player],
+  );
 
   return (
-    <View style={[styles.container, { borderColor: accentColor + '30', backgroundColor: accentColor + '08' }, style]}>
+    <View
+      style={[
+        styles.container,
+        { borderColor: accentColor + '30', backgroundColor: accentColor + '08' },
+        style,
+      ]}
+    >
       {/* Time + controls row */}
       <View style={styles.controlsRow}>
         {/* Skip back */}
@@ -89,9 +101,7 @@ export default function RichAudioPlayer({ audioUrl, accentColor = COLORS.primary
       />
 
       {/* Status label */}
-      {status.playing && (
-        <Text style={[styles.statusLabel, { color: accentColor }]}>Playing…</Text>
-      )}
+      {status.playing && <Text style={[styles.statusLabel, { color: accentColor }]}>Playing…</Text>}
     </View>
   );
 }

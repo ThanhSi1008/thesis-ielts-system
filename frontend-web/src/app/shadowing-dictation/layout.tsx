@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { ShadowingSidebar, ShadowingSidebarOverlay } from './_components/ShadowingSidebar';
 
 export const metadata: Metadata = {
-    title: 'Shadowing & Dictation | TOEIC Master AI',
+    title: 'Shadowing & Dictation | IELTS Master AI',
     description: 'Practice English through shadowing and dictation exercises',
 };
 

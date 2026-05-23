@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Grammar | TOEIC Master AI',
+    title: 'Grammar | IELTS Master AI',
     description: 'Learn English grammar rules and patterns',
 };
 

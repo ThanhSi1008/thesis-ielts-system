@@ -1,7 +1,7 @@
 {
-  "name": "toeic-master-ai",
+  "name": "ielts-master-ai",
   "version": "1.0.0",
-  "description": "TOEIC learning and examination system with event-driven hybrid architecture",
+  "description": "IELTS learning and examination system with event-driven hybrid architecture",
   "private": true,
   "workspaces": [
     "backend-core",
@@ -22,13 +22,13 @@
     "prisma:studio": "cd backend-core && npx prisma studio"
   },
   "keywords": [
-    "toeic",
+    "ielts",
     "education",
     "ai",
     "microservices",
     "event-driven"
   ],
-  "author": "TOEIC Master AI Team",
+  "author": "IELTS Master AI Team",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"

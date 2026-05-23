@@ -19,20 +19,20 @@ export const COLORS = {
   primary: '#FFC600',
   primaryHover: '#FFC600E6',
   secondary: '#EDEDED',
-  
+
   background: '#FFFFFF',
   surface: '#F8F9FA',
   card: '#FFFFFF',
-  
+
   text: '#212529',
   textSecondary: '#64748B',
   textMuted: '#ADB5BD',
   textDisabled: '#CBD5E1',
   onPrimary: '#212529',
-  
+
   border: '#E2E8F0',
   borderFocus: '#FFC600',
-  
+
   // Semantic shorthand aliases (used across the codebase)
   success: '#4CAF50',
   error: '#F44336',
@@ -51,6 +51,54 @@ export const COLORS = {
   level2: '#5B9557',
   level3: '#E74C3C',
   level4: '#3B82F6',
+
+  // Skills colors
+  skill: {
+    listening: '#E11D48',
+    reading: '#2563EB',
+    writing: '#D97706',
+    speaking: '#7C3AED',
+  },
+
+  // Gray scale
+  gray: {
+    50: '#F8FAFC',
+    100: '#F1F5F9',
+    200: '#E2E8F0',
+    300: '#CBD5E1',
+    400: '#94A3B8',
+    500: '#64748B',
+    600: '#475569',
+    700: '#334155',
+    800: '#1E293B',
+    900: '#0F172A',
+  },
+
+  // Color scales
+  successScale: {
+    50: '#E8F5E9',
+    100: '#C8E6C9',
+    200: '#A5D6A7',
+    500: '#4CAF50',
+    600: '#43A047',
+    700: '#388E3C',
+  },
+  warningScale: {
+    50: '#FFF3E0',
+    100: '#FFE0B2',
+    200: '#FFCC80',
+    500: '#FF9800',
+    600: '#FB8C00',
+    700: '#F57C00',
+  },
+  errorScale: {
+    50: '#FFEBEE',
+    100: '#FFCDD2',
+    200: '#EF9A9A',
+    500: '#F44336',
+    600: '#E53935',
+    700: '#D32F2F',
+  },
 } as const;
 
 // Font Sizes
@@ -109,3 +157,8 @@ export const SHADOWS = {
   card: '0 1px 4px rgba(0, 0, 0, 0.03)',
   modal: '0 20px 25px rgba(0, 0, 0, 0.1)',
 } as const;
+
+export { ROUTES, navigation } from './routes';
+export type { ThemeTokens } from './theme';
+export { LIGHT_TOKENS, DARK_TOKENS } from './theme';
+export { spacing, typography, radius, elevation, motion, palette, semanticColors } from './tokens';

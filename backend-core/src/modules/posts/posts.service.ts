@@ -66,6 +66,13 @@ export class PostsService {
     if (query.type) where.type = query.type;
     if (query.tag) where.tags = { has: query.tag };
     if (query.authorId) where.authorId = query.authorId;
+    if (query.bookmarkedOnly) {
+      where.bookmarks = {
+        some: {
+          userId,
+        },
+      };
+    }
 
     // Cursor-based pagination: fetch posts with createdAt < cursor post's createdAt
     let cursorCondition: any = undefined;
@@ -157,14 +164,15 @@ export class PostsService {
     };
   }
 
-  async deletePost(userId: string, postId: string) {
+  async deletePost(user: { id: string; role: string }, postId: string) {
     const post = await this.prisma.post.findUnique({
       where: { id: postId },
       select: { authorId: true },
     });
 
     if (!post) throw new NotFoundException("Post not found");
-    if (post.authorId !== userId) throw new ForbiddenException("Not your post");
+    if (post.authorId !== user.id && user.role !== "ADMIN")
+      throw new ForbiddenException("Not your post");
 
     await this.prisma.post.delete({ where: { id: postId } });
     return { success: true };

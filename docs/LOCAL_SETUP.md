@@ -40,7 +40,7 @@ Prevents shell scripts embedded in npm scripts from being corrupted by CRLF line
 
 ```bash
 git clone <repo-url>
-cd thesis-toeic-system
+cd thesis-ielts-system
 
 # Install Node dependencies for root workspace, backend-core, and frontend-web
 npm install
@@ -86,20 +86,20 @@ Create the three files below exactly as shown. They contain local-only credentia
 
 ```env
 # PostgreSQL — local Docker (external port 5433 maps to container port 5432)
-DATABASE_URL="postgresql://toeic_user:toeic_password@localhost:5433/toeic_db?schema=public"
-DIRECT_URL="postgresql://toeic_user:toeic_password@localhost:5433/toeic_db"
+DATABASE_URL="postgresql://ielts_user:ielts_password@localhost:5433/ielts_db?schema=public"
+DIRECT_URL="postgresql://ielts_user:ielts_password@localhost:5433/ielts_db"
 
 # Redis — local Docker
 REDIS_URL="redis://localhost:6379"
 
 # RabbitMQ — local Docker
-RABBITMQ_URL="amqp://toeic:toeic_password@localhost:5672"
+RABBITMQ_URL="amqp://ielts:ielts_password@localhost:5672"
 
 # MinIO — local Docker (S3-compatible object storage)
 STORAGE_ENDPOINT="http://localhost:9000"
 STORAGE_ACCESS_KEY="minioadmin"
 STORAGE_SECRET_KEY="minioadmin"
-STORAGE_BUCKET="toeic-files"
+STORAGE_BUCKET="ielts-files"
 STORAGE_REGION="us-east-1"
 STORAGE_USE_SSL="false"
 
@@ -131,16 +131,16 @@ NODE_ENV="development"
 
 ```env
 # RabbitMQ — local Docker
-RABBITMQ_URL="amqp://toeic:toeic_password@localhost:5672"
+RABBITMQ_URL="amqp://ielts:ielts_password@localhost:5672"
 
 # PostgreSQL — local Docker (port 5433)
-DATABASE_URL="postgresql://toeic_user:toeic_password@localhost:5433/toeic_db"
+DATABASE_URL="postgresql://ielts_user:ielts_password@localhost:5433/ielts_db"
 
 # MinIO — local Docker
 STORAGE_ENDPOINT="http://localhost:9000"
 STORAGE_ACCESS_KEY="minioadmin"
 STORAGE_SECRET_KEY="minioadmin"
-STORAGE_BUCKET="toeic-files"
+STORAGE_BUCKET="ielts-files"
 STORAGE_REGION="us-east-1"
 STORAGE_USE_SSL="false"
 
@@ -186,8 +186,8 @@ npm run infra:up
 # Wait ~15 seconds for containers to become healthy, then:
 
 # Create the MinIO bucket used for audio and media files
-docker exec toeic-minio mc alias set local http://localhost:9000 minioadmin minioadmin
-docker exec toeic-minio mc mb local/toeic-files --ignore-existing
+docker exec ielts-minio mc alias set local http://localhost:9000 minioadmin minioadmin
+docker exec ielts-minio mc mb local/ielts-files --ignore-existing
 
 # Apply database migrations
 cd backend-core
@@ -251,9 +251,9 @@ npm run mobile:dev
 | Frontend Web | http://localhost:3001 | — |
 | Backend Core API | http://localhost:3000/api/v1 | — |
 | Backend AI | http://localhost:8000 | — |
-| RabbitMQ Management | http://localhost:15672 | `toeic` / `toeic_password` |
+| RabbitMQ Management | http://localhost:15672 | `ielts` / `ielts_password` |
 | MinIO Console | http://localhost:9001 | `minioadmin` / `minioadmin` |
-| pgAdmin 4 | http://localhost:5050 | `admin@toeic.com` / `admin` |
+| pgAdmin 4 | http://localhost:5050 | `admin@ielts.com` / `admin` |
 | Prisma Studio | http://localhost:5555 | run `npm run prisma:studio` first |
 
 ---
@@ -343,7 +343,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 The database container may not be fully ready. Verify it is healthy:
 ```bash
 docker ps
-# toeic-postgres STATUS column should show (healthy)
+# ielts-postgres STATUS column should show (healthy)
 ```
 Then re-run `npx prisma migrate deploy`.
 

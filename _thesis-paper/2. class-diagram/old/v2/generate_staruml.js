@@ -430,7 +430,7 @@ function main() {
   }
 
   const coreResult = buildMdj({
-    projectName: "TOEIC System - Core",
+    projectName: "IELTS System - Core",
     diagramName: "Core Diagram",
     models: parsedModels,
     enums,
@@ -440,7 +440,7 @@ function main() {
   });
 
   const ieltsResult = buildMdj({
-    projectName: "TOEIC System - IELTS",
+    projectName: "IELTS System - IELTS",
     diagramName: "IELTS Diagram",
     models: parsedModels,
     enums,

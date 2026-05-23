@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { TextWithLookup } from '../global/TextWithLookup';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export interface PassageLocation {
   paragraphIndex: number;
@@ -15,7 +17,13 @@ interface Props {
   accentColor?: string;
 }
 
-export default function PassageReview({ passage, passageWithLocations, locatedQuestion, accentColor = '#2563EB' }: Props) {
+export default function PassageReview({
+  passage,
+  passageWithLocations,
+  locatedQuestion,
+  accentColor = COLORS.skill.reading,
+}: Props) {
+  const { colors } = useTheme();
   const scrollRef = useRef<ScrollView>(null);
   const yOffsets = useRef<Record<number, number>>({}); // paragraphIndex → y
   const highlightTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -25,8 +33,10 @@ export default function PassageReview({ passage, passageWithLocations, locatedQu
   const qToParaIndex = React.useMemo(() => {
     const map: Record<number, number> = {};
     if (passageWithLocations) {
-      passageWithLocations.forEach(loc => {
-        loc.questionNumbers?.forEach(q => { map[q] = loc.paragraphIndex; });
+      passageWithLocations.forEach((loc) => {
+        loc.questionNumbers?.forEach((q) => {
+          map[q] = loc.paragraphIndex;
+        });
       });
     }
     return map;
@@ -51,6 +61,46 @@ export default function PassageReview({ passage, passageWithLocations, locatedQu
 
   const paragraphs = passage ? passage.split(/\n\n+/) : [];
 
+  const styles = StyleSheet.create({
+    scroll: { flex: 1 },
+    inner: { padding: SPACING.md, gap: SPACING.sm },
+    paragraph: {
+      borderRadius: RADIUS.lg,
+      padding: SPACING.md,
+      borderWidth: 1,
+      borderColor: 'transparent',
+      backgroundColor: colors.card,
+    },
+    markerRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 4,
+      marginBottom: 6,
+    },
+    qBadge: {
+      borderRadius: 4,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    qBadgeText: {
+      fontSize: 10,
+      fontWeight: '800',
+      color: '#fff',
+    },
+    paraText: {
+      fontSize: FONT_SIZES.sm,
+      color: colors.text,
+      lineHeight: 22,
+    },
+    empty: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: SPACING.xl,
+    },
+    emptyText: { fontSize: FONT_SIZES.sm, color: colors.textMuted },
+  });
+
   if (paragraphs.length === 0) {
     return (
       <View style={styles.empty}>
@@ -62,7 +112,7 @@ export default function PassageReview({ passage, passageWithLocations, locatedQu
   // Build a set of question numbers per paragraph for labels
   const paraToQNums: Record<number, number[]> = {};
   if (passageWithLocations) {
-    passageWithLocations.forEach(loc => {
+    passageWithLocations.forEach((loc) => {
       if (loc.questionNumbers?.length) paraToQNums[loc.paragraphIndex] = loc.questionNumbers;
     });
   }
@@ -76,19 +126,27 @@ export default function PassageReview({ passage, passageWithLocations, locatedQu
           return (
             <View
               key={idx}
-              style={[styles.paragraph, isHighlighted && { backgroundColor: accentColor + '18', borderColor: accentColor + '60' }]}
-              onLayout={evt => { yOffsets.current[idx] = evt.nativeEvent.layout.y; }}
+              style={[
+                styles.paragraph,
+                isHighlighted && {
+                  backgroundColor: accentColor + '18',
+                  borderColor: accentColor + '60',
+                },
+              ]}
+              onLayout={(evt) => {
+                yOffsets.current[idx] = evt.nativeEvent.layout.y;
+              }}
             >
               {qNums && qNums.length > 0 && (
                 <View style={styles.markerRow}>
-                  {qNums.map(q => (
+                  {qNums.map((q) => (
                     <View key={q} style={[styles.qBadge, { backgroundColor: accentColor }]}>
                       <Text style={styles.qBadgeText}>Q{q}</Text>
                     </View>
                   ))}
                 </View>
               )}
-              <Text style={styles.paraText}>{para.trim()}</Text>
+              <TextWithLookup style={styles.paraText} content={para.trim()} />
             </View>
           );
         })}
@@ -96,43 +154,3 @@ export default function PassageReview({ passage, passageWithLocations, locatedQu
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  scroll: { flex: 1 },
-  inner: { padding: SPACING.md, gap: SPACING.sm },
-  paragraph: {
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: 'transparent',
-    backgroundColor: '#fff',
-  },
-  markerRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-    marginBottom: 6,
-  },
-  qBadge: {
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  qBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#fff',
-  },
-  paraText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.text,
-    lineHeight: 22,
-  },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: SPACING.xl,
-  },
-  emptyText: { fontSize: FONT_SIZES.sm, color: COLORS.textMuted },
-});

@@ -1,7 +1,7 @@
 # System Architecture Diagram — Master Plan
 
 ## Goal
-Create a **pixel-perfect, thesis-quality** system architecture diagram for the TOEIC Master AI system using **PlantUML** (`.puml` file). The diagram must be accurate to the actual codebase — every node, arrow, protocol, and port has been verified.
+Create a **pixel-perfect, thesis-quality** system architecture diagram for the IELTS Master AI system using **PlantUML** (`.puml` file). The diagram must be accurate to the actual codebase — every node, arrow, protocol, and port has been verified.
 
 ## Output Location
 All generated `.puml` files go into:

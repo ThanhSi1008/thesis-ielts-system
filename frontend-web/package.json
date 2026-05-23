@@ -1,7 +1,7 @@
 {
   "name": "frontend-web",
   "version": "1.0.0",
-  "description": "TOEIC Master AI - Web Portal (Next.js)",
+  "description": "IELTS Master AI - Web Portal (Next.js)",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3001",

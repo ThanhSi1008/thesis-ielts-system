@@ -1,5 +1,7 @@
 # Bộ Prompt Review Báo Cáo Khóa Luận
 
+tại folder /Users/xis108/Desktop/thesis-ielts-system/docs, dựa vào file implement.md và tasks.md, làm tới đâu cập nhật vào file tasks.md và commit tới đó và nếu phase quá dài hãy làm theo từng phần đã được chia nhỏ sẵn trong phase đó. hãy thực hiện các task trong phase 1
+
 Dưới đây là các câu prompt mẫu được thiết kế chuẩn nhất. Bạn có thể sử dụng để nhờ AI rà soát báo cáo khóa luận một cách sắc bén, sâu sát và không bỏ sót lỗi.
 
 ## 🌟 1. Siêu Prompt Tổng Hợp (Technical Audit + Academic Review)

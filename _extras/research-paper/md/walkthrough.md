@@ -3,7 +3,7 @@
 ## What Was Delivered
 
 ### 1. Full Paper Draft
-**File**: [research_paper_draft.txt](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-toeic-system/_extras/research_paper_draft.txt)
+**File**: [research_paper_draft.txt](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-ielts-system/_extras/research_paper_draft.txt)
 
 A complete 381-line paper draft in IEEE conference format covering all 6 sections:
 
@@ -22,9 +22,9 @@ A complete 381-line paper draft in IEEE conference format covering all 6 section
 ### 2. Experiment Simulation Scripts
 
 #### SM-2 Spaced Repetition Simulation
-**File**: [sm2_simulation.py](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-toeic-system/_scripts/sm2_simulation.py)
+**File**: [sm2_simulation.py](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-ielts-system/_scripts/sm2_simulation.py)
 
-- Replicates the **exact SM-2 algorithm** from [vocab-lab.service.ts](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-toeic-system/backend-core/src/modules/vocab-lab/vocab-lab.service.ts#L404-L448)
+- Replicates the **exact SM-2 algorithm** from [vocab-lab.service.ts](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-ielts-system/backend-core/src/modules/vocab-lab/vocab-lab.service.ts#L404-L448)
 - Simulates 3 user profiles (90% / 60% / 30% accuracy) over N=50 reviews
 - **Key results**:
   - User A (90%): Max interval = 74,922 days, 41/50 REVIEW states
@@ -32,9 +32,9 @@ A complete 381-line paper draft in IEEE conference format covering all 6 section
   - User C (30%): Final interval = 1 day, only 8/50 REVIEW states
 
 #### Pronunciation Scoring Simulation
-**File**: [pronunciation_simulation.py](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-toeic-system/_scripts/pronunciation_simulation.py)
+**File**: [pronunciation_simulation.py](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-ielts-system/_scripts/pronunciation_simulation.py)
 
-- Replicates the **exact Levenshtein algorithm** from [pronunciation_service.py](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-toeic-system/backend-ai/app/services/pronunciation_service.py#L19-L52)
+- Replicates the **exact Levenshtein algorithm** from [pronunciation_service.py](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-ielts-system/backend-ai/app/services/pronunciation_service.py#L19-L52)
 - Tests 51 pronunciation attempt pairs across 3 difficulty levels
 - **Key results**:
   - Basic: μ=90.4%, perfect match rate = 58.8%
@@ -91,9 +91,9 @@ All charts are in: `_extras/paper_charts/`
 
 | File | Purpose |
 |------|---------|
-| [research_paper.tex](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-toeic-system/_extras/research_paper.tex) | **IEEE LaTeX source** — compile with pdflatex, figures commented out |
-| [research_paper_draft.txt](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-toeic-system/_extras/research_paper_draft.txt) | Plain text draft (same content, for reference) |
-| [paper_diagrams.html](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-toeic-system/_extras/paper_diagrams.html) | **5 Mermaid diagrams** — open in browser, screenshot each one |
-| [sm2_simulation.py](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-toeic-system/_scripts/sm2_simulation.py) | SM-2 algorithm simulation script |
-| [pronunciation_simulation.py](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-toeic-system/_scripts/pronunciation_simulation.py) | Pronunciation scoring simulation script |
+| [research_paper.tex](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-ielts-system/_extras/research_paper.tex) | **IEEE LaTeX source** — compile with pdflatex, figures commented out |
+| [research_paper_draft.txt](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-ielts-system/_extras/research_paper_draft.txt) | Plain text draft (same content, for reference) |
+| [paper_diagrams.html](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-ielts-system/_extras/paper_diagrams.html) | **5 Mermaid diagrams** — open in browser, screenshot each one |
+| [sm2_simulation.py](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-ielts-system/_scripts/sm2_simulation.py) | SM-2 algorithm simulation script |
+| [pronunciation_simulation.py](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-ielts-system/_scripts/pronunciation_simulation.py) | Pronunciation scoring simulation script |
 | `_extras/paper_charts/*.png` | 7 publication-quality charts |

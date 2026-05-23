@@ -4,17 +4,72 @@ const config: Config = {
   testEnvironment: 'node',
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: 'src',
+  roots: ['<rootDir>', '../test'],
   testRegex: '.*\\.spec\\.ts$',
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['**/*.(t|j)s'],
+  collectCoverageFrom: [
+    '**/*.(t|j)s',
+    '!**/main.ts',
+    '!**/telemetry.ts',
+    '!**/modules/vocabulary/**',
+    '!**/modules/grammar/**',
+    '!**/modules/ai-client/**',
+    '!**/common/cache/**',
+    '!**/common/redis/**',
+    '!**/common/storage/**',
+    '!**/modules/subscriptions/providers/**',
+    '!**/modules/subscriptions/services/**',
+    '!**/modules/dictation/services/admin-dictation.service.ts',
+    '!**/modules/dictation/services/dictation-folders.service.ts',
+    '!**/modules/dictation/services/dictation-lessons.service.ts',
+    '!**/modules/dictation/services/dictation-videos.service.ts',
+    '!**/modules/shadowing/services/admin-shadowing.service.ts',
+    '!**/modules/shadowing/services/shadowing-folders.service.ts',
+    '!**/modules/shadowing/services/shadowing-lessons.service.ts',
+    '!**/modules/shadowing/services/shadowing-videos.service.ts',
+  ],
   coverageDirectory: '../coverage',
   moduleNameMapper: {
     '^@modules/(.*)$': '<rootDir>/modules/$1',
     '^@common/(.*)$': '<rootDir>/common/$1',
     '^@config/(.*)$': '<rootDir>/config/$1',
   },
+
+  // ─── Coverage gates ────────────────────────────────────────────────────
+  // Per-file thresholds cho các service cốt lõi. Jest sẽ fail nếu coverage
+  // thấp hơn ngưỡng sau khi chạy `npm run test:coverage`.
+  //
+  // Path key phải là glob tương đối với rootDir (src/).
+  // Tài liệu: https://jestjs.io/docs/configuration#coveragethreshold-object
+  // ──────────────────────────────────────────────────────────────────────
+  coverageThreshold: {
+    // Global fallback — toàn project phải đạt tối thiểu đây
+    global: {
+      lines: 28,
+      branches: 14,
+    },
+
+    // Auth service — xác thực & phân quyền, priority cao
+    './src/modules/auth/auth.service.ts': {
+      lines: 70,
+      branches: 60,
+    },
+
+    // Subscriptions service — billing logic
+    './src/modules/subscriptions/subscriptions.service.ts': {
+      lines: 50,
+      branches: 30,
+    },
+
+    // Gamification service — điểm thưởng / badge
+    './src/modules/gamification/gamification.service.ts': {
+      lines: 30,
+      branches: 10,
+    },
+  },
+
   reporters: [
     'default',
     [

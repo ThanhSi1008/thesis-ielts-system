@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <circle cx="50" cy="50" r="40" fill="none" stroke="#E2E8F0" stroke-width="2" stroke-dasharray="4 4" />
+  <!-- Trophy cup body -->
+  <path d="M36 28 L64 28 C64 42, 58 48, 50 48 C42 48, 36 42, 36 28 Z" fill="none" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <!-- Trophy handles -->
+  <path d="M36 34 L31 34 C28 34, 28 40, 31 40 L36 40" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+  <path d="M64 34 L69 34 C72 34, 72 40, 69 40 L64 40" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8" />
+  <!-- Trophy stand -->
+  <line x1="50" y1="48" x2="50" y2="60" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" />
+  <path d="M40 60 L60 60" stroke="#94A3B8" stroke-width="3.5" stroke-linecap="round" />
+  <!-- Stars / Sparkles -->
+  <path d="M26 26 L28 29 L31 30 L29 32 L30 35 L26 33 L22 35 L23 32 L21 30 L24 29 Z" fill="#FBBF24" opacity="0.5" />
+  <path d="M74 24 L75 26 L78 27 L76 28 L77 31 L74 29 L71 31 L72 28 L70 27 L73 26 Z" fill="#FBBF24" opacity="0.5" />
+</svg>

@@ -276,7 +276,7 @@ PricingPlan (catalog)
 Lệnh tìm kiếm đã thực hiện (bao trùm cả 4 deployable units, loại trừ `node_modules`, `venv`, `__pycache__`, `.next`, `.expo`, `dist`, `build`):
 
 ```bash
-find /Users/xis108/Desktop/thesis-toeic-system -type f \
+find /Users/xis108/Desktop/thesis-ielts-system -type f \
   \( -name "*.spec.ts" -o -name "*.test.ts" \
      -o -name "*.spec.tsx" -o -name "*.test.tsx" \
      -o -name "*.e2e-spec.ts" \
@@ -417,7 +417,7 @@ Theo nguyên tắc 20/80 (20% module sinh ra 80% rủi ro), 4 module ứng viên
 ### 7.1 Workspaces npm
 
 ```json
-// /Users/xis108/Desktop/thesis-toeic-system/package.json
+// /Users/xis108/Desktop/thesis-ielts-system/package.json
 {
   "workspaces": ["backend-core", "frontend-web"]
 }

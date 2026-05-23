@@ -10,7 +10,7 @@ import {
 } from 'expo-audio';
 // Fix Bug #1: Use legacy import path for deprecated deleteAsync in Expo SDK 54
 import * as FileSystem from 'expo-file-system/legacy';
-import { Alert } from 'react-native';
+import { toast } from '@/components/ui';
 
 /**
  * Custom Hook for handling audio recording using expo-audio (SDK 54).
@@ -28,7 +28,7 @@ export const useAudioRecorderHook = () => {
     // Use WAV format: backend accepts audio/wav without any changes
     // WAV is uncompressed PCM — works natively on iOS & Android
     extension: '.wav',
-    sampleRate: 16000,  // 16kHz is optimal for speech/Whisper AI
+    sampleRate: 16000, // 16kHz is optimal for speech/Whisper AI
     numberOfChannels: 1, // Mono is sufficient and halves file size
     bitRate: 128000,
     android: {
@@ -59,7 +59,7 @@ export const useAudioRecorderHook = () => {
         permission = await requestRecordingPermissionsAsync();
       }
       if (!permission.granted) {
-        Alert.alert('Permission Denied', 'Microphone access is required to record audio.');
+        toast.info('Warning', 'Microphone access is required to record audio.');
         return;
       }
 
@@ -74,7 +74,7 @@ export const useAudioRecorderHook = () => {
       recorder.record();
     } catch (error) {
       console.error('Failed to start recording:', error);
-      Alert.alert('Error', 'Could not start recording.');
+      toast.error('Could not start recording.');
     }
   }, [recorder]);
 
@@ -93,7 +93,7 @@ export const useAudioRecorderHook = () => {
       }
     } catch (error) {
       console.error('Failed to stop recording:', error);
-      Alert.alert('Error', 'Could not stop recording.');
+      toast.error('Could not stop recording.');
     }
     return null;
   }, [recorder]);

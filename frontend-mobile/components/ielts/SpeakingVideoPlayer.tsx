@@ -16,13 +16,12 @@
  */
 
 import React, { useRef, useEffect, useCallback, useState } from 'react';
-import {
-  View, Text, StyleSheet, ActivityIndicator, Dimensions,
-} from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -63,13 +62,17 @@ export interface SpeakingVideoPlayerProps {
 // ─── Direct-URL player (expo-video) ─────────────────────────────────────────
 
 function NativeVideoPlayer({
-  uri, playing, onEnded, onReady, captionText, height = DEFAULT_HEIGHT,
+  uri,
+  playing,
+  onEnded,
+  onReady,
+  captionText,
+  height = DEFAULT_HEIGHT,
 }: SpeakingVideoPlayerProps) {
-  const player = useVideoPlayer(uri, p => {
+  const player = useVideoPlayer(uri, (p) => {
     p.loop = false;
     p.muted = false;
   });
-
 
   // Play / pause in sync with `playing` prop
   useEffect(() => {
@@ -96,12 +99,7 @@ function NativeVideoPlayer({
 
   return (
     <View style={[pStyles.videoWrap, { height }]}>
-      <VideoView
-        player={player}
-        style={pStyles.video}
-        contentFit="cover"
-        nativeControls={false}
-      />
+      <VideoView player={player} style={pStyles.video} contentFit="cover" nativeControls={false} />
       {captionText && (
         <View style={pStyles.captionWrap} pointerEvents="none">
           <Text style={pStyles.caption}>{captionText}</Text>
@@ -116,31 +114,39 @@ function NativeVideoPlayer({
 const YT_AUTO_ADVANCE_MS = 300; // brief delay after postMessage ACK
 
 function YouTubePlayer({
-  uri, playing, onEnded, captionText, height,
+  uri,
+  playing,
+  onEnded,
+  captionText,
+  height,
 }: SpeakingVideoPlayerProps & { height: number }) {
+  const { colors } = useTheme();
   const webRef = useRef<WebView>(null);
   const [loaded, setLoaded] = useState(false);
   const ytId = extractYouTubeId(uri);
 
-
   // Inject JS to play/pause via YouTube IFrame API
-  const controlPlayback = useCallback((play: boolean) => {
-    if (!loaded || !webRef.current) return;
-    const fn = play ? 'playVideo' : 'pauseVideo';
-    webRef.current.injectJavaScript(`
+  const controlPlayback = useCallback(
+    (play: boolean) => {
+      if (!loaded || !webRef.current) return;
+      const fn = play ? 'playVideo' : 'pauseVideo';
+      webRef.current.injectJavaScript(`
       (function() {
         try { document.querySelector('iframe')?.contentWindow?.postMessage('{"event":"command","func":"${fn}","args":""}', '*'); } catch(e) {}
         try { if (window.player && window.player.${fn}) { window.player.${fn}(); } } catch(e) {}
       })();
       true;
     `);
-  }, [loaded]);
+    },
+    [loaded],
+  );
 
   useEffect(() => {
     controlPlayback(!!playing);
   }, [playing, controlPlayback]);
 
-  const html = ytId ? `
+  const html = ytId
+    ? `
     <!DOCTYPE html>
     <html>
     <head>
@@ -176,7 +182,8 @@ function YouTubePlayer({
       </script>
     </body>
     </html>
-  ` : '';
+  `
+    : '';
 
   if (!ytId) {
     return (
@@ -193,7 +200,7 @@ function YouTubePlayer({
     <View style={[pStyles.videoWrap, { height }]}>
       {!loaded && (
         <View style={pStyles.loading}>
-          <ActivityIndicator color={COLORS.primary} />
+          <ActivityIndicator color={colors.primary} />
         </View>
       )}
       <WebView
@@ -224,13 +231,16 @@ function YouTubePlayer({
 // ─── Empty / Placeholder ─────────────────────────────────────────────────────
 
 function VideoPlaceholder({ height }: { height: number }) {
+  const { colors } = useTheme();
   return (
-    <View style={[pStyles.placeholder, { height }]}>
-      <View style={pStyles.placeholderIcon}>
-        <Ionicons name="mic-outline" size={28} color={COLORS.primary} />
+    <View style={[pStyles.videoWrap, { height, backgroundColor: colors.surface }]}>
+      <View style={[pStyles.placeholderIcon, { backgroundColor: colors.primary + '15' }]}>
+        <Ionicons name="mic-outline" size={28} color={colors.primary} />
       </View>
-      <Text style={pStyles.placeholderTitle}>Speaking Test</Text>
-      <Text style={pStyles.placeholderSub}>No video for this question</Text>
+      <Text style={[pStyles.placeholderTitle, { color: colors.text }]}>Speaking Test</Text>
+      <Text style={[pStyles.placeholderSub, { color: colors.textSecondary }]}>
+        No video for this question
+      </Text>
     </View>
   );
 }
@@ -306,18 +316,15 @@ const pStyles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: COLORS.primary + '15',
     alignItems: 'center',
     justifyContent: 'center',
   },
   placeholderTitle: {
     fontSize: FONT_SIZES.sm,
     fontWeight: '700',
-    color: COLORS.text,
   },
   placeholderSub: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
   },
   placeholderText: {
     fontSize: FONT_SIZES.sm,

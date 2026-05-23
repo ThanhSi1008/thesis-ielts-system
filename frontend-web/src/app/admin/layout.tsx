@@ -3,8 +3,8 @@ import AdminGuard from "./_components/AdminGuard";
 import AdminSidebar from "./_components/AdminSidebar";
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard | TOEIC Master AI",
-  description: "Manage learning content for TOEIC Master AI",
+  title: "Admin Dashboard | IELTS Master AI",
+  description: "Manage learning content for IELTS Master AI",
 };
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -16,7 +16,7 @@ The evaluation section (Section IV) currently has **3 subsections**:
 
 ## What The App Actually Uses (Current Implementation)
 
-The pronunciation pipeline in [pronunciation_service.py](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-toeic-system/backend-ai/app/services/pronunciation_service.py) is a **multi-metric** system, NOT simple Levenshtein:
+The pronunciation pipeline in [pronunciation_service.py](file:///c:/Users/Admin/Desktop/thesis/my%20videos/thesis-ielts-system/backend-ai/app/services/pronunciation_service.py) is a **multi-metric** system, NOT simple Levenshtein:
 
 ```
 Combined Score = IPA Phoneme Accuracy × 0.4

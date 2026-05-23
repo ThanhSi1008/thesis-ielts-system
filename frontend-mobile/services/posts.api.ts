@@ -34,8 +34,15 @@ export const postsApi = {
     if (params?.tag) query.append('tag', params.tag);
     if (params?.authorId) query.append('authorId', params.authorId);
     if (params?.limit) query.append('limit', String(params.limit));
+    if (params?.bookmarkedOnly) query.append('bookmarkedOnly', 'true');
     const qs = query.toString();
     return apiClient.get<PostListResponse>(`/posts${qs ? `?${qs}` : ''}`);
+  },
+
+  getBookmarks: async (
+    params?: Omit<PostListParams, 'bookmarkedOnly'>,
+  ): Promise<PostListResponse> => {
+    return postsApi.listPosts({ ...params, bookmarkedOnly: true });
   },
 
   getPost: async (id: string): Promise<Post & { comments: Comment[] }> => {
