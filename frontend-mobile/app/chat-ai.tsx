@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { FONTS, API_BASE_URL, STORAGE_KEYS } from '@/constants';
 import {
   View,
@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/services/api-client';
+import { vocabLabApi } from '@/services';
 import Svg, { Defs, LinearGradient, Stop, Path } from 'react-native-svg';
 import Markdown from 'react-native-markdown-display';
 
@@ -26,11 +27,7 @@ type SuggestionMsg = {
   id: string;
   label: string;
   actionType: 'EXPLAIN_NOTE' | 'ADD_VOCAB';
-  payload: {
-    query?: string;
-    word?: string;
-    definition?: string;
-  };
+  payload: any;
 };
 
 type Message = {
@@ -73,16 +70,43 @@ export default function ChatAIScreen() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'model',
-      content: `Hello${user?.firstName ? `, ${user.firstName}` : ''}! I'm Lexon AI, your personal IELTS study assistant. How can I help you today?`,
+      content: `Hello${user?.firstName ? `, **${user.firstName}**` : ''}! I'm **Lexon AI**, your personal IELTS study assistant. How can I help you today?`,
       suggestions: welcomeSuggestions,
     },
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
+  // Card Type states
+  const [cardTypes, setCardTypes] = useState<any[]>([]);
+  const [activeCardTypeId, setActiveCardTypeId] = useState<string>('');
+
   const scrollViewRef = useRef<ScrollView>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Load custom card types on mount
+  useEffect(() => {
+    const loadCardTypes = async () => {
+      try {
+        const ctList = await vocabLabApi.getCardTypes();
+        setCardTypes(ctList || []);
+        if (ctList && ctList.length > 0) {
+          const preferredId = await AsyncStorage.getItem('preferredExplanationCardTypeId');
+          const preferredType = ctList.find((t: any) => t.id === preferredId);
+          if (preferredType) {
+            setActiveCardTypeId(preferredType.id);
+          } else {
+            const defaultBuiltIn = ctList.find((t: any) => t.isBuiltIn) || ctList[0];
+            setActiveCardTypeId(defaultBuiltIn.id);
+          }
+        }
+      } catch (e) {
+        if (__DEV__) console.error('Failed to load card types in chat-ai:', e);
+      }
+    };
+    loadCardTypes();
+  }, []);
 
   // Load chat history from AsyncStorage on mount
   useEffect(() => {
@@ -102,7 +126,7 @@ export default function ChatAIScreen() {
     loadHistory();
   }, []);
 
-  // Save history to AsyncStorage whenever messages change (except if only default welcome message remains)
+  // Save history to AsyncStorage
   useEffect(() => {
     const saveHistory = async () => {
       try {
@@ -111,7 +135,7 @@ export default function ChatAIScreen() {
           messages[0].suggestions?.length === 3 &&
           messages[0].suggestions[0].id.startsWith('welcome-')
         ) {
-          return; // Don't save initial default screen state
+          return;
         }
         const historyToSave = messages.slice(-50);
         await AsyncStorage.setItem('chat-ai-history', JSON.stringify(historyToSave));
@@ -122,13 +146,13 @@ export default function ChatAIScreen() {
     saveHistory();
   }, [messages]);
 
-  // Handle word lookup on mount if passed as query params
+  // Handle word lookup on mount once cardTypes are ready (web style)
   useEffect(() => {
-    if (params.word) {
+    if (params.word && cardTypes.length > 0) {
       const context = params.context || '';
-      handleWordExplanation(params.word, context);
+      triggerInitialWordLookup(params.word, context);
     }
-  }, [params.word]);
+  }, [params.word, cardTypes]);
 
   // Cleanup abort controller on unmount
   useEffect(() => {
@@ -142,47 +166,69 @@ export default function ChatAIScreen() {
     };
   }, []);
 
-  const handleClearHistory = async () => {
+  const triggerInitialWordLookup = async (word: string, context: string) => {
     try {
-      await AsyncStorage.removeItem('chat-ai-history');
-      setMessages([
-        {
-          role: 'model',
-          content: `Hello${user?.firstName ? `, ${user.firstName}` : ''}! I'm Lexon AI, your personal IELTS study assistant. How can I help you today?`,
-          suggestions: welcomeSuggestions,
-        },
-      ]);
-    } catch (e) {
-      if (__DEV__) console.error('Failed to clear chat history:', e);
+      const preferredId = await AsyncStorage.getItem('preferredExplanationCardTypeId');
+      const preferredType = cardTypes.find((t) => t.id === preferredId);
+
+      if (preferredType) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "user",
+            content: `Explain "${word}" as ${preferredType.name}`,
+          },
+        ]);
+        setTimeout(() => {
+          explainAsCardType(word, context, preferredType, cardTypes);
+        }, 50);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "model",
+            content: `Hello! Curious about the word **"${word}"** from your practice? I'm here to help.\n\nPlease choose a format below to explain it:`,
+            suggestions: cardTypes.map((t: any) => ({
+              id: t.id,
+              label: `Explain as ${t.name}`,
+              actionType: "EXPLAIN_NOTE" as const,
+              payload: {
+                word: word,
+                context: context,
+                cardType: t,
+                allCardTypes: cardTypes,
+              },
+            })),
+          },
+        ]);
+      }
+    } catch (error) {
+      if (__DEV__) console.error('Failed to trigger lookup:', error);
     }
   };
 
-  const handleWordExplanation = async (word: string, context: string) => {
-    if (isTyping) return;
-
-    if (typingIntervalRef.current) {
-      clearInterval(typingIntervalRef.current);
-    }
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    const queryMsg = `Explain the word "${word}"`;
-    const newMessages = [...messages, { role: 'user', content: queryMsg } as Message];
-    setMessages(newMessages);
+  // Explain word formatted specifically as a Card Type (web logic)
+  const explainAsCardType = useCallback(async (
+    word: string,
+    context: string,
+    cardType: any,
+    allCardTypes: any[],
+  ) => {
     setIsTyping(true);
-
-    // Add empty model message for typing effect
-    setMessages((prev) => [...prev, { role: 'model', content: '' }]);
-
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
-
-    const detailedPrompt = `Act as an expert English Teacher. Explain the word "${word}" from the sentence: "${context}". Explain its meaning, word class, pronunciation, how it fits in this specific context, and how it is used in the IELTS exam. Keep it clean, structured, and highly conversational.`;
+    const fieldDescriptions = cardType.fields
+      .map(
+        (f: { name: string; description?: string | null }) => `"${f.name}"${f.description ? ` (${f.description})` : ""}`,
+      )
+      .join(", ");
 
     try {
-      const res = await apiClient.post<{ response: string }>('/chat', {
-        messages: [{ role: 'user', content: detailedPrompt }],
+      const prompt = `Act as an expert English Teacher. The user highlighted the word/phrase '${word}' from the sentence: "${context}". Use the **${cardType.name}** card type format to explain it. Cover precisely these aspects based on their descriptions: ${fieldDescriptions}. Make the explanation clear, conversational, and highly educational.`;
+
+      // Add placeholder
+      setMessages((prev) => [...prev, { role: 'model', content: '' }]);
+
+      const res = await apiClient.post<{ response: string }>("/chat", {
+        messages: [{ role: "user", content: prompt }],
         stream: false,
       });
 
@@ -191,6 +237,7 @@ export default function ChatAIScreen() {
       let index = 0;
       const charsPerStep = fullText.length > 500 ? 5 : 2;
 
+      if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
       typingIntervalRef.current = setInterval(() => {
         index += charsPerStep;
         if (index >= fullText.length) {
@@ -200,31 +247,24 @@ export default function ChatAIScreen() {
           setMessages((prev) => {
             const next = [...prev];
             if (next.length > 0 && next[next.length - 1].role === 'model') {
-              const backupDefinition = fullText.length > 120 ? fullText.substring(0, 120) + '...' : fullText;
               next[next.length - 1] = {
                 role: 'model',
                 content: fullText,
                 suggestions: [
                   {
-                    id: `add-vocab-${Date.now()}`,
-                    label: `⭐ Save "${word}" to Vocab Lab`,
-                    actionType: 'ADD_VOCAB',
-                    payload: { word, definition: backupDefinition },
+                    id: "add-vocab",
+                    label: `Add to Vocab Lab`,
+                    actionType: "ADD_VOCAB" as const,
+                    payload: { word, context, cardType },
                   },
-                  {
-                    id: `explain-more-${Date.now()}`,
-                    label: `📖 Give example sentences for "${word}"`,
-                    actionType: 'EXPLAIN_NOTE',
-                    payload: {
-                      query: `Give me 3 example sentences using the word "${word}" in IELTS contexts.`,
-                    },
-                  },
-                  {
-                    id: `synonyms-${Date.now()}`,
-                    label: `🔄 Synonyms & Antonyms of "${word}"`,
-                    actionType: 'EXPLAIN_NOTE',
-                    payload: { query: `What are some common IELTS synonyms and antonyms for "${word}"?` },
-                  },
+                  ...(allCardTypes || [])
+                    .filter((t: any) => t.id !== cardType.id)
+                    .map((t: any) => ({
+                      id: t.id,
+                      label: `Explain as ${t.name}`,
+                      actionType: "EXPLAIN_NOTE" as const,
+                      payload: { word, context, cardType: t, allCardTypes },
+                    })),
                 ],
               };
             }
@@ -246,25 +286,33 @@ export default function ChatAIScreen() {
         }
       }, 12);
 
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
-        if (__DEV__) console.log('Lookup aborted');
-        return;
-      }
-      if (__DEV__) console.error('Lexon AI lookup error:', error);
-      setMessages((prev) => {
-        const next = [...prev];
-        if (next.length > 0 && next[next.length - 1].role === 'model') {
-          next[next.length - 1] = {
-            role: 'model',
-            content: 'Sorry, I failed to generate the explanation. Please try again.',
-          };
-        }
-        return next;
-      });
+      await AsyncStorage.setItem('preferredExplanationCardTypeId', cardType.id);
+      setActiveCardTypeId(cardType.id);
+    } catch (error) {
+      if (__DEV__) console.error("Generation error:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "model",
+          content: "Sorry, I failed to generate the explanation. Please try again.",
+        },
+      ]);
       setIsTyping(false);
-    } finally {
-      abortControllerRef.current = null;
+    }
+  }, []);
+
+  const handleClearHistory = async () => {
+    try {
+      await AsyncStorage.removeItem('chat-ai-history');
+      setMessages([
+        {
+          role: 'model',
+          content: `Hello${user?.firstName ? `, **${user.firstName}**` : ''}! I'm **Lexon AI**, your personal IELTS study assistant. How can I help you today?`,
+          suggestions: welcomeSuggestions,
+        },
+      ]);
+    } catch (e) {
+      if (__DEV__) console.error('Failed to clear chat history:', e);
     }
   };
 
@@ -282,7 +330,6 @@ export default function ChatAIScreen() {
     if (typingIntervalRef.current) {
       clearInterval(typingIntervalRef.current);
     }
-    // Abort any ongoing stream
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
@@ -291,7 +338,6 @@ export default function ChatAIScreen() {
     setMessages(newMessages);
     setIsTyping(true);
 
-    // Add empty model message
     setMessages((prev) => [...prev, { role: 'model', content: '' }]);
 
     const abortController = new AbortController();
@@ -378,25 +424,86 @@ export default function ChatAIScreen() {
     }
   };
 
-  const handleSuggestionClick = async (index: number, suggestion: SuggestionMsg) => {
-    // Remove suggestion from bubble so user knows it's clicked
+  const handleSuggestionClick = async (
+    messageIndex: number,
+    suggestion: SuggestionMsg,
+  ) => {
+    // Remove only the clicked suggestion, keeping others visible
     setMessages((prev) => {
-      const next = [...prev];
-      if (next[index] && next[index].suggestions) {
-        next[index].suggestions = next[index].suggestions?.filter((s) => s.id !== suggestion.id);
+      const newMsgs = [...prev];
+      const msg = { ...newMsgs[messageIndex] };
+      if (msg.suggestions) {
+        msg.suggestions = msg.suggestions.filter((s) => s.id !== suggestion.id);
       }
-      return next;
+      newMsgs[messageIndex] = msg;
+      newMsgs.push({ role: 'user', content: suggestion.label });
+      return newMsgs;
     });
 
     if (suggestion.actionType === 'EXPLAIN_NOTE') {
-      await handleSend(suggestion.payload.query || suggestion.label);
+      const { word, context, cardType, allCardTypes } = suggestion.payload as { word: string; context: string; cardType: any; allCardTypes: any[] };
+      await explainAsCardType(word, context, cardType, allCardTypes);
     } else if (suggestion.actionType === 'ADD_VOCAB') {
-      const { word, definition } = suggestion.payload;
-      DeviceEventEmitter.emit('OPEN_QUICK_ADD_CARD', {
-        front: word || '',
-        back: definition || '',
-        tags: ['AI-Chat'],
-      });
+      const { word, context, cardType } = suggestion.payload as { word: string; context: string; cardType: any };
+      const fieldDescriptions = cardType.fields
+        .map(
+          (f: { name: string; description?: string | null }) =>
+            `"${f.name}"${f.description ? ` (${f.description})` : ""}`,
+        )
+        .join(", ");
+      const fieldKeys = cardType.fields.map((f: { name: string }) => f.name).join(", ");
+
+      setIsTyping(true);
+      try {
+        setMessages((prev) => [
+          ...prev,
+          { role: 'model', content: 'Generating card data...' },
+        ]);
+
+        const prompt = `Act as an expert English Teacher generating a flashcard for the word '${word}' from the sentence: "${context}". Use the **${cardType.name}** card type. Generate content fulfilling these fields: ${fieldDescriptions}. Return a strictly formatted JSON object where the keys are exactly these field names: [${fieldKeys}] and the values are strings of the generated content. Do not include markdown blocks, explanation text, or anything other than the raw JSON object.`;
+
+        const response = await apiClient.post<{ response: string }>('/chat', {
+          messages: [{ role: 'user', content: prompt }],
+          stream: false,
+        });
+
+        let jsonStr = response.response || '';
+        if (jsonStr.startsWith('```json'))
+          jsonStr = jsonStr.replace(/```json\n?/, '');
+        if (jsonStr.startsWith('```')) jsonStr = jsonStr.replace(/```\n?/, '');
+        jsonStr = jsonStr.replace(/```\n?$/, '');
+
+        const generatedFields = JSON.parse(jsonStr.trim());
+
+        setMessages((prev) => {
+          const newMsgs = [...prev];
+          newMsgs[newMsgs.length - 1] = {
+            role: 'model',
+            content: `Awesome! I have generated the content. Opening your Vocab Lab so you can review and save it...`,
+          };
+          return newMsgs;
+        });
+
+        // Trigger Quick Add Card prefilled exactly matching web!
+        DeviceEventEmitter.emit('OPEN_QUICK_ADD_CARD', {
+          front: word,
+          back: context,
+          tags: ['AI-Chat'],
+          AICardType: cardType,
+          AIFieldValues: generatedFields,
+        });
+      } catch (error) {
+        if (__DEV__) console.error('Generation error:', error);
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'model',
+            content: 'Sorry, I failed to generate the card fields. This might be due to an AI response error. Please try again.',
+          },
+        ]);
+      } finally {
+        setIsTyping(false);
+      }
     }
   };
 
@@ -662,6 +769,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  cardTypeSelectorRow: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  cardTypeSelectorLabel: {
+    fontSize: 11,
+    fontFamily: FONTS.bold,
+    color: '#64748b',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  cardTypePill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    backgroundColor: '#f1f5f9',
+  },
+  cardTypePillActive: {
+    backgroundColor: '#8B5CF6',
+  },
+  cardTypePillText: {
+    fontSize: 12,
+    fontFamily: FONTS.bold,
+    color: '#475569',
+  },
+  cardTypePillTextActive: {
+    color: '#FFFFFF',
+  },
   chatArea: {
     flex: 1,
   },
@@ -753,7 +894,7 @@ const styles = StyleSheet.create({
   suggestionText: {
     fontFamily: FONTS.medium,
     fontSize: 13,
-    color: '#4f39e5',
+    color: '#8B5CF6',
   },
   inputArea: {
     flexDirection: 'row',

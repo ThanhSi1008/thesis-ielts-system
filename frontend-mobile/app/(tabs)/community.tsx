@@ -7,8 +7,12 @@ import {
   RefreshControl,
   DeviceEventEmitter,
   Platform,
+  Animated,
+  Pressable,
+  useWindowDimensions,
+  StyleSheet,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
 import { toast } from '@/components/ui/index';
@@ -33,16 +37,24 @@ import {
 import { EmptyStates } from '@/assets/empty-states';
 
 // ─── Main Screen ───────────────────────────────────────────────
-const TABS = [
+const FEED_TABS = [
   { id: 'all', icon: 'albums-outline', label: 'All Posts' },
   { id: 'tips', icon: 'bulb-outline', label: 'Study Tips' },
   { id: 'achievements', icon: 'trophy-outline', label: 'Achievements' },
-  { id: 'my_posts', icon: 'person-outline', label: 'My Posts' },
-  { id: 'saved', icon: 'bookmark-outline', label: 'Saved' },
-  { id: 'leaderboard', icon: 'bar-chart-outline', label: 'Leaderboard' },
 ] as const;
 
-type TabId = (typeof TABS)[number]['id'];
+const ACTIVITY_TABS = [
+  { id: 'my_posts', icon: 'person-outline', label: 'My Posts' },
+  { id: 'saved', icon: 'bookmark-outline', label: 'Saved' },
+] as const;
+
+const SIDEBAR_ITEMS = [
+  { id: 'feed', icon: 'albums-outline', label: 'Feed' },
+  { id: 'activity', icon: 'person-outline', label: 'Activity' },
+  { id: 'rank', icon: 'medal-outline', label: 'Rank' },
+] as const;
+
+type SidebarTab = (typeof SIDEBAR_ITEMS)[number]['id'];
 
 const TAB_TYPE_MAP: Record<string, PostType | undefined> = {
   tips: 'STUDY_TIP',
@@ -52,9 +64,39 @@ const TAB_TYPE_MAP: Record<string, PostType | undefined> = {
 export default function CommunityScreen() {
   const { user } = useAuth();
   const { colors } = useTheme();
-  const [activeTab, setActiveTab] = useState<TabId>('all');
+  const [activeSidebarTab, setActiveSidebarTab] = useState<SidebarTab>('feed');
+  const [feedFilter, setFeedFilter] = useState<'all' | 'tips' | 'achievements'>('all');
+  const [activityFilter, setActivityFilter] = useState<'my_posts' | 'saved'>('my_posts');
   const [posts, setPosts] = useState<Post[]>([]);
-  
+
+  const insets = useSafeAreaInsets();
+  const { width: windowWidth } = useWindowDimensions();
+  const DRAWER_WIDTH = Math.min(windowWidth * 0.82, 300);
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerAnim = useRef(new Animated.Value(-300)).current;
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+
+  const openDrawer = () => {
+    setDrawerOpen(true);
+    Animated.parallel([
+      Animated.spring(drawerAnim, { toValue: 0, useNativeDriver: true, tension: 80, friction: 12 }),
+      Animated.timing(backdropAnim, { toValue: 1, duration: 250, useNativeDriver: true }),
+    ]).start();
+  };
+
+  const closeDrawer = () => {
+    Animated.parallel([
+      Animated.spring(drawerAnim, {
+        toValue: -DRAWER_WIDTH,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 12,
+      }),
+      Animated.timing(backdropAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+    ]).start(() => setDrawerOpen(false));
+  };
+
   const { handleScroll } = useTabBarVisibility();
   const postsScrollViewRef = useRef<ScrollView>(null);
   const leaderboardScrollViewRef = useRef<ScrollView>(null);
@@ -65,7 +107,7 @@ export default function CommunityScreen() {
       'SCROLL_TO_TOP',
       ({ target }: { target: string }) => {
         if (target === 'community') {
-          if (activeTab === 'leaderboard') {
+          if (activeSidebarTab === 'rank') {
             leaderboardScrollViewRef.current?.scrollTo({ y: 0, animated: true });
           } else {
             postsScrollViewRef.current?.scrollTo({ y: 0, animated: true });
@@ -74,7 +116,7 @@ export default function CommunityScreen() {
       }
     );
     return () => listener.remove();
-  }, [activeTab]);
+  }, [activeSidebarTab]);
 
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -95,14 +137,17 @@ export default function CommunityScreen() {
 
   const fetchPosts = useCallback(
     async (cursor?: string) => {
-      const type = TAB_TYPE_MAP[activeTab];
       try {
         let res;
-        if (activeTab === 'saved') {
-          res = await postsApi.getBookmarks({ cursor });
-        } else if (activeTab === 'my_posts') {
-          res = await postsApi.listPosts({ authorId: user?.id, cursor });
+        if (activeSidebarTab === 'activity') {
+          if (activityFilter === 'saved') {
+            res = await postsApi.getBookmarks({ cursor });
+          } else {
+            res = await postsApi.listPosts({ authorId: user?.id, cursor });
+          }
         } else {
+          // activeSidebarTab === 'feed'
+          const type = TAB_TYPE_MAP[feedFilter];
           res = await postsApi.listPosts({ type, cursor });
         }
 
@@ -116,24 +161,24 @@ export default function CommunityScreen() {
         toast.error('Error', 'Failed to load posts');
       }
     },
-    [activeTab, user?.id],
+    [activeSidebarTab, feedFilter, activityFilter, user?.id],
   );
 
   useEffect(() => {
-    if (activeTab === 'leaderboard') return;
+    if (activeSidebarTab === 'rank') return;
     setLoading(true);
     fetchPosts().finally(() => setLoading(false));
-  }, [activeTab]);
+  }, [activeSidebarTab, feedFilter, activityFilter, fetchPosts]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    if (activeTab === 'leaderboard') {
+    if (activeSidebarTab === 'rank') {
       await new Promise((resolve) => setTimeout(resolve, 800));
     } else {
       await fetchPosts();
     }
     setRefreshing(false);
-  }, [activeTab, fetchPosts]);
+  }, [activeSidebarTab, fetchPosts]);
 
   const loadMore = useCallback(async () => {
     if (!nextCursor || loadingMore) return;
@@ -187,8 +232,14 @@ export default function CommunityScreen() {
 
   const handleCreated = useCallback((post: Post) => {
     setPosts((prev) => [post, ...prev]);
-    setActiveTab('all');
+    setActiveSidebarTab('feed');
+    setFeedFilter('all');
   }, []);
+
+  const handleSidebarItemPress = (tabId: SidebarTab) => {
+    setActiveSidebarTab(tabId);
+    closeDrawer();
+  };
 
   const authorName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Me';
 
@@ -206,13 +257,31 @@ export default function CommunityScreen() {
         <View
           style={{
             flexDirection: 'row',
-            justifyContent: 'space-between',
             alignItems: 'center',
             paddingHorizontal: 16,
             paddingBottom: 12,
+            gap: 12,
           }}
         >
-          <View>
+          <TouchableOpacity
+            style={{
+              width: 40,
+              height: 40,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 8,
+              backgroundColor: colors.card,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+            onPress={openDrawer}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Open community menu drawer"
+          >
+            <Ionicons name="menu-outline" size={24} color={colors.text} />
+          </TouchableOpacity>
+          <View style={{ flex: 1 }}>
             <Text
               variant="caption"
               weight="bold"
@@ -230,15 +299,24 @@ export default function CommunityScreen() {
         </View>
 
         {/* TabPill Category Filters */}
-        <TabPill
-          tabs={TABS}
-          activeTab={activeTab}
-          onChange={setActiveTab}
-        />
+        {activeSidebarTab === 'feed' && (
+          <TabPill
+            tabs={FEED_TABS}
+            activeTab={feedFilter}
+            onChange={setFeedFilter}
+          />
+        )}
+        {activeSidebarTab === 'activity' && (
+          <TabPill
+            tabs={ACTIVITY_TABS}
+            activeTab={activityFilter}
+            onChange={setActivityFilter}
+          />
+        )}
       </View>
 
       {/* Content */}
-      {activeTab === 'leaderboard' ? (
+      {activeSidebarTab === 'rank' ? (
         <ScrollView
           ref={leaderboardScrollViewRef}
           contentContainerStyle={{ padding: 16 }}
@@ -403,6 +481,113 @@ export default function CommunityScreen() {
         onCreated={handleCreated}
         user={user}
       />
+
+      {/* Drawer backdrop overlay */}
+      {drawerOpen && (
+        <Animated.View
+          style={{
+            ...StyleSheet.absoluteFillObject,
+            backgroundColor: 'rgba(15, 23, 42, 0.45)',
+            zIndex: 999,
+            opacity: backdropAnim,
+          }}
+        >
+          <Pressable style={{ flex: 1 }} onPress={closeDrawer} />
+        </Animated.View>
+      )}
+
+      {/* Drawer Sidebar Container */}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          width: DRAWER_WIDTH,
+          backgroundColor: colors.background,
+          zIndex: 1000,
+          borderRightWidth: 1,
+          borderColor: colors.border,
+          paddingTop: insets.top + 16,
+          transform: [
+            {
+              translateX: drawerAnim.interpolate({
+                inputRange: [-DRAWER_WIDTH, 0],
+                outputRange: [-DRAWER_WIDTH, 0],
+              }),
+            },
+          ],
+          shadowColor: '#000000',
+          shadowOffset: { width: 4, height: 0 },
+          shadowOpacity: 0.15,
+          shadowRadius: 16,
+          elevation: 16,
+        }}
+      >
+        {/* User profile details header */}
+        <View style={{ paddingHorizontal: 16, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: colors.border, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <Avatar name={authorName} avatar={user?.avatar} size="md" />
+          <View style={{ flex: 1 }}>
+            <Text variant="body" weight="bold" color="text" numberOfLines={1}>
+              {authorName}
+            </Text>
+            <Text variant="caption" style={{ color: colors.textMuted }}>
+              Lexon Student
+            </Text>
+          </View>
+        </View>
+
+        {/* Sidebar list items */}
+        <ScrollView style={{ flex: 1, paddingTop: 16 }} showsVerticalScrollIndicator={false}>
+          <Text variant="caption" weight="bold" style={{ color: colors.textMuted, marginHorizontal: 16, marginBottom: 8, letterSpacing: 1, textTransform: 'uppercase' }}>
+            COMMUNITY NAVIGATION
+          </Text>
+          {SIDEBAR_ITEMS.map((item) => {
+            const isActive = activeSidebarTab === item.id;
+            return (
+              <TouchableOpacity
+                key={item.id}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  marginHorizontal: 8,
+                  borderRadius: 12,
+                  backgroundColor: isActive ? colors.primary + '15' : 'transparent',
+                  borderLeftWidth: 4,
+                  borderLeftColor: isActive ? colors.primary : 'transparent',
+                }}
+                onPress={() => handleSidebarItemPress(item.id)}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={item.icon}
+                  size={20}
+                  color={isActive ? colors.primary : colors.textSecondary}
+                />
+                <Text
+                  variant="body"
+                  weight={isActive ? 'bold' : 'medium'}
+                  style={{
+                    marginLeft: 12,
+                    color: isActive ? colors.text : colors.textSecondary,
+                  }}
+                >
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {/* Version Footer */}
+        <View style={{ padding: 16, borderTopWidth: 1, borderTopColor: colors.border, alignItems: 'center' }}>
+          <Text variant="caption" style={{ color: colors.textMuted }}>
+            Lexon Community v1.2
+          </Text>
+        </View>
+      </Animated.View>
     </SafeAreaView>
   );
 }

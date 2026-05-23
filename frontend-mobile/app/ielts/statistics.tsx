@@ -821,10 +821,10 @@ const ab = StyleSheet.create({
 function AdvancedStatsSection({
   stats,
 }: {
-  stats: Record<string, { correct: number; total: number; attempted: number }>;
+  stats: Record<string, { correct: number; total: number; attempted: number }> | null | undefined;
 }) {
   const { colors } = useTheme();
-  const entries = Object.entries(stats).sort((a, b) => {
+  const entries = Object.entries(stats || {}).sort((a, b) => {
     const pctA = a[1].total > 0 ? a[1].correct / a[1].total : 0;
     const pctB = b[1].total > 0 ? b[1].correct / b[1].total : 0;
     return pctB - pctA; // highest accuracy first
@@ -1049,8 +1049,8 @@ function IntensiveStatsSection({ stats }: { stats: IeltsIntensiveStats | null })
 
         <RNText style={[intensiveStyles.sectionTitle, { color: colors.text }]}>Intensive Skill Breakdown</RNText>
         <View style={intensiveStyles.skillsList}>
-          {(Object.keys(stats.skillBreakdown) as Array<keyof typeof stats.skillBreakdown>).map((skill) => {
-            const val = stats.skillBreakdown[skill];
+          {(Object.keys(stats.skillBreakdown || {}) as Array<keyof typeof stats.skillBreakdown>).map((skill) => {
+            const val = stats.skillBreakdown?.[skill];
             const percent = val ? (val / 9.0) * 100 : 0;
             const skillColor = skillColorMap[skill] || colors.primary;
 

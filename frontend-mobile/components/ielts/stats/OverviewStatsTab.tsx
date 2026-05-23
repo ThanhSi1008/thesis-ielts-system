@@ -188,7 +188,7 @@ export default function OverviewStatsTab({ stats, loading }: OverviewStatsTabPro
               <Ionicons name="time" size={20} color={colors.info} />
             </View>
             <View style={styles.statTexts}>
-              <Text style={styles.statValue}>{stats.totalStudyTime}m</Text>
+              <Text style={styles.statValue}>{stats.totalStudyTime ?? 0}m</Text>
               <Text style={styles.statLabel}>Learning Time</Text>
             </View>
           </View>
@@ -199,7 +199,7 @@ export default function OverviewStatsTab({ stats, loading }: OverviewStatsTabPro
             </View>
             <View style={styles.statTexts}>
               <Text style={styles.statValue}>
-                {stats.currentStreak} <Text style={styles.streakSub}>/ {stats.longestStreak} max</Text>
+                {stats.currentStreak ?? 0} <Text style={styles.streakSub}>/ {stats.longestStreak ?? 0} max</Text>
               </Text>
               <Text style={styles.statLabel}>Streak Day</Text>
             </View>
@@ -212,14 +212,14 @@ export default function OverviewStatsTab({ stats, loading }: OverviewStatsTabPro
         <View style={styles.cardHeaderRow}>
           <Text style={styles.cardTitle}>Weekly Activity</Text>
           <View style={styles.xpBadge}>
-            <Text style={styles.xpBadgeText}>{stats.weeklyXp} XP</Text>
+            <Text style={styles.xpBadgeText}>{stats.weeklyXp ?? 0} XP</Text>
           </View>
         </View>
         <Text style={styles.xpSubtitle}>Keep studying to maintain your streak and level up!</Text>
         
         {/* Progress illustration */}
         <View style={styles.xpProgressContainer}>
-          <ProgressBar value={Math.min(stats.weeklyXp, 1000)} max={1000} height={10} color={colors.primary} />
+          <ProgressBar value={Math.min(stats.weeklyXp ?? 0, 1000)} max={1000} height={10} color={colors.primary} />
           <View style={styles.xpTicksRow}>
             <Text style={styles.xpTickText}>0 XP</Text>
             <Text style={styles.xpTickText}>500 XP</Text>
@@ -234,8 +234,8 @@ export default function OverviewStatsTab({ stats, loading }: OverviewStatsTabPro
         <Text style={styles.sectionSubtitle}>Predicted band levels based on your performance</Text>
 
         <View style={styles.skillsContainer}>
-          {(Object.keys(stats.skillAnalysis) as Array<keyof typeof stats.skillAnalysis>).map((skill) => {
-            const val = stats.skillAnalysis[skill] ?? 1.0;
+          {(Object.keys(stats.skillAnalysis || {}) as Array<keyof typeof stats.skillAnalysis>).map((skill) => {
+            const val = stats.skillAnalysis?.[skill] ?? 1.0;
             // Map 1-9 to progress bar percent (0-100)
             const percent = ((val - 1.0) / 8.0) * 100;
             const skillColor = skillColorMap[skill] || colors.primary;

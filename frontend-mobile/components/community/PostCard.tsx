@@ -14,8 +14,9 @@ import ImageViewer from 'react-native-image-zoom-viewer';
 import { COLORS, FONTS } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
 import { timeAgo } from '@/utils/timeAgo';
-import type { Post, PostType } from '@/types';
 import Avatar from '../atoms/Avatar';
+import { TextWithLookup } from '../global/TextWithLookup';
+import type { Post, PostType } from '@/types';
 
 // ─── TypePill ──────────────────────────────────────────────────
 function TypePill({ type }: { type: PostType }) {
@@ -82,8 +83,8 @@ export const PostCard = React.memo(function PostCard({
         )}
       </View>
 
-      {post.title ? <Text style={styles.postTitle}>{post.title}</Text> : null}
-      <Text style={styles.postBody}>{post.body}</Text>
+      {post.title ? <TextWithLookup style={styles.postTitle} content={post.title} /> : null}
+      <TextWithLookup style={styles.postBody} content={post.body} />
 
       {post.imageUrls?.length > 0 && (
         <>

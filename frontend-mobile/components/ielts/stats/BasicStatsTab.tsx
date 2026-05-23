@@ -66,7 +66,8 @@ export default function BasicStatsTab({ stats, loading }: BasicStatsTabProps) {
     }
   };
 
-  const getSkillIcon = (skill: string) => {
+  const getSkillIcon = (skill?: string) => {
+    if (!skill) return 'star-outline';
     switch (skill.toUpperCase()) {
       case 'LISTENING':
         return 'headset-outline';
@@ -81,7 +82,8 @@ export default function BasicStatsTab({ stats, loading }: BasicStatsTabProps) {
     }
   };
 
-  const getSkillColor = (skill: string) => {
+  const getSkillColor = (skill?: string) => {
+    if (!skill) return colors.primary;
     switch (skill.toUpperCase()) {
       case 'LISTENING':
         return COLORS.skill.listening;
@@ -104,9 +106,9 @@ export default function BasicStatsTab({ stats, loading }: BasicStatsTabProps) {
         <Text style={styles.sectionSubtitle}>Lessons & exercises master progress</Text>
 
         <View style={styles.progressCircleRow}>
-          <ProgressCircle value={stats.overallProgress} max={100} size={70} strokeWidth={7} color={colors.primary} />
+          <ProgressCircle value={stats.overallProgress ?? 0} max={100} size={70} strokeWidth={7} color={colors.primary} />
           <View style={styles.progressCircleTextCol}>
-            <Text style={styles.progressNumberText}>{Math.round(stats.overallProgress)}%</Text>
+            <Text style={styles.progressNumberText}>{Math.round(stats.overallProgress ?? 0)}%</Text>
             <Text style={styles.progressLabelText}>Basic Level Completion</Text>
             <Text style={styles.lastActivityText}>
               Last active: {formatActivityDate(stats.lastActivity)}
@@ -118,25 +120,25 @@ export default function BasicStatsTab({ stats, loading }: BasicStatsTabProps) {
       {/* 2. Skills Grid */}
       <Text style={styles.gridSectionTitle}>Skills Breakdown</Text>
       <View style={styles.grid}>
-        {stats.skills.map((item) => {
-          const color = getSkillColor(item.skill);
-          const icon = getSkillIcon(item.skill);
+        {(stats.skills || []).map((item) => {
+          const color = getSkillColor(item?.skill);
+          const icon = getSkillIcon(item?.skill);
 
           return (
-            <View key={item.skill} style={styles.gridItem}>
+            <View key={item?.skill || Math.random().toString()} style={styles.gridItem}>
               <View style={[styles.skillCard, { borderTopColor: color }]}>
                 {/* Header */}
                 <View style={styles.skillHeaderRow}>
                   <View style={[styles.skillIconCircle, { backgroundColor: color + '15' }]}>
                     <Ionicons name={icon as any} size={20} color={color} />
                   </View>
-                  {item.averageScore !== null && (
+                  {item?.averageScore !== null && item?.averageScore !== undefined && (
                     <Badge label={`Avg: ${Math.round(item.averageScore)}%`} variant="info" />
                   )}
                 </View>
 
                 {/* Title */}
-                <Text style={styles.skillCardTitle}>{item.skill}</Text>
+                <Text style={styles.skillCardTitle}>{item?.skill || 'Unknown Skill'}</Text>
 
                 {/* Sub info */}
                 <View style={styles.subInfoContainer}>
