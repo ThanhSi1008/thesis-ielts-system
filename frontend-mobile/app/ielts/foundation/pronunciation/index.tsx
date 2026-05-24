@@ -158,14 +158,27 @@ export default function IeltsPronunciationScreen() {
         <View style={{ width: 44 }} />
       </View>
 
-      {/* Intro banner */}
-      <View style={styles.introBanner}>
-        <Ionicons name="bulb-outline" size={15} color={COLORS.primary} />
-        <Text style={styles.introText}>
-          Tap any symbol to practice with AI pronunciation scoring. Each symbol has example words
-          and sentence drills.
-        </Text>
-      </View>
+      {/* Intro banner - only for users who haven't started practicing */}
+      {(!user || !stats || stats.overallMastery === 0) && (
+        <View style={[styles.welcomeBanner, { backgroundColor: colors.infoBg }]}>
+          <Text style={[styles.welcomeTitle, { color: colors.text }]}>Welcome to IPA Mastery!</Text>
+          <Text style={[styles.welcomeSubtext, { color: colors.textSecondary }]}>
+            Tap any sound to learn how to pronounce it. Practice with example words and
+            track your progress as you master all 44 English sounds.
+          </Text>
+        </View>
+      )}
+
+      {/* Tip banner - only for users with some progress */}
+      {user && stats && stats.overallMastery > 0 && (
+        <View style={styles.introBanner}>
+          <Ionicons name="bulb-outline" size={15} color={COLORS.primary} />
+          <Text style={styles.introText}>
+            Tap any symbol to practice with AI pronunciation scoring. Each symbol has example words
+            and sentence drills.
+          </Text>
+        </View>
+      )}
 
       <ScrollView
         contentContainerStyle={styles.scroll}
@@ -175,9 +188,33 @@ export default function IeltsPronunciationScreen() {
         }
       >
         {loading && !refreshing ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={COLORS.primary} />
-            <Text style={styles.loadingText}>Loading Phonetic Chart...</Text>
+          <View style={styles.skeletonContainer}>
+            {/* Skeleton: Progress summary */}
+            {user && (
+              <Animated.View style={[styles.skeletonBlock, styles.skeletonProgress, { backgroundColor: colors.surface }]} />
+            )}
+            {/* Skeleton: Section title */}
+            <Animated.View style={[styles.skeletonBlock, styles.skeletonTitle, { backgroundColor: colors.surface }]} />
+            {/* Skeleton: Grid tiles */}
+            <View style={styles.skeletonGrid}>
+              {[...Array(12)].map((_, i) => (
+                <Animated.View
+                  key={i}
+                  style={[styles.skeletonTile, { backgroundColor: colors.surface, opacity: 1 - i * 0.03 }]}
+                />
+              ))}
+            </View>
+            {/* Skeleton: Second section title */}
+            <Animated.View style={[styles.skeletonBlock, styles.skeletonTitle, { backgroundColor: colors.surface, marginTop: SPACING.xl }]} />
+            {/* Skeleton: Second grid */}
+            <View style={styles.skeletonGrid}>
+              {[...Array(16)].map((_, i) => (
+                <Animated.View
+                  key={`c${i}`}
+                  style={[styles.skeletonTile, { backgroundColor: colors.surface, opacity: 1 - i * 0.02 }]}
+                />
+              ))}
+            </View>
           </View>
         ) : error ? (
           <View style={styles.errorContainer}>
@@ -265,6 +302,27 @@ const styles = StyleSheet.create({
   headerTitle: { color: '#fff', fontSize: FONT_SIZES.md, fontFamily: FONTS.bold },
   headerSub: { color: 'rgba(255,255,255,0.7)', fontSize: FONT_SIZES.xs, marginTop: 1 },
 
+  welcomeBanner: {
+    margin: SPACING.lg,
+    marginBottom: 0,
+    padding: SPACING.lg,
+    borderRadius: RADIUS.xl,
+    borderWidth: 1,
+    borderColor: '#93C5FD40',
+  },
+  welcomeTitle: {
+    fontSize: FONT_SIZES.md,
+    fontFamily: FONTS.bold,
+    color: COLORS.text,
+    marginBottom: SPACING.xs,
+  },
+  welcomeSubtext: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textSecondary,
+    lineHeight: 20,
+    fontFamily: FONTS.regular,
+  },
+
   introBanner: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -281,17 +339,33 @@ const styles = StyleSheet.create({
 
   scroll: { padding: SPACING.lg, paddingBottom: 40 },
 
-  loadingContainer: {
-    paddingVertical: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
+  // Skeleton loading styles
+  skeletonContainer: {
+    paddingVertical: SPACING.md,
   },
-  loadingText: {
-    marginTop: SPACING.md,
-    color: COLORS.textSecondary,
-    fontSize: FONT_SIZES.sm,
-    fontFamily: FONTS.medium,
+  skeletonBlock: {
+    borderRadius: RADIUS.xl,
   },
+  skeletonProgress: {
+    height: 100,
+    marginBottom: SPACING.lg,
+  },
+  skeletonTitle: {
+    height: 24,
+    width: '30%',
+    marginBottom: SPACING.md,
+  },
+  skeletonGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.sm,
+  },
+  skeletonTile: {
+    width: '22%',
+    aspectRatio: 1,
+    borderRadius: RADIUS.lg,
+  },
+
   errorContainer: {
     paddingVertical: 60,
     alignItems: 'center',
