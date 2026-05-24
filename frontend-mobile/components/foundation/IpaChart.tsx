@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import type { PronunciationData, SoundProgress } from '@/types';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface IpaChartProps {
   sounds: PronunciationData;
@@ -28,43 +29,77 @@ const SoundTile: React.FC<SoundTileProps> = ({
   practiceCount,
   onPress,
 }) => {
+  const { isDark, colors } = useTheme();
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.94,
+      useNativeDriver: true,
+      tension: 150,
+      friction: 8,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      tension: 150,
+      friction: 8,
+    }).start();
+  };
+
   let bg = '';
-  let textColor = '#1a1a2e';
+  let textColor = colors.text;
 
   if (type === 'monophthong') {
-    bg = '#FEF08A'; // yellow-200
+    bg = '#FEF08A'; // yellow-200 (content specific, remains visible on dark & light)
+    textColor = '#1a1a2e';
   } else if (type === 'diphthong') {
     bg = '#FCA5A5'; // red-300
     textColor = '#7f1d1d';
   } else if (type === 'consonant') {
-    bg = voiced ? '#fff' : '#F3F4F6';
+    bg = voiced ? colors.card : (isDark ? '#334155' : '#F1F5F9');
+    textColor = colors.text;
   }
 
-  return (
-    <TouchableOpacity
-      style={[styles.cell, { backgroundColor: bg }]}
-      onPress={onPress}
-      activeOpacity={0.75}
-    >
-      <Text style={[styles.cellSymbol, { color: textColor }]}>{symbol}</Text>
-      <Text style={[styles.cellWord, { color: textColor }]}>{word}</Text>
+  // Mastered style highlight ring
+  const borderStyles = mastery === 'MASTERED' 
+    ? { borderWidth: 2, borderColor: '#22C55E' } 
+    : { borderWidth: 1, borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)' };
 
-      {/* Progress Indicators */}
-      {mastery === 'MASTERED' && (
-        <View style={[styles.badge, { backgroundColor: '#22C55E' }]}>
-          <View style={styles.checkmark} />
-        </View>
-      )}
-      {mastery === 'PRACTICING' && (
-        <View style={[styles.badge, { backgroundColor: '#FB923C' }]}>
-          <Text style={styles.badgeText}>{practiceCount}</Text>
-        </View>
-      )}
-    </TouchableOpacity>
+  return (
+    <Animated.View style={{ width: '22%', aspectRatio: 1, transform: [{ scale: scaleAnim }] }}>
+      <TouchableOpacity
+        style={[styles.cell, { backgroundColor: bg, ...borderStyles }]}
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        activeOpacity={0.7}
+      >
+        <Text style={[styles.cellSymbol, { color: textColor }]}>{symbol}</Text>
+        <Text style={[styles.cellWord, { color: textColor, opacity: type === 'consonant' ? 0.6 : 0.85 }]}>{word}</Text>
+
+        {/* Progress Indicators */}
+        {mastery === 'MASTERED' && (
+          <View style={[styles.badge, { backgroundColor: '#22C55E' }]}>
+            <View style={styles.checkmark} />
+          </View>
+        )}
+        {mastery === 'PRACTICING' && (
+          <View style={[styles.badge, { backgroundColor: '#FB923C' }]}>
+            <Text style={styles.badgeText}>{practiceCount}</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
 export default function IpaChart({ sounds, progress, onSymbolPress }: IpaChartProps) {
+  const { colors } = useTheme();
+
   const getMastery = (symbol: string) => {
     if (!progress) return { status: 'NEW' as const, practiceCount: 0 };
     const p = progress.find((p) => p.symbol === symbol);
@@ -78,9 +113,9 @@ export default function IpaChart({ sounds, progress, onSymbolPress }: IpaChartPr
     <View style={styles.container}>
       {/* Vowels */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Vowels</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text, borderBottomColor: colors.primary }]}>Vowels</Text>
 
-        <Text style={styles.groupLabel}>Monophthongs</Text>
+        <Text style={[styles.groupLabel, { color: colors.textMuted }]}>Monophthongs</Text>
         <View style={styles.grid}>
           {sounds.monophthongs.map((item) => {
             const { status, practiceCount } = getMastery(item.symbol);
@@ -98,7 +133,7 @@ export default function IpaChart({ sounds, progress, onSymbolPress }: IpaChartPr
           })}
         </View>
 
-        <Text style={[styles.groupLabel, { marginTop: SPACING.md }]}>Diphthongs</Text>
+        <Text style={[styles.groupLabel, { marginTop: SPACING.md, color: colors.textMuted }]}>Diphthongs</Text>
         <View style={styles.grid}>
           {sounds.diphthongs.map((item) => {
             const { status, practiceCount } = getMastery(item.symbol);
@@ -119,14 +154,14 @@ export default function IpaChart({ sounds, progress, onSymbolPress }: IpaChartPr
 
       {/* Consonants */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Consonants</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text, borderBottomColor: colors.primary }]}>Consonants</Text>
         <View style={styles.legendRow}>
-          <View style={[styles.legendDot, { backgroundColor: '#fff', borderColor: '#D1D5DB' }]} />
-          <Text style={styles.legendLabel}>Voiced</Text>
+          <View style={[styles.legendDot, { backgroundColor: colors.card, borderColor: colors.border }]} />
+          <Text style={[styles.legendLabel, { color: colors.textSecondary }]}>Voiced</Text>
           <View
             style={[styles.legendDot, { backgroundColor: '#F3F4F6', borderColor: '#E5E7EB' }]}
           />
-          <Text style={styles.legendLabel}>Unvoiced</Text>
+          <Text style={[styles.legendLabel, { color: colors.textSecondary }]}>Unvoiced</Text>
         </View>
         <View style={styles.grid}>
           {sounds.consonants.map((item) => {
@@ -160,18 +195,15 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FONT_SIZES.md,
     fontFamily: FONTS.bold,
-    color: COLORS.text,
     textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: SPACING.sm,
     paddingBottom: SPACING.sm,
     borderBottomWidth: 2,
-    borderColor: COLORS.primary,
   },
   groupLabel: {
     fontSize: FONT_SIZES.xs,
     fontFamily: FONTS.bold,
-    color: COLORS.textMuted,
     marginBottom: SPACING.sm,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -190,7 +222,6 @@ const styles = StyleSheet.create({
   },
   legendLabel: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
     marginRight: SPACING.sm,
   },
   grid: {
@@ -199,13 +230,11 @@ const styles = StyleSheet.create({
     gap: SPACING.sm,
   },
   cell: {
-    width: '22%',
-    aspectRatio: 1,
+    width: '100%',
+    height: '100%',
     borderRadius: RADIUS.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.06)',
     position: 'relative',
     shadowColor: '#000',
     shadowOpacity: 0.04,
@@ -223,7 +252,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginTop: 2,
-    opacity: 0.75,
   },
   badge: {
     position: 'absolute',
