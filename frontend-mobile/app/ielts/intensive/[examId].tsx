@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -20,7 +20,8 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui';
 import { ConfirmDialog, SuccessCelebration } from '@/components';
-import { useAnswerState, useExamSession, useExamTimer, useExitConfirm } from '@/hooks';
+import { useAnswerState, useExamSession, useExamTimer, useExitConfirm, useExamAutosave } from '@/hooks';
+import { useGrading } from '@/contexts/GradingContext';
 import { ieltsExamsApi } from '@/services';
 import {
   ExamHeader,
@@ -34,6 +35,7 @@ import {
 import WritingExamBlock from '@/components/ielts/WritingExamBlock';
 import SpeakingExamBlock from '@/components/ielts/SpeakingExamBlock';
 import ReadingExamBlock from '@/components/ielts/ReadingExamBlock';
+import { extractAllItemsFromPart } from '@/lib/exam-parser';
 
 export default function ExamPlayerScreen() {
   const router = useRouter();
@@ -42,6 +44,8 @@ export default function ExamPlayerScreen() {
   const { isPremium, loading: subLoading } = useSubscription();
   const { colors, isDark } = useTheme();
   const styles = createStyles(colors, isDark);
+
+  const { submitAndTrack, jobs } = useGrading();
 
   // Verify subscription status
   useEffect(() => {
@@ -63,8 +67,22 @@ export default function ExamPlayerScreen() {
   const [gradingErrorMessage, setGradingErrorMessage] = useState('');
   const [submitConfirmVisible, setSubmitConfirmVisible] = useState(false);
 
+  const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set());
+  const toggleFlagQuestion = useCallback((n: number) => {
+    setFlaggedQuestions((prev) => {
+      const next = new Set(prev);
+      if (next.has(n)) {
+        next.delete(n);
+      } else {
+        next.add(n);
+      }
+      return next;
+    });
+  }, []);
+
   const scrollViewRef = useRef<ScrollView>(null);
   const partOffsetsRef = useRef<Record<number, number>>({});
+  const questionOffsetsRef = useRef<Record<number, number>>({});
 
   const onGradingDone = useCallback(
     (sid: string) => {
@@ -81,16 +99,43 @@ export default function ExamPlayerScreen() {
     [],
   );
 
-  const { exam, session, loading, submitting, isAiGrading, submitSession } = useExamSession({
+  const {
+    exam,
+    session,
+    loading,
+    submitting,
+    isAiGrading,
+    submitSession,
+    isResume,
+    resumedAnswers,
+    resumedElapsed,
+    sessionStatus,
+  } = useExamSession({
     examId,
     userId: user?.id,
     onGradingDone,
     onGradingError,
   });
 
+  const activeJob = jobs.find((j) => j.sessionId === session?.id);
+  const isAiProcessing =
+    !!activeJob && (activeJob.status === 'SUBMITTING' || activeJob.status === 'GRADING');
+
+  // Sync grading status with active job in background
+  useEffect(() => {
+    if (!activeJob) return;
+    if (activeJob.status === 'DONE') {
+      router.replace(ROUTES.ieltsIntensiveResult(activeJob.sessionId) as any);
+    } else if (activeJob.status === 'ERROR') {
+      setGradingErrorMessage(activeJob.error || 'AI grading failed. Please try again.');
+      setGradingErrorVisible(true);
+    }
+  }, [activeJob?.status, activeJob?.error, activeJob?.sessionId, router]);
+
   const {
     answers,
     setAnswer,
+    setAnswers,
     writingAnswers,
     setWritingAnswers,
     speakingAnswers,
@@ -100,21 +145,135 @@ export default function ExamPlayerScreen() {
     buildSubmitPayload,
   } = useAnswerState(exam?.type);
 
-  const handleExpire = useCallback(async () => {
-    toast.info('Your exam is being automatically submitted.');
-    if (!session) return;
-    const payload = buildSubmitPayload(exam?.type);
-    await submitSession(payload, (exam?.duration ?? 60) * 60);
-    if (exam?.type !== 'WRITING' && exam?.type !== 'SPEAKING') {
-      router.replace(ROUTES.ieltsIntensiveResult(session.id) as any);
+  const examType: string = exam?.type || 'LISTENING';
+  const questionsData = exam?.questions as any;
+  const parts = questionsData?.parts || questionsData?.passages || questionsData?.tasks || [];
+
+  const answeredSet = useMemo(() => {
+    const s = new Set<number>();
+    if (!parts) return s;
+    for (const part of parts) {
+      const items = extractAllItemsFromPart(part);
+      for (const item of items) {
+        if ('qns' in item && item.qns) {
+          for (const n of item.qns) {
+            if (answers[String(n)] && answers[String(n)].trim()) {
+              s.add(n);
+            }
+          }
+        } else if ('qn' in item) {
+          if (answers[String(item.qn)] && answers[String(item.qn)].trim()) {
+            s.add(item.qn);
+          }
+        }
+      }
     }
-  }, [session, exam, submitSession, router, buildSubmitPayload]);
+    return s;
+  }, [parts, answers]);
+
+  // Load existing answers & redirect if completed/graded
+  useEffect(() => {
+    if (!session) return;
+    if (session.status === 'COMPLETED' || session.status === 'GRADED') {
+      router.replace(ROUTES.ieltsIntensiveResult(session.id) as any);
+      return;
+    }
+    const a = session.answers;
+    if (a) {
+      if (exam?.type === 'WRITING') {
+        setWritingAnswers({
+          task1: a.task1 || '',
+          task2: a.task2 || '',
+        });
+      } else if (exam?.type === 'SPEAKING') {
+        setSpeakingAnswers(a || {});
+      } else {
+        setAnswers(a || {});
+      }
+    }
+  }, [session, exam?.type, setAnswers, setWritingAnswers, setSpeakingAnswers]);
+
+  const hasSubmittedRef = useRef(false);
+  const [isAutoSubmitting, setIsAutoSubmitting] = useState(false);
+  const elapsedRef = useRef(0);
+
+  const listeningParts = exam?.questions?.parts ?? [];
+  const audioUrl = listeningParts[activeListeningPartIndex]?.audio_url ?? null;
+  const player = useAudioPlayer(audioUrl || '');
+
+  useEffect(() => {
+    if (player) player.volume = volume;
+  }, [volume, player]);
+
+  useEffect(() => {
+    if (!examReady) return;
+    if (audioUrl && player && !player.playing) {
+      player.play();
+    }
+  }, [audioUrl, examReady, player]);
+
+  const handleListeningPartChange = useCallback(
+    (index: number) => {
+      if (player.playing) player.pause();
+      setActiveListeningPartIndex(index);
+    },
+    [player],
+  );
+
+  const executeSubmit = useCallback(async (isAutoSubmit = false) => {
+    if (!session || hasSubmittedRef.current) return;
+    hasSubmittedRef.current = true;
+    setTimerRunning(false);
+    if (player && player.playing) player.pause();
+
+    if (isAutoSubmit) {
+      setIsAutoSubmitting(true);
+    }
+
+    try {
+      const payload = buildSubmitPayload(exam?.type);
+      const isAiType = exam?.type === 'WRITING' || exam?.type === 'SPEAKING';
+      
+      const submitTime = isAutoSubmit ? (exam?.duration ?? 60) * 60 : elapsedRef.current;
+
+      if (isAiType) {
+        await submitAndTrack({
+          sessionId: session.id,
+          examId,
+          examType: 'INTENSIVE',
+          answers: payload,
+          timeTaken: submitTime,
+          resultUrl: ROUTES.ieltsIntensiveResult(session.id),
+        });
+        setPendingResultSessionId(session.id);
+        setShowSuccess(true);
+      } else {
+        const res = await submitSession(payload, submitTime);
+        if (res?.sessionId) {
+          setPendingResultSessionId(res.sessionId);
+        }
+        setShowSuccess(true);
+      }
+    } catch (e) {
+      hasSubmittedRef.current = false;
+      setIsAutoSubmitting(false);
+      toast.error('Failed to submit. Try again.');
+    }
+  }, [session, exam, player, buildSubmitPayload, submitAndTrack, submitSession, examId]);
+
+  const handleExpire = useCallback(async () => {
+    executeSubmit(true);
+  }, [executeSubmit]);
 
   const {
     elapsed,
     display: timerDisplay,
     isWarning: isTimerWarning,
-  } = useExamTimer(exam?.duration ?? 60, timerRunning, handleExpire);
+  } = useExamTimer(exam?.duration ?? 60, timerRunning, handleExpire, resumedElapsed);
+
+  useEffect(() => {
+    elapsedRef.current = elapsed;
+  }, [elapsed]);
 
   const handleSaveProgress = useCallback(async () => {
     if (!session) return;
@@ -144,10 +303,17 @@ export default function ExamPlayerScreen() {
     confirmSave: handleExitSave,
     confirmDiscard: handleExitDiscard,
   } = useExitConfirm(
-    examReady && !submitting && !isAiGrading,
+    examReady && !submitting && !isAiGrading && !isAiProcessing,
     handleSaveProgress,
-    handleDiscardProgress
+    handleDiscardProgress,
   );
+
+  const { isSaving, lastSavedAt } = useExamAutosave({
+    sessionId: session?.id ?? null,
+    enabled: examType === 'WRITING' && examReady && !submitting && !isAiProcessing,
+    getPayload: () => buildSubmitPayload('WRITING'),
+    save: (sid, payload) => ieltsExamsApi.saveProgress(sid, payload, elapsed),
+  });
 
   const scrollToQuestion = useCallback(
     (n: number) => {
@@ -188,31 +354,20 @@ export default function ExamPlayerScreen() {
           }
         }
       }
-      const yOffset = partOffsetsRef.current[targetPartIndex] ?? 0;
-      scrollViewRef.current?.scrollTo({ y: Math.max(0, yOffset - 16), animated: true });
+
+      if (exam?.type === 'LISTENING' && activeListeningPartIndex !== targetPartIndex) {
+        handleListeningPartChange(targetPartIndex);
+        setTimeout(() => {
+          const yOffset = questionOffsetsRef.current[n] ?? partOffsetsRef.current[targetPartIndex] ?? 0;
+          scrollViewRef.current?.scrollTo({ y: Math.max(0, yOffset - 16), animated: true });
+        }, 200);
+      } else {
+        const yOffset = questionOffsetsRef.current[n] ?? partOffsetsRef.current[targetPartIndex] ?? 0;
+        scrollViewRef.current?.scrollTo({ y: Math.max(0, yOffset - 16), animated: true });
+      }
     },
-    [exam],
+    [exam, activeListeningPartIndex, handleListeningPartChange],
   );
-
-  const listeningParts = exam?.questions?.parts ?? [];
-  const audioUrl = listeningParts[activeListeningPartIndex]?.audio_url ?? null;
-  const player = useAudioPlayer(audioUrl || '');
-
-  useEffect(() => {
-    if (player) player.volume = volume;
-  }, [volume, player]);
-
-  useEffect(() => {
-    if (!examReady) return;
-    if (audioUrl && player && !player.playing) {
-      player.play();
-    }
-  }, [audioUrl, examReady, player]);
-
-  const handleListeningPartChange = (index: number) => {
-    if (player.playing) player.pause();
-    setActiveListeningPartIndex(index);
-  };
 
   const handleStartExam = () => {
     setExamReady(true);
@@ -225,6 +380,7 @@ export default function ExamPlayerScreen() {
 
   const handleSuccessClose = useCallback(() => {
     setShowSuccess(false);
+    setIsAutoSubmitting(false);
 
     // If it's a standard Listening/Reading exam (non-AI), redirect to results instantly
     if (pendingResultSessionId && exam?.type !== 'WRITING' && exam?.type !== 'SPEAKING') {
@@ -234,7 +390,7 @@ export default function ExamPlayerScreen() {
       // For Writing/Speaking (AI graded) exams, they will stay on this screen
       // which shows the AIGradingOverlay while polling in the background.
       // Do NOT set examReady to false yet, because we need to render the grading overlay!
-      // Once grading completes, useExamSession will call onGradingDone which redirects them.
+      // Once grading completes, our background activeJob useEffect will redirect them.
     } else {
       // Fallback: if no pending ID (e.g. error or unknown state), exit to intensive dashboard
       setExamReady(false);
@@ -246,26 +402,6 @@ export default function ExamPlayerScreen() {
     setSubmitConfirmVisible(true);
   };
 
-  const executeSubmit = async () => {
-    if (!session) return;
-    try {
-      setTimerRunning(false);
-      if (player && player.playing) player.pause();
-      const payload = buildSubmitPayload(exam?.type);
-      const res = await submitSession(payload, elapsed);
-      if (res) {
-        // Do NOT call setExamReady(false) here, because we want the page to stay active
-        // so that SuccessCelebration is NOT unmounted prematurely,
-        // and AIGradingOverlay renders correctly when SuccessCelebration closes.
-        if (res.sessionId) {
-          setPendingResultSessionId(res.sessionId);
-        }
-        setShowSuccess(true);
-      }
-    } catch (e) {
-      toast.error('Failed to submit. Try again.');
-    }
-  };
 
   if (subLoading || loading) {
     return (
@@ -299,10 +435,6 @@ export default function ExamPlayerScreen() {
     );
   }
 
-  const examType: string = exam.type || 'LISTENING';
-  const questionsData = exam.questions as any;
-  const parts = questionsData?.parts || questionsData?.passages || questionsData?.tasks || [];
-
   const isWriting = examType === 'WRITING';
   const writingTasks = questionsData?.tasks || [];
 
@@ -311,7 +443,9 @@ export default function ExamPlayerScreen() {
 
   const isReading = examType === 'READING';
 
-  const answeredCount = getAnsweredCount(examType);
+  const answeredCount = (examType === 'WRITING' || examType === 'SPEAKING')
+    ? getAnsweredCount(examType)
+    : answeredSet.size;
   const totalCount = getTotalCount(examType, exam);
 
   return (
@@ -437,15 +571,69 @@ export default function ExamPlayerScreen() {
                           {part.part_type}
                         </Text>
                       )}
-                      {groups.map((g: any, gi: number) =>
-                        renderGroup(g, answers, setAnswer, gi, pi, colors, isDark),
-                      )}
+                      {groups.map((g: any, gi: number) => (
+                        <View
+                          key={gi}
+                          onLayout={(e) => {
+                            const allNums: number[] = [];
+                            const collectNums = (obj: any) => {
+                              if (!obj || typeof obj !== 'object') return;
+                              if (Array.isArray(obj)) {
+                                obj.forEach(collectNums);
+                                return;
+                              }
+                              if ('question_number' in obj) {
+                                allNums.push(Number(obj.question_number));
+                                return;
+                              }
+                              if ('question_numbers' in obj) {
+                                (obj.question_numbers as number[]).forEach((x) => allNums.push(x));
+                                return;
+                              }
+                              Object.values(obj).forEach(collectNums);
+                            };
+                            collectNums(g);
+                            allNums.forEach((num) => {
+                              questionOffsetsRef.current[num] = (partOffsetsRef.current[pi] ?? 0) + e.nativeEvent.layout.y;
+                            });
+                          }}
+                        >
+                          {renderGroup(g, answers, setAnswer, gi, pi, colors, isDark)}
+                        </View>
+                      ))}
                     </View>
                   );
                 })()
-              : (questionsData.groups || []).map((g: any, gi: number) =>
-                  renderGroup(g, answers, setAnswer, gi, 0, colors, isDark),
-                )}
+              : (questionsData.groups || []).map((g: any, gi: number) => (
+                  <View
+                    key={gi}
+                    onLayout={(e) => {
+                      const allNums: number[] = [];
+                      const collectNums = (obj: any) => {
+                        if (!obj || typeof obj !== 'object') return;
+                        if (Array.isArray(obj)) {
+                          obj.forEach(collectNums);
+                          return;
+                        }
+                        if ('question_number' in obj) {
+                          allNums.push(Number(obj.question_number));
+                          return;
+                        }
+                        if ('question_numbers' in obj) {
+                          (obj.question_numbers as number[]).forEach((x) => allNums.push(x));
+                          return;
+                        }
+                        Object.values(obj).forEach(collectNums);
+                      };
+                      collectNums(g);
+                      allNums.forEach((num) => {
+                        questionOffsetsRef.current[num] = e.nativeEvent.layout.y;
+                      });
+                    }}
+                  >
+                    {renderGroup(g, answers, setAnswer, gi, 0, colors, isDark)}
+                  </View>
+                ))}
           </ScrollView>
         </>
       )}
@@ -453,26 +641,39 @@ export default function ExamPlayerScreen() {
       <View
         style={[styles.submitBar, { backgroundColor: colors.card, borderTopColor: colors.border }]}
       >
-        <TouchableOpacity
-          style={[
-            styles.navToggleBtn,
-            {
-              backgroundColor: isDark ? colors.surface : COLORS.primary + '12',
-              borderColor: isDark ? colors.border : COLORS.primary + '30',
-            },
-          ]}
-          onPress={() => setNavOpen((v) => !v)}
-          activeOpacity={0.8}
-          accessible={true}
-          accessibilityRole="button"
-          accessibilityLabel={`Answer sheet: ${answeredCount} of ${totalCount ?? '?'} answered`}
-          accessibilityHint="Double tap to toggle the interactive answer sheet drawer"
-        >
-          <Ionicons name="grid-outline" size={18} color={colors.primary} />
-          <Text allowFontScaling={true} style={[styles.navToggleText, { color: colors.primary }]}>
-            {answeredCount}/{totalCount ?? '?'}
-          </Text>
-        </TouchableOpacity>
+        {isWriting ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            {isSaving && (
+              <Text style={styles.autosaveText}>✍️ Saving...</Text>
+            )}
+            {!isSaving && lastSavedAt && (
+              <Text style={styles.autosaveText}>✓ Saved {lastSavedAt}</Text>
+            )}
+          </View>
+        ) : (
+          !isSpeaking && (
+            <TouchableOpacity
+              style={[
+                styles.navToggleBtn,
+                {
+                  backgroundColor: isDark ? colors.surface : COLORS.primary + '12',
+                  borderColor: isDark ? colors.border : COLORS.primary + '30',
+                },
+              ]}
+              onPress={() => setNavOpen((v) => !v)}
+              activeOpacity={0.8}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel={`Answer sheet: ${answeredCount} of ${totalCount ?? '?'} answered`}
+              accessibilityHint="Double tap to toggle the interactive answer sheet drawer"
+            >
+              <Ionicons name="grid-outline" size={18} color={colors.primary} />
+              <Text allowFontScaling={true} style={[styles.navToggleText, { color: colors.primary }]}>
+                {answeredCount}/{totalCount ?? '?'}
+              </Text>
+            </TouchableOpacity>
+          )
+        )}
 
         <Button
           title={submitting ? 'Submitting…' : 'Submit Test'}
@@ -489,16 +690,28 @@ export default function ExamPlayerScreen() {
           totalQuestions={totalCount}
           answers={answers}
           onSelect={scrollToQuestion}
+          answeredSet={answeredSet}
+          flaggedSet={flaggedQuestions}
+          onToggleFlag={toggleFlagQuestion}
         />
       )}
 
-      {isAiGrading && (
+      {(isAiGrading || isAiProcessing) && (
         <AIGradingOverlay
           onGoBack={() => {
             setExamReady(false);
             router.replace(ROUTES.ieltsIntensive as any);
           }}
         />
+      )}
+
+      {isAutoSubmitting && (
+        <View style={styles.centerAbsolute}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={{ marginTop: 12, color: '#fff', fontSize: 16, fontWeight: '700', textAlign: 'center', paddingHorizontal: 20 }}>
+            Time is up — automatically submitting your exam...
+          </Text>
+        </View>
       )}
 
       <ConfirmDialog
@@ -638,4 +851,16 @@ const createStyles = (colors: any, isDark: boolean) =>
       color: colors.textSecondary,
     },
     listeningPartTabLabelActive: { color: colors.primary },
+    autosaveText: {
+      fontSize: 11,
+      fontStyle: 'italic',
+      color: colors.textMuted || '#94A3B8',
+    },
+    centerAbsolute: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.85)',
+      zIndex: 999,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
   });
