@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Dimensions,
   PanResponder,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SPACING, RADIUS, FONT_SIZES } from '@/constants';
@@ -330,7 +332,9 @@ export default function ReadingExamBlock({
         )}
 
         {/* QUESTIONS PANE */}
-        <View
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
           style={[
             styles.pane,
             { backgroundColor: colors.background },
@@ -379,7 +383,7 @@ export default function ReadingExamBlock({
               </View>
             ))}
           </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
       </View>
     </View>
   );

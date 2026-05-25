@@ -92,6 +92,12 @@ export default function AdvancedScreen() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (params.tab === 'listening' || params.tab === 'reading' || params.tab === 'writing' || params.tab === 'speaking') {
+      setActiveTab(params.tab);
+    }
+  }, [params.tab]);
+
   // Reset filter when switching tabs
   const handleTabChange = (tab: 'listening' | 'reading' | 'writing' | 'speaking') => {
     setActiveTab(tab);

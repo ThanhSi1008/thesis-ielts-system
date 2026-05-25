@@ -399,9 +399,16 @@ export function ProfileSettingsTab() {
           onPress: async () => {
             setShowLogoutConfirm(false);
             try {
+              if (pushToken) {
+                try {
+                  await notificationsApi.removePushToken(pushToken);
+                } catch (e) {
+                  if (__DEV__) console.warn('Push token removal failed silently on logout:', e);
+                }
+              }
               await logout();
             } catch (error) {
-              if (__DEV__) console.error('Logout failed', error);
+              if (__DEV__) console.error('Logout failed:', error);
             }
           },
         }}

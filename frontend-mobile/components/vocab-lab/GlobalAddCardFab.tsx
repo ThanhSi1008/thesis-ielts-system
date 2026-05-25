@@ -125,6 +125,23 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
   const [cardTypePickerOpen, setCardTypePickerOpen] = useState(false);
 
   // Open / close animations
+  const handleModalShow = useCallback(() => {
+    Animated.parallel([
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        tension: 65,
+        friction: 11,
+        useNativeDriver: true,
+      }),
+      Animated.spring(fabScale, {
+        toValue: 0.92,
+        tension: 200,
+        friction: 10,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [slideAnim, fabScale]);
+
   const openSheet = useCallback(
     (prefill?: {
       front?: string;
@@ -138,23 +155,13 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
       const prefillData = prefill;
 
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      // Reset animations to starting position before displaying modal
+      slideAnim.setValue(SHEET_H);
+      fabScale.setValue(1);
+      
       setOpen(true);
       setIsPrefilled(!!prefill);
       setVocabMeta(prefill?.foundationVocabMeta);
-      Animated.parallel([
-        Animated.spring(slideAnim, {
-          toValue: 0,
-          tension: 65,
-          friction: 11,
-          useNativeDriver: true,
-        }),
-        Animated.spring(fabScale, {
-          toValue: 0.92,
-          tension: 200,
-          friction: 10,
-          useNativeDriver: true,
-        }),
-      ]).start();
 
       const loadAndPrefill = async () => {
         let currentDecks = decks;
@@ -239,7 +246,11 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
         audioUrl?: string;
         foundationVocabMeta?: { bookName: string; wordData: any };
       }) => {
-        openSheet(payload);
+        // Defensive delay: ensures that any parent modal (e.g. ChatAI) has fully finished its
+        // closing transition before we trigger openSheet (mounting another modal overlay).
+        setTimeout(() => {
+          openSheet(payload);
+        }, 350);
       },
     );
     return () => sub.remove();
@@ -346,7 +357,13 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
       )}
 
       {/* ── Bottom sheet ──────────────────────────────────────────── */}
-      <Modal visible={open} transparent animationType="none" onRequestClose={closeSheet}>
+      <Modal
+        visible={open}
+        transparent
+        animationType="none"
+        onRequestClose={closeSheet}
+        onShow={handleModalShow}
+      >
         <Pressable style={fab.backdrop} onPress={closeSheet} />
 
         <Animated.View style={[fab.sheet, { transform: [{ translateY: slideAnim }] }]}>

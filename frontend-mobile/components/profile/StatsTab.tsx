@@ -27,10 +27,29 @@ export function ProfileStatsTab() {
   const fetchData = async () => {
     try {
       const [statsData, gamData, achData] = await Promise.all([
-        vocabLabApi.getStats().catch(() => null),
-        gamificationApi.getProfile().catch(() => null),
-        gamificationApi.getAchievements().catch(() => null),
+        vocabLabApi.getStats().catch((e) => {
+          if (__DEV__) console.error('Failed to fetch vocab stats:', e);
+          return null;
+        }),
+        gamificationApi.getProfile().catch((e) => {
+          if (__DEV__) console.error('Failed to fetch gamification profile:', e);
+          return null;
+        }),
+        gamificationApi.getAchievements().catch((e) => {
+          if (__DEV__) console.error('Failed to fetch achievements list:', e);
+          return null;
+        }),
       ]);
+
+      if (__DEV__) {
+        const d = statsData as any;
+        console.log('Stats Tab Fetched Data:', {
+          streak: d?.streak,
+          words: d?.totalWords || d?.words || d?.totalCards,
+          totalAchievements: gamData?.totalAchievements,
+          achievementsLength: achData?.length,
+        });
+      }
 
       if (statsData) {
         const d = statsData as any;
@@ -154,7 +173,7 @@ export function ProfileStatsTab() {
           </Text>
           <View style={styles.achievementsGrid}>
             {(showAll ? achievements : achievements.slice(0, 6)).map((ach) => {
-              const isEarned = !!ach.earnedAt;
+              const isEarned = ach.earned;
               return (
                 <TouchableOpacity
                   key={ach.id}
@@ -216,7 +235,7 @@ export function ProfileStatsTab() {
       <BottomSheet
         visible={!!selectedAch}
         onClose={() => setSelectedAch(null)}
-        snapPointHeight={selectedAch?.earnedAt ? 0.38 : 0.45}
+        snapPointHeight={selectedAch?.earned ? 0.38 : 0.45}
         title="Achievement Details"
       >
         {selectedAch && (
@@ -224,7 +243,7 @@ export function ProfileStatsTab() {
             <View style={styles.achSheetHeader}>
               <View style={[
                 styles.achSheetIconBox,
-                selectedAch.earnedAt ? styles.achBadgeEarned : styles.achBadgeLocked
+                selectedAch.earned ? styles.achBadgeEarned : styles.achBadgeLocked
               ]}>
                 <Text style={styles.achSheetIcon}>{selectedAch.icon || '🏆'}</Text>
               </View>
@@ -243,11 +262,11 @@ export function ProfileStatsTab() {
             </Text>
 
             <View style={styles.achSheetStatusBox}>
-              {selectedAch.earnedAt ? (
+              {selectedAch.earned ? (
                 <View style={styles.achSheetEarnedRow}>
                   <Ionicons name="checkmark-circle" size={20} color="#10B981" />
                   <Text variant="body" weight="bold" style={{ color: '#10B981', marginLeft: 6 }}>
-                    Earned on {new Date(selectedAch.earnedAt).toLocaleDateString()}
+                    Earned on {selectedAch.earnedAt ? new Date(selectedAch.earnedAt).toLocaleDateString() : 'N/A'}
                   </Text>
                 </View>
               ) : (
