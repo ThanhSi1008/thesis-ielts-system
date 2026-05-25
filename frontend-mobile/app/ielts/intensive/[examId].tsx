@@ -10,7 +10,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAudioPlayer } from 'expo-audio';
+import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from 'expo-audio';
 
 import { toast } from '@/components/ui';
 
@@ -197,9 +197,22 @@ export default function ExamPlayerScreen() {
   const [isAutoSubmitting, setIsAutoSubmitting] = useState(false);
   const elapsedRef = useRef(0);
 
+  const [audioPlayingPartIndex, setAudioPlayingPartIndex] = useState(0);
   const listeningParts = exam?.questions?.parts ?? [];
-  const audioUrl = listeningParts[activeListeningPartIndex]?.audio_url ?? null;
+  const audioUrl = listeningParts[audioPlayingPartIndex]?.audio_url ?? null;
   const player = useAudioPlayer(audioUrl || '');
+  const playerStatus = useAudioPlayerStatus(player);
+
+  useEffect(() => {
+    const setupAudio = async () => {
+      try {
+        await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: false });
+      } catch (e) {
+        console.warn('Failed to set audio mode:', e);
+      }
+    };
+    setupAudio();
+  }, []);
 
   useEffect(() => {
     if (player) player.volume = volume;
@@ -212,12 +225,37 @@ export default function ExamPlayerScreen() {
     }
   }, [audioUrl, examReady, player]);
 
+  // Clean up player on unmount
+  useEffect(() => {
+    return () => {
+      if (player) {
+        try {
+          player.pause();
+        } catch (e) {}
+      }
+    };
+  }, [player]);
+
+  // Auto-advance continuous listening parts
+  useEffect(() => {
+    if (playerStatus.duration > 0 && playerStatus.currentTime >= playerStatus.duration - 0.25) {
+      if (audioPlayingPartIndex < listeningParts.length - 1) {
+        const nextIndex = audioPlayingPartIndex + 1;
+        setAudioPlayingPartIndex(nextIndex);
+        setActiveListeningPartIndex(nextIndex); // Sync questions view tab
+        toast.success(`Part ${nextIndex + 1}`, 'Now playing the next listening section.');
+      } else {
+        toast.success('Listening Audio Finished', 'You have completed all listening audio sections.');
+      }
+    }
+  }, [playerStatus.currentTime, playerStatus.duration, audioPlayingPartIndex, listeningParts.length]);
+
   const handleListeningPartChange = useCallback(
     (index: number) => {
-      if (player.playing) player.pause();
+      // In exam mode, we only change the displayed questions tab. Audio continues playing Part audioPlayingPartIndex.
       setActiveListeningPartIndex(index);
     },
-    [player],
+    [],
   );
 
   const executeSubmit = useCallback(async (isAutoSubmit = false) => {
@@ -459,7 +497,16 @@ export default function ExamPlayerScreen() {
       />
 
       {audioUrl && (
-        <ExamAudioPlayer isPlaying={player.playing} volume={volume} onVolumeChange={setVolume} />
+        <ExamAudioPlayer
+          isPlaying={player.playing}
+          volume={volume}
+          onVolumeChange={setVolume}
+          mode="exam"
+          duration={playerStatus.duration}
+          currentTime={playerStatus.currentTime}
+          currentPartIndex={audioPlayingPartIndex}
+          totalParts={listeningParts.length}
+        />
       )}
 
       {isWriting && (
