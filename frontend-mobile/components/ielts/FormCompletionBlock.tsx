@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
+import { isCorrect } from '@/utils/answerNormalization';
 
 interface FormPoint {
   question_number?: number | string;
@@ -21,9 +22,17 @@ interface Props {
   };
   answers: Record<string, string>;
   onAnswer: (key: string, value: string) => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }
 
-export default function FormCompletionBlock({ group, answers, onAnswer }: Props) {
+function FormCompletionBlockComponent({
+  group,
+  answers,
+  onAnswer,
+  mode = 'edit',
+  correctAnswers,
+}: Props) {
   const { colors, isDark } = useTheme();
   const points: FormPoint[] = group.points ?? group.questions ?? [];
   const heading = group.heading ?? group.instructions;
@@ -168,25 +177,66 @@ export default function FormCompletionBlock({ group, answers, onAnswer }: Props)
 
           const key = String(qNum);
           const val = answers[key] ?? '';
+          const correctVal = correctAnswers?.[key] ?? point.answer ?? (point.acceptable_answers && point.acceptable_answers[0]) ?? '';
+          const isCorrectAns = mode === 'review' ? isCorrect(val, correctVal) : false;
+
+          let rowStyle: any = null;
+          let inputStyle: any = null;
+
+          if (mode === 'review') {
+            if (val) {
+              if (isCorrectAns) {
+                rowStyle = { borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.08)' };
+                inputStyle = { color: '#16a34a', borderBottomColor: '#22c55e' };
+              } else {
+                rowStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)' };
+                inputStyle = { color: '#ef4444', borderBottomColor: '#ef4444' };
+              }
+            } else {
+              rowStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.03)', borderStyle: 'dashed' };
+              inputStyle = { color: '#ef4444', borderBottomColor: '#ef4444' };
+            }
+          }
 
           return (
-            <View key={key} style={styles.fieldRow}>
-              {/* Question number badge */}
-              <View style={styles.qBadge}>
-                <Text style={styles.qBadgeText}>{qNum}</Text>
+            <View key={key} style={{ gap: 4 }}>
+              <View style={[styles.fieldRow, rowStyle]}>
+                {/* Question number badge */}
+                <View style={styles.qBadge}>
+                  <Text style={styles.qBadgeText}>{qNum}</Text>
+                </View>
+
+                {/* Label */}
+                {label ? <Text style={styles.fieldLabel} numberOfLines={1} ellipsizeMode="tail">{label}</Text> : null}
+
+                {/* Text input */}
+                <TextInput
+                  style={[styles.fieldInput, inputStyle]}
+                  value={val}
+                  onChangeText={(v) => onAnswer(key, v)}
+                  placeholder="…"
+                  placeholderTextColor={colors.textMuted}
+                  editable={mode !== 'review'}
+                />
+
+                {/* Right side feedback icon */}
+                {mode === 'review' && (
+                  <Ionicons
+                    name={isCorrectAns ? 'checkmark-circle' : 'close-circle'}
+                    size={18}
+                    color={isCorrectAns ? '#22c55e' : '#ef4444'}
+                  />
+                )}
               </View>
 
-              {/* Label */}
-              {label ? <Text style={styles.fieldLabel}>{label}</Text> : null}
-
-              {/* Text input */}
-              <TextInput
-                style={styles.fieldInput}
-                value={val}
-                onChangeText={(v) => onAnswer(key, v)}
-                placeholder="…"
-                placeholderTextColor={colors.textMuted}
-              />
+              {mode === 'review' && !isCorrectAns && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 36, marginBottom: 4 }}>
+                  <Ionicons name="bulb-outline" size={12} color="#16a34a" />
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: '#16a34a' }}>
+                    Correct answer: <Text style={{ fontWeight: 'bold' }}>{correctVal}</Text>
+                  </Text>
+                </View>
+              )}
             </View>
           );
         })}
@@ -195,17 +245,32 @@ export default function FormCompletionBlock({ group, answers, onAnswer }: Props)
   );
 }
 
-/**
- * Extracts a human-readable label from the point's text.
- * The text often contains a blank marker like "City: ..." or just descriptive text.
- * We strip the blank marker and use what remains as the label.
- */
 function extractLabel(text: string): string {
-  // Remove known blank markers: "...", "|G|", or sequences of dots + spaces
   const cleaned = text
-    .replace(/\b\d+\s*\.{3,}/g, '') // "27 ..." at start
+    .replace(/\b\d+\s*\.{3,}/g, '')
     .replace(/\|G\|/g, '')
     .replace(/\.{3,}/g, '')
     .trim();
   return cleaned;
 }
+
+export default React.memo(FormCompletionBlockComponent, (prev, next) => {
+  if (prev.mode !== next.mode) return false;
+  if (prev.group !== next.group) return false;
+
+  const prevPoints: FormPoint[] = prev.group.points ?? prev.group.questions ?? [];
+  const nextPoints: FormPoint[] = next.group.points ?? next.group.questions ?? [];
+  
+  if (prevPoints.length !== nextPoints.length) return false;
+
+  for (const pt of prevPoints) {
+    const qNum = pt.question_number;
+    if (qNum) {
+      const key = String(qNum);
+      if (prev.answers[key] !== next.answers[key]) return false;
+      if (prev.correctAnswers?.[key] !== next.correctAnswers?.[key]) return false;
+    }
+  }
+
+  return true;
+});

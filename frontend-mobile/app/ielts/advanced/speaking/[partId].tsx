@@ -9,6 +9,7 @@ import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, SHADOWS, ROUTES } from '@/c
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useGrading } from '@/contexts/GradingContext';
 import SpeakingExamBlock from '@/components/ielts/SpeakingExamBlock';
 
 export default function AdvancedSpeakingPracticeScreen() {
@@ -16,6 +17,7 @@ export default function AdvancedSpeakingPracticeScreen() {
   const { partId } = useLocalSearchParams<{ partId: string }>();
   const { isPremium, loading: subLoading } = useSubscription();
   const { colors, isDark } = useTheme();
+  const { submitAndTrack } = useGrading();
 
   const styles = StyleSheet.create({
     container: {
@@ -164,9 +166,12 @@ export default function AdvancedSpeakingPracticeScreen() {
         }
       });
 
-      await ieltsAdvancedApi.submitSpeakingSession(sessionId, {
-        audioAnswers,
+      await submitAndTrack({
+        sessionId,
+        examType: 'SPEAKING',
+        answers: audioAnswers,
         timeTaken,
+        resultUrl: `/ielts/advanced/speaking/result/${sessionId}`,
       });
 
       // Navigate to polling/results screen

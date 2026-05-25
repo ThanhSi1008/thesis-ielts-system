@@ -532,15 +532,17 @@ export interface GamificationProfile {
 
 export interface AchievementItem {
   id: string;
-  badgeId: string;
+  key: string;
   name: string;
   description: string;
   icon: string;
-  conditionType: string;
-  conditionValue: number;
+  category: string;
+  tier: number;
   xpReward: number;
-  earnedAt?: string;
+  earned: boolean;
+  earnedAt?: string | null;
   progress?: number;
+  conditionValue?: number;
 }
 
 export interface LeaderboardEntry {

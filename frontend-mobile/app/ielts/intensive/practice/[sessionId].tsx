@@ -12,7 +12,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAudioPlayer } from 'expo-audio';
+import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from 'expo-audio';
 
 import { toast } from '@/components/ui';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES, FONTS } from '@/constants';
@@ -219,6 +219,19 @@ export default function PracticePlayerScreen() {
 
   const audioUrl = listeningParts[activeListeningPartIndex]?.audio_url ?? null;
   const player = useAudioPlayer(audioUrl || '');
+  const playerStatus = useAudioPlayerStatus(player);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
+
+  useEffect(() => {
+    const setupAudio = async () => {
+      try {
+        await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: false });
+      } catch (e) {
+        console.warn('Failed to set audio mode:', e);
+      }
+    };
+    setupAudio();
+  }, []);
 
   useEffect(() => {
     if (player) player.volume = volume;
@@ -229,6 +242,63 @@ export default function PracticePlayerScreen() {
       player.play();
     }
   }, [audioUrl, loading, session, player]);
+
+  // Clean up player on unmount
+  useEffect(() => {
+    return () => {
+      if (player) {
+        try {
+          player.pause();
+        } catch (e) {}
+      }
+    };
+  }, [player]);
+
+  const handleTogglePlay = useCallback(() => {
+    if (player) {
+      if (player.playing) {
+        player.pause();
+      } else {
+        player.play();
+      }
+    }
+  }, [player]);
+
+  const handleSeek = useCallback(
+    (pos: number) => {
+      if (player) {
+        player.seekTo(pos);
+      }
+    },
+    [player],
+  );
+
+  const handleSkip = useCallback(
+    (delta: number) => {
+      if (player && playerStatus.duration) {
+        const next = Math.max(0, Math.min(playerStatus.duration, (playerStatus.currentTime || 0) + delta));
+        player.seekTo(next);
+      }
+    },
+    [player, playerStatus],
+  );
+
+  const handlePlaybackSpeedChange = useCallback(
+    (speed: number) => {
+      setPlaybackSpeed(speed);
+      if (player) {
+        const anyPlayer = player as any;
+        if (typeof anyPlayer.setPlaybackSpeed === 'function') {
+          anyPlayer.setPlaybackSpeed(speed);
+        } else if ('playbackSpeed' in anyPlayer) {
+          anyPlayer.playbackSpeed = speed;
+        } else if ('speed' in anyPlayer) {
+          anyPlayer.speed = speed;
+        }
+      }
+    },
+    [player],
+  );
 
   // Extract hints for active section
   const activePartData = useMemo(() => {
@@ -426,7 +496,22 @@ export default function PracticePlayerScreen() {
       />
 
       {audioUrl && (
-        <ExamAudioPlayer isPlaying={player.playing} volume={volume} onVolumeChange={setVolume} />
+        <ExamAudioPlayer
+          isPlaying={player.playing}
+          volume={volume}
+          onVolumeChange={setVolume}
+          mode="practice"
+          duration={playerStatus.duration}
+          currentTime={playerStatus.currentTime}
+          currentPartIndex={activeListeningPartIndex}
+          totalParts={listeningParts.length}
+          onTogglePlay={handleTogglePlay}
+          onSeek={handleSeek}
+          onSkip={handleSkip}
+          playbackSpeed={playbackSpeed}
+          onPlaybackSpeedChange={handlePlaybackSpeedChange}
+          isLoading={playerStatus.isBuffering}
+        />
       )}
 
       {/* Main Content Area */}

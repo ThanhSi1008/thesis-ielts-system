@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
+  BackHandler,
 } from 'react-native';
 import { toast } from '@/components/ui';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
@@ -219,6 +220,39 @@ export default function AdvancedSpeakingResultScreen() {
       fontSize: FONT_SIZES.lg,
       fontFamily: FONTS.bold,
       color: isDark ? colors.text : '#fff',
+    },
+    pendingHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      backgroundColor: colors.background,
+    },
+    pendingHeaderBtn: {
+      width: 40,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: RADIUS.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginRight: SPACING.md,
+    },
+    pendingHeaderTitleCol: {
+      flex: 1,
+    },
+    pendingHeaderTitle: {
+      fontSize: FONT_SIZES.md,
+      fontFamily: FONTS.bold,
+      color: colors.text,
+    },
+    pendingHeaderSubtitle: {
+      fontSize: 11,
+      fontFamily: FONTS.regular,
+      color: colors.textSecondary,
+      marginTop: 2,
     },
     pendingContainer: {
       flex: 1,
@@ -553,6 +587,17 @@ export default function AdvancedSpeakingResultScreen() {
     return () => clearInterval(interval);
   }, [pollingActive]);
 
+  // Android physical back button handling during grading/polling
+  useEffect(() => {
+    if (!pollingActive) return;
+    const backAction = () => {
+      router.replace('/ielts/advanced?tab=speaking');
+      return true; // prevent default back action
+    };
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, [pollingActive]);
+
   // Load session initially
   useEffect(() => {
     if (!sessionId || !isPremium) return;
@@ -651,6 +696,26 @@ export default function AdvancedSpeakingResultScreen() {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <Stack.Screen options={{ headerShown: false }} />
+        
+        {/* Minimalist header with back button */}
+        <View style={styles.pendingHeader}>
+          <TouchableOpacity
+            style={styles.pendingHeaderBtn}
+            onPress={() => router.replace('/ielts/advanced?tab=speaking')}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Back to IELTS Advanced Dashboard"
+          >
+            <Ionicons name="arrow-back" size={20} color={colors.text} />
+          </TouchableOpacity>
+          <View style={styles.pendingHeaderTitleCol}>
+            <Text style={styles.pendingHeaderTitle}>Evaluating Speaking</Text>
+            <Text style={styles.pendingHeaderSubtitle} numberOfLines={1}>
+              AI evaluation running. You can return here later.
+            </Text>
+          </View>
+        </View>
+
         <View style={styles.pendingContainer}>
           <ActivityIndicator size="large" color={activeColor} />
           <Text style={styles.pendingTitle}>Evaluating Your Speaking...</Text>
@@ -699,7 +764,7 @@ export default function AdvancedSpeakingResultScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.headerBack}
-          onPress={() => router.replace('/ielts/advanced/speaking')}
+          onPress={() => router.replace('/ielts/advanced?tab=speaking')}
         >
           <Ionicons name="arrow-back" size={24} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
@@ -866,7 +931,7 @@ export default function AdvancedSpeakingResultScreen() {
         {/* Action Button */}
         <TouchableOpacity
           style={styles.doneBtn}
-          onPress={() => router.replace('/ielts/advanced/speaking')}
+          onPress={() => router.replace('/ielts/advanced?tab=speaking')}
         >
           <Text style={styles.doneBtnText}>Return to List</Text>
         </TouchableOpacity>

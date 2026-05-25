@@ -13,6 +13,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS } from '@/constants';
 import { useAudioRecorder } from '@/hooks';
+import { useTheme } from '@/contexts/ThemeContext';
+import type { ThemeTokens } from '@/constants';
 
 interface SpeakingDeviceTestProps {
   onComplete: () => void;
@@ -20,6 +22,9 @@ interface SpeakingDeviceTestProps {
 }
 
 export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestProps) {
+  const { colors, isDark } = useTheme();
+  const styles = React.useMemo(() => createStyles(colors, isDark), [colors, isDark]);
+
   // --- Headphone Test State ---
   const [hasCompletedStep1, setHasCompletedStep1] = useState(false);
   const testAudioUrl =
@@ -251,7 +256,7 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
 
               {hasCompletedStep1 && (
                 <View style={styles.successBadge}>
-                  <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
+                  <Ionicons name="checkmark-circle" size={16} color={colors.success} />
                   <Text style={styles.successBadgeText}>Step 1 Complete</Text>
                 </View>
               )}
@@ -270,7 +275,7 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
               <Ionicons
                 name="mic-outline"
                 size={20}
-                color={hasCompletedStep1 ? COLORS.skill.speaking : COLORS.textDisabled}
+                color={hasCompletedStep1 ? COLORS.skill.speaking : colors.textDisabled}
               />
             </View>
             <View style={styles.stepContent}>
@@ -333,8 +338,8 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
                         size={18}
                         color={
                           micState === 'IDLE' || micState === 'RECORDING'
-                            ? COLORS.textDisabled
-                            : COLORS.textSecondary
+                            ? colors.textDisabled
+                            : colors.textSecondary
                         }
                       />
                     </TouchableOpacity>
@@ -363,7 +368,7 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
 
               {hasCompletedStep2 && (
                 <View style={styles.successBadge}>
-                  <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
+                  <Ionicons name="checkmark-circle" size={16} color={colors.success} />
                   <Text style={styles.successBadgeText}>Step 2 Complete</Text>
                 </View>
               )}
@@ -387,7 +392,7 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
               <Ionicons
                 name="hourglass-outline"
                 size={20}
-                color={hasCompletedStep2 ? COLORS.skill.speaking : COLORS.textDisabled}
+                color={hasCompletedStep2 ? COLORS.skill.speaking : colors.textDisabled}
               />
             </View>
             <View style={styles.stepContent}>
@@ -417,312 +422,313 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  contentContainer: {
-    padding: SPACING.lg,
-    paddingBottom: SPACING.xxl,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: SPACING.xl,
-    paddingBottom: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray[200],
-  },
-  logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  logoText: {
-    fontFamily: FONTS.bold,
-    fontSize: 22,
-    color: COLORS.skill.speaking,
-    letterSpacing: -0.5,
-  },
-  logoSubtext: {
-    fontFamily: FONTS.regular,
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    backgroundColor: COLORS.gray[100],
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: RADIUS.md,
-  },
-  exitButton: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: COLORS.gray[300],
-    borderRadius: RADIUS.md,
-    backgroundColor: '#fff',
-  },
-  exitText: {
-    fontFamily: FONTS.semibold,
-    fontSize: 14,
-    color: COLORS.gray[600],
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: RADIUS.xl,
-    padding: SPACING.xl,
-    borderWidth: 1,
-    borderColor: COLORS.gray[200],
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-  },
-  cardHeader: {
-    alignItems: 'center',
-    marginBottom: SPACING.xxl,
-  },
-  cardTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: 24,
-    color: COLORS.gray[900],
-    marginBottom: 6,
-  },
-  cardSubtitle: {
-    fontFamily: FONTS.regular,
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
-    paddingHorizontal: SPACING.md,
-  },
-  stepsContainer: {
-    position: 'relative',
-  },
-  connectingLine: {
-    position: 'absolute',
-    left: 23,
-    top: 30,
-    bottom: 30,
-    width: 2,
-    backgroundColor: COLORS.gray[200],
-    zIndex: 0,
-  },
-  stepRow: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: SPACING.xxl,
-    zIndex: 1,
-  },
-  disabledStep: {
-    opacity: 0.5,
-  },
-  stepIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#fff',
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeStepBorder: {
-    borderColor: COLORS.skill.speaking,
-  },
-  disabledStepBorder: {
-    borderColor: COLORS.gray[300],
-  },
-  stepContent: {
-    flex: 1,
-    paddingTop: 4,
-  },
-  stepTitle: {
-    fontFamily: FONTS.bold,
-    fontSize: 16,
-    color: COLORS.gray[900],
-    marginBottom: 6,
-  },
-  disabledText: {
-    color: COLORS.textDisabled,
-  },
-  stepDescription: {
-    fontFamily: FONTS.regular,
-    fontSize: 14,
-    color: COLORS.textSecondary,
-    lineHeight: 20,
-    marginBottom: SPACING.md,
-  },
-  audioBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.gray[50],
-    borderRadius: RADIUS.lg,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: COLORS.gray[200],
-    gap: 10,
-    marginBottom: SPACING.md,
-  },
-  playButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.gray[200],
-  },
-  timeLabel: {
-    fontFamily: FONTS.semibold,
-    fontSize: 13,
-    color: COLORS.gray[600],
-    minWidth: 36,
-  },
-  progressContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  progressBarBg: {
-    height: 6,
-    backgroundColor: COLORS.gray[200],
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: COLORS.skill.speaking,
-    borderRadius: 3,
-  },
-  totalDuration: {
-    fontFamily: FONTS.regular,
-    fontSize: 13,
-    color: COLORS.textSecondary,
-  },
-  confirmButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: 6,
-    backgroundColor: COLORS.skill.speaking,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: RADIUS.md,
-    marginTop: 4,
-  },
-  confirmButtonText: {
-    fontFamily: FONTS.bold,
-    fontSize: 13,
-    color: '#fff',
-  },
-  successBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    gap: 6,
-    backgroundColor: COLORS.successScale[50],
-    borderWidth: 1,
-    borderColor: COLORS.successScale[200],
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: RADIUS.full,
-    marginTop: 4,
-  },
-  successBadgeText: {
-    fontFamily: FONTS.semibold,
-    fontSize: 13,
-    color: COLORS.successScale[700],
-  },
-  micCheckContainer: {
-    borderWidth: 1,
-    borderColor: COLORS.gray[200],
-    borderStyle: 'dashed',
-    borderRadius: RADIUS.xl,
-    padding: SPACING.md,
-    backgroundColor: '#fff',
-    marginBottom: SPACING.md,
-  },
-  promptLabel: {
-    fontFamily: FONTS.semibold,
-    fontSize: 13,
-    color: COLORS.gray[600],
-    marginBottom: 4,
-  },
-  promptQuote: {
-    fontFamily: FONTS.medium,
-    fontSize: 14,
-    color: COLORS.gray[700],
-    fontStyle: 'italic',
-    lineHeight: 20,
-    marginBottom: SPACING.md,
-  },
-  recorderControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.gray[50],
-    borderRadius: RADIUS.lg,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: COLORS.gray[200],
-    gap: 8,
-  },
-  recordActionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: COLORS.skill.speaking,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: RADIUS.full,
-  },
-  recordingBtnActive: {
-    backgroundColor: '#EF4444',
-  },
-  recordActionBtnText: {
-    fontFamily: FONTS.bold,
-    fontSize: 11,
-    color: '#fff',
-    letterSpacing: 0.5,
-  },
-  rerecordBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: COLORS.gray[200],
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timerText: {
-    fontFamily: FONTS.bold,
-    fontSize: 13,
-    color: COLORS.gray[700],
-    minWidth: 36,
-  },
-  waveformContainer: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  readyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: COLORS.skill.speaking,
-    paddingVertical: 12,
-    borderRadius: RADIUS.lg,
-    shadowColor: COLORS.skill.speaking,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-    marginTop: SPACING.sm,
-  },
-  readyButtonText: {
-    fontFamily: FONTS.bold,
-    fontSize: 15,
-    color: '#fff',
-    letterSpacing: 1,
-  },
-});
+const createStyles = (colors: ThemeTokens, isDark: boolean) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    contentContainer: {
+      padding: SPACING.lg,
+      paddingBottom: SPACING.xxl,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: SPACING.xl,
+      paddingBottom: SPACING.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    logoContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    logoText: {
+      fontFamily: FONTS.bold,
+      fontSize: 22,
+      color: COLORS.skill.speaking,
+      letterSpacing: -0.5,
+    },
+    logoSubtext: {
+      fontFamily: FONTS.regular,
+      fontSize: 14,
+      color: colors.textSecondary,
+      backgroundColor: isDark ? colors.surface : COLORS.gray[100],
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: RADIUS.md,
+    },
+    exitButton: {
+      paddingHorizontal: SPACING.md,
+      paddingVertical: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: RADIUS.md,
+      backgroundColor: colors.card,
+    },
+    exitText: {
+      fontFamily: FONTS.semibold,
+      fontSize: 14,
+      color: colors.textSecondary,
+    },
+    card: {
+      backgroundColor: colors.card,
+      borderRadius: RADIUS.xl,
+      padding: SPACING.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+    },
+    cardHeader: {
+      alignItems: 'center',
+      marginBottom: SPACING.xxl,
+    },
+    cardTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 24,
+      color: colors.text,
+      marginBottom: 6,
+    },
+    cardSubtitle: {
+      fontFamily: FONTS.regular,
+      fontSize: 14,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 20,
+      paddingHorizontal: SPACING.md,
+    },
+    stepsContainer: {
+      position: 'relative',
+    },
+    connectingLine: {
+      position: 'absolute',
+      left: 23,
+      top: 30,
+      bottom: 30,
+      width: 2,
+      backgroundColor: colors.border,
+      zIndex: 0,
+    },
+    stepRow: {
+      flexDirection: 'row',
+      gap: 16,
+      marginBottom: SPACING.xxl,
+      zIndex: 1,
+    },
+    disabledStep: {
+      opacity: 0.5,
+    },
+    stepIconContainer: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.card,
+      borderWidth: 2,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    activeStepBorder: {
+      borderColor: COLORS.skill.speaking,
+    },
+    disabledStepBorder: {
+      borderColor: colors.border,
+    },
+    stepContent: {
+      flex: 1,
+      paddingTop: 4,
+    },
+    stepTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 16,
+      color: colors.text,
+      marginBottom: 6,
+    },
+    disabledText: {
+      color: colors.textDisabled,
+    },
+    stepDescription: {
+      fontFamily: FONTS.regular,
+      fontSize: 14,
+      color: colors.textSecondary,
+      lineHeight: 20,
+      marginBottom: SPACING.md,
+    },
+    audioBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: isDark ? colors.surface : COLORS.gray[50],
+      borderRadius: RADIUS.lg,
+      paddingHorizontal: SPACING.md,
+      paddingVertical: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: 10,
+      marginBottom: SPACING.md,
+    },
+    playButton: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      backgroundColor: colors.card,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    timeLabel: {
+      fontFamily: FONTS.semibold,
+      fontSize: 13,
+      color: colors.textSecondary,
+      minWidth: 36,
+    },
+    progressContainer: {
+      flex: 1,
+      justifyContent: 'center',
+    },
+    progressBarBg: {
+      height: 6,
+      backgroundColor: isDark ? colors.border : COLORS.gray[200],
+      borderRadius: 3,
+      overflow: 'hidden',
+    },
+    progressBarFill: {
+      height: '100%',
+      backgroundColor: COLORS.skill.speaking,
+      borderRadius: 3,
+    },
+    totalDuration: {
+      fontFamily: FONTS.regular,
+      fontSize: 13,
+      color: colors.textSecondary,
+    },
+    confirmButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-start',
+      gap: 6,
+      backgroundColor: COLORS.skill.speaking,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: RADIUS.md,
+      marginTop: 4,
+    },
+    confirmButtonText: {
+      fontFamily: FONTS.bold,
+      fontSize: 13,
+      color: '#fff',
+    },
+    successBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      alignSelf: 'flex-start',
+      gap: 6,
+      backgroundColor: colors.successBg,
+      borderWidth: 1,
+      borderColor: colors.success + '40',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: RADIUS.full,
+      marginTop: 4,
+    },
+    successBadgeText: {
+      fontFamily: FONTS.semibold,
+      fontSize: 13,
+      color: colors.success,
+    },
+    micCheckContainer: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderStyle: 'dashed',
+      borderRadius: RADIUS.xl,
+      padding: SPACING.md,
+      backgroundColor: colors.card,
+      marginBottom: SPACING.md,
+    },
+    promptLabel: {
+      fontFamily: FONTS.semibold,
+      fontSize: 13,
+      color: colors.textSecondary,
+      marginBottom: 4,
+    },
+    promptQuote: {
+      fontFamily: FONTS.medium,
+      fontSize: 14,
+      color: colors.text,
+      fontStyle: 'italic',
+      lineHeight: 20,
+      marginBottom: SPACING.md,
+    },
+    recorderControls: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: isDark ? colors.surface : COLORS.gray[50],
+      borderRadius: RADIUS.lg,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: 8,
+    },
+    recordActionBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: COLORS.skill.speaking,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: RADIUS.full,
+    },
+    recordingBtnActive: {
+      backgroundColor: '#EF4444',
+    },
+    recordActionBtnText: {
+      fontFamily: FONTS.bold,
+      fontSize: 11,
+      color: '#fff',
+      letterSpacing: 0.5,
+    },
+    rerecordBtn: {
+      width: 32,
+      height: 32,
+      borderRadius: 8,
+      backgroundColor: colors.card,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    timerText: {
+      fontFamily: FONTS.bold,
+      fontSize: 13,
+      color: colors.text,
+      minWidth: 36,
+    },
+    waveformContainer: {
+      flex: 1,
+      justifyContent: 'center',
+    },
+    readyButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      backgroundColor: COLORS.skill.speaking,
+      paddingVertical: 12,
+      borderRadius: RADIUS.lg,
+      shadowColor: COLORS.skill.speaking,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      elevation: 4,
+      marginTop: SPACING.sm,
+    },
+    readyButtonText: {
+      fontFamily: FONTS.bold,
+      fontSize: 15,
+      color: '#fff',
+      letterSpacing: 1,
+    },
+  });

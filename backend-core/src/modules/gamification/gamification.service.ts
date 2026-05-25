@@ -320,6 +320,7 @@ export class GamificationService {
       icon: a.icon,
       category: a.category,
       tier: a.tier,
+      xpReward: a.xpReward,
       earned: a.userAchievements.length > 0,
       earnedAt: a.userAchievements[0]?.earnedAt ?? null,
     }));

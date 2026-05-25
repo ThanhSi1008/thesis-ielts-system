@@ -183,7 +183,7 @@ export default function LoginScreen() {
           onPress={() => {
             if (request) promptAsync();
           }}
-          variant="outline"
+          variant="google"
           leftIcon="logo-google"
           disabled={!request || isLoading}
           fullWidth

@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
+  BackHandler,
 } from 'react-native';
 import { toast } from '@/components/ui';
 import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
@@ -77,6 +78,17 @@ export default function AdvancedWritingResultScreen() {
       setTipIndex((prev) => (prev + 1) % MOCK_TIPS.length);
     }, 6000);
     return () => clearInterval(interval);
+  }, [pollingActive]);
+
+  // Android physical back button handling during grading/polling
+  useEffect(() => {
+    if (!pollingActive) return;
+    const backAction = () => {
+      router.replace('/ielts/advanced?tab=writing');
+      return true; // prevent default back action
+    };
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
   }, [pollingActive]);
 
   // Load session initially
@@ -152,17 +164,23 @@ export default function AdvancedWritingResultScreen() {
     }
 
     const overall_band = session.bandScore ?? rawFeedback.overall_band ?? rawFeedback.band ?? 6.0;
+    const taskFb = {
+      band: rawFeedback.band ?? rawFeedback.overall_band ?? overall_band,
+      criteria: rawFeedback.criteria ?? {},
+      ...rawFeedback,
+    };
+
     if (prompt?.taskType === 'TASK1') {
       return {
         overall_band,
-        task1: rawFeedback,
+        task1: taskFb,
         task2: null,
       };
     } else {
       return {
         overall_band,
         task1: null,
-        task2: rawFeedback,
+        task2: taskFb,
       };
     }
   }, [session, prompt]);
@@ -238,6 +256,39 @@ export default function AdvancedWritingResultScreen() {
       fontSize: FONT_SIZES.lg,
       fontFamily: FONTS.bold,
       color: isDark ? colors.text : '#fff',
+    },
+    pendingHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: SPACING.md,
+      paddingVertical: SPACING.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      backgroundColor: colors.background,
+    },
+    pendingHeaderBtn: {
+      width: 40,
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: RADIUS.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginRight: SPACING.md,
+    },
+    pendingHeaderTitleCol: {
+      flex: 1,
+    },
+    pendingHeaderTitle: {
+      fontSize: FONT_SIZES.md,
+      fontFamily: FONTS.bold,
+      color: colors.text,
+    },
+    pendingHeaderSubtitle: {
+      fontSize: 11,
+      fontFamily: FONTS.regular,
+      color: colors.textSecondary,
+      marginTop: 2,
     },
     pendingContainer: {
       flex: 1,
@@ -517,6 +568,26 @@ export default function AdvancedWritingResultScreen() {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
         <Stack.Screen options={{ headerShown: false }} />
+        
+        {/* Minimalist header with back button */}
+        <View style={styles.pendingHeader}>
+          <TouchableOpacity
+            style={styles.pendingHeaderBtn}
+            onPress={() => router.replace('/ielts/advanced?tab=writing')}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Back to IELTS Advanced Dashboard"
+          >
+            <Ionicons name="arrow-back" size={20} color={colors.text} />
+          </TouchableOpacity>
+          <View style={styles.pendingHeaderTitleCol}>
+            <Text style={styles.pendingHeaderTitle}>Evaluating Essay</Text>
+            <Text style={styles.pendingHeaderSubtitle} numberOfLines={1}>
+              AI evaluation running. You can return here later.
+            </Text>
+          </View>
+        </View>
+
         <View style={styles.pendingContainer}>
           <ActivityIndicator size="large" color={activeColor} />
           <Text style={styles.pendingTitle}>Evaluating Your Essay...</Text>
@@ -565,7 +636,7 @@ export default function AdvancedWritingResultScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.headerBack}
-          onPress={() => router.replace('/ielts/advanced/writing')}
+          onPress={() => router.replace('/ielts/advanced?tab=writing')}
         >
           <Ionicons name="arrow-back" size={24} color={isDark ? colors.text : '#fff'} />
         </TouchableOpacity>
@@ -707,7 +778,7 @@ export default function AdvancedWritingResultScreen() {
         {/* Action Button */}
         <TouchableOpacity
           style={styles.doneBtn}
-          onPress={() => router.replace('/ielts/advanced/writing')}
+          onPress={() => router.replace('/ielts/advanced?tab=writing')}
         >
           <Text style={styles.doneBtnText}>Return to List</Text>
         </TouchableOpacity>
