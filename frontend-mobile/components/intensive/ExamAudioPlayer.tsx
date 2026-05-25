@@ -106,7 +106,7 @@ export function ExamAudioPlayer({
               ]}
             />
           </View>
-          <Text style={[styles.audioLabel, { color: isDark ? colors.text : colors.primary }]}>
+          <Text style={[styles.audioLabel, { color: isDark ? colors.text : colors.primary }]} allowFontScaling={true}>
             {mode === 'exam'
               ? `Listening Exam — Part ${currentPartIndex + 1}/${totalParts} playing`
               : `Listening Practice — Part ${currentPartIndex + 1}`}
@@ -124,8 +124,11 @@ export function ExamAudioPlayer({
               },
             ]}
             onPress={cycleSpeed}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel={`Change playback speed. Current speed is ${playbackSpeed.toFixed(2)}x`}
           >
-            <Text style={[styles.speedText, { color: colors.primary }]}>
+            <Text style={[styles.speedText, { color: colors.primary }]} allowFontScaling={true}>
               {playbackSpeed.toFixed(2)}x
             </Text>
           </TouchableOpacity>
@@ -136,12 +139,22 @@ export function ExamAudioPlayer({
           <TouchableOpacity
             onPress={handleDecreaseVolume}
             style={styles.volBtn}
+            accessible={true}
+            accessibilityRole="button"
             accessibilityLabel="Decrease volume"
           >
             <Ionicons name="volume-low" size={16} color={colors.textSecondary} />
           </TouchableOpacity>
           <View
             style={[styles.volumeTrack, { backgroundColor: isDark ? colors.border : '#C7D2FE' }]}
+            accessible={true}
+            accessibilityLabel="Volume level indicator"
+            accessibilityValue={{
+              min: 0,
+              max: 100,
+              now: Math.round(volume * 100),
+              text: `${Math.round(volume * 100)} percent`,
+            }}
           >
             <View
               style={[
@@ -153,6 +166,8 @@ export function ExamAudioPlayer({
           <TouchableOpacity
             onPress={handleIncreaseVolume}
             style={styles.volBtn}
+            accessible={true}
+            accessibilityRole="button"
             accessibilityLabel="Increase volume"
           >
             <Ionicons name="volume-high" size={16} color={colors.textSecondary} />
@@ -168,9 +183,12 @@ export function ExamAudioPlayer({
             style={styles.iconBtn}
             hitSlop={8}
             disabled={isLoading}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Rewind 5 seconds"
           >
             <Ionicons name="play-back" size={20} color={colors.primary} />
-            <Text style={[styles.skipLabel, { color: colors.primary }]}>5</Text>
+            <Text style={[styles.skipLabel, { color: colors.primary }]} allowFontScaling={true}>5</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -178,6 +196,9 @@ export function ExamAudioPlayer({
             style={styles.playBtn}
             activeOpacity={0.8}
             disabled={isLoading}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel={isPlaying ? 'Pause audio track' : 'Play audio track'}
           >
             <View style={[styles.playCircle, { backgroundColor: colors.primary }]}>
               {isLoading ? (
@@ -198,13 +219,16 @@ export function ExamAudioPlayer({
             style={styles.iconBtn}
             hitSlop={8}
             disabled={isLoading}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="Fast forward 5 seconds"
           >
             <Ionicons name="play-forward" size={20} color={colors.primary} />
-            <Text style={[styles.skipLabel, { color: colors.primary }]}>5</Text>
+            <Text style={[styles.skipLabel, { color: colors.primary }]} allowFontScaling={true}>5</Text>
           </TouchableOpacity>
 
           {/* Time stamp */}
-          <Text style={[styles.timeText, { color: colors.textSecondary }]}>
+          <Text style={[styles.timeText, { color: colors.textSecondary }]} allowFontScaling={true}>
             {formatTime(currentTime)} / {formatTime(duration)}
           </Text>
         </View>
@@ -213,7 +237,7 @@ export function ExamAudioPlayer({
       {/* Seekbar Progress slider */}
       <View style={styles.progressRow}>
         {mode === 'exam' && (
-          <Text style={[styles.examTimeText, { color: colors.textSecondary }]}>
+          <Text style={[styles.examTimeText, { color: colors.textSecondary }]} allowFontScaling={true}>
             {formatTime(currentTime)} / {formatTime(duration)}
           </Text>
         )}
@@ -227,6 +251,15 @@ export function ExamAudioPlayer({
           minimumTrackTintColor={accentColor}
           maximumTrackTintColor={accentColor + '30'}
           thumbTintColor={mode === 'exam' ? 'transparent' : accentColor}
+          accessible={true}
+          accessibilityRole="adjustable"
+          accessibilityLabel="Audio timeline seekbar"
+          accessibilityValue={{
+            min: 0,
+            max: duration,
+            now: currentTime,
+            text: `${formatTime(currentTime)} of ${formatTime(duration)}`,
+          }}
         />
       </View>
     </View>

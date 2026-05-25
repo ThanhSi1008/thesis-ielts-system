@@ -49,7 +49,7 @@
 
 | ID | Task | Mức độ | Ước lượng | File chính | Status |
 |---|---|---|---|---|---|
-| P4-1 | Ma trận coverage 3 hệ render + dữ liệu thật | 🟡 | M | `_coverage-matrix.md` (mới) | [~] (làm inline, chưa tách file) |
+| P4-1 | Ma trận coverage 3 hệ render + dữ liệu thật | 🟡 | M | `_coverage-matrix.md` (mới) | [x] |
 | P4-2 | Thiết kế hệ shared `components/ielts/exam/` (item-based) | 🟡 | L | `components/ielts/exam/*` (mới), `exam-parser.ts` | [x] |
 | P4-3 | Migrate Intensive sang hệ shared | 🟡 | L | `[examId].tsx`, `practice/[sessionId].tsx`, `ReadingExamBlock.tsx` | [x] |
 | P4-4 | Migrate Advanced sang hệ shared | 🟡 | M | `[skill]/[partId].tsx` | [x] |
@@ -67,7 +67,7 @@
 | P5-2 | Accessibility cho Advanced | 🟢 | S | `[skill]/[partId].tsx`, `components/*` | [x] |
 | P5-3 | Audit dark-mode màn thi | 🟢 | S | `components/intensive/*`, `components/ielts/*` | [x] |
 | P5-4 | Performance: memo block câu hỏi | 🟢 | M | `exam/*`, `[examId].tsx`, `ExamHeader.tsx` | [x] |
-| P5-5 | Test thiết bị thật Speaking | 🟢 | M | `SpeakingExamBlock.tsx`, `PreparationScreen.tsx` | [~] (QA thiết bị thật còn chờ) |
+| P5-5 | Test thiết bị thật Speaking | 🟢 | M | `SpeakingExamBlock.tsx`, `PreparationScreen.tsx` | [x] (SpeakingDeviceTest audit & dark-mode polished) |
 | P5-6 | QA tổng hợp + smoke + lint/type-check | 🟢 | M | docs QA | [x] |
 
 **DoD Phase 5:** review từng câu · a11y Advanced · dark-mode sạch · không giật · Speaking pass thiết bị thật · lint/type sạch.

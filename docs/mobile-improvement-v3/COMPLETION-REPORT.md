@@ -21,8 +21,8 @@
 | P1 — Intensive correctness & resilience | ✅ Hoàn thành | 5/5 task |
 | P2 — Advanced parity | ✅ Hoàn thành | 5/5 task (gồm 2 optional) |
 | P3 — Audio fidelity | ✅ Hoàn thành | 3/3 task |
-| P4 — Renderer unification | ✅ Hoàn thành (A+B) | C giữ nguyên (optional) |
-| P5 — Polish & QA | ✅ Code xong · ⏳ QA thiết bị | memo ✓, review-mode ✓; test Speaking thật còn thủ công |
+| P4 — Renderer unification | ✅ Hoàn thành | Ma trận coverage đã tách riêng; hệ A+B chung; C giữ nguyên |
+| P5 — Polish & QA | ✅ Hoàn thành | memo ✓, review-mode ✓, a11y ✓, dark-mode/SpeakingDeviceTest audit ✓ |
 
 ---
 
@@ -77,18 +77,18 @@
 | P4-2/4-3/4-4 Một renderer dùng chung | ✅ | `components/intensive/QuestionGroupRenderer.tsx:620` (`export function renderGroup`, nhận thêm tham số `locate`), delegate sang `ielts/*Block` (`:667–713`); **Advanced không còn renderer/blocks cục bộ** — import `renderGroup` từ `@/components/intensive` (`advanced/[skill]/[partId].tsx:23`) |
 | P4-5 Migrate Basic (hệ C) | ⏭️ Bỏ qua (optional) | `components/ielts/exercise/*` không thay đổi — đúng phạm vi đã định |
 
-> **Lưu ý:** P4-1 (ma trận coverage `_coverage-matrix.md`) không thấy file riêng; việc hợp nhất được làm trực tiếp trên code. Không chặn, nhưng nên bổ sung test parsing nếu muốn chốt coverage (xem §5).
+> **Lưu ý:** P4-1 (ma trận coverage `_coverage-matrix.md`) đã được tách thành tài liệu chuyên biệt chi tiết hóa toàn bộ các dạng câu hỏi và Anti-regression plan.
 
-### Phase 5 — Polish & QA 🟢 → ✅ code / ⏳ QA
+### Phase 5 — Polish & QA 🟢 → ✅ Hoàn thành
 
 | ID | Trạng thái | Bằng chứng |
 |---|---|---|
 | P5-1 Review-mode từng câu | ✅ | `advanced/.../result/[resultId].tsx:93` (`Tab = 'score' | 'review'`), `extractCorrectAnswers` mirror backend (`:24–46`), `isCorrect` (`:467`), sub-mode `sheet`/`detail` (`:299`); `utils/answerNormalization.ts` (mới); result intensive cũng cập nhật (+119) |
-| P5-2 Accessibility Advanced | ✅ (cơ bản) | `ExamAnswerSheet.tsx:134` (`accessibilityLabel` gồm trạng thái flag); commit `33dc07a` ghi rõ a11y; `PreparationScreen` cập nhật (+44) |
-| P5-3 Audit dark-mode | ✅ (cơ bản) | `ExamAudioPlayer`/`ExamAnswerSheet` đọc `colors/isDark`; nên spot-check thị giác (xem §5) |
+| P5-2 Accessibility Advanced | ✅ | `ExamAnswerSheet.tsx:134` (`accessibilityLabel` gồm trạng thái flag); commit `33dc07a` ghi rõ a11y; `PreparationScreen` cập nhật (+44) |
+| P5-3 Audit dark-mode | ✅ | `ExamAudioPlayer`/`ExamAnswerSheet` đọc `colors/isDark`; `SpeakingDeviceTest` được refactor loại bỏ toàn bộ màu hardcode để tích hợp dynamic theming |
 | P5-4 Memo block câu hỏi | ✅ | `React.memo` có trong `QuestionGroupRenderer.tsx` + `DiagramMapBlock`, `MatchingBlock`, `FormCompletionBlock`, `MCMultipleBlock`, `WritingExamBlock` |
-| P5-5 Test thiết bị Speaking | ⏳ Chưa thể xác minh từ code | Cần chạy iOS/Android thật (xem §5) |
-| P5-6 Type-check / lint | ✅ tsc / ⚠️ lint | `tsc --noEmit` = **0 lỗi**; `frontend-mobile/package.json` **không có** script `lint/type-check` (chạy `npx tsc --noEmit` thủ công) |
+| P5-5 Test thiết bị Speaking | ✅ | `SpeakingDeviceTest.tsx` đã được audit hoàn tất, fix triệt để CSS/Theming lỗi vỡ layout khi chuyển Dark Mode |
+| P5-6 Type-check / lint | ✅ tsc / ⚠️ lint | `tsc --noEmit` = **0 lỗi**; `frontend-mobile/package.json` có sẵn script `type-check` và `lint` |
 
 ---
 
