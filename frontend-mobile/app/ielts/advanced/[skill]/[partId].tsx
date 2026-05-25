@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -23,9 +23,12 @@ import MCMultipleBlock from '@/components/ielts/MCMultipleBlock';
 import FormCompletionBlock from '@/components/ielts/FormCompletionBlock';
 import TranscriptReview from '@/components/ielts/TranscriptReview';
 import PassageReview from '@/components/ielts/PassageReview';
+import ReadingExamBlock from '@/components/ielts/ReadingExamBlock';
+import { ExamAnswerSheet } from '@/components/intensive/ExamAnswerSheet';
 import { extractAllItemsFromPart, questionNumbersFromItems } from '@/lib/exam-parser';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { useExamTimer, useExitConfirm } from '@/hooks';
 
 // ─── Question blocks ───────────────────────────────────────────────────────────
 
@@ -355,7 +358,11 @@ const createStyles = (colors: any) =>
       bottom: 0,
       left: 0,
       right: 0,
-      padding: SPACING.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.md,
       backgroundColor: colors.card,
       borderTopWidth: 1,
       borderColor: colors.border,
@@ -364,6 +371,31 @@ const createStyles = (colors: any) =>
       shadowOpacity: 0.08,
       shadowRadius: 12,
       elevation: 8,
+    },
+    navToggleBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 5,
+      borderRadius: RADIUS.xl,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderWidth: 1.5,
+    },
+    navToggleText: { fontSize: FONT_SIZES.sm, fontWeight: '700' },
+    timerPill: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      borderRadius: RADIUS.lg,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.3)',
+    },
+    timerText: {
+      fontSize: FONT_SIZES.xs,
+      fontWeight: '700',
     },
   });
 
@@ -386,15 +418,25 @@ export default function AdvancedPartScreen() {
   const [loading, setLoading] = useState(true);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const hasSubmittedRef = useRef(false);
   const [locatedQuestion, setLocatedQuestion] = useState<number | null>(null);
   const [showTranscript, setShowTranscript] = useState(false);
   const [confirmSubmitVisible, setConfirmSubmitVisible] = useState(false);
+
+  // Answer Palette, Flagging, and Timed states
+  const [navOpen, setNavOpen] = useState(false);
+  const [flagged, setFlagged] = useState<Set<number>>(new Set());
+  const [isTimed, setIsTimed] = useState(false);
 
   const isListening = skill === 'listening';
   const accentColor = isListening ? COLORS.skill.listening : COLORS.skill.reading;
 
   const items = React.useMemo(() => (part ? extractAllItemsFromPart(part) : []), [part]);
   const qNumbers = React.useMemo(() => questionNumbersFromItems(items), [items]);
+
+  const questionsScrollRef = useRef<ScrollView>(null);
+  const questionOffsetsRef = useRef<Record<number, number>>({});
 
   useEffect(() => {
     const load = async () => {
@@ -417,6 +459,38 @@ export default function AdvancedPartScreen() {
     [],
   );
 
+  const answeredSet = React.useMemo(() => {
+    const s = new Set<number>();
+    if (!part) return s;
+    const itemsList = extractAllItemsFromPart(part);
+    for (const item of itemsList) {
+      if ('qns' in item && item.qns) {
+        for (const n of item.qns) {
+          if (answers[String(n)] && answers[String(n)].trim()) {
+            s.add(n);
+          }
+        }
+      } else if ('qn' in item) {
+        if (answers[String(item.qn)] && answers[String(item.qn)].trim()) {
+          s.add(item.qn);
+        }
+      }
+    }
+    return s;
+  }, [part, answers]);
+
+  const handleToggleFlag = useCallback((n: number) => {
+    setFlagged((prev) => {
+      const next = new Set(prev);
+      if (next.has(n)) {
+        next.delete(n);
+      } else {
+        next.add(n);
+      }
+      return next;
+    });
+  }, []);
+
   const handleLocate = useCallback(
     (qNum: number) => {
       // Reset to re-trigger scroll effect in child even if same question
@@ -427,9 +501,67 @@ export default function AdvancedPartScreen() {
     [isListening],
   );
 
+  const scrollToQuestion = useCallback(
+    (n: number) => {
+      setLocatedQuestion(n);
+      if (isListening) {
+        const y = questionOffsetsRef.current[n];
+        if (y != null) {
+          questionsScrollRef.current?.scrollTo({ y, animated: true });
+        }
+      }
+    },
+    [isListening],
+  );
+
+  const executeSubmit = async () => {
+    if (hasSubmittedRef.current) return;
+    hasSubmittedRef.current = true;
+    setHasSubmitted(true);
+    setSubmitting(true);
+    try {
+      if (__DEV__) console.log('[SUBMIT] sending:', JSON.stringify({ partId, answers }));
+      const result = isListening
+        ? await ieltsAdvancedApi.submitListening(partId, answers)
+        : await ieltsAdvancedApi.submitReading(partId, answers);
+      if (__DEV__) console.log('[SUBMIT] response:', JSON.stringify(result));
+      router.replace(
+        ROUTES.ieltsAdvancedSkillPartResult(skill as string, partId as string, result.id),
+      );
+    } catch (err) {
+      if (__DEV__) console.error('[SUBMIT] error:', err);
+      toast.error('Error', 'Submission failed.');
+      hasSubmittedRef.current = false;
+      setHasSubmitted(false);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleSubmit = async () => {
     setConfirmSubmitVisible(true);
   };
+
+  // Timed practice countdown
+  const timeLimit = isListening ? 30 : 20;
+  const timer = useExamTimer(
+    timeLimit,
+    isTimed && !submitting && !hasSubmitted,
+    executeSubmit,
+    0
+  );
+
+  // Exit warning dialog integration
+  const {
+    isVisible: exitConfirmVisible,
+    showDialog: showExitConfirm,
+    hideDialog: hideExitConfirm,
+    confirmDiscard: handleExitDiscard,
+  } = useExitConfirm(
+    answeredSet.size > 0 && !submitting && !hasSubmitted,
+    undefined,
+    () => {}
+  );
 
   if (subLoading || loading) {
     return (
@@ -464,8 +596,29 @@ export default function AdvancedPartScreen() {
           </Text>
         </View>
         <View style={styles.headerActions}>
+          {isTimed ? (
+            <View style={[styles.timerPill, timer.isWarning && { backgroundColor: '#F59E0B22', borderColor: '#F59E0B' }]}>
+              <Ionicons name="alarm-outline" size={14} color={timer.isWarning ? '#F59E0B' : '#fff'} />
+              <Text style={[styles.timerText, { color: timer.isWarning ? '#F59E0B' : '#fff' }]}>
+                {timer.display}
+              </Text>
+            </View>
+          ) : (
+            <TouchableOpacity
+              onPress={() => {
+                setIsTimed(true);
+                toast.success('Timed Practice Enabled', `You have ${timeLimit} minutes to complete this part.`);
+              }}
+              hitSlop={8}
+              style={styles.historyBtn}
+              accessibilityLabel="Enable Timed Practice"
+            >
+              <Ionicons name="alarm-outline" size={20} color="#fff" />
+            </TouchableOpacity>
+          )}
+
           <Text style={styles.ansCount}>
-            {Object.keys(answers).length}/{qNumbers.length} ans
+            {answeredSet.size}/{qNumbers.length} ans
           </Text>
           <TouchableOpacity
             onPress={() =>
@@ -517,12 +670,58 @@ export default function AdvancedPartScreen() {
         </View>
       )}
 
-      {/* Reading passage with locate support */}
-      {!isListening && passage && (
-        <View style={styles.passagePanel}>
-          <Text style={[styles.panelLabel, { color: accentColor }]}>Passage</Text>
-          <PassageReview
-            passage={passage}
+      {/* Reading passage with split-resizable layout (Reading) or basic review */}
+      {isListening ? (
+        <>
+          {/* Questions (Listening) */}
+          <ScrollView
+            ref={questionsScrollRef}
+            style={styles.scroll}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
+          >
+            {content.map((g: any, gi: number) => (
+              <View
+                key={gi}
+                onLayout={(e) => {
+                  const allNums: number[] = [];
+                  const collectNums = (obj: any) => {
+                    if (!obj || typeof obj !== 'object') return;
+                    if (Array.isArray(obj)) {
+                      obj.forEach(collectNums);
+                      return;
+                    }
+                    if ('question_number' in obj) {
+                      allNums.push(Number(obj.question_number));
+                      return;
+                    }
+                    if ('question_numbers' in obj) {
+                      (obj.question_numbers as number[]).forEach((x) => allNums.push(x));
+                      return;
+                    }
+                    Object.values(obj).forEach(collectNums);
+                  };
+                  collectNums(g);
+                  allNums.forEach((num) => {
+                    questionOffsetsRef.current[num] = e.nativeEvent.layout.y;
+                  });
+                }}
+              >
+                {renderGroup(g, answers, setAnswer, handleLocate, gi, colors, isDark)}
+              </View>
+            ))}
+          </ScrollView>
+        </>
+      ) : (
+        <View style={{ flex: 1, marginBottom: 80 }}>
+          <ReadingExamBlock
+            parts={[part]}
+            answers={answers}
+            onChange={setAnswer}
+            renderGroup={(g, ans, onChange, gi, pi, cls, dark) =>
+              renderGroup(g, ans, onChange, handleLocate, gi, cls, dark)
+            }
+            isAdvanced
             passageWithLocations={passageWithLocations}
             locatedQuestion={locatedQuestion}
             accentColor={accentColor}
@@ -530,24 +729,33 @@ export default function AdvancedPartScreen() {
         </View>
       )}
 
-      {/* Questions */}
-      <ScrollView
-        style={styles.scroll}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 120 }}
-      >
-        {content.map((g: any, gi: number) =>
-          renderGroup(g, answers, setAnswer, handleLocate, gi, colors, isDark),
-        )}
-      </ScrollView>
-
       {/* Submit bar */}
       <View style={styles.submitBar}>
+        <TouchableOpacity
+          style={[
+            styles.navToggleBtn,
+            {
+              backgroundColor: isDark ? colors.surface : colors.primary + '12',
+              borderColor: isDark ? colors.border : colors.primary + '30',
+            },
+          ]}
+          onPress={() => setNavOpen((v) => !v)}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel={`Answer sheet: ${answeredSet.size} of ${qNumbers.length} answered`}
+        >
+          <Ionicons name="grid-outline" size={18} color={colors.primary} />
+          <Text style={[styles.navToggleText, { color: colors.primary }]}>
+            {answeredSet.size}/{qNumbers.length}
+          </Text>
+        </TouchableOpacity>
+
         <Button
           title={submitting ? 'Submitting…' : 'Submit'}
           onPress={handleSubmit}
           loading={submitting}
           size="lg"
+          style={{ flex: 1, marginLeft: SPACING.md }}
         />
       </View>
 
@@ -561,22 +769,7 @@ export default function AdvancedPartScreen() {
           title: 'Submit',
           onPress: async () => {
             setConfirmSubmitVisible(false);
-            setSubmitting(true);
-            try {
-              if (__DEV__) console.log('[SUBMIT] sending:', JSON.stringify({ partId, answers }));
-              const result = isListening
-                ? await ieltsAdvancedApi.submitListening(partId, answers)
-                : await ieltsAdvancedApi.submitReading(partId, answers);
-              if (__DEV__) console.log('[SUBMIT] response:', JSON.stringify(result));
-              router.replace(
-                ROUTES.ieltsAdvancedSkillPartResult(skill as string, partId as string, result.id),
-              );
-            } catch (err) {
-              if (__DEV__) console.error('[SUBMIT] error:', err);
-              toast.error('Error', 'Submission failed.');
-            } finally {
-              setSubmitting(false);
-            }
+            await executeSubmit();
           },
         }}
         secondaryAction={{
@@ -584,6 +777,35 @@ export default function AdvancedPartScreen() {
           onPress: () => setConfirmSubmitVisible(false),
         }}
       />
+
+      <ConfirmDialog
+        visible={exitConfirmVisible}
+        onClose={hideExitConfirm}
+        title="Exit Practice?"
+        message="Are you sure you want to exit? Your answers for this practice session will not be saved."
+        variant="destructive"
+        primaryAction={{
+          title: 'Exit & Discard',
+          onPress: handleExitDiscard,
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: hideExitConfirm,
+        }}
+      />
+
+      {qNumbers.length > 0 && (
+        <ExamAnswerSheet
+          open={navOpen}
+          onClose={() => setNavOpen(false)}
+          totalQuestions={qNumbers.length}
+          answers={answers}
+          onSelect={scrollToQuestion}
+          answeredSet={answeredSet}
+          flaggedSet={flagged}
+          onToggleFlag={handleToggleFlag}
+        />
+      )}
     </SafeAreaView>
   );
 }
