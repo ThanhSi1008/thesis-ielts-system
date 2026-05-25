@@ -18,7 +18,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
-import { AdvancedWritingPromptCard } from '@/components/ielts';
+import { AdvancedWritingPromptCard } from './AdvancedWritingPromptCard';
 import { EmptyState, FeatureLock, UsageIndicator } from '@/components/ui/index';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useTheme } from '@/contexts/ThemeContext';

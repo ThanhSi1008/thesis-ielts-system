@@ -19,10 +19,10 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
-import { SpeakingPartCard } from '@/components/ielts';
+import { SpeakingPartCard } from './SpeakingPartCard';
 import { EmptyState, FeatureLock } from '@/components/ui/index';
 import { useSubscription } from '@/contexts/SubscriptionContext';
-import { SpeakingDeviceTest } from '@/components';
+import { SpeakingDeviceTest } from '../SpeakingDeviceTest';
 import { useTheme } from '@/contexts/ThemeContext';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 

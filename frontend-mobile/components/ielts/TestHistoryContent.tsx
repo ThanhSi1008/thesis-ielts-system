@@ -19,7 +19,10 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { COLORS, FONTS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
 import { ieltsExamsApi, ieltsAdvancedApi } from '@/services';
 import { Badge, ScoreBadge, toast } from '@/components/ui';
-import { DataScreen, LessonListSkeleton, EmptyState, ConfirmDialog } from '@/components';
+import DataScreen from '../templates/DataScreen';
+import LessonListSkeleton from '../skeletons/LessonListSkeleton';
+import EmptyState from '../molecules/EmptyState';
+import ConfirmDialog from '../organisms/ConfirmDialog';
 import { EmptyStates } from '@/assets/empty-states';
 import { useTabBarVisibility } from '@/hooks';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
