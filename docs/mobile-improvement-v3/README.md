@@ -38,6 +38,8 @@ Tài liệu này tách thành **5 phase**, ưu tiên giá trị người dùng &
 | 8 | **Listening practice không seek/replay/pause.** Practice intensive dùng chung `ExamAudioPlayer` (chỉ volume) → kém hơn Advanced (vốn dùng `RichAudioPlayer` đầy đủ control). | `practice/[sessionId].tsx`, `components/ielts/RichAudioPlayer.tsx` | 🟡 TB | P3 |
 | 9 | **3 hệ render câu hỏi song song.** Intensive `QuestionGroupRenderer`, Advanced `renderGroup` cục bộ + `ielts/*Block`, Basic `ielts/exercise/*`. Web chỉ 1 `AnswerField`. → sửa lỗi/loại câu phải làm nhiều nơi, UI lệch, coverage lệch. | `components/intensive/QuestionGroupRenderer.tsx`, `app/ielts/advanced/[skill]/[partId].tsx`, `components/ielts/exercise/*` | 🟡 TB | P4 |
 | 10 | **Polish:** parity chế độ xem lại đáp án, phủ accessibility cho Advanced, audit dark-mode màn thi, memo hoá block câu hỏi (chống giật khi timer tick), test thiết bị thật cho Speaking. | nhiều file | 🟢 Thấp | P5 |
+| 11 | **Intensive thiếu mục con "Test History".** Web có 2 mục con (Mock Tests + Test History) trong sidebar; mobile chỉ hiển thị Mock Tests (màn `app/ielts/history.tsx` đã có nhưng chỉ vào được qua Drawer). | `app/ielts/intensive/index.tsx`, `app/ielts/history.tsx` | 🟡 TB | P6 |
+| 12 | **Advanced skill tabs không nhất quán.** L/R hiển thị inline; W/S lại `router.push` sang trang riêng. Web để cả 4 tab inline. | `app/ielts/advanced/index.tsx`, `advanced/{writing,speaking}/index.tsx` | 🟡 TB | P6 |
 
 **Quy ước mức độ:** 🔴 Cao = ảnh hưởng tính đúng đắn/độ tin cậy khi làm bài · 🟡 Trung bình = ảnh hưởng trải nghiệm/độ chân thực · 🟢 Thấp = hoàn thiện.
 
@@ -90,8 +92,10 @@ P5 ── Polish & QA                            (review-mode · a11y · perf me
 | `PHASE-3-audio-fidelity.md` | Audio listening: tách chế độ exam vs practice |
 | `PHASE-4-renderer-unification.md` | Hợp nhất 3 hệ render câu hỏi về 1 |
 | `PHASE-5-polish-qa.md` | Review-mode, accessibility, performance, QA, device testing |
+| `PHASE-6-navigation-sync.md` | **(bổ sung)** Đồng bộ điều hướng: Intensive `[Mock Tests | Test History]` + Advanced 4 tab inline |
 | `CHECKLIST.md` | Bảng task tổng hợp theo phase (để tick tiến độ) |
 | `WALKTHROUGH.md` | Hướng dẫn kỹ thuật từng bước cho các thay đổi trọng tâm |
+| `COMPLETION-REPORT.md` | Báo cáo kiểm chứng hiện thực P1–P5 |
 
 ---
 
