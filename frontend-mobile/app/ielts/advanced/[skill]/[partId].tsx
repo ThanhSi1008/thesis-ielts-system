@@ -16,275 +16,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
 import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { Button } from '@/components/ui';
-import DiagramMapBlock from '@/components/ielts/DiagramMapBlock';
-import MatchingBlock from '@/components/ielts/MatchingBlock';
 import RichAudioPlayer from '@/components/ielts/RichAudioPlayer';
-import MCMultipleBlock from '@/components/ielts/MCMultipleBlock';
-import FormCompletionBlock from '@/components/ielts/FormCompletionBlock';
 import TranscriptReview from '@/components/ielts/TranscriptReview';
 import PassageReview from '@/components/ielts/PassageReview';
 import ReadingExamBlock from '@/components/ielts/ReadingExamBlock';
-import { ExamAnswerSheet } from '@/components/intensive/ExamAnswerSheet';
+import { ExamAnswerSheet, renderGroup } from '@/components/intensive';
 import { extractAllItemsFromPart, questionNumbersFromItems } from '@/lib/exam-parser';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useExamTimer, useExitConfirm } from '@/hooks';
-
-// ─── Question blocks ───────────────────────────────────────────────────────────
-
-function LocateButton({ onPress }: { onPress: () => void }) {
-  const { colors } = useTheme();
-  return (
-    <TouchableOpacity onPress={onPress} hitSlop={8} style={locate.btn}>
-      <Ionicons name="locate-outline" size={16} color={colors.textMuted} />
-    </TouchableOpacity>
-  );
-}
-
-const locate = StyleSheet.create({
-  btn: { padding: 4 },
-});
-
-const createQBlockStyles = (colors: any) =>
-  StyleSheet.create({
-    qBlock: {
-      marginBottom: SPACING.xl,
-      padding: SPACING.lg,
-      backgroundColor: colors.card,
-      borderRadius: RADIUS.xl,
-      borderWidth: 1,
-      borderColor: colors.border,
-    },
-    qTopRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginBottom: 4,
-    },
-    qNum: {
-      fontSize: FONT_SIZES.xs,
-      fontWeight: '700',
-      color: colors.primary,
-      textTransform: 'uppercase',
-    },
-    qText: {
-      fontSize: FONT_SIZES.md,
-      color: colors.text,
-      marginBottom: SPACING.md,
-      lineHeight: 22,
-    },
-    option: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      padding: SPACING.md,
-      borderRadius: RADIUS.lg,
-      borderWidth: 1,
-      borderColor: colors.border,
-      marginBottom: SPACING.sm,
-      backgroundColor: colors.surface,
-    },
-    optionSel: { borderColor: colors.primary, backgroundColor: colors.primary + '12' },
-    bullet: {
-      width: 28,
-      height: 28,
-      borderRadius: 14,
-      borderWidth: 1.5,
-      borderColor: colors.border,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginRight: SPACING.md,
-      backgroundColor: colors.card,
-    },
-    bulletSel: { backgroundColor: colors.primary, borderColor: colors.primary },
-    bulletLetter: { fontWeight: '700', fontSize: FONT_SIZES.sm, color: colors.textSecondary },
-    optText: { flex: 1, fontSize: FONT_SIZES.md, color: colors.text },
-    optTextSel: { color: colors.primary, fontWeight: '600' },
-    input: {
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: RADIUS.md,
-      padding: SPACING.md,
-      fontSize: FONT_SIZES.md,
-      color: colors.text,
-    },
-    instructions: {
-      fontSize: FONT_SIZES.sm,
-      color: colors.textSecondary,
-      fontStyle: 'italic',
-      marginBottom: SPACING.md,
-      padding: SPACING.md,
-      backgroundColor: colors.surface,
-      borderRadius: RADIUS.md,
-      borderLeftWidth: 3,
-      borderLeftColor: colors.warning,
-    },
-  });
-
-function MCQBlock({
-  q,
-  answer,
-  onAnswer,
-  onLocate,
-}: {
-  q: any;
-  answer: string;
-  onAnswer: (v: string) => void;
-  onLocate?: () => void;
-}) {
-  const { colors } = useTheme();
-  const qs = createQBlockStyles(colors);
-  const options = q.options || [];
-  return (
-    <View style={qs.qBlock}>
-      <View style={qs.qTopRow}>
-        <Text style={qs.qNum}>Q{q.question_number}</Text>
-        {onLocate && <LocateButton onPress={onLocate} />}
-      </View>
-      <Text style={qs.qText}>{q.question || q.text || q.stem}</Text>
-      {options.map((opt: any, i: number) => {
-        const letter = opt.letter || String.fromCharCode(65 + i);
-        const label = opt.text || opt;
-        const sel = answer === letter;
-        return (
-          <TouchableOpacity
-            key={letter}
-            style={[qs.option, sel && qs.optionSel]}
-            onPress={() => onAnswer(sel ? '' : letter)}
-            activeOpacity={0.8}
-          >
-            <View style={[qs.bullet, sel && qs.bulletSel]}>
-              <Text style={[qs.bulletLetter, sel && { color: '#fff' }]}>{letter}</Text>
-            </View>
-            <Text style={[qs.optText, sel && qs.optTextSel]}>{label}</Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-  );
-}
-
-function FillBlock({
-  q,
-  answer,
-  onAnswer,
-  onLocate,
-}: {
-  q: any;
-  answer: string;
-  onAnswer: (v: string) => void;
-  onLocate?: () => void;
-}) {
-  const { colors } = useTheme();
-  const qs = createQBlockStyles(colors);
-  return (
-    <View style={qs.qBlock}>
-      <View style={qs.qTopRow}>
-        <Text style={qs.qNum}>Q{q.question_number}</Text>
-        {onLocate && <LocateButton onPress={onLocate} />}
-      </View>
-      <Text style={qs.qText}>{q.question || q.text}</Text>
-      <TextInput
-        style={qs.input}
-        value={answer}
-        onChangeText={onAnswer}
-        placeholder="Your answer…"
-        placeholderTextColor={colors.textMuted}
-      />
-    </View>
-  );
-}
-
-// ─── Type sets ─────────────────────────────────────────────────────────────────
-
-const DIAGRAM_TYPES = new Set([
-  'diagram_labelling',
-  'diagram_completion',
-  'map_labelling',
-  'plan_labelling',
-]);
-const MATCHING_TYPES = new Set([
-  'matching',
-  'matching_headings',
-  'matching_features',
-  'matching_information',
-  'matching_sentence_endings',
-]);
-const FORM_TYPES = new Set([
-  'form_completion',
-  'note_completion',
-  'flowchart_completion',
-  'flow_chart',
-]);
-
-// ─── Group renderer ────────────────────────────────────────────────────────────
-
-function renderGroup(
-  group: any,
-  answers: Record<string, string>,
-  setAns: (k: string, v: string) => void,
-  onLocate: (qNum: number) => void,
-  idx = 0,
-  colors?: any,
-  isDark?: boolean,
-) {
-  const type = group.type;
-  const qs: any[] = group.questions || group.points || [];
-  const baseKey = `g-${idx}-${type}`;
-  const qBlockStyles = createQBlockStyles(colors ?? {});
-
-  if (DIAGRAM_TYPES.has(type)) {
-    return <DiagramMapBlock key={baseKey} group={group} answers={answers} onAnswer={setAns} />;
-  }
-  if (MATCHING_TYPES.has(type)) {
-    return <MatchingBlock key={baseKey} group={group} answers={answers} onAnswer={setAns} />;
-  }
-  if (type === 'multiple_choice_multiple') {
-    return (
-      <MCMultipleBlock
-        key={baseKey}
-        group={group}
-        groupIdx={idx}
-        answer={answers[`mcm-${idx}`] || ''}
-        onAnswer={setAns}
-      />
-    );
-  }
-  if (FORM_TYPES.has(type)) {
-    return <FormCompletionBlock key={baseKey} group={group} answers={answers} onAnswer={setAns} />;
-  }
-
-  return (
-    <View key={baseKey}>
-      {group.instructions && <Text style={qBlockStyles.instructions}>{group.instructions}</Text>}
-      {qs.map((q: any) => {
-        const num = String(q.question_number);
-        const handleLocate = q.question_number
-          ? () => onLocate(Number(q.question_number))
-          : undefined;
-        if (type === 'multiple_choice' || q.options) {
-          return (
-            <MCQBlock
-              key={`${baseKey}-${num}`}
-              q={q}
-              answer={answers[num] || ''}
-              onAnswer={(v) => setAns(num, v)}
-              onLocate={handleLocate}
-            />
-          );
-        }
-        return (
-          <FillBlock
-            key={`${baseKey}-${num}`}
-            q={q}
-            answer={answers[num] || ''}
-            onAnswer={(v) => setAns(num, v)}
-            onLocate={handleLocate}
-          />
-        );
-      })}
-    </View>
-  );
-}
 
 const createStyles = (colors: any) =>
   StyleSheet.create({
@@ -707,7 +447,7 @@ export default function AdvancedPartScreen() {
                   });
                 }}
               >
-                {renderGroup(g, answers, setAnswer, handleLocate, gi, colors, isDark)}
+                {renderGroup(g, answers, setAnswer, gi, 0, colors, isDark, handleLocate)}
               </View>
             ))}
           </ScrollView>
@@ -719,7 +459,7 @@ export default function AdvancedPartScreen() {
             answers={answers}
             onChange={setAnswer}
             renderGroup={(g, ans, onChange, gi, pi, cls, dark) =>
-              renderGroup(g, ans, onChange, handleLocate, gi, cls, dark)
+              renderGroup(g, ans, onChange, gi, pi, cls, dark, handleLocate)
             }
             isAdvanced
             passageWithLocations={passageWithLocations}

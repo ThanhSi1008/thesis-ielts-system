@@ -7,16 +7,29 @@ import { useTheme } from '@/contexts/ThemeContext';
 
 import DiagramMapBlock from '@/components/ielts/DiagramMapBlock';
 import MatchingBlock from '@/components/ielts/MatchingBlock';
+import MCMultipleBlock from '@/components/ielts/MCMultipleBlock';
+import FormCompletionBlock from '@/components/ielts/FormCompletionBlock';
+
+function LocateButton({ onPress }: { onPress: () => void }) {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity onPress={onPress} hitSlop={8} style={{ padding: 4 }}>
+      <Ionicons name="locate-outline" size={16} color={colors.textMuted} />
+    </TouchableOpacity>
+  );
+}
 
 // ─── MCQ Question ────────────────────────────────────────────────────────────
 export function MCQQuestion({
   q,
   answers,
   onAnswer,
+  onLocate,
 }: {
   q: any;
   answers: Record<string, string>;
   onAnswer: (key: string, value: string) => void;
+  onLocate?: (qNum: number) => void;
 }) {
   const { colors, isDark } = useTheme();
   const qStyles = createQStyles(colors, isDark);
@@ -64,7 +77,12 @@ export function MCQQuestion({
 
   return (
     <View style={[qStyles.block, { backgroundColor: colors.card, borderColor: colors.border }]}>
-      <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{displayNum}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{displayNum}</Text>
+        {onLocate && qNums.length === 1 && (
+          <LocateButton onPress={() => onLocate(Number(qNums[0]))} />
+        )}
+      </View>
       {isMulti && (
         <Text
           style={[
@@ -135,10 +153,12 @@ export function FillQuestion({
   q,
   answer,
   onAnswer,
+  onLocate,
 }: {
   q: any;
   answer: string;
   onAnswer: (v: string) => void;
+  onLocate?: (qNum: number) => void;
 }) {
   const { colors, isDark } = useTheme();
   const qStyles = createQStyles(colors, isDark);
@@ -152,7 +172,12 @@ export function FillQuestion({
 
   return (
     <View style={[qStyles.block, { backgroundColor: colors.card, borderColor: colors.border }]}>
-      <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{qNums.join(' & ')}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{qNums.join(' & ')}</Text>
+        {onLocate && qNums.length === 1 && (
+          <LocateButton onPress={() => onLocate(Number(qNums[0]))} />
+        )}
+      </View>
       {questionText ? (
         <Text style={[qStyles.qText, { color: colors.text }]}>{questionText}</Text>
       ) : null}
@@ -331,6 +356,7 @@ export function renderGroup(
   partIdx = 0,
   colors?: any,
   isDark?: boolean,
+  onLocate?: (qNum: number) => void,
 ) {
   const type = group.question_type ?? group.type ?? 'fill';
   const qStyles = createQStyles(colors ?? {}, isDark ?? false);
@@ -371,6 +397,28 @@ export function renderGroup(
 
   if (isMatchingType) {
     return <MatchingBlock key={baseKey} group={group} answers={answers} onAnswer={setAnswer} />;
+  }
+
+  if (type === 'multiple_choice_multiple') {
+    return (
+      <MCMultipleBlock
+        key={baseKey}
+        group={group}
+        groupIdx={groupIdx}
+        answer={answers[`mcm-${groupIdx}`] || ''}
+        onAnswer={setAnswer}
+      />
+    );
+  }
+
+  const FORM_TYPES = new Set([
+    'form_completion',
+    'note_completion',
+    'flowchart_completion',
+    'flow_chart',
+  ]);
+  if (FORM_TYPES.has(type.toLowerCase().replace(/ /g, '_'))) {
+    return <FormCompletionBlock key={baseKey} group={group} answers={answers} onAnswer={setAnswer} />;
   }
 
   const hasSections =
@@ -547,6 +595,7 @@ export function renderGroup(
                           q={{ ...q, options: tfOptions }}
                           answers={answers}
                           onAnswer={setAnswer}
+                          onLocate={onLocate}
                         />
                       );
                     }
@@ -557,6 +606,7 @@ export function renderGroup(
                           q={{ ...q, options: optionsBox.options }}
                           answers={answers}
                           onAnswer={setAnswer}
+                          onLocate={onLocate}
                         />
                       );
                     }
@@ -566,6 +616,7 @@ export function renderGroup(
                         q={q}
                         answer={answers[num] || ''}
                         onAnswer={(v) => setAnswer(num, v)}
+                        onLocate={onLocate}
                       />
                     );
                   })}
@@ -584,11 +635,12 @@ export function renderGroup(
                   q={{ ...q, options: tfOptions }}
                   answers={answers}
                   onAnswer={setAnswer}
+                  onLocate={onLocate}
                 />
               );
             }
             if (isMCQ) {
-              return <MCQQuestion key={qKey} q={q} answers={answers} onAnswer={setAnswer} />;
+              return <MCQQuestion key={qKey} q={q} answers={answers} onAnswer={setAnswer} onLocate={onLocate} />;
             }
             return (
               <FillQuestion
@@ -596,6 +648,7 @@ export function renderGroup(
                 q={q}
                 answer={answers[num] || ''}
                 onAnswer={(v) => setAnswer(num, v)}
+                onLocate={onLocate}
               />
             );
           })}
