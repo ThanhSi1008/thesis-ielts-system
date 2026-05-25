@@ -29,7 +29,7 @@ import { SharedDrawer } from '@/components/ui/SharedDrawer';
 import { useTheme } from '@/contexts/ThemeContext';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function getBand(score: number) {
+function rawToListeningBand(score: number): number {
   if (score >= 39) return 9.0;
   if (score >= 37) return 8.5;
   if (score >= 35) return 8.0;
@@ -41,6 +41,29 @@ function getBand(score: number) {
   if (score >= 16) return 5.0;
   if (score >= 13) return 4.5;
   if (score >= 10) return 4.0;
+  if (score >= 8) return 3.5;
+  if (score >= 6) return 3.0;
+  if (score >= 4) return 2.5;
+  if (score >= 2) return 2.0;
+  return 1.0;
+}
+
+function rawToReadingBand(score: number): number {
+  if (score >= 39) return 9.0;
+  if (score >= 37) return 8.5;
+  if (score >= 35) return 8.0;
+  if (score >= 33) return 7.5;
+  if (score >= 30) return 7.0;
+  if (score >= 27) return 6.5;
+  if (score >= 23) return 6.0;
+  if (score >= 19) return 5.5;
+  if (score >= 15) return 5.0;
+  if (score >= 13) return 4.5;
+  if (score >= 10) return 4.0;
+  if (score >= 8) return 3.5;
+  if (score >= 6) return 3.0;
+  if (score >= 4) return 2.5;
+  if (score >= 2) return 2.0;
   return 1.0;
 }
 
@@ -207,7 +230,12 @@ function HistoryCard({
     year: 'numeric',
   });
   const title = (item.examTitle ?? 'Test').split(' - ')[0];
-  const band = getBand(item.rawScore ?? 0);
+  const isWS = item.skill === 'WRITING' || item.skill === 'SPEAKING';
+  const band = isWS
+    ? (item.writingScore ?? item.speakingScore ?? item.rawScore ?? 0)
+    : item.skill === 'READING'
+      ? rawToReadingBand(item.rawScore ?? 0)
+      : rawToListeningBand(item.rawScore ?? 0);
   const mm = item.timeTaken ? String(Math.floor(item.timeTaken / 60)).padStart(2, '0') : null;
   const ss = item.timeTaken ? String(item.timeTaken % 60).padStart(2, '0') : null;
 
@@ -231,7 +259,7 @@ function HistoryCard({
         accessible={true}
         accessibilityRole="button"
         accessibilityLabel={`${item.skill} test, ${title}. Taken on ${date}. Score: ${
-          mode === 'mock' ? `Band ${band}` : item.isAdvanced ? `${item.rawScore ?? 0}` : `${item.rawScore ?? 0} out of 10`
+          mode === 'mock' ? `Band ${band.toFixed(1)}` : item.isAdvanced ? `${item.rawScore ?? 0}` : `${item.rawScore ?? 0} out of 10`
         }.`}
         accessibilityHint={item.isAdvanced ? "Double tap to view results." : "Double tap to view results, or double tap and hold to delete."}
       >
@@ -248,7 +276,19 @@ function HistoryCard({
               {deleting ? (
                 <ActivityIndicator size="small" color={COLORS.error} />
               ) : mode === 'mock' ? (
-                <ScoreBadge band={band} />
+                item.status === 'SUBMITTED' || item.status === 'GRADING' ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                    <Text style={{ fontSize: 10, color: COLORS.textMuted, fontFamily: FONTS.medium }}>Grading...</Text>
+                  </View>
+                ) : item.status === 'GRADING_FAILED' ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <Ionicons name="alert-circle-outline" size={14} color={COLORS.error} />
+                    <Text style={{ fontSize: 10, color: COLORS.error, fontFamily: FONTS.bold }}>Failed</Text>
+                  </View>
+                ) : (
+                  <ScoreBadge band={band} />
+                )
               ) : item.isAdvanced ? (
                 <ScoreBadge band={item.rawScore ?? 0} />
               ) : (

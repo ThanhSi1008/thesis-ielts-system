@@ -18,7 +18,7 @@ export class IeltsStatisticsService {
     const recentMocks = await this.prisma.ieltsIntensiveSession.findMany({
       where: {
         userId,
-        status: "COMPLETED",
+        status: { in: ["COMPLETED", "GRADED"] },
         ieltsIntensiveResult: { isNot: null },
       },
       include: { ieltsIntensiveResult: true },
