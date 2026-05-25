@@ -412,7 +412,7 @@ const ss = StyleSheet.create({
 // ─── Answer Preview per Part ──────────────────────────────────────────────────
 
 function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: string }) {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const [expanded, setExpanded] = useState(false);
   const isAudioUrl = Boolean(answer?.startsWith('http'));
   const label = PART_LABELS[partKey] ?? `Part ${partKey}`;
@@ -442,7 +442,15 @@ function PartAnswerPreview({ partKey, answer }: { partKey: string; answer?: stri
         </View>
         <View style={ap.headerRight}>
           <View
-            style={[ap.wordBadge, { backgroundColor: colors.surface }, isAudioUrl && ap.audioBadge]}
+            style={[
+              ap.wordBadge,
+              { backgroundColor: colors.surface },
+              isAudioUrl && {
+                backgroundColor: isDark ? 'rgba(99, 102, 241, 0.15)' : '#EEF2FF',
+                borderWidth: 1,
+                borderColor: isDark ? colors.border : '#C7D2FE',
+              },
+            ]}
           >
             <Text
               style={[ap.wordCount, { color: isAudioUrl ? colors.primary : colors.textSecondary }]}
@@ -489,7 +497,6 @@ const ap = StyleSheet.create({
     paddingVertical: 3,
   },
   wordCount: { fontSize: 11, fontWeight: '700' },
-  audioBadge: { backgroundColor: '#EEF2FF', borderWidth: 1, borderColor: '#C7D2FE' },
   audioLabel: {},
   body: { borderTopWidth: 1, padding: SPACING.md },
   answerText: { fontSize: FONT_SIZES.sm, lineHeight: 22 },

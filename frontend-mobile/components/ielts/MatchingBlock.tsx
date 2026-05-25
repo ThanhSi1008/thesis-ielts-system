@@ -94,6 +94,8 @@ const ob = StyleSheet.create({
   text: { flex: 1, fontSize: FONT_SIZES.sm, lineHeight: 20 },
 });
 
+import { isCorrect } from '@/utils/answerNormalization';
+
 // ─── Single matching row (question text + letter picker) ──────────────────────
 function MatchRow({
   qNum,
@@ -101,12 +103,16 @@ function MatchRow({
   options,
   value,
   onSelect,
+  mode = 'edit',
+  correctVal,
 }: {
   qNum: number;
   text: string;
   options: any[];
   value: string;
   onSelect: (letter: string) => void;
+  mode?: 'edit' | 'review';
+  correctVal?: string;
 }) {
   const [open, setOpen] = useState(false);
   const { colors, isDark } = useTheme();
@@ -115,9 +121,28 @@ function MatchRow({
     : (options as IdOption[]).map((o) => o.id);
 
   const selectedLabel = value ? `${value} · ${resolveOption(options, value)}` : 'Select answer…';
+  const isCorrectAns = mode === 'review' ? isCorrect(value, correctVal ?? '') : false;
+
+  let pickerStyle: any = null;
+  let rowStyle: any = null;
+
+  if (mode === 'review') {
+    if (value) {
+      if (isCorrectAns) {
+        rowStyle = { borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.03)' };
+        pickerStyle = { borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.08)' };
+      } else {
+        rowStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.03)' };
+        pickerStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)' };
+      }
+    } else {
+      rowStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.01)', borderStyle: 'dashed' };
+      pickerStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.04)', borderStyle: 'dashed' };
+    }
+  }
 
   return (
-    <View style={[mr.wrapper, { backgroundColor: colors.card, borderColor: colors.border }]}>
+    <View style={[mr.wrapper, { backgroundColor: colors.card, borderColor: colors.border }, rowStyle]}>
       {/* Question */}
       <View style={mr.questionRow}>
         <View
@@ -140,25 +165,38 @@ function MatchRow({
           mr.picker,
           { backgroundColor: colors.surface, borderColor: colors.border },
           value && { borderColor: colors.primary, backgroundColor: colors.primary + '0A' },
+          pickerStyle,
         ]}
-        onPress={() => setOpen((v) => !v)}
-        activeOpacity={0.8}
+        onPress={() => {
+          if (mode === 'review') return;
+          setOpen((v) => !v);
+        }}
+        activeOpacity={mode === 'review' ? 1 : 0.8}
       >
         <Text
           style={[
             mr.pickerText,
             { color: colors.primary },
             !value && { color: colors.textMuted, fontWeight: '400' },
+            mode === 'review' && (isCorrectAns ? { color: '#16a34a' } : { color: '#ef4444' }),
           ]}
           numberOfLines={1}
         >
           {selectedLabel}
         </Text>
-        <Ionicons
-          name={open ? 'chevron-up' : 'chevron-down'}
-          size={14}
-          color={value ? colors.primary : colors.textMuted}
-        />
+        {mode === 'review' ? (
+          <Ionicons
+            name={isCorrectAns ? 'checkmark-circle' : 'close-circle'}
+            size={16}
+            color={isCorrectAns ? '#22c55e' : '#ef4444'}
+          />
+        ) : (
+          <Ionicons
+            name={open ? 'chevron-up' : 'chevron-down'}
+            size={14}
+            color={value ? colors.primary : colors.textMuted}
+          />
+        )}
       </TouchableOpacity>
 
       {/* Dropdown options */}
@@ -212,6 +250,16 @@ function MatchRow({
               </TouchableOpacity>
             );
           })}
+        </View>
+      )}
+
+      {/* Correct answer explanation callout */}
+      {mode === 'review' && !isCorrectAns && (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8, paddingHorizontal: 6, paddingVertical: 4, borderRadius: 4, backgroundColor: '#22c55e10', borderWidth: 0.5, borderColor: '#22c55e30' }}>
+          <Ionicons name="bulb-outline" size={12} color="#16a34a" />
+          <Text style={{ fontSize: 12, fontWeight: '600', color: '#16a34a', flex: 1 }}>
+            Correct answer: <Text style={{ fontWeight: 'bold' }}>{correctVal ? `${correctVal} · ${resolveOption(options, correctVal)}` : 'N/A'}</Text>
+          </Text>
         </View>
       )}
     </View>
@@ -284,12 +332,15 @@ function ListeningMatchingVariant({
   group,
   answers,
   onAnswer,
+  mode = 'edit',
+  correctAnswers,
 }: {
   group: any;
   answers: Record<string, string>;
   onAnswer: (k: string, v: string) => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }) {
-  // items may use question_number (actual data) or id (legacy)
   const rawItems: any[] = group.items || [];
   const items = rawItems
     .map((item: any) => ({
@@ -298,9 +349,6 @@ function ListeningMatchingVariant({
     }))
     .filter((item) => item.id != null);
 
-  // options may be:
-  //   group.options_box.options  → object { A: "label", B: "label" }  ← actual data
-  //   group.options              → array [{ letter, text }]            ← legacy
   const rawOptions = group.options_box?.options ?? group.options_box ?? group.options;
   const options: LetterOption[] =
     rawOptions && !Array.isArray(rawOptions) && typeof rawOptions === 'object'
@@ -314,16 +362,22 @@ function ListeningMatchingVariant({
   return (
     <>
       <OptionBank options={options} title={bankTitle} />
-      {items.map((item) => (
-        <MatchRow
-          key={String(item.id)}
-          qNum={item.id}
-          text={item.text}
-          options={options}
-          value={answers[String(item.id)] || ''}
-          onSelect={(v) => onAnswer(String(item.id), v)}
-        />
-      ))}
+      {items.map((item) => {
+        const rawItem = rawItems.find((ri: any) => (ri.question_number ?? ri.id) === item.id);
+        const correctVal = correctAnswers?.[String(item.id)] ?? rawItem?.answer ?? '';
+        return (
+          <MatchRow
+            key={String(item.id)}
+            qNum={item.id}
+            text={item.text}
+            options={options}
+            value={answers[String(item.id)] || ''}
+            onSelect={(v) => onAnswer(String(item.id), v)}
+            mode={mode}
+            correctVal={correctVal}
+          />
+        );
+      })}
     </>
   );
 }
@@ -334,13 +388,16 @@ function StandardMatchingVariant({
   answers,
   onAnswer,
   bankTitle,
+  mode = 'edit',
+  correctAnswers,
 }: {
   group: any;
   answers: Record<string, string>;
   onAnswer: (k: string, v: string) => void;
   bankTitle: string;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }) {
-  // Normalise to a consistent shape: { question_number, text }
   const questions: { question_number: number; text: string }[] = (() => {
     if (Array.isArray(group.items)) {
       return group.items.map((item: any) => ({
@@ -357,7 +414,6 @@ function StandardMatchingVariant({
     return [];
   })();
 
-  // Resolve options — first try explicit, then auto-generate from instructions (mirrors web)
   const options: LetterOption[] = (() => {
     const raw = group.options_box?.options ?? group.options_box ?? group.options;
     if (raw && !Array.isArray(raw) && typeof raw === 'object') {
@@ -368,7 +424,6 @@ function StandardMatchingVariant({
   })();
 
   if (options.length === 0) {
-    // Auto-generate: scan instructions for a letter range like "A–G" or "A-F"
     const instr: string = group.instructions || group.instruction || '';
     const rangeMatch = instr.match(/([A-Z])\s*[–\-]\s*([A-Z])/i);
     if (rangeMatch) {
@@ -385,16 +440,26 @@ function StandardMatchingVariant({
   return (
     <>
       {options.length > 0 && <OptionBank options={options} title={bankTitle} />}
-      {questions.map((q) => (
-        <MatchRow
-          key={q.question_number}
-          qNum={q.question_number}
-          text={q.text}
-          options={options}
-          value={answers[String(q.question_number)] || ''}
-          onSelect={(v) => onAnswer(String(q.question_number), v)}
-        />
-      ))}
+      {questions.map((q) => {
+        const rawItem = Array.isArray(group.items)
+          ? group.items.find((ri: any) => ri.question_number === q.question_number)
+          : Array.isArray(group.questions)
+          ? group.questions.find((ri: any) => ri.question_number === q.question_number)
+          : null;
+        const correctVal = correctAnswers?.[String(q.question_number)] ?? rawItem?.answer ?? '';
+        return (
+          <MatchRow
+            key={q.question_number}
+            qNum={q.question_number}
+            text={q.text}
+            options={options}
+            value={answers[String(q.question_number)] || ''}
+            onSelect={(v) => onAnswer(String(q.question_number), v)}
+            mode={mode}
+            correctVal={correctVal}
+          />
+        );
+      })}
     </>
   );
 }
@@ -404,10 +469,14 @@ function SentenceEndingsVariant({
   group,
   answers,
   onAnswer,
+  mode = 'edit',
+  correctAnswers,
 }: {
   group: any;
   answers: Record<string, string>;
   onAnswer: (k: string, v: string) => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }) {
   const questions: { question_number: number; text: string; answer: string }[] =
     group.questions || [];
@@ -416,16 +485,21 @@ function SentenceEndingsVariant({
   return (
     <>
       <OptionBank options={options} title="Sentence Endings" />
-      {questions.map((q) => (
-        <MatchRow
-          key={q.question_number}
-          qNum={q.question_number}
-          text={q.text}
-          options={options}
-          value={answers[String(q.question_number)] || ''}
-          onSelect={(v) => onAnswer(String(q.question_number), v)}
-        />
-      ))}
+      {questions.map((q) => {
+        const correctVal = correctAnswers?.[String(q.question_number)] ?? q.answer ?? '';
+        return (
+          <MatchRow
+            key={q.question_number}
+            qNum={q.question_number}
+            text={q.text}
+            options={options}
+            value={answers[String(q.question_number)] || ''}
+            onSelect={(v) => onAnswer(String(q.question_number), v)}
+            mode={mode}
+            correctVal={correctVal}
+          />
+        );
+      })}
     </>
   );
 }
@@ -435,6 +509,8 @@ interface Props {
   group: any;
   answers: Record<string, string>;
   onAnswer: (k: string, v: string) => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }
 
 const BANK_TITLES: Record<string, string> = {
@@ -452,9 +528,14 @@ const TYPE_TAGS: Record<string, string> = {
   matching_sentence_endings: 'SENTENCE ENDINGS',
 };
 
-export default function MatchingBlock({ group, answers, onAnswer }: Props) {
+function MatchingBlockComponent({
+  group,
+  answers,
+  onAnswer,
+  mode = 'edit',
+  correctAnswers,
+}: Props) {
   const { colors, isDark } = useTheme();
-  // question_type is the actual field (e.g. "Matching"); type is legacy fallback
   const rawType: string = group.question_type || group.type || 'matching';
   const type = rawType.toLowerCase().replace(/\s+/g, '_');
   const instruction: string | undefined = group.instruction || group.description;
@@ -462,18 +543,35 @@ export default function MatchingBlock({ group, answers, onAnswer }: Props) {
 
   const renderVariant = () => {
     if (type === 'matching') {
-      return <ListeningMatchingVariant group={group} answers={answers} onAnswer={onAnswer} />;
+      return (
+        <ListeningMatchingVariant
+          group={group}
+          answers={answers}
+          onAnswer={onAnswer}
+          mode={mode}
+          correctAnswers={correctAnswers}
+        />
+      );
     }
     if (type === 'matching_sentence_endings') {
-      return <SentenceEndingsVariant group={group} answers={answers} onAnswer={onAnswer} />;
+      return (
+        <SentenceEndingsVariant
+          group={group}
+          answers={answers}
+          onAnswer={onAnswer}
+          mode={mode}
+          correctAnswers={correctAnswers}
+        />
+      );
     }
-    // matching_headings | matching_features | matching_information
     return (
       <StandardMatchingVariant
         group={group}
         answers={answers}
         onAnswer={onAnswer}
         bankTitle={BANK_TITLES[type] || 'Options'}
+        mode={mode}
+        correctAnswers={correctAnswers}
       />
     );
   };
@@ -520,6 +618,32 @@ export default function MatchingBlock({ group, answers, onAnswer }: Props) {
     </View>
   );
 }
+
+function getQuestionNumbers(group: any): number[] {
+  const rawItems: any[] = group.items || [];
+  const items = rawItems
+    .map((item: any) => item.question_number ?? item.id)
+    .filter((id) => id != null);
+  
+  if (items.length > 0) return items.map(Number);
+
+  const questions: any[] = group.questions || [];
+  return questions.map((q) => Number(q.question_number)).filter(Boolean);
+}
+
+export default React.memo(MatchingBlockComponent, (prev, next) => {
+  if (prev.mode !== next.mode) return false;
+  if (prev.group !== next.group) return false;
+
+  const prevQNums = getQuestionNumbers(prev.group);
+  for (const qNum of prevQNums) {
+    const key = String(qNum);
+    if (prev.answers[key] !== next.answers[key]) return false;
+    if (prev.correctAnswers?.[key] !== next.correctAnswers?.[key]) return false;
+  }
+
+  return true;
+});
 
 const s = StyleSheet.create({
   container: {

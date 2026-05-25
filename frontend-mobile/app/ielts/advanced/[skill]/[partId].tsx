@@ -321,14 +321,20 @@ export default function AdvancedPartScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: accentColor }]}>
-        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          hitSlop={8}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Go back to previous page"
+        >
           <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
         <View style={{ flex: 1, marginHorizontal: SPACING.md }}>
-          <Text style={styles.headerTitle} numberOfLines={1}>
+          <Text style={styles.headerTitle} numberOfLines={1} allowFontScaling={true}>
             {part?.title}
           </Text>
-          <Text style={styles.headerSub}>
+          <Text style={styles.headerSub} allowFontScaling={true}>
             Part {part?.partNumber} · {isListening ? 'Listening' : 'Reading'}
             {qNumbers.length > 0
               ? ` · Questions ${qNumbers[0]} - ${qNumbers[qNumbers.length - 1]}`
@@ -337,9 +343,13 @@ export default function AdvancedPartScreen() {
         </View>
         <View style={styles.headerActions}>
           {isTimed ? (
-            <View style={[styles.timerPill, timer.isWarning && { backgroundColor: '#F59E0B22', borderColor: '#F59E0B' }]}>
+            <View
+              style={[styles.timerPill, timer.isWarning && { backgroundColor: '#F59E0B22', borderColor: '#F59E0B' }]}
+              accessible={true}
+              accessibilityLabel={`Countdown timer remaining: ${timer.display}`}
+            >
               <Ionicons name="alarm-outline" size={14} color={timer.isWarning ? '#F59E0B' : '#fff'} />
-              <Text style={[styles.timerText, { color: timer.isWarning ? '#F59E0B' : '#fff' }]}>
+              <Text style={[styles.timerText, { color: timer.isWarning ? '#F59E0B' : '#fff' }]} allowFontScaling={true}>
                 {timer.display}
               </Text>
             </View>
@@ -351,13 +361,15 @@ export default function AdvancedPartScreen() {
               }}
               hitSlop={8}
               style={styles.historyBtn}
-              accessibilityLabel="Enable Timed Practice"
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Enable timed practice countdown timer"
             >
               <Ionicons name="alarm-outline" size={20} color="#fff" />
             </TouchableOpacity>
           )}
 
-          <Text style={styles.ansCount}>
+          <Text style={styles.ansCount} allowFontScaling={true}>
             {answeredSet.size}/{qNumbers.length} ans
           </Text>
           <TouchableOpacity
@@ -366,6 +378,9 @@ export default function AdvancedPartScreen() {
             }
             hitSlop={8}
             style={styles.historyBtn}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel="View practice history and past attempts"
           >
             <Ionicons name="time-outline" size={20} color="#fff" />
           </TouchableOpacity>

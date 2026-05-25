@@ -8,8 +8,10 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
+import { isCorrect } from '@/utils/answerNormalization';
 
 // ─── Types (mirrored from web) ────────────────────────────────────────────────
 interface OptionItem {
@@ -47,6 +49,8 @@ interface Props {
   group: Group;
   answers: Record<string, string>;
   onAnswer: (qNum: string, value: string) => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }
 
 // ─── Parse "{{5}} label text" → inline blank + surrounding text ──────────────
@@ -55,11 +59,15 @@ function LabelWithBlanks({
   qMap,
   answers,
   onAnswer,
+  mode = 'edit',
+  correctAnswers,
 }: {
   label: string;
   qMap: Record<number, FillQuestion>;
   answers: Record<string, string>;
   onAnswer: (qNum: string, v: string) => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }) {
   const { colors, isDark } = useTheme();
   const regex = /\{\{(\d+)\}\}/g;
@@ -80,10 +88,31 @@ function LabelWithBlanks({
     }
     const qNum = Number(match[1]);
     const val = answers[String(qNum)] || '';
+    const correctVal = correctAnswers?.[String(qNum)] ?? qMap[qNum]?.answer ?? (qMap[qNum]?.acceptable_answers && qMap[qNum]?.acceptable_answers[0]) ?? '';
+    const isCorrectAns = mode === 'review' ? isCorrect(val, correctVal) : false;
+
+    let containerStyle: any = null;
+    let textStyle: any = null;
+
+    if (mode === 'review') {
+      if (val) {
+        if (isCorrectAns) {
+          containerStyle = { borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.08)' };
+          textStyle = { color: '#16a34a' };
+        } else {
+          containerStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)' };
+          textStyle = { color: '#ef4444' };
+        }
+      } else {
+        containerStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.03)', borderStyle: 'dashed' };
+        textStyle = { color: '#ef4444' };
+      }
+    }
+
     segments.push(
       <View
         key={`b-${qNum}`}
-        style={{
+        style={[{
           flexDirection: 'row',
           alignItems: 'center',
           borderWidth: 1,
@@ -93,20 +122,51 @@ function LabelWithBlanks({
           marginHorizontal: 2,
           minWidth: 80,
           backgroundColor: isDark ? colors.surface : '#F0F7FF',
-        }}
+        }, containerStyle]}
       >
-        <Text style={{ fontSize: 10, fontWeight: '700', color: colors.primary, marginRight: 4 }}>
+        <Text style={[{ fontSize: 10, fontWeight: '700', color: colors.primary, marginRight: 4 }, textStyle]}>
           {qNum}
         </Text>
         <TextInput
-          style={{ fontSize: FONT_SIZES.sm, color: colors.text, minWidth: 60, paddingVertical: 2 }}
+          style={[{ fontSize: FONT_SIZES.sm, color: colors.text, minWidth: 60, paddingVertical: 2 }, textStyle]}
           value={val}
           onChangeText={(v) => onAnswer(String(qNum), v)}
           placeholder="…"
           placeholderTextColor={colors.textMuted}
+          editable={mode !== 'review'}
         />
+        {mode === 'review' && (
+          <Ionicons
+            name={isCorrectAns ? 'checkmark' : 'close'}
+            size={12}
+            color={isCorrectAns ? '#22c55e' : '#ef4444'}
+            style={{ marginLeft: 2 }}
+          />
+        )}
       </View>,
     );
+
+    if (mode === 'review' && !isCorrectAns) {
+      segments.push(
+        <View
+          key={`correct-${qNum}`}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            borderWidth: 1,
+            borderColor: '#22c55e',
+            borderRadius: RADIUS.sm,
+            paddingHorizontal: SPACING.xs,
+            marginHorizontal: 2,
+            backgroundColor: 'rgba(34, 197, 94, 0.08)',
+          }}
+        >
+          <Ionicons name="bulb-outline" size={10} color="#16a34a" style={{ marginRight: 2 }} />
+          <Text style={{ fontSize: 11, fontWeight: '800', color: '#16a34a' }}>{correctVal}</Text>
+        </View>
+      );
+    }
+
     lastIndex = match.index + match[0].length;
   }
 
@@ -138,11 +198,15 @@ function RadioGrid({
   items,
   answers,
   onAnswer,
+  mode = 'edit',
+  correctAnswers,
 }: {
   labels: string[];
   items: LabelItem[];
   answers: Record<string, string>;
   onAnswer: (qNum: string, value: string) => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }) {
   const { colors, isDark } = useTheme();
   return (
@@ -195,14 +259,26 @@ function RadioGrid({
       {items.map((item) => {
         const num = String(item.question_number);
         const selected = answers[num] || '';
+        const correctVal = correctAnswers?.[num] ?? item.answer ?? '';
+        const isCorrectAns = mode === 'review' ? isCorrect(selected, correctVal) : false;
+
+        let rowStyle: any = null;
+        if (mode === 'review') {
+          if (isCorrectAns) {
+            rowStyle = { backgroundColor: 'rgba(34, 197, 94, 0.02)' };
+          } else {
+            rowStyle = { backgroundColor: 'rgba(239, 68, 68, 0.02)' };
+          }
+        }
+
         return (
           <View
             key={num}
-            style={{
+            style={[{
               flexDirection: 'row',
               borderBottomWidth: 1,
               borderColor: colors.border + '80',
-            }}
+            }, rowStyle]}
           >
             {/* Question number (+ optional text) */}
             <View
@@ -220,13 +296,13 @@ function RadioGrid({
                   height: 24,
                   borderRadius: 4,
                   borderWidth: 1,
-                  borderColor: colors.primary + '40',
-                  backgroundColor: isDark ? colors.surface : '#EFF6FF',
+                  borderColor: isCorrectAns && mode === 'review' ? '#22c55e40' : (mode === 'review' ? '#ef444440' : colors.primary + '40'),
+                  backgroundColor: isCorrectAns && mode === 'review' ? 'rgba(34, 197, 94, 0.08)' : (mode === 'review' ? 'rgba(239, 68, 68, 0.08)' : (isDark ? colors.surface : '#EFF6FF')),
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <Text style={{ fontSize: 11, fontWeight: '700', color: colors.primary }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: isCorrectAns && mode === 'review' ? '#16a34a' : (mode === 'review' ? '#ef4444' : colors.primary) }}>
                   {item.question_number}
                 </Text>
               </View>
@@ -243,6 +319,32 @@ function RadioGrid({
             {/* Radio options */}
             {labels.map((l) => {
               const isSelected = selected.toUpperCase() === l.toUpperCase();
+              const isActualCorrect = correctVal.toUpperCase() === l.toUpperCase();
+
+              let radioCircleStyle: any = null;
+              let radioInnerStyle: any = null;
+
+              if (mode === 'review') {
+                if (isSelected) {
+                  if (isActualCorrect) {
+                    radioCircleStyle = { borderColor: '#22c55e' };
+                    radioInnerStyle = { backgroundColor: '#22c55e' };
+                  } else {
+                    radioCircleStyle = { borderColor: '#ef4444' };
+                    radioInnerStyle = { backgroundColor: '#ef4444' };
+                  }
+                } else if (isActualCorrect) {
+                  radioCircleStyle = { borderColor: '#22c55e', borderStyle: 'dashed' };
+                }
+              } else {
+                if (isSelected) {
+                  radioCircleStyle = { borderColor: colors.primary };
+                  radioInnerStyle = { backgroundColor: colors.primary };
+                } else {
+                  radioCircleStyle = { borderColor: colors.border };
+                }
+              }
+
               return (
                 <TouchableOpacity
                   key={l}
@@ -254,30 +356,34 @@ function RadioGrid({
                     borderLeftWidth: 1,
                     borderColor: colors.border + '60',
                   }}
-                  onPress={() => onAnswer(num, l)}
-                  activeOpacity={0.7}
+                  onPress={() => {
+                    if (mode === 'review') return;
+                    onAnswer(num, l);
+                  }}
+                  activeOpacity={mode === 'review' ? 1 : 0.7}
                 >
                   <View
-                    style={{
+                    style={[{
                       width: 20,
                       height: 20,
                       borderRadius: 10,
                       borderWidth: 2,
-                      borderColor: isSelected ? colors.primary : colors.border,
                       alignItems: 'center',
                       justifyContent: 'center',
                       backgroundColor: colors.card,
-                    }}
+                    }, radioCircleStyle]}
                   >
                     {isSelected && (
                       <View
-                        style={{
+                        style={[{
                           width: 10,
                           height: 10,
                           borderRadius: 5,
-                          backgroundColor: colors.primary,
-                        }}
+                        }, radioInnerStyle]}
                       />
+                    )}
+                    {mode === 'review' && isActualCorrect && !isSelected && (
+                      <Ionicons name="checkmark" size={10} color="#22c55e" />
                     )}
                   </View>
                 </TouchableOpacity>
@@ -295,10 +401,14 @@ function FillList({
   questions,
   answers,
   onAnswer,
+  mode = 'edit',
+  correctAnswers,
 }: {
   questions: { question_number: number; label_context?: string; answer?: string }[];
   answers: Record<string, string>;
   onAnswer: (qNum: string, v: string) => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }) {
   const { colors, isDark } = useTheme();
   return (
@@ -314,54 +424,95 @@ function FillList({
     >
       {questions.map((q) => {
         const num = String(q.question_number);
+        const val = answers[num] || '';
+        const correctVal = correctAnswers?.[num] ?? q.answer ?? '';
+        const isCorrectAns = mode === 'review' ? isCorrect(val, correctVal) : false;
+
+        let rowStyle: any = null;
+        let inputStyle: any = null;
+
+        if (mode === 'review') {
+          if (val) {
+            if (isCorrectAns) {
+              rowStyle = { borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.08)' };
+              inputStyle = { color: '#16a34a', borderBottomColor: '#22c55e' };
+            } else {
+              rowStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)' };
+              inputStyle = { color: '#ef4444', borderBottomColor: '#ef4444' };
+            }
+          } else {
+            rowStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.03)', borderStyle: 'dashed' };
+            inputStyle = { color: '#ef4444', borderBottomColor: '#ef4444' };
+          }
+        }
+
         return (
-          <View key={num} style={{ flexDirection: 'row', alignItems: 'center', gap: SPACING.sm }}>
-            <View
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: 6,
-                borderWidth: 1,
-                borderColor: isDark ? colors.border : '#93C5FD',
-                backgroundColor: colors.card,
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <Text style={{ fontSize: 11, fontWeight: '700', color: colors.primary }}>
-                {q.question_number}
-              </Text>
-            </View>
-            {q.label_context ? (
-              <Text
+          <View key={num} style={{ gap: 4 }}>
+            <View style={[{ flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, padding: SPACING.sm, borderRadius: RADIUS.md }, rowStyle]}>
+              <View
                 style={{
-                  fontSize: FONT_SIZES.sm,
-                  color: colors.text,
-                  fontWeight: '500',
-                  flexShrink: 1,
+                  width: 28,
+                  height: 28,
+                  borderRadius: 6,
+                  borderWidth: 1,
+                  borderColor: isDark ? colors.border : '#93C5FD',
+                  backgroundColor: colors.card,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
                 }}
               >
-                {q.label_context}
-              </Text>
-            ) : null}
-            <TextInput
-              style={{
-                flex: 1,
-                borderBottomWidth: 2,
-                borderColor: colors.primary,
-                fontSize: FONT_SIZES.sm,
-                color: colors.text,
-                paddingVertical: 4,
-                paddingHorizontal: SPACING.sm,
-                backgroundColor: colors.card,
-                minWidth: 80,
-              }}
-              value={answers[num] || ''}
-              onChangeText={(v) => onAnswer(num, v)}
-              placeholder="Answer…"
-              placeholderTextColor={colors.textMuted}
-            />
+                <Text style={{ fontSize: 11, fontWeight: '700', color: colors.primary }}>
+                  {q.question_number}
+                </Text>
+              </View>
+              {q.label_context ? (
+                <Text
+                  style={{
+                    fontSize: FONT_SIZES.sm,
+                    color: colors.text,
+                    fontWeight: '500',
+                    flexShrink: 1,
+                  }}
+                >
+                  {q.label_context}
+                </Text>
+              ) : null}
+              <TextInput
+                style={[{
+                  flex: 1,
+                  borderBottomWidth: 2,
+                  borderColor: colors.primary,
+                  fontSize: FONT_SIZES.sm,
+                  color: colors.text,
+                  paddingVertical: 4,
+                  paddingHorizontal: SPACING.sm,
+                  backgroundColor: colors.card,
+                  minWidth: 80,
+                }, inputStyle]}
+                value={val}
+                onChangeText={(v) => onAnswer(num, v)}
+                placeholder="Answer…"
+                placeholderTextColor={colors.textMuted}
+                editable={mode !== 'review'}
+              />
+              {mode === 'review' && (
+                <Ionicons
+                  name={isCorrectAns ? 'checkmark-circle' : 'close-circle'}
+                  size={18}
+                  color={isCorrectAns ? '#22c55e' : '#ef4444'}
+                />
+              )}
+            </View>
+
+            {mode === 'review' && !isCorrectAns && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginLeft: 36, marginBottom: 4 }}>
+                <Ionicons name="bulb-outline" size={12} color="#16a34a" />
+                <Text style={{ fontSize: 12, fontWeight: '600', color: '#16a34a' }}>
+                  Correct answer: <Text style={{ fontWeight: 'bold' }}>{correctVal}</Text>
+                </Text>
+              </View>
+            )}
           </View>
         );
       })}
@@ -420,7 +571,13 @@ function OptionsBank({ options }: { options: OptionItem[] }) {
 }
 
 // ─── Main exported component ──────────────────────────────────────────────────
-export default function DiagramMapBlock({ group, answers, onAnswer }: Props) {
+function DiagramMapBlockComponent({
+  group,
+  answers,
+  onAnswer,
+  mode = 'edit',
+  correctAnswers,
+}: Props) {
   const { colors, isDark } = useTheme();
   const isDiagramLabelling = group.type === 'diagram_labelling';
   const isMapLabelling = group.type === 'map_labelling' || group.type === 'plan_labelling';
@@ -534,6 +691,8 @@ export default function DiagramMapBlock({ group, answers, onAnswer }: Props) {
             items={group.items}
             answers={answers}
             onAnswer={onAnswer}
+            mode={mode}
+            correctAnswers={correctAnswers}
           />
         </View>
       )}
@@ -587,7 +746,14 @@ export default function DiagramMapBlock({ group, answers, onAnswer }: Props) {
                     flexShrink: 0,
                   }}
                 />
-                <LabelWithBlanks label={label} qMap={qMap} answers={answers} onAnswer={onAnswer} />
+                <LabelWithBlanks
+                  label={label}
+                  qMap={qMap}
+                  answers={answers}
+                  onAnswer={onAnswer}
+                  mode={mode}
+                  correctAnswers={correctAnswers}
+                />
               </View>
             );
           })}
@@ -602,6 +768,8 @@ export default function DiagramMapBlock({ group, answers, onAnswer }: Props) {
             items={group.items}
             answers={answers}
             onAnswer={onAnswer}
+            mode={mode}
+            correctAnswers={correctAnswers}
           />
         </View>
       )}
@@ -609,9 +777,44 @@ export default function DiagramMapBlock({ group, answers, onAnswer }: Props) {
       {/* ── map_labelling: fill-text variant ── */}
       {hasFillList && !hasRadioGrid && group.questions && (
         <View style={{ padding: SPACING.md }}>
-          <FillList questions={group.questions as any} answers={answers} onAnswer={onAnswer} />
+          <FillList
+            questions={group.questions as any}
+            answers={answers}
+            onAnswer={onAnswer}
+            mode={mode}
+            correctAnswers={correctAnswers}
+          />
         </View>
       )}
     </View>
   );
 }
+
+function getDiagramQuestionNumbers(group: Group): number[] {
+  const nums: number[] = [];
+  if (Array.isArray(group.items)) {
+    group.items.forEach((item) => {
+      if (item.question_number) nums.push(item.question_number);
+    });
+  }
+  if (Array.isArray(group.questions)) {
+    group.questions.forEach((q) => {
+      if (q.question_number) nums.push(q.question_number);
+    });
+  }
+  return nums;
+}
+
+export default React.memo(DiagramMapBlockComponent, (prev, next) => {
+  if (prev.mode !== next.mode) return false;
+  if (prev.group !== next.group) return false;
+
+  const prevQNums = getDiagramQuestionNumbers(prev.group);
+  for (const qNum of prevQNums) {
+    const key = String(qNum);
+    if (prev.answers[key] !== next.answers[key]) return false;
+    if (prev.correctAnswers?.[key] !== next.correctAnswers?.[key]) return false;
+  }
+
+  return true;
+});

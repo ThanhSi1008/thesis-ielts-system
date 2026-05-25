@@ -23,6 +23,7 @@ import WritingRubricView from '@/components/ielts/WritingRubricView';
 import SpeakingRubricView from '@/components/ielts/SpeakingRubricView';
 import QuestionNoteEditor from '@/components/ielts/QuestionNoteEditor';
 import { notesApi, type QuestionNote } from '@/services/notes.api';
+import { renderGroup } from '@/components/intensive/QuestionGroupRenderer';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -510,6 +511,7 @@ const createQrStyles = (colors: any, isDark: boolean) =>
 
 // ─── Question Review Section (collapsible) ────────────────────────────────────
 function QuestionReviewSection({
+  questionsData,
   userAnswers,
   correctMap,
   timestampMap,
@@ -519,6 +521,7 @@ function QuestionReviewSection({
   userId,
   onSeek,
 }: {
+  questionsData: any;
   userAnswers: Record<string, any>;
   correctMap: Map<string, any>;
   timestampMap: Map<string, number>;
@@ -528,14 +531,75 @@ function QuestionReviewSection({
   userId: string;
   onSeek?: (ts: number) => void;
 }) {
-  const { colors } = useTheme();
+  const { colors, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const rev = createRevStyles(colors);
   const [open, setOpen] = useState(false);
+  const [subMode, setSubMode] = useState<'detail' | 'list'>('detail');
   const numbers = Array.from({ length: totalQuestions }, (_, i) => i + 1);
 
   const toggle = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setOpen((v) => !v);
+  };
+
+  const correctAnswersRecord: Record<string, string> = {};
+  correctMap.forEach((v, k) => {
+    correctAnswersRecord[k] = normalizeAns(v);
+  });
+
+  const renderDetailGroups = () => {
+    const parts = questionsData?.parts || questionsData?.passages || questionsData?.tasks || [];
+    
+    if (parts.length > 0) {
+      return parts.map((part: any, pi: number) => {
+        const groups = part.question_groups || part.groups || part.content || [];
+        return (
+          <View key={`part-${pi}`} style={{ marginBottom: SPACING.lg }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: SPACING.md, paddingBottom: 6, borderBottomWidth: 1.5, borderBottomColor: colors.primary + '30' }}>
+              <Ionicons name="bookmark-outline" size={14} color={colors.primary} />
+              <Text style={{ fontSize: 12, fontWeight: '800', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1 }}>
+                Part {part.part_number || pi + 1} {part.title ? `· ${part.title}` : ''}
+              </Text>
+            </View>
+            {groups.map((g: any, gi: number) =>
+              renderGroup(
+                g,
+                userAnswers,
+                () => {},
+                gi,
+                pi,
+                colors,
+                isDark,
+                undefined,
+                'review',
+                correctAnswersRecord
+              )
+            )}
+          </View>
+        );
+      });
+    }
+
+    const groups = questionsData?.question_groups || questionsData?.groups || questionsData?.content || [];
+    return (
+      <View>
+        {groups.map((g: any, gi: number) =>
+          renderGroup(
+            g,
+            userAnswers,
+            () => {},
+            gi,
+            0,
+            colors,
+            isDark,
+            undefined,
+            'review',
+            correctAnswersRecord
+          )
+        )}
+      </View>
+    );
   };
 
   return (
@@ -550,19 +614,45 @@ function QuestionReviewSection({
       </TouchableOpacity>
       {open && (
         <View style={rev.body}>
-          {numbers.map((n) => (
-            <QuestionReviewRow
-              key={n}
-              questionNumber={n}
-              userAns={userAnswers[String(n)]}
-              correctAns={correctMap.get(String(n))}
-              note={noteMap.get(n)}
-              examId={examId}
-              userId={userId}
-              timestamp={timestampMap.get(String(n))}
-              onSeek={onSeek}
-            />
-          ))}
+          {/* Sub-tab Toggle inside collapsible body */}
+          <View style={{ flexDirection: 'row', backgroundColor: colors.surface, borderRadius: RADIUS.md, padding: 2, borderWidth: 1, borderColor: colors.border, marginBottom: SPACING.md }}>
+            <TouchableOpacity
+              style={{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: RADIUS.md - 2, backgroundColor: subMode === 'detail' ? colors.card : 'transparent' }}
+              onPress={() => setSubMode('detail')}
+            >
+              <Text style={{ fontSize: 12, fontWeight: '700', color: subMode === 'detail' ? colors.primary : colors.textSecondary }}>
+                Detail Review
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: RADIUS.md - 2, backgroundColor: subMode === 'list' ? colors.card : 'transparent' }}
+              onPress={() => setSubMode('list')}
+            >
+              <Text style={{ fontSize: 12, fontWeight: '700', color: subMode === 'list' ? colors.primary : colors.textSecondary }}>
+                Classic List
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {subMode === 'list' ? (
+            numbers.map((n) => (
+              <QuestionReviewRow
+                key={n}
+                questionNumber={n}
+                userAns={userAnswers[String(n)]}
+                correctAns={correctMap.get(String(n))}
+                note={noteMap.get(n)}
+                examId={examId}
+                userId={userId}
+                timestamp={timestampMap.get(String(n))}
+                onSeek={onSeek}
+              />
+            ))
+          ) : (
+            <View style={{ marginTop: SPACING.xs }}>
+              {renderDetailGroups()}
+            </View>
+          )}
         </View>
       )}
     </View>
@@ -932,6 +1022,7 @@ export default function ResultScreen() {
 
         {!isPending && !isWritingOrSpeaking && correctMap.size > 0 && (
           <QuestionReviewSection
+            questionsData={session.exam?.questions}
             userAnswers={userAnswers}
             correctMap={correctMap}
             timestampMap={timestampMap}
