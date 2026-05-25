@@ -20,4 +20,8 @@ export { default as TranscriptReview } from './TranscriptReview';
 export { default as WritingExamBlock } from './WritingExamBlock';
 export { default as WritingRubricView } from './WritingRubricView';
 export { SpeakingPartCard } from './SpeakingPartCard';
+export { TestHistoryContent } from './TestHistoryContent';
+export { AdvancedWritingCatalog } from './AdvancedWritingCatalog';
+export { AdvancedSpeakingCatalog } from './AdvancedSpeakingCatalog';
 export * from './community';
+
