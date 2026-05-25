@@ -273,6 +273,7 @@ export function CustomTabBar({ state, descriptors, navigation }: { state?: any; 
   ];
 
   const profileMenuOptions: QuickMenuOption[] = [
+    { label: 'Notifications', icon: 'notifications', route: ROUTES.notification, color: '#FFC600' },
     { label: 'Subscription', icon: 'diamond', route: ROUTES.pricing, color: '#F59E0B' },
     {
       label: 'Edit Profile',

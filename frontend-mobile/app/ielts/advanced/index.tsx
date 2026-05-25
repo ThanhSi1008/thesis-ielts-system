@@ -9,7 +9,7 @@ import {
   RefreshControl,
   Animated,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES, navigation } from '@/constants';
@@ -19,6 +19,7 @@ import { ieltsAdvancedApi } from '@/services/ielts.api';
 import { EmptyState } from '@/components/ui/index';
 import { getQuestionTypeLabel } from '@/constants/ieltsQuestionTypes';
 import { useTheme } from '@/contexts/ThemeContext';
+import { AdvancedWritingCatalog, AdvancedSpeakingCatalog } from '@/components/ielts';
 
 const TABS = [
   { key: 'listening', label: '🎧 Listening', color: COLORS.skill.listening },
@@ -61,8 +62,11 @@ export default function AdvancedScreen() {
     }
   };
 
+  const params = useLocalSearchParams<{ tab?: string }>();
   const [activeTab, setActiveTab] = useState<'listening' | 'reading' | 'writing' | 'speaking'>(
-    'listening',
+    (params.tab === 'listening' || params.tab === 'reading' || params.tab === 'writing' || params.tab === 'speaking')
+      ? params.tab
+      : 'listening',
   );
   const [listeningParts, setListeningParts] = useState<any[]>([]);
   const [readingParts, setReadingParts] = useState<any[]>([]);
@@ -88,22 +92,23 @@ export default function AdvancedScreen() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (params.tab === 'listening' || params.tab === 'reading' || params.tab === 'writing' || params.tab === 'speaking') {
+      setActiveTab(params.tab);
+    }
+  }, [params.tab]);
+
   // Reset filter when switching tabs
   const handleTabChange = (tab: 'listening' | 'reading' | 'writing' | 'speaking') => {
-    if (tab === 'writing') {
-      router.push('/ielts/advanced/writing');
-      return;
-    }
-    if (tab === 'speaking') {
-      router.push('/ielts/advanced/speaking');
-      return;
-    }
     setActiveTab(tab);
     setSelectedType(null);
   };
 
-  const allParts = activeTab === 'listening' ? listeningParts : readingParts;
+  const allParts = activeTab === 'listening' ? listeningParts
+    : activeTab === 'reading' ? readingParts
+    : [];
   const color = TABS.find((t) => t.key === activeTab)?.color || colors.primary;
+  const isLR = activeTab === 'listening' || activeTab === 'reading';
 
   // Collect unique question types across all parts for this tab
   const availableTypes = useMemo(() => {
@@ -308,7 +313,7 @@ export default function AdvancedScreen() {
         </View>
 
         {/* Question type filter chips */}
-        {!loading && availableTypes.length > 0 && (
+        {isLR && !loading && availableTypes.length > 0 && (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -346,10 +351,14 @@ export default function AdvancedScreen() {
           </ScrollView>
         )}
 
-        {loading ? (
+        {isLR && loading ? (
           <View style={styles.center}>
             <ActivityIndicator size="large" color={colors.primary} />
           </View>
+        ) : activeTab === 'writing' ? (
+          <AdvancedWritingCatalog embedded />
+        ) : activeTab === 'speaking' ? (
+          <AdvancedSpeakingCatalog embedded />
         ) : (
           <ScrollView
             showsVerticalScrollIndicator={false}

@@ -45,6 +45,7 @@ export function ProfileSettingsTab() {
   const [saving, setSaving] = useState(false);
   const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
   const [showNotifDeniedConfirm, setShowNotifDeniedConfirm] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // Sync notificationsEnabled with actual permissions and user settings
   useEffect(() => {
@@ -328,6 +329,22 @@ export function ProfileSettingsTab() {
         />
       </Card>
 
+      <View style={styles.logoutWrapper}>
+        <TouchableOpacity
+          style={styles.fullLogoutBtn}
+          onPress={() => setShowLogoutConfirm(true)}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Log Out button"
+          accessibilityHint="Double tap to open log out confirmation dialog"
+        >
+          <Ionicons name="log-out-outline" size={22} color="#EF4444" />
+          <Text variant="body" weight="bold" style={styles.fullLogoutBtnText}>
+            Log Out
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <Text variant="caption" color="textMuted" style={styles.versionText}>
         Version 1.0.0
       </Text>
@@ -368,6 +385,36 @@ export function ProfileSettingsTab() {
         secondaryAction={{
           title: 'Cancel',
           onPress: () => setShowNotifDeniedConfirm(false),
+        }}
+      />
+
+      <ConfirmDialog
+        visible={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        variant="destructive"
+        title="Log Out"
+        message="Are you sure you want to log out?"
+        primaryAction={{
+          title: 'Log Out',
+          onPress: async () => {
+            setShowLogoutConfirm(false);
+            try {
+              if (pushToken) {
+                try {
+                  await notificationsApi.removePushToken(pushToken);
+                } catch (e) {
+                  if (__DEV__) console.warn('Push token removal failed silently on logout:', e);
+                }
+              }
+              await logout();
+            } catch (error) {
+              if (__DEV__) console.error('Logout failed:', error);
+            }
+          },
+        }}
+        secondaryAction={{
+          title: 'Cancel',
+          onPress: () => setShowLogoutConfirm(false),
         }}
       />
     </View>
@@ -484,6 +531,31 @@ const createStyles = (colors: any) => {
       textAlign: 'center',
       marginTop: 8,
       marginBottom: 16,
+    },
+    logoutWrapper: {
+      marginTop: 8,
+      marginBottom: 24,
+    },
+    fullLogoutBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.card,
+      paddingVertical: 16,
+      borderRadius: 16,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      shadowColor: '#EF4444',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 12,
+      elevation: 2,
+      gap: 8,
+    },
+    fullLogoutBtnText: {
+      fontSize: 16,
+      color: '#EF4444',
+      fontFamily: FONTS.bold,
     },
   });
 };

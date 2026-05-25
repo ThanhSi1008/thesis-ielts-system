@@ -1,8 +1,10 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SpeakingDeviceTest } from '@/components';
 
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -19,6 +21,25 @@ export function PreparationScreen({ exam, onStartExam, onBack }: PreparationScre
 
   const prepType: string = exam.type || 'LISTENING';
   const isSpeaking = prepType === 'SPEAKING';
+
+  const [showMicTest, setShowMicTest] = React.useState(false);
+
+  const handleStartBtnPress = async () => {
+    if (prepType === 'SPEAKING') {
+      try {
+        const tested = await AsyncStorage.getItem('speaking-device-tested-v1');
+        if (tested === 'true') {
+          onStartExam();
+        } else {
+          setShowMicTest(true);
+        }
+      } catch {
+        setShowMicTest(true);
+      }
+    } else {
+      onStartExam();
+    }
+  };
 
   const videoId =
     prepType === 'READING'
@@ -252,7 +273,7 @@ export function PreparationScreen({ exam, onStartExam, onBack }: PreparationScre
             { backgroundColor: colors.card, borderTopColor: colors.border },
           ]}
         >
-          <TouchableOpacity style={styles.prepStartBtn} onPress={onStartExam} activeOpacity={0.85}>
+          <TouchableOpacity style={styles.prepStartBtn} onPress={handleStartBtnPress} activeOpacity={0.85}>
             <Text style={[styles.prepStartBtnText, { color: '#fff' }]}>Start Test</Text>
             <View style={[styles.prepStartBtnIcon, { backgroundColor: '#fff' }]}>
               <Ionicons name="arrow-forward" size={16} color={colors.primary} />
@@ -260,6 +281,25 @@ export function PreparationScreen({ exam, onStartExam, onBack }: PreparationScre
           </TouchableOpacity>
         </View>
       </View>
+
+      {showMicTest && (
+        <Modal
+          visible={showMicTest}
+          animationType="slide"
+          onRequestClose={() => setShowMicTest(false)}
+        >
+          <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+            <SpeakingDeviceTest
+              onComplete={async () => {
+                setShowMicTest(false);
+                await AsyncStorage.setItem('speaking-device-tested-v1', 'true');
+                onStartExam();
+              }}
+              onExit={() => setShowMicTest(false)}
+            />
+          </SafeAreaView>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }

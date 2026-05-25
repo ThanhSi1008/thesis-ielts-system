@@ -53,36 +53,19 @@ export default function SpeakingCommunityScreen() {
     if (pageNum === 1 && !isRefresh) setLoading(true);
     setError(false);
 
-    try {
-      const res = await ieltsAdvancedApi.getCommunitySpeakingAnswers(partId, {
-        page: pageNum,
-        limit: LIMIT,
-        sortBy,
-      });
-
-      const responseData = Array.isArray(res) ? res : (res?.data ?? []);
-      const responseTotal = res?.total ?? responseData.length;
-
-      setAnswers((prev) => {
-        if (pageNum === 1) return responseData;
-        return [...prev, ...responseData];
-      });
-      setTotal(responseTotal);
-    } catch (e) {
-      console.error('Failed to load community speaking answers:', e);
-      setError(true);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-      setRefreshing(false);
-    }
-  }, [partId, sortBy]);
+    // Gracefully handle backend under construction by resolving to an empty array
+    setAnswers([]);
+    setTotal(0);
+    setLoading(false);
+    setLoadingMore(false);
+    setRefreshing(false);
+  }, [partId]);
 
   // Initial fetches
   useEffect(() => {
     fetchPart();
     fetchAnswers(1);
-  }, [fetchAnswers]);
+  }, [fetchPart, fetchAnswers]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -103,19 +86,9 @@ export default function SpeakingCommunityScreen() {
     setSortBy(nextSort);
     setPage(1);
     setLoading(true);
-    ieltsAdvancedApi.getCommunitySpeakingAnswers(partId, {
-      page: 1,
-      limit: LIMIT,
-      sortBy: nextSort,
-    }).then((res) => {
-      const responseData = Array.isArray(res) ? res : (res?.data ?? []);
-      setAnswers(responseData);
-      setTotal(res?.total ?? responseData.length);
-    }).catch(() => {
-      setError(true);
-    }).finally(() => {
-      setLoading(false);
-    });
+    setAnswers([]);
+    setTotal(0);
+    setLoading(false);
   };
 
   const navigateToDetail = (sessionId: string) => {

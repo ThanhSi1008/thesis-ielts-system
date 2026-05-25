@@ -81,6 +81,8 @@ export function useExamSession({
     [session, exam],
   );
 
+  const isResume = !!(session?.answers && Object.keys(session.answers).length > 0) || (session?.timeTaken > 0);
+
   return {
     exam,
     session,
@@ -90,5 +92,9 @@ export function useExamSession({
     setIsAiGrading,
     submitSession,
     refetch: loadExam,
+    isResume,
+    resumedAnswers: session?.answers ?? null,
+    resumedElapsed: session?.timeTaken ?? 0,
+    sessionStatus: session?.status ?? null,
   };
 }

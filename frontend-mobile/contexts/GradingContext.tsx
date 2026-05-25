@@ -120,9 +120,15 @@ export function GradingProvider({ children }: { children: ReactNode }) {
             patchJob(sessionId, { status: 'DONE' });
 
             if (sessionId !== silencedSessionId) {
+              const isSpeaking =
+                examType === 'SPEAKING' ||
+                session?.exam?.type === 'SPEAKING' ||
+                session?.ieltsIntensiveResult?.speakingScore != null;
+              const skillLabel = isSpeaking ? 'Speaking' : 'Writing';
+
               toast.success(
                 'AI Score is Ready! 🎉',
-                `Your ${examType === 'SPEAKING' ? 'Speaking' : 'Writing'} test has been successfully graded. Tap to view.`,
+                `Your ${skillLabel} test has been successfully graded. Tap to view.`,
                 () => {
                   router.push(resultUrl as any);
                 },
@@ -160,8 +166,9 @@ export function GradingProvider({ children }: { children: ReactNode }) {
 
       // Show initial submitting toast
       if (sessionId !== silencedSessionId) {
+        const testName = examType === 'SPEAKING' ? 'Speaking' : examType === 'WRITING' ? 'Writing' : 'Intensive';
         toast.loading(
-          `Submitting your ${examType === 'SPEAKING' ? 'Speaking' : 'Writing'} test...`,
+          `Submitting your ${testName} test...`,
           'Sending your answers to the evaluation engine...',
         );
       }
@@ -188,8 +195,9 @@ export function GradingProvider({ children }: { children: ReactNode }) {
           patchJob(sessionId, { status: 'GRADING' });
 
           if (sessionId !== silencedSessionId) {
+            const testName = examType === 'SPEAKING' ? 'Speaking' : examType === 'WRITING' ? 'Writing' : 'Intensive';
             toast.loading(
-              `Grading your ${examType === 'SPEAKING' ? 'Speaking' : 'Writing'} test...`,
+              `Grading your ${testName} test...`,
               "AI scoring in progress. We'll notify you when it's done.",
             );
           }

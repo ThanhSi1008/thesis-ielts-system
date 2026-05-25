@@ -4,19 +4,37 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { useTheme } from '@/contexts/ThemeContext';
+import { isCorrect } from '@/utils/answerNormalization';
 
 import DiagramMapBlock from '@/components/ielts/DiagramMapBlock';
 import MatchingBlock from '@/components/ielts/MatchingBlock';
+import MCMultipleBlock from '@/components/ielts/MCMultipleBlock';
+import FormCompletionBlock from '@/components/ielts/FormCompletionBlock';
+
+function LocateButton({ onPress }: { onPress: () => void }) {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity onPress={onPress} hitSlop={8} style={{ padding: 4 }}>
+      <Ionicons name="locate-outline" size={16} color={colors.textMuted} />
+    </TouchableOpacity>
+  );
+}
 
 // ─── MCQ Question ────────────────────────────────────────────────────────────
-export function MCQQuestion({
+function MCQQuestionComponent({
   q,
   answers,
   onAnswer,
+  onLocate,
+  mode = 'edit',
+  correctAnswers,
 }: {
   q: any;
   answers: Record<string, string>;
   onAnswer: (key: string, value: string) => void;
+  onLocate?: (qNum: number) => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }) {
   const { colors, isDark } = useTheme();
   const qStyles = createQStyles(colors, isDark);
@@ -46,6 +64,7 @@ export function MCQQuestion({
   const isSelected = (letter: string) => selectedLetters.includes(letter);
 
   const handlePress = (letter: string) => {
+    if (mode === 'review') return;
     if (!isMulti) {
       const key = qNums[0];
       if (!key) return;
@@ -64,7 +83,12 @@ export function MCQQuestion({
 
   return (
     <View style={[qStyles.block, { backgroundColor: colors.card, borderColor: colors.border }]}>
-      <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{displayNum}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{displayNum}</Text>
+        {onLocate && qNums.length === 1 && (
+          <LocateButton onPress={() => onLocate(Number(qNums[0]))} />
+        )}
+      </View>
       {isMulti && (
         <Text
           style={[
@@ -80,6 +104,44 @@ export function MCQQuestion({
       <Text style={[qStyles.qText, { color: colors.text }]}>{questionText}</Text>
       {optionEntries.map(({ letter, label }) => {
         const sel = isSelected(letter);
+
+        const isCorrectOpt = correctAnswers
+          ? qNums.some((qNum) => {
+              const list = (correctAnswers[qNum] || '')
+                .split(',')
+                .map((s) => s.trim().toUpperCase());
+              return list.includes(letter.toUpperCase());
+            })
+          : false;
+
+        let optionStyle: any = null;
+        let bulletStyle: any = null;
+        let bulletTextOverride: React.ReactNode = null;
+
+        if (mode === 'review') {
+          if (sel) {
+            if (isCorrectOpt) {
+              optionStyle = { borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.08)' };
+              bulletStyle = { backgroundColor: '#22c55e', borderColor: '#22c55e' };
+              bulletTextOverride = <Ionicons name="checkmark" size={12} color="#fff" />;
+            } else {
+              optionStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)' };
+              bulletStyle = { backgroundColor: '#ef4444', borderColor: '#ef4444' };
+              bulletTextOverride = <Ionicons name="close" size={12} color="#fff" />;
+            }
+          } else {
+            if (isCorrectOpt) {
+              optionStyle = {
+                borderColor: '#22c55e',
+                borderStyle: 'dashed',
+                backgroundColor: 'rgba(34, 197, 94, 0.03)',
+              };
+              bulletStyle = { borderColor: '#22c55e', backgroundColor: 'transparent' };
+              bulletTextOverride = <Ionicons name="checkmark" size={12} color="#22c55e" />;
+            }
+          }
+        }
+
         return (
           <TouchableOpacity
             key={letter}
@@ -87,9 +149,10 @@ export function MCQQuestion({
               qStyles.option,
               { backgroundColor: colors.surface, borderColor: colors.border },
               sel && { borderColor: colors.primary, backgroundColor: colors.primary + '18' },
+              optionStyle,
             ]}
             onPress={() => handlePress(letter)}
-            activeOpacity={0.8}
+            activeOpacity={mode === 'review' ? 1 : 0.8}
           >
             <View
               style={[
@@ -98,9 +161,12 @@ export function MCQQuestion({
                 sel && { backgroundColor: colors.primary, borderColor: colors.primary },
                 isMulti && qStyles.optionBulletMulti,
                 isMulti && sel && { backgroundColor: colors.primary, borderColor: colors.primary },
+                bulletStyle,
               ]}
             >
-              {isMulti && sel ? (
+              {bulletTextOverride ? (
+                bulletTextOverride
+              ) : isMulti && sel ? (
                 <Ionicons name="checkmark" size={12} color="#fff" />
               ) : (
                 <Text
@@ -119,6 +185,7 @@ export function MCQQuestion({
                 qStyles.optionText,
                 { color: colors.text },
                 sel && { color: colors.primary, fontWeight: '600' },
+                mode === 'review' && isCorrectOpt && { color: '#16a34a', fontWeight: '600' },
               ]}
             >
               {label}
@@ -126,19 +193,66 @@ export function MCQQuestion({
           </TouchableOpacity>
         );
       })}
+
+      {mode === 'review' && (q.explanation || q.hint || q.explain) && (
+        <View
+          style={{
+            marginTop: SPACING.md,
+            padding: SPACING.md,
+            borderRadius: RADIUS.lg,
+            borderLeftWidth: 3,
+            borderLeftColor: colors.primary,
+            backgroundColor: isDark ? 'rgba(99, 102, 241, 0.08)' : colors.primary + '08',
+            gap: 4,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Ionicons name="book-outline" size={14} color={colors.primary} />
+            <Text style={{ fontSize: FONT_SIZES.xs, fontWeight: '700', color: colors.primary }}>
+              EXPLANATION
+            </Text>
+          </View>
+          <Text style={{ fontSize: FONT_SIZES.sm, color: colors.textSecondary, lineHeight: 20 }}>
+            {q.explanation || q.hint || q.explain}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
 
+export const MCQQuestion = React.memo(MCQQuestionComponent, (prev, next) => {
+  const qNumsPrev = prev.q.question_numbers
+    ? (prev.q.question_numbers as number[]).map(String)
+    : prev.q.question_number != null
+      ? [String(prev.q.question_number)]
+      : [];
+  for (const k of qNumsPrev) {
+    if (prev.answers[k] !== next.answers[k]) return false;
+    if (prev.correctAnswers?.[k] !== next.correctAnswers?.[k]) return false;
+  }
+  return (
+    prev.q === next.q &&
+    prev.mode === next.mode &&
+    prev.onLocate === next.onLocate
+  );
+});
+
 // ─── Fill blank Question ──────────────────────────────────────────────────────
-export function FillQuestion({
+function FillQuestionComponent({
   q,
   answer,
   onAnswer,
+  onLocate,
+  mode = 'edit',
+  correctAnswers,
 }: {
   q: any;
   answer: string;
   onAnswer: (v: string) => void;
+  onLocate?: (qNum: number) => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }) {
   const { colors, isDark } = useTheme();
   const qStyles = createQStyles(colors, isDark);
@@ -150,9 +264,35 @@ export function FillQuestion({
       ? [String(q.question_number)]
       : [];
 
+  const qNum = qNums[0] || '';
+  const correctVal = correctAnswers?.[qNum] || q.answer || '';
+  const isCorrectAns = mode === 'review' ? isCorrect(answer, correctVal) : false;
+
+  let inputStyle: any = null;
+  if (mode === 'review') {
+    if (isCorrectAns) {
+      inputStyle = {
+        borderColor: '#22c55e',
+        color: '#15803d',
+        backgroundColor: 'rgba(34, 197, 94, 0.04)',
+      };
+    } else {
+      inputStyle = {
+        borderColor: '#ef4444',
+        color: '#b91c1c',
+        backgroundColor: 'rgba(239, 68, 68, 0.04)',
+      };
+    }
+  }
+
   return (
     <View style={[qStyles.block, { backgroundColor: colors.card, borderColor: colors.border }]}>
-      <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{qNums.join(' & ')}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <Text style={[qStyles.qNumber, { color: colors.primary }]}>Q{qNums.join(' & ')}</Text>
+        {onLocate && qNums.length === 1 && (
+          <LocateButton onPress={() => onLocate(Number(qNums[0]))} />
+        )}
+      </View>
       {questionText ? (
         <Text style={[qStyles.qText, { color: colors.text }]}>{questionText}</Text>
       ) : null}
@@ -170,19 +310,94 @@ export function FillQuestion({
         </View>
       ) : null}
       <TextInput
-        style={[qStyles.input, { borderColor: colors.border, color: colors.text }]}
+        style={[qStyles.input, { borderColor: colors.border, color: colors.text }, inputStyle]}
         value={answer}
         onChangeText={onAnswer}
-        placeholder="Type your answer…"
+        placeholder={mode === 'review' ? 'No answer' : 'Type your answer…'}
         placeholderTextColor={colors.textMuted}
         returnKeyType="done"
+        editable={mode !== 'review'}
       />
+
+      {mode === 'review' && !isCorrectAns && (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            marginTop: SPACING.sm,
+            paddingHorizontal: SPACING.md,
+            paddingVertical: 6,
+            backgroundColor: isDark ? 'rgba(34, 197, 94, 0.15)' : '#DCFCE7',
+            borderColor: isDark ? '#22c55e' : '#86EFAC',
+            borderWidth: 1,
+            borderRadius: RADIUS.md,
+            alignSelf: 'flex-start',
+          }}
+        >
+          <Ionicons
+            name="checkmark-circle-outline"
+            size={14}
+            color={isDark ? '#4ade80' : '#15803D'}
+          />
+          <Text
+            style={{
+              fontSize: FONT_SIZES.xs,
+              fontWeight: '700',
+              color: isDark ? '#4ade80' : '#15803D',
+            }}
+          >
+            Correct Answer: {correctVal}
+          </Text>
+        </View>
+      )}
+
+      {mode === 'review' && (q.explanation || q.hint || q.explain) && (
+        <View
+          style={{
+            marginTop: SPACING.md,
+            padding: SPACING.md,
+            borderRadius: RADIUS.lg,
+            borderLeftWidth: 3,
+            borderLeftColor: colors.primary,
+            backgroundColor: isDark ? 'rgba(99, 102, 241, 0.08)' : colors.primary + '08',
+            gap: 4,
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Ionicons name="book-outline" size={14} color={colors.primary} />
+            <Text style={{ fontSize: FONT_SIZES.xs, fontWeight: '700', color: colors.primary }}>
+              EXPLANATION
+            </Text>
+          </View>
+          <Text style={{ fontSize: FONT_SIZES.sm, color: colors.textSecondary, lineHeight: 20 }}>
+            {q.explanation || q.hint || q.explain}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
 
+export const FillQuestion = React.memo(FillQuestionComponent, (prev, next) => {
+  const qNumsPrev = prev.q.question_numbers
+    ? (prev.q.question_numbers as number[]).map(String)
+    : prev.q.question_number != null
+      ? [String(prev.q.question_number)]
+      : [];
+  for (const k of qNumsPrev) {
+    if (prev.answer !== next.answer) return false;
+    if (prev.correctAnswers?.[k] !== next.correctAnswers?.[k]) return false;
+  }
+  return (
+    prev.q === next.q &&
+    prev.mode === next.mode &&
+    prev.onLocate === next.onLocate
+  );
+});
+
 // ─── Summary Blank Selector ──────────────────────────────────────────────────
-export function SummaryBlankSelector({
+function SummaryBlankSelectorComponent({
   qNum,
   value,
   displayLabel,
@@ -190,6 +405,8 @@ export function SummaryBlankSelector({
   answers,
   onSelect,
   onClear,
+  mode = 'edit',
+  correctAnswers,
 }: {
   qNum: number;
   value: string;
@@ -198,6 +415,8 @@ export function SummaryBlankSelector({
   answers: Record<string, string>;
   onSelect: (letter: string) => void;
   onClear: () => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }) {
   const { colors, isDark } = useTheme();
   const qStyles = createQStyles(colors, isDark);
@@ -205,31 +424,58 @@ export function SummaryBlankSelector({
   const filled = !!value;
   const usedLetters = new Set(Object.values(answers).filter((v) => v && v !== value));
 
+  const qKey = String(qNum);
+  const correctLetter = correctAnswers?.[qKey] || '';
+  const isCorrectAns = mode === 'review' ? isCorrect(value, correctLetter) : false;
+
+  let chipStyle: any = null;
+  if (mode === 'review') {
+    if (isCorrectAns) {
+      chipStyle = { borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.04)' };
+    } else {
+      chipStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.04)' };
+    }
+  }
+
   return (
     <View
       style={[qStyles.selectorRow, { backgroundColor: colors.card, borderColor: colors.border }]}
     >
       <TouchableOpacity
-        style={[qStyles.selectorChip, filled && { backgroundColor: colors.primary + '08' }]}
-        onPress={() => setOpen((o) => !o)}
-        activeOpacity={0.75}
+        style={[
+          qStyles.selectorChip,
+          filled && { backgroundColor: colors.primary + '08' },
+          chipStyle,
+        ]}
+        onPress={() => {
+          if (mode === 'review') return;
+          setOpen((o) => !o);
+        }}
+        activeOpacity={mode === 'review' ? 1 : 0.75}
       >
         <View style={qStyles.selectorChipLeft}>
           <View style={[qStyles.summaryQBadge, { backgroundColor: colors.primary + '18' }]}>
             <Text style={[qStyles.summaryQBadgeText, { color: colors.primary }]}>{qNum}</Text>
           </View>
           {filled ? (
-            <Text style={[qStyles.selectorChipValue, { color: colors.primary }]}>
+            <Text
+              style={[
+                qStyles.selectorChipValue,
+                { color: colors.primary },
+                mode === 'review' && isCorrectAns && { color: '#16a34a' },
+                mode === 'review' && !isCorrectAns && { color: '#dc2626' },
+              ]}
+            >
               {displayLabel}
             </Text>
           ) : (
             <Text style={[qStyles.selectorChipPlaceholder, { color: colors.textSecondary }]}>
-              Tap to select an answer…
+              {mode === 'review' ? 'No answer' : 'Tap to select an answer…'}
             </Text>
           )}
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          {filled && (
+          {filled && mode !== 'review' && (
             <TouchableOpacity
               onPress={(e) => {
                 e.stopPropagation?.();
@@ -241,13 +487,50 @@ export function SummaryBlankSelector({
               <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
             </TouchableOpacity>
           )}
-          <Ionicons
-            name={open ? 'chevron-up' : 'chevron-down'}
-            size={16}
-            color={colors.textSecondary}
-          />
+          {mode !== 'review' && (
+            <Ionicons
+              name={open ? 'chevron-up' : 'chevron-down'}
+              size={16}
+              color={colors.textSecondary}
+            />
+          )}
         </View>
       </TouchableOpacity>
+
+      {mode === 'review' && !isCorrectAns && (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            marginTop: 4,
+            marginLeft: SPACING.md,
+            marginBottom: SPACING.sm,
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            backgroundColor: isDark ? 'rgba(34, 197, 94, 0.15)' : '#DCFCE7',
+            borderColor: isDark ? '#22c55e' : '#86EFAC',
+            borderWidth: 1,
+            borderRadius: RADIUS.md,
+            alignSelf: 'flex-start',
+          }}
+        >
+          <Ionicons
+            name="checkmark-circle-outline"
+            size={12}
+            color={isDark ? '#4ade80' : '#15803D'}
+          />
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '700',
+              color: isDark ? '#4ade80' : '#15803D',
+            }}
+          >
+            Correct: {correctLetter} {options[correctLetter] ? `— ${options[correctLetter]}` : ''}
+          </Text>
+        </View>
+      )}
 
       {open && (
         <ScrollView
@@ -308,6 +591,17 @@ export function SummaryBlankSelector({
   );
 }
 
+export const SummaryBlankSelector = React.memo(SummaryBlankSelectorComponent, (prev, next) => {
+  return (
+    prev.qNum === next.qNum &&
+    prev.value === next.value &&
+    prev.displayLabel === next.displayLabel &&
+    prev.answers === next.answers &&
+    prev.mode === next.mode &&
+    prev.correctAnswers?.[String(prev.qNum)] === next.correctAnswers?.[String(prev.qNum)]
+  );
+});
+
 const DIAGRAM_TYPES = new Set([
   'diagram_labelling',
   'diagram_completion',
@@ -331,6 +625,9 @@ export function renderGroup(
   partIdx = 0,
   colors?: any,
   isDark?: boolean,
+  onLocate?: (qNum: number) => void,
+  mode: 'edit' | 'review' = 'edit',
+  correctAnswers?: Record<string, string>,
 ) {
   const type = group.question_type ?? group.type ?? 'fill';
   const qStyles = createQStyles(colors ?? {}, isDark ?? false);
@@ -366,11 +663,62 @@ export function renderGroup(
   const optionsBox = group.options_box ?? null;
 
   if (isDiagramType) {
-    return <DiagramMapBlock key={baseKey} group={group} answers={answers} onAnswer={setAnswer} />;
+    return (
+      <DiagramMapBlock
+        key={baseKey}
+        group={group}
+        answers={answers}
+        onAnswer={setAnswer}
+        mode={mode}
+        correctAnswers={correctAnswers}
+      />
+    );
   }
 
   if (isMatchingType) {
-    return <MatchingBlock key={baseKey} group={group} answers={answers} onAnswer={setAnswer} />;
+    return (
+      <MatchingBlock
+        key={baseKey}
+        group={group}
+        answers={answers}
+        onAnswer={setAnswer}
+        mode={mode}
+        correctAnswers={correctAnswers}
+      />
+    );
+  }
+
+  if (type === 'multiple_choice_multiple') {
+    return (
+      <MCMultipleBlock
+        key={baseKey}
+        group={group}
+        groupIdx={groupIdx}
+        answer={answers[`mcm-${groupIdx}`] || ''}
+        onAnswer={setAnswer}
+        mode={mode}
+        correctAnswers={correctAnswers}
+      />
+    );
+  }
+
+  const FORM_TYPES = new Set([
+    'form_completion',
+    'note_completion',
+    'flowchart_completion',
+    'flow_chart',
+  ]);
+  if (FORM_TYPES.has(type.toLowerCase().replace(/ /g, '_'))) {
+    return (
+      <FormCompletionBlock
+        key={baseKey}
+        group={group}
+        answers={answers}
+        onAnswer={setAnswer}
+        mode={mode}
+        correctAnswers={correctAnswers}
+      />
+    );
   }
 
   const hasSections =
@@ -462,39 +810,99 @@ export function renderGroup(
                   answers={answers}
                   onSelect={(letter) => setAnswer(qKey, letter)}
                   onClear={() => setAnswer(qKey, '')}
+                  mode={mode}
+                  correctAnswers={correctAnswers}
                 />
               );
             }
 
             return (
-              <View
-                key={qKey}
-                style={[
-                  qStyles.summaryAnswerRow,
-                  colors && { backgroundColor: colors.card, borderColor: colors.border },
-                ]}
-              >
+              <View key={qKey}>
                 <View
                   style={[
-                    qStyles.summaryQBadge,
-                    colors && { backgroundColor: colors.primary + '18' },
+                    qStyles.summaryAnswerRow,
+                    colors && { backgroundColor: colors.card, borderColor: colors.border },
+                    mode === 'review' &&
+                      answers[qKey] &&
+                      isCorrect(answers[qKey], correctAnswers?.[qKey] || '') && {
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34,197,94,0.04)',
+                      },
+                    mode === 'review' &&
+                      answers[qKey] &&
+                      !isCorrect(answers[qKey], correctAnswers?.[qKey] || '') && {
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239,68,68,0.04)',
+                      },
                   ]}
                 >
-                  <Text style={[qStyles.summaryQBadgeText, colors && { color: colors.primary }]}>
-                    {qNum}
-                  </Text>
+                  <View
+                    style={[
+                      qStyles.summaryQBadge,
+                      colors && { backgroundColor: colors.primary + '18' },
+                    ]}
+                  >
+                    <Text style={[qStyles.summaryQBadgeText, colors && { color: colors.primary }]}>
+                      {qNum}
+                    </Text>
+                  </View>
+                  <TextInput
+                    style={[
+                      qStyles.summaryAnswerInput,
+                      colors && { color: colors.text, borderBottomColor: colors.border },
+                      mode === 'review' &&
+                        answers[qKey] &&
+                        isCorrect(answers[qKey], correctAnswers?.[qKey] || '') && {
+                          color: '#15803d',
+                        },
+                      mode === 'review' &&
+                        answers[qKey] &&
+                        !isCorrect(answers[qKey], correctAnswers?.[qKey] || '') && {
+                          color: '#b91c1c',
+                        },
+                    ]}
+                    value={currentVal}
+                    onChangeText={(v) => setAnswer(qKey, v)}
+                    placeholder={mode === 'review' ? 'No answer' : 'Type answer...'}
+                    placeholderTextColor={colors ? colors.textMuted : '#94A3B8'}
+                    returnKeyType="done"
+                    editable={mode !== 'review'}
+                  />
                 </View>
-                <TextInput
-                  style={[
-                    qStyles.summaryAnswerInput,
-                    colors && { color: colors.text, borderBottomColor: colors.border },
-                  ]}
-                  value={currentVal}
-                  onChangeText={(v) => setAnswer(qKey, v)}
-                  placeholder="Type answer..."
-                  placeholderTextColor={colors ? colors.textMuted : '#94A3B8'}
-                  returnKeyType="done"
-                />
+                {mode === 'review' && !isCorrect(answers[qKey], correctAnswers?.[qKey] || '') && (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 4,
+                      marginTop: 4,
+                      marginLeft: SPACING.md,
+                      marginBottom: SPACING.sm,
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      backgroundColor: isDark ? 'rgba(34, 197, 94, 0.15)' : '#DCFCE7',
+                      borderColor: isDark ? '#22c55e' : '#86EFAC',
+                      borderWidth: 1,
+                      borderRadius: RADIUS.md,
+                      alignSelf: 'flex-start',
+                    }}
+                  >
+                    <Ionicons
+                      name="checkmark-circle-outline"
+                      size={12}
+                      color={isDark ? '#4ade80' : '#15803D'}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 11,
+                        fontWeight: '700',
+                        color: isDark ? '#4ade80' : '#15803D',
+                      }}
+                    >
+                      Correct: {correctAnswers?.[qKey] || ''}
+                    </Text>
+                  </View>
+                )}
               </View>
             );
           })}
@@ -547,6 +955,9 @@ export function renderGroup(
                           q={{ ...q, options: tfOptions }}
                           answers={answers}
                           onAnswer={setAnswer}
+                          onLocate={onLocate}
+                          mode={mode}
+                          correctAnswers={correctAnswers}
                         />
                       );
                     }
@@ -557,6 +968,9 @@ export function renderGroup(
                           q={{ ...q, options: optionsBox.options }}
                           answers={answers}
                           onAnswer={setAnswer}
+                          onLocate={onLocate}
+                          mode={mode}
+                          correctAnswers={correctAnswers}
                         />
                       );
                     }
@@ -566,6 +980,9 @@ export function renderGroup(
                         q={q}
                         answer={answers[num] || ''}
                         onAnswer={(v) => setAnswer(num, v)}
+                        onLocate={onLocate}
+                        mode={mode}
+                        correctAnswers={correctAnswers}
                       />
                     );
                   })}
@@ -584,11 +1001,24 @@ export function renderGroup(
                   q={{ ...q, options: tfOptions }}
                   answers={answers}
                   onAnswer={setAnswer}
+                  onLocate={onLocate}
+                  mode={mode}
+                  correctAnswers={correctAnswers}
                 />
               );
             }
             if (isMCQ) {
-              return <MCQQuestion key={qKey} q={q} answers={answers} onAnswer={setAnswer} />;
+              return (
+                <MCQQuestion
+                  key={qKey}
+                  q={q}
+                  answers={answers}
+                  onAnswer={setAnswer}
+                  onLocate={onLocate}
+                  mode={mode}
+                  correctAnswers={correctAnswers}
+                />
+              );
             }
             return (
               <FillQuestion
@@ -596,6 +1026,9 @@ export function renderGroup(
                 q={q}
                 answer={answers[num] || ''}
                 onAnswer={(v) => setAnswer(num, v)}
+                onLocate={onLocate}
+                mode={mode}
+                correctAnswers={correctAnswers}
               />
             );
           })}

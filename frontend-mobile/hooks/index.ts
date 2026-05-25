@@ -5,6 +5,7 @@ export { usePronunciationChecker } from './usePronunciationChecker';
 export { useGradingPoll } from './useGradingPoll';
 export { useShadowingMode, getHintText } from './useShadowingMode';
 export { useWritingAutosave } from './useWritingAutosave';
+export { useExamAutosave, EXAM_AUTOSAVE_MS } from './useExamAutosave';
 export { useTimer } from './useTimer';
 
 export { useShadowingLessons } from './useShadowingLessons';

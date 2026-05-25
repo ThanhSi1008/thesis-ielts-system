@@ -378,7 +378,7 @@ export class ExamsService {
   }
   async getHistory(userId: string) {
     const sessions = await this.prisma.ieltsIntensiveSession.findMany({
-      where: { userId, status: "COMPLETED" },
+      where: { userId, status: { in: ["COMPLETED", "GRADED", "SUBMITTED", "GRADING", "GRADING_FAILED"] } },
       include: {
         ieltsIntensiveExam: {
           select: { title: true, type: true, duration: true, difficulty: true },
@@ -399,6 +399,8 @@ export class ExamsService {
       timeTaken: s.timeTaken ?? null,
       rawScore: s.ieltsIntensiveResult?.totalScore ?? 0,
       writingScore: s.ieltsIntensiveResult?.writingScore ?? null,
+      speakingScore: s.ieltsIntensiveResult?.speakingScore ?? null,
+      status: s.status,
       maxScore: 40,
       practicePart: (s as any).practicePart ?? null,
     }));

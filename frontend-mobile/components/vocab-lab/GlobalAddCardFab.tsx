@@ -31,6 +31,7 @@ import * as Haptics from 'expo-haptics';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
 import { toast } from '@/components/ui';
+import Markdown from 'react-native-markdown-display';
 
 const { height: SCREEN_H } = Dimensions.get('window');
 const SHEET_H = SCREEN_H * 0.72;
@@ -71,6 +72,33 @@ const t = StyleSheet.create({
   text: { color: '#fff', fontWeight: '700', fontSize: FONT_SIZES.sm },
 });
 
+// ─── Markdown Live Preview Styles ──────────────────────────────────────────────
+const formMarkdownStyles = {
+  body: {
+    fontSize: 14,
+    color: '#0f172a',
+  },
+  paragraph: {
+    fontSize: 14,
+    color: '#0f172a',
+    marginVertical: 2,
+  },
+  strong: {
+    fontWeight: 'bold',
+    color: '#0f172a',
+  },
+  em: {
+    fontStyle: 'italic',
+    color: '#0f172a',
+  },
+  code_inline: {
+    backgroundColor: '#f1f5f9',
+    borderRadius: 4,
+    paddingHorizontal: 4,
+    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+  },
+};
+
 // ─── GlobalAddCardFab ──────────────────────────────────────────────────────────
 export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}) {
   // Sheet visibility
@@ -90,8 +118,30 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
   const [showToast, setShowToast] = useState(false);
   const [vocabMeta, setVocabMeta] = useState<{ bookName: string; wordData: any } | undefined>(undefined);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [isPrefilled, setIsPrefilled] = useState(false);
+
+  // Picker Modals
+  const [deckPickerOpen, setDeckPickerOpen] = useState(false);
+  const [cardTypePickerOpen, setCardTypePickerOpen] = useState(false);
 
   // Open / close animations
+  const handleModalShow = useCallback(() => {
+    Animated.parallel([
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        tension: 65,
+        friction: 11,
+        useNativeDriver: true,
+      }),
+      Animated.spring(fabScale, {
+        toValue: 0.92,
+        tension: 200,
+        friction: 10,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [slideAnim, fabScale]);
+
   const openSheet = useCallback(
     (prefill?: {
       front?: string;
@@ -105,22 +155,13 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
       const prefillData = prefill;
 
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      // Reset animations to starting position before displaying modal
+      slideAnim.setValue(SHEET_H);
+      fabScale.setValue(1);
+      
       setOpen(true);
+      setIsPrefilled(!!prefill);
       setVocabMeta(prefill?.foundationVocabMeta);
-      Animated.parallel([
-        Animated.spring(slideAnim, {
-          toValue: 0,
-          tension: 65,
-          friction: 11,
-          useNativeDriver: true,
-        }),
-        Animated.spring(fabScale, {
-          toValue: 0.92,
-          tension: 200,
-          friction: 10,
-          useNativeDriver: true,
-        }),
-      ]).start();
 
       const loadAndPrefill = async () => {
         let currentDecks = decks;
@@ -205,7 +246,11 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
         audioUrl?: string;
         foundationVocabMeta?: { bookName: string; wordData: any };
       }) => {
-        openSheet(payload);
+        // Defensive delay: ensures that any parent modal (e.g. ChatAI) has fully finished its
+        // closing transition before we trigger openSheet (mounting another modal overlay).
+        setTimeout(() => {
+          openSheet(payload);
+        }, 350);
       },
     );
     return () => sub.remove();
@@ -312,7 +357,13 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
       )}
 
       {/* ── Bottom sheet ──────────────────────────────────────────── */}
-      <Modal visible={open} transparent animationType="none" onRequestClose={closeSheet}>
+      <Modal
+        visible={open}
+        transparent
+        animationType="none"
+        onRequestClose={closeSheet}
+        onShow={handleModalShow}
+      >
         <Pressable style={fab.backdrop} onPress={closeSheet} />
 
         <Animated.View style={[fab.sheet, { transform: [{ translateY: slideAnim }] }]}>
@@ -340,49 +391,35 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
             >
               {/* Deck selector */}
               <Text style={fab.label}>DECK</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={fab.deckPillBar}
-                contentContainerStyle={{ gap: SPACING.xs }}
+              <TouchableOpacity
+                style={fab.selectorBtn}
+                onPress={() => setDeckPickerOpen(true)}
+                activeOpacity={0.8}
               >
-                {decks.map((d) => (
-                  <TouchableOpacity
-                    key={d.id}
-                    style={[fab.deckPill, selectedDeckId === d.id && fab.deckPillActive]}
-                    onPress={() => setSelectedDeckId(d.id)}
-                  >
-                    <Text
-                      style={[fab.deckPillText, selectedDeckId === d.id && fab.deckPillTextActive]}
-                    >
-                      {d.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+                <Text style={fab.selectorValue}>{activeDeck?.name || 'Select Deck'}</Text>
+                <Ionicons name="chevron-down" size={16} color={COLORS.textSecondary} />
+              </TouchableOpacity>
 
               {/* Type selector */}
-              <Text style={[fab.label, { marginTop: SPACING.md }]}>CARD TYPE</Text>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={fab.deckPillBar}
-                contentContainerStyle={{ gap: SPACING.xs }}
+              <Text style={[fab.label, { marginTop: SPACING.xs }]}>CARD TYPE</Text>
+              <TouchableOpacity
+                style={[fab.selectorBtn, isPrefilled && fab.selectorBtnDisabled]}
+                onPress={() => {
+                  if (!isPrefilled) {
+                    setCardTypePickerOpen(true);
+                  }
+                }}
+                activeOpacity={isPrefilled ? 1 : 0.8}
               >
-                {cardTypes.map((ct) => (
-                  <TouchableOpacity
-                    key={ct.id}
-                    style={[fab.deckPill, cardTypeId === ct.id && fab.deckPillActive]}
-                    onPress={() => handleCardTypeChange(ct.id)}
-                  >
-                    <Text
-                      style={[fab.deckPillText, cardTypeId === ct.id && fab.deckPillTextActive]}
-                    >
-                      {ct.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+                <Text style={[fab.selectorValue, isPrefilled && fab.selectorValueDisabled]}>
+                  {activeType?.name || 'Select Type'}
+                </Text>
+                {isPrefilled ? (
+                  <Ionicons name="lock-closed" size={14} color={COLORS.textMuted} />
+                ) : (
+                  <Ionicons name="chevron-down" size={16} color={COLORS.textSecondary} />
+                )}
+              </TouchableOpacity>
 
               {/* Dynamic fields */}
               {activeType?.fields
@@ -418,6 +455,14 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
                         textAlignVertical="top"
                         autoFocus={idx === 0}
                       />
+                      {textOnly.trim().length > 0 && (
+                        <View style={fab.previewContainer}>
+                          <Text style={fab.previewLabel}>Markdown Live Preview:</Text>
+                          <View style={fab.previewContent}>
+                            <Markdown style={formMarkdownStyles as any}>{textOnly}</Markdown>
+                          </View>
+                        </View>
+                      )}
                     </View>
                   );
                 })}
@@ -468,6 +513,70 @@ export function GlobalAddCardFab({ hideFab = false }: { hideFab?: boolean } = {}
 
             {/* Success toast */}
             <MiniToast visible={showToast} />
+
+            {/* Custom Deck Picker Overlay */}
+            {deckPickerOpen && (
+              <View style={fab.customPickerContainer}>
+                <Pressable style={fab.customPickerBackdrop} onPress={() => setDeckPickerOpen(false)} />
+                <View style={fab.customPickerContent}>
+                  <View style={fab.pickerHeader}>
+                    <Text style={fab.pickerTitle}>Choose Deck</Text>
+                    <TouchableOpacity onPress={() => setDeckPickerOpen(false)}>
+                      <Ionicons name="close" size={20} color={COLORS.textMuted} />
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView style={fab.pickerList} contentContainerStyle={{ paddingBottom: 20 }}>
+                    {decks.map((d) => (
+                      <TouchableOpacity
+                        key={d.id}
+                        style={[fab.pickerRow, selectedDeckId === d.id && fab.pickerRowActive]}
+                        onPress={() => {
+                          setSelectedDeckId(d.id);
+                          setDeckPickerOpen(false);
+                        }}
+                      >
+                        <Text style={[fab.pickerRowText, selectedDeckId === d.id && fab.pickerRowTextActive]}>
+                          {d.name}
+                        </Text>
+                        {selectedDeckId === d.id && <Ionicons name="checkmark" size={18} color={COLORS.primary} />}
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              </View>
+            )}
+
+            {/* Custom Card Type Picker Overlay */}
+            {cardTypePickerOpen && (
+              <View style={fab.customPickerContainer}>
+                <Pressable style={fab.customPickerBackdrop} onPress={() => setCardTypePickerOpen(false)} />
+                <View style={fab.customPickerContent}>
+                  <View style={fab.pickerHeader}>
+                    <Text style={fab.pickerTitle}>Choose Card Type</Text>
+                    <TouchableOpacity onPress={() => setCardTypePickerOpen(false)}>
+                      <Ionicons name="close" size={20} color={COLORS.textMuted} />
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView style={fab.pickerList} contentContainerStyle={{ paddingBottom: 20 }}>
+                    {cardTypes.map((ct) => (
+                      <TouchableOpacity
+                        key={ct.id}
+                        style={[fab.pickerRow, cardTypeId === ct.id && fab.pickerRowActive]}
+                        onPress={() => {
+                          handleCardTypeChange(ct.id);
+                          setCardTypePickerOpen(false);
+                        }}
+                      >
+                        <Text style={[fab.pickerRowText, cardTypeId === ct.id && fab.pickerRowTextActive]}>
+                          {ct.name}
+                        </Text>
+                        {cardTypeId === ct.id && <Ionicons name="checkmark" size={18} color={COLORS.primary} />}
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              </View>
+            )}
           </KeyboardAvoidingView>
         </Animated.View>
       </Modal>
@@ -592,6 +701,125 @@ const fab = StyleSheet.create({
   },
   submitBtnDisabled: { opacity: 0.45 },
   submitBtnText: { color: '#fff', fontWeight: '800', fontSize: FONT_SIZES.md },
+
+  // Selector
+  selectorBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm + 2,
+    backgroundColor: '#fff',
+    marginBottom: SPACING.sm,
+  },
+  selectorValue: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
+  selectorBtnDisabled: {
+    backgroundColor: COLORS.background,
+    borderColor: COLORS.border,
+  },
+  selectorValueDisabled: {
+    color: COLORS.textMuted,
+  },
+
+  // Picker Modals
+  pickerBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  pickerContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: RADIUS.xl * 1.5,
+    borderTopRightRadius: RADIUS.xl * 1.5,
+    maxHeight: '60%',
+    paddingTop: SPACING.md,
+  },
+  pickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.md,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
+  },
+  pickerTitle: {
+    fontSize: FONT_SIZES.md + 2,
+    fontWeight: '700',
+    color: COLORS.text,
+  },
+  pickerList: {
+    paddingHorizontal: SPACING.lg,
+  },
+  pickerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 1,
+    borderColor: COLORS.border,
+  },
+  pickerRowActive: {
+    backgroundColor: COLORS.primary + '08',
+  },
+  pickerRowText: {
+    fontSize: FONT_SIZES.md,
+    color: COLORS.text,
+  },
+  pickerRowTextActive: {
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+
+  // Markdown Live Preview
+  previewContainer: {
+    marginTop: SPACING.xs,
+    padding: SPACING.sm,
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  previewLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: COLORS.textMuted,
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  previewContent: {
+    padding: 2,
+  },
+
+  // Custom absolute pickers
+  customPickerContainer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 200,
+    justifyContent: 'flex-end',
+  },
+  customPickerBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  customPickerContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xl,
+    maxHeight: '75%',
+    paddingTop: SPACING.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 20,
+  },
 });
 
 const sAdd = StyleSheet.create({

@@ -63,7 +63,7 @@ function getDisplayText(card: StudyCard, side: 'front' | 'back'): string {
 // ─── Flip Card ────────────────────────────────────────────────────────────────
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_W = SCREEN_W - SPACING.lg * 2;
-const CARD_H = 320; // slightly taller to accommodate media
+const CARD_H = 400; // slightly taller to accommodate media
 
 function FlipCard({
   card,
@@ -131,7 +131,16 @@ function FlipCard({
         >
           FRONT
         </Text>
-        <FlashcardViewer card={card} side="front" width={CARD_W} cardStyle={cardStyle} />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: 'center',
+            width: CARD_W - SPACING.xl * 2,
+          }}
+        >
+          <FlashcardViewer card={card} side="front" width={CARD_W} cardStyle={cardStyle} />
+        </ScrollView>
         <Text
           allowFontScaling={true}
           style={[

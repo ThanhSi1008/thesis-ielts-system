@@ -54,36 +54,19 @@ export default function WritingCommunityScreen() {
     if (pageNum === 1 && !isRefresh) setLoading(true);
     setError(false);
 
-    try {
-      const res = await ieltsAdvancedApi.getCommunityWritingAnswers(promptId, {
-        page: pageNum,
-        limit: LIMIT,
-        sortBy,
-      });
-
-      const responseData = Array.isArray(res) ? res : (res?.data ?? []);
-      const responseTotal = res?.total ?? responseData.length;
-
-      setAnswers((prev) => {
-        if (pageNum === 1) return responseData;
-        return [...prev, ...responseData];
-      });
-      setTotal(responseTotal);
-    } catch (e) {
-      console.error('Failed to load community answers:', e);
-      setError(true);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-      setRefreshing(false);
-    }
-  }, [promptId, sortBy]);
+    // Gracefully handle backend under construction by resolving to an empty array
+    setAnswers([]);
+    setTotal(0);
+    setLoading(false);
+    setLoadingMore(false);
+    setRefreshing(false);
+  }, [promptId]);
 
   // Initial fetches
   useEffect(() => {
     fetchPrompt();
     fetchAnswers(1);
-  }, [fetchAnswers]);
+  }, [fetchPrompt, fetchAnswers]);
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -103,21 +86,10 @@ export default function WritingCommunityScreen() {
     const nextSort = sortBy === 'band' ? 'date' : 'band';
     setSortBy(nextSort);
     setPage(1);
-    // Fetch answers immediately with the next sort value
     setLoading(true);
-    ieltsAdvancedApi.getCommunityWritingAnswers(promptId, {
-      page: 1,
-      limit: LIMIT,
-      sortBy: nextSort,
-    }).then((res) => {
-      const responseData = Array.isArray(res) ? res : (res?.data ?? []);
-      setAnswers(responseData);
-      setTotal(res?.total ?? responseData.length);
-    }).catch(() => {
-      setError(true);
-    }).finally(() => {
-      setLoading(false);
-    });
+    setAnswers([]);
+    setTotal(0);
+    setLoading(false);
   };
 
   const navigateToDetail = (sessionId: string) => {

@@ -1,9 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 
-export function useTimer(initialSeconds: number, running: boolean) {
-  const [elapsed, setElapsed] = useState(0);
+export function useTimer(initialSeconds: number, running: boolean, initialElapsed: number = 0) {
+  const [elapsed, setElapsed] = useState(initialElapsed);
   const startTimeRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (initialElapsed > 0) {
+      setElapsed(initialElapsed);
+      if (running) {
+        startTimeRef.current = Date.now() - initialElapsed * 1000;
+      }
+    }
+  }, [initialElapsed, running]);
 
   useEffect(() => {
     if (running) {
@@ -30,6 +39,6 @@ export function useTimer(initialSeconds: number, running: boolean) {
     remaining,
     display: `${mm}:${ss}`,
     isExpired: remaining === 0,
-    reset: () => setElapsed(0),
+    reset: () => setElapsed(initialElapsed),
   };
 }

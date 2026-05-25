@@ -20,9 +20,18 @@ interface Props {
   groupIdx: number; // index in content array — used to build the 'mcm-{idx}' answer key
   answer: string; // current value: comma-separated selected letters, e.g. "A,C"
   onAnswer: (key: string, value: string) => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
 }
 
-export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: Props) {
+function MCMultipleBlockComponent({
+  group,
+  groupIdx,
+  answer,
+  onAnswer,
+  mode = 'edit',
+  correctAnswers,
+}: Props) {
   const { colors, isDark } = useTheme();
   const ansKey = `mcm-${groupIdx}`;
   const selectedLetters: string[] = answer ? answer.split(',').filter(Boolean) : [];
@@ -31,6 +40,7 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
   const qNums: number[] = group.question_numbers ?? [];
 
   const toggle = (letter: string) => {
+    if (mode === 'review') return;
     let next = [...selectedLetters];
     if (next.includes(letter)) {
       next = next.filter((l) => l !== letter);
@@ -41,6 +51,10 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
     }
     onAnswer(ansKey, next.join(','));
   };
+
+  const correctLetters = group.answers
+    ? group.answers.map((s) => s.trim().toUpperCase())
+    : [];
 
   const styles = StyleSheet.create({
     container: {
@@ -225,6 +239,35 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
       {options.map((opt) => {
         const selected = selectedLetters.includes(opt.letter);
         const disabled = !selected && selectedLetters.length >= numRequired;
+
+        const isCorrectOpt = correctLetters.includes(opt.letter.toUpperCase());
+
+        let optionStyle: any = null;
+        let checkboxStyle: any = null;
+        let checkboxIcon: string = 'checkmark';
+
+        if (mode === 'review') {
+          if (selected) {
+            if (isCorrectOpt) {
+              optionStyle = { borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.08)' };
+              checkboxStyle = { backgroundColor: '#22c55e', borderColor: '#22c55e' };
+            } else {
+              optionStyle = { borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.08)' };
+              checkboxStyle = { backgroundColor: '#ef4444', borderColor: '#ef4444' };
+              checkboxIcon = 'close';
+            }
+          } else {
+            if (isCorrectOpt) {
+              optionStyle = {
+                borderColor: '#22c55e',
+                borderStyle: 'dashed',
+                backgroundColor: 'rgba(34, 197, 94, 0.03)',
+              };
+              checkboxStyle = { borderColor: '#22c55e', backgroundColor: 'transparent' };
+            }
+          }
+        }
+
         return (
           <TouchableOpacity
             key={opt.letter}
@@ -232,19 +275,35 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
               styles.option,
               selected && styles.optionSelected,
               disabled && styles.optionDisabled,
+              optionStyle,
             ]}
             onPress={() => toggle(opt.letter)}
-            activeOpacity={disabled ? 1 : 0.8}
+            activeOpacity={mode === 'review' || disabled ? 1 : 0.8}
           >
-            <View style={[styles.checkbox, selected && styles.checkboxFilled]}>
-              {selected && <Ionicons name="checkmark" size={14} color="#fff" />}
+            <View style={[styles.checkbox, selected && styles.checkboxFilled, checkboxStyle]}>
+              {(selected || (mode === 'review' && isCorrectOpt)) && (
+                <Ionicons
+                  name={checkboxIcon as any}
+                  size={14}
+                  color={mode === 'review' && isCorrectOpt && !selected ? '#22c55e' : '#fff'}
+                />
+              )}
             </View>
-            <Text style={[styles.letter, selected && styles.letterSelected]}>{opt.letter}.</Text>
+            <Text
+              style={[
+                styles.letter,
+                selected && styles.letterSelected,
+                mode === 'review' && isCorrectOpt && { color: '#16a34a' },
+              ]}
+            >
+              {opt.letter}.
+            </Text>
             <Text
               style={[
                 styles.optText,
                 selected && styles.optTextSelected,
                 disabled && styles.optTextDisabled,
+                mode === 'review' && isCorrectOpt && { color: '#16a34a', fontWeight: '600' },
               ]}
             >
               {opt.text}
@@ -255,3 +314,12 @@ export default function MCMultipleBlock({ group, groupIdx, answer, onAnswer }: P
     </View>
   );
 }
+
+export default React.memo(MCMultipleBlockComponent, (prev, next) => {
+  return (
+    prev.answer === next.answer &&
+    prev.mode === next.mode &&
+    prev.groupIdx === next.groupIdx &&
+    prev.group === next.group
+  );
+});

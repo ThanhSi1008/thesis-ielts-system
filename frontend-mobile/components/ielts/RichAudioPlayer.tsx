@@ -59,13 +59,27 @@ export default function RichAudioPlayer({ audioUrl, accentColor = COLORS.primary
       {/* Time + controls row */}
       <View style={styles.controlsRow}>
         {/* Skip back */}
-        <TouchableOpacity onPress={() => skip(-5)} style={styles.iconBtn} hitSlop={8}>
+        <TouchableOpacity
+          onPress={() => skip(-5)}
+          style={styles.iconBtn}
+          hitSlop={8}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Rewind 5 seconds"
+        >
           <Ionicons name="play-back" size={22} color={accentColor} />
-          <Text style={[styles.skipLabel, { color: accentColor }]}>5</Text>
+          <Text style={[styles.skipLabel, { color: accentColor }]} allowFontScaling={true}>5</Text>
         </TouchableOpacity>
 
         {/* Play / Pause */}
-        <TouchableOpacity onPress={togglePlayback} style={styles.playBtn} activeOpacity={0.8}>
+        <TouchableOpacity
+          onPress={togglePlayback}
+          style={styles.playBtn}
+          activeOpacity={0.8}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel={status.playing ? "Pause audio track" : "Play audio track"}
+        >
           <View style={[styles.playCircle, { backgroundColor: accentColor }]}>
             <Ionicons
               name={status.playing ? 'pause' : 'play'}
@@ -77,13 +91,20 @@ export default function RichAudioPlayer({ audioUrl, accentColor = COLORS.primary
         </TouchableOpacity>
 
         {/* Skip forward */}
-        <TouchableOpacity onPress={() => skip(5)} style={styles.iconBtn} hitSlop={8}>
+        <TouchableOpacity
+          onPress={() => skip(5)}
+          style={styles.iconBtn}
+          hitSlop={8}
+          accessible={true}
+          accessibilityRole="button"
+          accessibilityLabel="Fast forward 5 seconds"
+        >
           <Ionicons name="play-forward" size={22} color={accentColor} />
-          <Text style={[styles.skipLabel, { color: accentColor }]}>5</Text>
+          <Text style={[styles.skipLabel, { color: accentColor }]} allowFontScaling={true}>5</Text>
         </TouchableOpacity>
 
         {/* Time display */}
-        <Text style={[styles.timeText, { color: accentColor }]}>
+        <Text style={[styles.timeText, { color: accentColor }]} allowFontScaling={true}>
           {formatTime(position)} / {formatTime(duration)}
         </Text>
       </View>
@@ -98,10 +119,23 @@ export default function RichAudioPlayer({ audioUrl, accentColor = COLORS.primary
         minimumTrackTintColor={accentColor}
         maximumTrackTintColor={accentColor + '30'}
         thumbTintColor={accentColor}
+        accessible={true}
+        accessibilityRole="adjustable"
+        accessibilityLabel="Audio timeline seekbar"
+        accessibilityValue={{
+          min: 0,
+          max: duration,
+          now: position,
+          text: `${formatTime(position)} of ${formatTime(duration)}`,
+        }}
       />
 
       {/* Status label */}
-      {status.playing && <Text style={[styles.statusLabel, { color: accentColor }]}>Playing…</Text>}
+      {status.playing && (
+        <Text style={[styles.statusLabel, { color: accentColor }]} allowFontScaling={true}>
+          Playing…
+        </Text>
+      )}
     </View>
   );
 }

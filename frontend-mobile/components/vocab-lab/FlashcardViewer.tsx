@@ -25,6 +25,7 @@ import { WebView } from 'react-native-webview';
 import { useAudioPlayer } from 'expo-audio';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import Markdown from 'react-native-markdown-display';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface CardField {
@@ -70,6 +71,42 @@ const FONT_SIZE_MAP: Record<string, number> = {
   lg: 18,
   xl: 24,
   '2xl': 30,
+};
+
+const getMarkdownStyle = (isFront: boolean, resolvedStyle: any) => {
+  const baseFontSize = resolvedStyle.fontSize ?? (isFront ? 28 : 18);
+  const baseFontWeight = resolvedStyle.fontWeight ?? (isFront ? '700' : '400');
+  const baseColor = resolvedStyle.color ?? COLORS.text;
+  const baseTextAlign = resolvedStyle.textAlign ?? 'center';
+
+  return {
+    body: {
+      fontSize: baseFontSize,
+      fontWeight: baseFontWeight,
+      color: baseColor,
+      textAlign: baseTextAlign,
+    },
+    paragraph: {
+      fontSize: baseFontSize,
+      fontWeight: baseFontWeight,
+      color: baseColor,
+      textAlign: baseTextAlign,
+      marginVertical: 4,
+    },
+    strong: {
+      fontWeight: 'bold',
+      color: baseColor,
+    },
+    em: {
+      fontStyle: 'italic',
+      color: baseColor,
+    },
+    code_inline: {
+      backgroundColor: '#f1f5f9',
+      borderRadius: 4,
+      paddingHorizontal: 4,
+    },
+  };
 };
 
 // ─── Field style mapping ──────────────────────────────────────────────────────
@@ -290,7 +327,11 @@ function FieldRenderer({
   }
 
   // Plain text
-  return <Text style={[isFront ? f.frontText : f.backText, resolvedStyle]}>{value}</Text>;
+  return (
+    <Markdown style={getMarkdownStyle(isFront, resolvedStyle) as any}>
+      {value}
+    </Markdown>
+  );
 }
 
 // ─── FlashcardViewer ──────────────────────────────────────────────────────────
@@ -322,7 +363,9 @@ export const FlashcardViewer = React.memo(function FlashcardViewer({
         ) : kind === 'html' ? (
           <HtmlField html={fallbackValue} cardW={cardW} />
         ) : (
-          <Text style={isFront ? f.frontText : f.backText}>{fallbackValue || '—'}</Text>
+          <Markdown style={getMarkdownStyle(isFront, {}) as any}>
+            {fallbackValue || '—'}
+          </Markdown>
         )}
         {!isFront && card.tags && card.tags.length > 0 && <TagsRow tags={card.tags} />}
       </View>

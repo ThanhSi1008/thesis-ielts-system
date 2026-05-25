@@ -260,12 +260,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Handle logout: clear backend token
+  // Handle logout: clear local state
   useEffect(() => {
     if (!user && pushToken) {
-      notificationsApi.removePushToken(pushToken).catch((err) => {
-        console.error('Failed to remove push token on logout:', err);
-      });
       setPushToken(null);
     }
   }, [user, pushToken]);

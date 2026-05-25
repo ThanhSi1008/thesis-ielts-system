@@ -17,10 +17,12 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES, navigation } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { Chip, EmptyState, ExamCardSkeleton } from '@/components';
+import { TestHistoryContent } from '@/components/ielts';
 import { EmptyStates } from '@/assets/empty-states';
 import { useTheme } from '@/contexts/ThemeContext';
 import { SharedDrawer } from '@/components/ui/SharedDrawer';
 import { FeatureLock } from '@/components/ui/index';
+
 
 const SKILLS = [
   { key: 'LISTENING', label: 'Listening', icon: '🎧', color: COLORS.skill.listening },
@@ -371,8 +373,11 @@ export default function IntensiveScreen() {
     }
   };
 
-  const params = useLocalSearchParams<{ skill?: string }>();
+  const params = useLocalSearchParams<{ skill?: string; section?: string }>();
   const [activeSkill, setActiveSkill] = useState(params.skill || 'LISTENING');
+  const [section, setSection] = useState<'mock' | 'history'>(
+    params.section === 'history' ? 'history' : 'mock'
+  );
   const [catalog, setCatalog] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -527,6 +532,38 @@ export default function IntensiveScreen() {
     },
     filterChipText: { fontSize: FONT_SIZES.xs, color: colors.textSecondary },
     resultCount: { fontSize: FONT_SIZES.xs, color: colors.textMuted, marginLeft: 'auto' as any },
+    segment: {
+      flexDirection: 'row',
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+      paddingHorizontal: SPACING.lg,
+      paddingVertical: SPACING.sm,
+      gap: SPACING.sm,
+    },
+    segmentItem: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 10,
+      borderRadius: RADIUS.lg,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    segmentItemActive: {
+      borderColor: colors.primary,
+      backgroundColor: isDark ? colors.surface : colors.primary + '0E',
+    },
+    segmentText: {
+      fontSize: FONT_SIZES.sm,
+      fontFamily: FONTS.medium,
+      color: colors.textSecondary,
+    },
+    segmentTextActive: {
+      color: colors.primary,
+      fontFamily: FONTS.bold,
+    },
   });
 
   return (
@@ -547,175 +584,201 @@ export default function IntensiveScreen() {
         </View>
 
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={styles.headerTitle} allowFontScaling={true}>Mock Tests</Text>
+          <Text style={styles.headerTitle} allowFontScaling={true}>IELTS Intensive</Text>
         </View>
 
         <View style={{ width: 90, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' }}>
-          <TouchableOpacity
-            style={styles.customBtn}
-            onPress={() => router.push(ROUTES.ieltsIntensiveCustom)}
-            activeOpacity={0.8}
-            accessible={true}
-            accessibilityRole="button"
-            accessibilityLabel="Custom intensive exam"
-            accessibilityHint="Configure and build a custom simulated exam"
-          >
-            <Ionicons name="construct-outline" size={15} color={isDark ? colors.text : '#fff'} />
-            <Text style={styles.customBtnText} allowFontScaling={true}>Custom</Text>
-          </TouchableOpacity>
+          {section === 'mock' && (
+            <TouchableOpacity
+              style={styles.customBtn}
+              onPress={() => router.push(ROUTES.ieltsIntensiveCustom)}
+              activeOpacity={0.8}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Custom intensive exam"
+              accessibilityHint="Configure and build a custom simulated exam"
+            >
+              <Ionicons name="construct-outline" size={15} color={isDark ? colors.text : '#fff'} />
+              <Text style={styles.customBtnText} allowFontScaling={true}>Custom</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
-      <FeatureLock requiredTier="PREMIUM" featureName="IELTS Intensive Practice">
-        {/* Skill tabs */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.tabs}
-          contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm }}
-        >
-          {SKILLS.map((s) => (
-            <Chip
-              key={s.key}
-              label={`${s.icon} ${s.label}`}
-              active={activeSkill === s.key}
-              onPress={() => setActiveSkill(s.key)}
-            />
-          ))}
-        </ScrollView>
-
-        {loading ? (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: SPACING.lg }}
+      {/* Segmented Control */}
+      <View style={styles.segment}>
+        {(['mock', 'history'] as const).map((sec) => (
+          <TouchableOpacity
+            key={sec}
+            style={[styles.segmentItem, section === sec && styles.segmentItemActive]}
+            onPress={() => setSection(sec)}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: section === sec }}
+            accessibilityLabel={sec === 'mock' ? 'Mock Tests segment' : 'Test History segment'}
           >
-            <ExamCardSkeleton count={3} />
-          </ScrollView>
-        ) : (
+            <Text style={[styles.segmentText, section === sec && styles.segmentTextActive]}>
+              {sec === 'mock' ? 'Mock Tests' : 'Test History'}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <FeatureLock requiredTier="PREMIUM" featureName="IELTS Intensive Practice">
+        {section === 'mock' ? (
           <>
-            {/* Search bar */}
-            <View style={styles.searchRow}>
-              <View style={styles.searchBox}>
-                <Ionicons
-                  name="search-outline"
-                  size={16}
-                  color={colors.textMuted}
-                  style={{ marginRight: 6 }}
-                />
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Search tests…"
-                  placeholderTextColor={colors.textMuted}
-                  value={search}
-                  onChangeText={setSearch}
-                  returnKeyType="search"
-                  clearButtonMode="while-editing"
-                  accessible={true}
-                  accessibilityLabel="Search tests"
-                  accessibilityHint="Type here to filter Mock Tests by name or number"
-                  allowFontScaling={true}
-                />
-              </View>
-              {hasActiveFilter && (
-                <TouchableOpacity
-                  onPress={() => {
-                    setSearch('');
-                    setStatusFilter('all');
-                  }}
-                  style={styles.clearBtn}
-                  activeOpacity={0.7}
-                  accessible={true}
-                  accessibilityRole="button"
-                  accessibilityLabel="Clear Search"
-                  accessibilityHint="Resets the search query and status filters"
-                >
-                  <Text style={styles.clearBtnText} allowFontScaling={true}>Clear</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-
-            {/* Status filter chips */}
-            <View style={styles.filterRow}>
-              {(['all', 'taken', 'not-taken'] as StatusFilter[]).map((f) => {
-                const labels: Record<StatusFilter, string> = {
-                  all: 'All',
-                  taken: '✓ Taken',
-                  'not-taken': '○ Not Taken',
-                };
-                const active = statusFilter === f;
-                const color =
-                  f === 'taken' ? '#16a34a' : f === 'not-taken' ? colors.textMuted : skillInfo.color;
-                return (
-                  <TouchableOpacity
-                    key={f}
-                    style={[
-                      styles.filterChip,
-                      active && { backgroundColor: color + '18', borderColor: color },
-                    ]}
-                    onPress={() => setStatusFilter(f)}
-                    activeOpacity={0.8}
-                    accessible={true}
-                    accessibilityRole="radio"
-                    accessibilityLabel={labels[f]}
-                    accessibilityState={{ checked: active }}
-                    accessibilityHint={`Filter results by status ${labels[f]}`}
-                  >
-                    <Text
-                      style={[styles.filterChipText, active && { color, fontFamily: FONTS.bold }]}
-                      allowFontScaling={true}
-                    >
-                      {labels[f]}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-              {hasActiveFilter && (
-                <Text style={styles.resultCount} allowFontScaling={true}>
-                  {totalVisible} test{totalVisible !== 1 ? 's' : ''}
-                </Text>
-              )}
-            </View>
-
+            {/* Skill tabs */}
             <ScrollView
-              showsVerticalScrollIndicator={false}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={() => {
-                    setRefreshing(true);
-                    fetchCatalog(activeSkill);
-                  }}
-                />
-              }
-              contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingBottom: 100 }}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.tabs}
+              contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm }}
             >
-              {filteredGroups.length === 0 ? (
-                <EmptyState
-                  illustration={hasActiveFilter ? EmptyStates.search : EmptyStates.bookmarks}
-                  title={hasActiveFilter ? 'No matches' : 'No tests available'}
-                  description={
-                    hasActiveFilter
-                      ? 'Try adjusting your search or filter.'
-                      : `No ${skillInfo.label} tests found.`
-                  }
+              {SKILLS.map((s) => (
+                <Chip
+                  key={s.key}
+                  label={`${s.icon} ${s.label}`}
+                  active={activeSkill === s.key}
+                  onPress={() => setActiveSkill(s.key)}
                 />
-              ) : (
-                filteredGroups.map((group: any) => (
-                  <AccordionGroup
-                    key={group.id}
-                    group={group}
-                    isCollapsed={collapsedGroups[group.id] ?? false}
-                    onToggle={() => toggleGroup(group.id)}
-                    skillColor={skillInfo.color}
-                    activeSkill={activeSkill}
-                    onTestPress={(examId: string) =>
-                      router.push(ROUTES.ieltsIntensiveExam(examId) as any)
-                    }
-                  />
-                ))
-              )}
+              ))}
             </ScrollView>
+
+            {loading ? (
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: SPACING.lg }}
+              >
+                <ExamCardSkeleton count={3} />
+              </ScrollView>
+            ) : (
+              <>
+                {/* Search bar */}
+                <View style={styles.searchRow}>
+                  <View style={styles.searchBox}>
+                    <Ionicons
+                      name="search-outline"
+                      size={16}
+                      color={colors.textMuted}
+                      style={{ marginRight: 6 }}
+                    />
+                    <TextInput
+                      style={styles.searchInput}
+                      placeholder="Search tests…"
+                      placeholderTextColor={colors.textMuted}
+                      value={search}
+                      onChangeText={setSearch}
+                      returnKeyType="search"
+                      clearButtonMode="while-editing"
+                      accessible={true}
+                      accessibilityLabel="Search tests"
+                      accessibilityHint="Type here to filter Mock Tests by name or number"
+                      allowFontScaling={true}
+                    />
+                  </View>
+                  {hasActiveFilter && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setSearch('');
+                        setStatusFilter('all');
+                      }}
+                      style={styles.clearBtn}
+                      activeOpacity={0.7}
+                      accessible={true}
+                      accessibilityRole="button"
+                      accessibilityLabel="Clear Search"
+                      accessibilityHint="Resets the search query and status filters"
+                    >
+                      <Text style={styles.clearBtnText} allowFontScaling={true}>Clear</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+
+                {/* Status filter chips */}
+                <View style={styles.filterRow}>
+                  {(['all', 'taken', 'not-taken'] as StatusFilter[]).map((f) => {
+                    const labels: Record<StatusFilter, string> = {
+                      all: 'All',
+                      taken: '✓ Taken',
+                      'not-taken': '○ Not Taken',
+                    };
+                    const active = statusFilter === f;
+                    const color =
+                      f === 'taken' ? '#16a34a' : f === 'not-taken' ? colors.textMuted : skillInfo.color;
+                    return (
+                      <TouchableOpacity
+                        key={f}
+                        style={[
+                          styles.filterChip,
+                          active && { backgroundColor: color + '18', borderColor: color },
+                        ]}
+                        onPress={() => setStatusFilter(f)}
+                        activeOpacity={0.8}
+                        accessible={true}
+                        accessibilityRole="radio"
+                        accessibilityLabel={labels[f]}
+                        accessibilityState={{ checked: active }}
+                        accessibilityHint={`Filter results by status ${labels[f]}`}
+                      >
+                        <Text
+                          style={[styles.filterChipText, active && { color, fontFamily: FONTS.bold }]}
+                          allowFontScaling={true}
+                        >
+                          {labels[f]}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                  {hasActiveFilter && (
+                    <Text style={styles.resultCount} allowFontScaling={true}>
+                      {totalVisible} test{totalVisible !== 1 ? 's' : ''}
+                    </Text>
+                  )}
+                </View>
+
+                <ScrollView
+                  showsVerticalScrollIndicator={false}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={refreshing}
+                      onRefresh={() => {
+                        setRefreshing(true);
+                        fetchCatalog(activeSkill);
+                      }}
+                    />
+                  }
+                  contentContainerStyle={{ paddingHorizontal: SPACING.lg, paddingBottom: 100 }}
+                >
+                  {filteredGroups.length === 0 ? (
+                    <EmptyState
+                      illustration={hasActiveFilter ? EmptyStates.search : EmptyStates.bookmarks}
+                      title={hasActiveFilter ? 'No matches' : 'No tests available'}
+                      description={
+                        hasActiveFilter
+                          ? 'Try adjusting your search or filter.'
+                          : `No ${skillInfo.label} tests found.`
+                      }
+                    />
+                  ) : (
+                    filteredGroups.map((group: any) => (
+                      <AccordionGroup
+                        key={group.id}
+                        group={group}
+                        isCollapsed={collapsedGroups[group.id] ?? false}
+                        onToggle={() => toggleGroup(group.id)}
+                        skillColor={skillInfo.color}
+                        activeSkill={activeSkill}
+                        onTestPress={(examId: string) =>
+                          router.push(ROUTES.ieltsIntensiveExam(examId) as any)
+                        }
+                      />
+                    ))
+                  )}
+                </ScrollView>
+              </>
+            )}
           </>
+        ) : (
+          <TestHistoryContent embedded />
         )}
       </FeatureLock>
       <SharedDrawer

@@ -7,11 +7,14 @@ import {
   TouchableOpacity,
   Dimensions,
   PanResponder,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { TextWithLookup } from '../global/TextWithLookup';
 import { useTheme } from '@/contexts/ThemeContext';
+import PassageReview from './PassageReview';
 
 // ─── Passage Text Sanitizer ──────────────────────────────────────────────────
 // Mirrors web TakeReadingBoard.tsx logic exactly:
@@ -164,14 +167,38 @@ interface Props {
     colors: any,
     isDark: boolean,
   ) => React.ReactNode;
+  isAdvanced?: boolean;
+  passageWithLocations?: any[] | null;
+  locatedQuestion?: number | null;
+  accentColor?: string;
 }
 
-export default function ReadingExamBlock({ parts, answers, onChange, renderGroup }: Props) {
+export default function ReadingExamBlock({
+  parts,
+  answers,
+  onChange,
+  renderGroup,
+  isAdvanced = false,
+  passageWithLocations = null,
+  locatedQuestion = null,
+  accentColor,
+}: Props) {
   const [activePartIdx, setActivePartIdx] = useState(0);
   const currentPart = parts[activePartIdx];
   const { width } = Dimensions.get('window');
   const isTablet = width > 600;
   const { colors, isDark } = useTheme();
+
+  const questionsScrollRef = React.useRef<ScrollView>(null);
+  const questionOffsetsRef = React.useRef<Record<number, number>>({});
+
+  React.useEffect(() => {
+    if (locatedQuestion == null) return;
+    const y = questionOffsetsRef.current[locatedQuestion];
+    if (y != null) {
+      questionsScrollRef.current?.scrollTo({ y, animated: true });
+    }
+  }, [locatedQuestion]);
 
   // Phone split: topFlex is the passage pane share (0.2–0.8)
   const [topFlex, setTopFlex] = useState(0.48);
@@ -203,29 +230,31 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Part tabs */}
-      <View style={[styles.tabs, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        {parts.map((part, idx) => {
-          const active = activePartIdx === idx;
-          return (
-            <TouchableOpacity
-              key={idx}
-              style={[styles.tab, active && { borderBottomColor: colors.primary }]}
-              onPress={() => setActivePartIdx(idx)}
-              activeOpacity={0.8}
-            >
-              <Text
-                style={[
-                  styles.tabLabel,
-                  { color: colors.textSecondary },
-                  active && { color: colors.primary },
-                ]}
+      {parts.length > 1 && (
+        <View style={[styles.tabs, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          {parts.map((part, idx) => {
+            const active = activePartIdx === idx;
+            return (
+              <TouchableOpacity
+                key={idx}
+                style={[styles.tab, active && { borderBottomColor: colors.primary }]}
+                onPress={() => setActivePartIdx(idx)}
+                activeOpacity={0.8}
               >
-                Part {part.part_number || idx + 1}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+                <Text
+                  style={[
+                    styles.tabLabel,
+                    { color: colors.textSecondary },
+                    active && { color: colors.primary },
+                  ]}
+                >
+                  Part {part.part_number || idx + 1}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      )}
 
       {/* Context bar: topic + question range */}
       {(currentPart?.topic || qRange) && (
@@ -258,21 +287,30 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
             isTablet && { flex: 1, borderRightWidth: 1, borderColor: colors.border },
           ]}
         >
-          <ScrollView style={styles.scroll} nestedScrollEnabled showsVerticalScrollIndicator>
-            <View style={[styles.paneHeader, { borderColor: colors.border + '40' }]}>
-              <Ionicons name="book-outline" size={16} color={colors.primary} />
-              <Text style={[styles.paneHeaderText, { color: colors.primary }]}>
-                Reading Passage
-              </Text>
-            </View>
-            {currentPart?.topic && (
-              <Text style={[styles.passageTopic, { color: colors.text }]}>{currentPart.topic}</Text>
-            )}
-            <PassageRenderer
-              text={currentPart?.passage_text || currentPart?.passage || ''}
-              topic={currentPart?.topic}
+          <View style={[styles.paneHeader, { borderColor: colors.border + '40', paddingBottom: SPACING.sm }]}>
+            <Ionicons name="book-outline" size={16} color={colors.primary} />
+            <Text style={[styles.paneHeaderText, { color: colors.primary }]}>
+              Reading Passage
+            </Text>
+          </View>
+          {isAdvanced ? (
+            <PassageReview
+              passage={currentPart?.passage_text || currentPart?.passage || ''}
+              passageWithLocations={passageWithLocations}
+              locatedQuestion={locatedQuestion}
+              accentColor={accentColor}
             />
-          </ScrollView>
+          ) : (
+            <ScrollView style={styles.scroll} nestedScrollEnabled showsVerticalScrollIndicator>
+              {currentPart?.topic && (
+                <Text style={[styles.passageTopic, { color: colors.text }]}>{currentPart.topic}</Text>
+              )}
+              <PassageRenderer
+                text={currentPart?.passage_text || currentPart?.passage || ''}
+                topic={currentPart?.topic}
+              />
+            </ScrollView>
+          )}
         </View>
 
         {/* DRAG SPLITTER (phone) */}
@@ -294,7 +332,9 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
         )}
 
         {/* QUESTIONS PANE */}
-        <View
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
           style={[
             styles.pane,
             { backgroundColor: colors.background },
@@ -302,19 +342,48 @@ export default function ReadingExamBlock({ parts, answers, onChange, renderGroup
           ]}
         >
           <ScrollView
+            ref={questionsScrollRef}
             style={styles.scroll}
             nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ padding: SPACING.lg, paddingBottom: SPACING.xxl }}
           >
             <View style={[styles.paneHeader, { borderColor: colors.border + '40' }]}>
               <Ionicons name="help-circle-outline" size={16} color={colors.warning} />
               <Text style={[styles.paneHeaderText, { color: colors.warning }]}>Questions</Text>
             </View>
-            {groups.map((g: any, gi: number) =>
-              renderGroup(g, answers, onChange, gi, activePartIdx, colors, isDark),
-            )}
+            {groups.map((g: any, gi: number) => (
+              <View
+                key={gi}
+                onLayout={(e) => {
+                  const allNums: number[] = [];
+                  const collectNums = (obj: any) => {
+                    if (!obj || typeof obj !== 'object') return;
+                    if (Array.isArray(obj)) {
+                      obj.forEach(collectNums);
+                      return;
+                    }
+                    if ('question_number' in obj) {
+                      allNums.push(Number(obj.question_number));
+                      return;
+                    }
+                    if ('question_numbers' in obj) {
+                      (obj.question_numbers as number[]).forEach((x) => allNums.push(x));
+                      return;
+                    }
+                    Object.values(obj).forEach(collectNums);
+                  };
+                  collectNums(g);
+                  allNums.forEach((num) => {
+                    questionOffsetsRef.current[num] = e.nativeEvent.layout.y;
+                  });
+                }}
+              >
+                {renderGroup(g, answers, onChange, gi, activePartIdx, colors, isDark)}
+              </View>
+            ))}
           </ScrollView>
-        </View>
+        </KeyboardAvoidingView>
       </View>
     </View>
   );

@@ -19,6 +19,7 @@ import PassageReview from '@/components/ielts/PassageReview';
 import RichAudioPlayer from '@/components/ielts/RichAudioPlayer';
 import { isCorrect } from '@/utils/answerNormalization';
 import { useTheme } from '@/contexts/ThemeContext';
+import { renderGroup } from '@/components/intensive/QuestionGroupRenderer';
 
 // ─── Mirrors backend grading logic to extract correct answers client-side ────────
 function extractCorrectAnswers(content: any[]): Record<string, string> {
@@ -295,6 +296,7 @@ export default function AdvancedResultScreen() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('score');
   const [locatedQuestion, setLocatedQuestion] = useState<number | null>(null);
+  const [reviewSubMode, setReviewSubMode] = useState<'sheet' | 'detail'>('detail');
 
   useEffect(() => {
     const load = async () => {
@@ -539,15 +541,55 @@ export default function AdvancedResultScreen() {
             </View>
           )}
 
-          {/* Answer sheet — explicit height so internal ScrollView gets a bound */}
-          <View style={s.answerSheetWrap}>
-            <AnswerSheet
-              answers={userAnswers}
-              correctAnswers={correctAnswers}
-              totalQuestions={totalQuestions}
-              accentColor={accentColor}
-            />
+          {/* Sub-tab Toggle inside Review Tab */}
+          <View style={{ flexDirection: 'row', backgroundColor: colors.surface, borderRadius: RADIUS.md, padding: 2, borderWidth: 1, borderColor: colors.border, marginBottom: SPACING.xs }}>
+            <TouchableOpacity
+              style={{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: RADIUS.md - 2, backgroundColor: reviewSubMode === 'detail' ? colors.card : 'transparent' }}
+              onPress={() => setReviewSubMode('detail')}
+            >
+              <Text style={{ fontSize: 12, fontWeight: '700', color: reviewSubMode === 'detail' ? colors.primary : colors.textSecondary }}>
+                Detail Review
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{ flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: RADIUS.md - 2, backgroundColor: reviewSubMode === 'sheet' ? colors.card : 'transparent' }}
+              onPress={() => setReviewSubMode('sheet')}
+            >
+              <Text style={{ fontSize: 12, fontWeight: '700', color: reviewSubMode === 'sheet' ? colors.primary : colors.textSecondary }}>
+                Answer Sheet
+              </Text>
+            </TouchableOpacity>
           </View>
+
+          {reviewSubMode === 'sheet' ? (
+            <View style={s.answerSheetWrap}>
+              <AnswerSheet
+                answers={userAnswers}
+                correctAnswers={correctAnswers}
+                totalQuestions={totalQuestions}
+                accentColor={accentColor}
+              />
+            </View>
+          ) : (
+            <View style={{ height: 210 }}>
+              <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} nestedScrollEnabled>
+                {content.map((group, idx) =>
+                  renderGroup(
+                    group,
+                    userAnswers,
+                    () => {},
+                    idx,
+                    0,
+                    colors,
+                    isDark,
+                    handleLocate,
+                    'review',
+                    correctAnswers
+                  )
+                )}
+              </ScrollView>
+            </View>
+          )}
 
           {/* Transcript (listening) */}
           {isListening && transcript && transcript.length > 0 && (

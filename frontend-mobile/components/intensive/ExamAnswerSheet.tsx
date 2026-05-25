@@ -9,6 +9,7 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
 import { SPACING, RADIUS, FONT_SIZES } from '@/constants';
 
@@ -20,6 +21,9 @@ interface ExamAnswerSheetProps {
   totalQuestions: number;
   answers: Record<string, string>;
   onSelect: (n: number) => void;
+  answeredSet?: Set<number>;
+  flaggedSet?: Set<number>;
+  onToggleFlag?: (n: number) => void;
 }
 
 export function ExamAnswerSheet({
@@ -28,6 +32,9 @@ export function ExamAnswerSheet({
   totalQuestions,
   answers,
   onSelect,
+  answeredSet,
+  flaggedSet,
+  onToggleFlag,
 }: ExamAnswerSheetProps) {
   const { colors, isDark } = useTheme();
   const slideAnim = useRef(new Animated.Value(DRAWER_HEIGHT)).current;
@@ -42,7 +49,8 @@ export function ExamAnswerSheet({
   }, [open, slideAnim]);
 
   const numbers = Array.from({ length: totalQuestions }, (_, i) => i + 1);
-  const answeredCount = Object.keys(answers).length;
+  const answeredCount = answeredSet ? answeredSet.size : Object.keys(answers).length;
+  const flaggedCount = flaggedSet ? flaggedSet.size : 0;
 
   return (
     <>
@@ -71,13 +79,19 @@ export function ExamAnswerSheet({
             <View style={styles.legendRow}>
               <View style={[styles.dot, { backgroundColor: colors.primary }]} />
               <Text style={[styles.legendText, { color: colors.textSecondary }]}>
-                {answeredCount} Answered
+                {answeredCount} Ans
+              </Text>
+            </View>
+            <View style={styles.legendRow}>
+              <View style={[styles.dot, { backgroundColor: '#F59E0B' }]} />
+              <Text style={[styles.legendText, { color: colors.textSecondary }]}>
+                {flaggedCount} Flag
               </Text>
             </View>
             <View style={styles.legendRow}>
               <View style={[styles.dot, { backgroundColor: isDark ? colors.border : '#E5E7EB' }]} />
               <Text style={[styles.legendText, { color: colors.textSecondary }]}>
-                {totalQuestions - answeredCount} Unanswered
+                {Math.max(0, totalQuestions - answeredCount)} Unans
               </Text>
             </View>
           </View>
@@ -86,7 +100,8 @@ export function ExamAnswerSheet({
         {/* Grid */}
         <ScrollView contentContainerStyle={styles.grid} showsVerticalScrollIndicator={false}>
           {numbers.map((n) => {
-            const answered = !!answers[String(n)];
+            const answered = answeredSet ? answeredSet.has(n) : !!answers[String(n)];
+            const flagged = flaggedSet ? flaggedSet.has(n) : false;
             return (
               <TouchableOpacity
                 key={n}
@@ -100,24 +115,41 @@ export function ExamAnswerSheet({
                     styles.cellAnswered,
                     { backgroundColor: colors.primary + '18', borderColor: colors.primary },
                   ],
+                  flagged && [
+                    styles.cellFlagged,
+                    { backgroundColor: '#F59E0B18', borderColor: '#F59E0B' },
+                  ],
                 ]}
                 onPress={() => {
                   onClose();
                   setTimeout(() => onSelect(n), 150);
                 }}
+                onLongPress={() => {
+                  if (onToggleFlag) {
+                    onToggleFlag(n);
+                  }
+                }}
                 activeOpacity={0.75}
                 accessibilityRole="button"
-                accessibilityLabel={`Question ${n}, ${answered ? 'Answered' : 'Unanswered'}`}
+                accessibilityLabel={`Question ${n}, ${answered ? 'Answered' : 'Unanswered'}${flagged ? ', Flagged' : ''}`}
+                accessibilityHint="Double tap to navigate to question, long press to toggle flag"
               >
                 <Text
                   style={[
                     styles.cellText,
                     { color: colors.textSecondary },
                     answered && [styles.cellTextAnswered, { color: colors.primary }],
+                    flagged && [styles.cellTextFlagged, { color: '#F59E0B' }],
                   ]}
                 >
                   {n}
                 </Text>
+                
+                {flagged && (
+                  <View style={styles.flagIconContainer}>
+                    <Ionicons name="flag" size={10} color="#F59E0B" />
+                  </View>
+                )}
               </TouchableOpacity>
             );
           })}
@@ -202,11 +234,22 @@ const styles = StyleSheet.create({
   cellAnswered: {
     borderWidth: 1.5,
   },
+  cellFlagged: {
+    borderWidth: 1.5,
+  },
   cellText: {
     fontSize: FONT_SIZES.sm,
     fontWeight: '700',
   },
   cellTextAnswered: {
     fontWeight: '700',
+  },
+  cellTextFlagged: {
+    fontWeight: '700',
+  },
+  flagIconContainer: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
   },
 });
