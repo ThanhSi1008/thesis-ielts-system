@@ -223,11 +223,12 @@ function CriterionCard({
   data,
 }: {
   criterionKey: CriterionKey;
-  data: CriterionFeedback;
+  data?: CriterionFeedback;
 }) {
   const { colors } = useTheme();
   const [expanded, setExpanded] = useState(true);
-  const color = bandColor(data.band);
+  if (!data) return null;
+  const color = bandColor(data.band ?? 0);
   const label = CRITERIA_LABELS[criterionKey];
 
   const toggle = () => {
@@ -248,7 +249,7 @@ function CriterionCard({
         </View>
         <View style={cc.headerRight}>
           <View style={[cc.bandChip, { backgroundColor: color + '18', borderColor: color }]}>
-            <Text style={[cc.bandValue, { color }]}>{data.band.toFixed(1)}</Text>
+            <Text style={[cc.bandValue, { color }]}>{(data.band ?? 0).toFixed(1)}</Text>
           </View>
           <Ionicons
             name={expanded ? 'chevron-up' : 'chevron-down'}
@@ -327,20 +328,22 @@ function TaskScoreSummary({
 }: {
   task: 1 | 2;
   label: string;
-  data: TaskFeedback;
+  data?: TaskFeedback;
 }) {
   const { colors } = useTheme();
-  const color = bandColor(data.band);
+  if (!data) return null;
+  const color = bandColor(data.band ?? 0);
   return (
     <View style={[ts.card, { backgroundColor: colors.card, borderColor: color + '40' }]}>
       <View style={ts.header}>
         <Text style={[ts.taskLabel, { color: colors.text }]}>{label}</Text>
-        <BandCircle band={data.band} size={44} />
+        <BandCircle band={data.band ?? 0} size={44} />
       </View>
       <View style={ts.criteriaList}>
         {CRITERIA_KEYS.map((key) => {
-          const c = data.criteria[key];
-          const cColor = bandColor(c.band);
+          const c = data.criteria?.[key];
+          if (!c) return null;
+          const cColor = bandColor(c.band ?? 0);
           return (
             <View key={key} style={ts.criteriaRow}>
               <Text style={[ts.criteriaLabel, { color: colors.textSecondary }]} numberOfLines={1}>
@@ -350,11 +353,11 @@ function TaskScoreSummary({
                 <View
                   style={[
                     ts.barFill,
-                    { width: `${(c.band / 9) * 100}%` as any, backgroundColor: cColor },
+                    { width: `${((c.band ?? 0) / 9) * 100}%` as any, backgroundColor: cColor },
                   ]}
                 />
               </View>
-              <Text style={[ts.criteriaScore, { color: cColor }]}>{c.band.toFixed(1)}</Text>
+              <Text style={[ts.criteriaScore, { color: cColor }]}>{(c.band ?? 0).toFixed(1)}</Text>
             </View>
           );
         })}
@@ -514,8 +517,8 @@ export default function WritingRubricView({
   const { colors } = useTheme();
   const [activeTask, setActiveTask] = useState<1 | 2>(practicePart === 2 ? 2 : 1);
 
-  const showTask1 = !practicePart || practicePart === 1;
-  const showTask2 = !practicePart || practicePart === 2;
+  const showTask1 = (!practicePart || practicePart === 1) && !!feedback.task1;
+  const showTask2 = (!practicePart || practicePart === 2) && !!feedback.task2;
 
   const currentFeedback = activeTask === 1 ? feedback.task1 : feedback.task2;
   const currentAnswer = activeTask === 1 ? answers?.task1 : answers?.task2;
@@ -538,21 +541,21 @@ export default function WritingRubricView({
             Task 1 · Task 2 Combined
           </Text>
           <View style={wr.overallRow}>
-            {showTask1 && (
+            {showTask1 && feedback.task1 && (
               <View
-                style={[wr.taskChip, { backgroundColor: bandColor(feedback.task1.band) + '18' }]}
+                style={[wr.taskChip, { backgroundColor: bandColor(feedback.task1.band ?? 0) + '18' }]}
               >
-                <Text style={[wr.taskChipText, { color: bandColor(feedback.task1.band) }]}>
-                  T1 {feedback.task1.band.toFixed(1)}
+                <Text style={[wr.taskChipText, { color: bandColor(feedback.task1.band ?? 0) }]}>
+                  T1 {(feedback.task1.band ?? 0).toFixed(1)}
                 </Text>
               </View>
             )}
-            {showTask2 && (
+            {showTask2 && feedback.task2 && (
               <View
-                style={[wr.taskChip, { backgroundColor: bandColor(feedback.task2.band) + '18' }]}
+                style={[wr.taskChip, { backgroundColor: bandColor(feedback.task2.band ?? 0) + '18' }]}
               >
-                <Text style={[wr.taskChipText, { color: bandColor(feedback.task2.band) }]}>
-                  T2 {feedback.task2.band.toFixed(1)}
+                <Text style={[wr.taskChipText, { color: bandColor(feedback.task2.band ?? 0) }]}>
+                  T2 {(feedback.task2.band ?? 0).toFixed(1)}
                 </Text>
               </View>
             )}
@@ -622,7 +625,7 @@ export default function WritingRubricView({
       <Text style={[wr.sectionHeader, { color: colors.textSecondary }]}>
         Detailed Feedback — Task {activeTask}
       </Text>
-      {CRITERIA_KEYS.map((key) => (
+      {currentFeedback?.criteria && CRITERIA_KEYS.map((key) => (
         <CriterionCard
           key={`${activeTask}-${key}`}
           criterionKey={key}

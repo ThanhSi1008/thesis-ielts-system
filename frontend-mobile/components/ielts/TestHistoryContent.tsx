@@ -289,8 +289,8 @@ function HistoryCard({
                 ) : (
                   <ScoreBadge band={band} />
                 )
-              ) : item.isAdvanced ? (
-                <ScoreBadge band={item.rawScore ?? 0} />
+              ) : (item.isAdvanced || isWS) ? (
+                <ScoreBadge band={band} />
               ) : (
                 <ScoreBar score={item.rawScore ?? 0} />
               )}

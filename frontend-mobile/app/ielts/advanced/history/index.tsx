@@ -332,10 +332,11 @@ export default function AdvancedHistoryScreen() {
 
   const load = useCallback(async () => {
     try {
-      const [listening, reading, writing] = await Promise.all([
+      const [listening, reading, writing, speaking] = await Promise.all([
         ieltsAdvancedApi.getListeningHistory(),
         ieltsAdvancedApi.getReadingHistory(),
         ieltsAdvancedApi.getWritingHistory(),
+        ieltsAdvancedApi.getSpeakingHistory(),
       ]);
       const normalizeListening = (Array.isArray(listening) ? listening : []).map((s: any) => ({
         id: s.id,
@@ -366,9 +367,21 @@ export default function AdvancedHistoryScreen() {
         rawScore: s.bandScore ?? null,
         totalQuestions: null,
       }));
-      const merged = [...normalizeListening, ...normalizeReading, ...normalizeWriting].sort(
-        (a, b) => new Date(b.dateTaken).getTime() - new Date(a.dateTaken).getTime(),
-      );
+      const normalizeSpeaking = (Array.isArray(speaking) ? speaking : []).map((s: any) => ({
+        id: s.id,
+        skill: 'SPEAKING',
+        dateTaken: s.createdAt,
+        examTitle: s.part?.title ?? 'Speaking Practice',
+        practicePart: s.part?.partNumber ?? null,
+        rawScore: s.bandScore ?? null,
+        totalQuestions: null,
+      }));
+      const merged = [
+        ...normalizeListening,
+        ...normalizeReading,
+        ...normalizeWriting,
+        ...normalizeSpeaking,
+      ].sort((a, b) => new Date(b.dateTaken).getTime() - new Date(a.dateTaken).getTime());
       setAllHistory(merged);
     } catch (err) {
       if (__DEV__) console.error('[AdvancedHistory] load failed:', err);
@@ -397,6 +410,10 @@ export default function AdvancedHistoryScreen() {
       if (!id) return;
       if (item.skill === 'WRITING') {
         router.push(`/ielts/advanced/writing/result/${id}` as any);
+        return;
+      }
+      if (item.skill === 'SPEAKING') {
+        router.push(`/ielts/advanced/speaking/result/${id}` as any);
         return;
       }
       if (!item.partId) return;

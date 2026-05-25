@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { FONTS, API_BASE_URL, STORAGE_KEYS } from '@/constants';
 import {
   View,
@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { apiClient } from '@/services/api-client';
 import { vocabLabApi } from '@/services';
 import Svg, { Defs, LinearGradient, Stop, Path } from 'react-native-svg';
@@ -40,6 +41,76 @@ export default function ChatAIScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const params = useLocalSearchParams<{ word?: string; context?: string }>();
+  const { colors, isDark } = useTheme();
+
+  // Dynamic markdown styling supporting dark mode text colors
+  const dynamicMarkdownStyles = useMemo(() => ({
+    body: {
+      fontFamily: FONTS.regular,
+      fontSize: 15,
+      lineHeight: 22,
+      color: colors.text,
+    },
+    heading1: {
+      fontFamily: FONTS.bold,
+      fontSize: 18,
+      marginTop: 8,
+      marginBottom: 4,
+      color: colors.text,
+    },
+    heading2: {
+      fontFamily: FONTS.bold,
+      fontSize: 16,
+      marginTop: 6,
+      marginBottom: 4,
+      color: colors.text,
+    },
+    strong: {
+      fontFamily: FONTS.bold,
+      color: colors.text,
+    },
+    em: {
+      fontStyle: 'italic',
+      color: colors.text,
+    },
+    code_inline: {
+      backgroundColor: isDark ? colors.surface : '#f1f5f9',
+      borderRadius: 4,
+      paddingHorizontal: 4,
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+      color: isDark ? '#fb7185' : '#e11d48',
+    },
+    code_block: {
+      backgroundColor: isDark ? '#020617' : '#1e293b',
+      borderRadius: 8,
+      padding: 12,
+      color: '#f8fafc',
+      fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
+    },
+    link: {
+      color: colors.primary,
+      textDecorationLine: 'underline',
+    },
+    list_item: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      marginTop: 2,
+      marginBottom: 2,
+      color: colors.text,
+    },
+    bullet_list: {
+      marginTop: 4,
+      marginBottom: 4,
+    },
+    ordered_list: {
+      marginTop: 4,
+      marginBottom: 4,
+    },
+    paragraph: {
+      marginTop: 4,
+      marginBottom: 4,
+    },
+  } as any), [colors, isDark]);
 
   const welcomeSuggestions: SuggestionMsg[] = [
     {
@@ -508,9 +579,9 @@ export default function ChatAIScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, { backgroundColor: colors.card, borderBottomColor: colors.border }]}>
         <View style={styles.headerTitleContainer}>
           <Svg width="24" height="24" viewBox="0 0 28 28" fill="none">
             <Defs>
@@ -525,13 +596,13 @@ export default function ChatAIScreen() {
               fill="url(#gemini-grad-header)"
             />
           </Svg>
-          <Text style={styles.headerTitle}>Lexon AI</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Lexon AI</Text>
         </View>
 
         <View style={styles.headerActions}>
           {messages.length > 1 && (
             <TouchableOpacity
-              style={styles.trashBtn}
+              style={[styles.trashBtn, { backgroundColor: isDark ? 'rgba(239, 68, 68, 0.15)' : '#fef2f2' }]}
               onPress={handleClearHistory}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
@@ -540,11 +611,11 @@ export default function ChatAIScreen() {
           )}
 
           <TouchableOpacity
-            style={styles.closeBtn}
+            style={[styles.closeBtn, { backgroundColor: colors.surface }]}
             onPress={() => router.back()}
             hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
           >
-            <Ionicons name="close" size={24} color="#64748b" />
+            <Ionicons name="close" size={24} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
       </View>
@@ -571,7 +642,7 @@ export default function ChatAIScreen() {
                   style={[styles.messageRow, isUser ? styles.messageRowUser : styles.messageRowAI]}
                 >
                   {!isUser && (
-                    <View style={styles.aiAvatar}>
+                    <View style={[styles.aiAvatar, { backgroundColor: isDark ? colors.surface : '#1e293b' }]}>
                       <Svg width="16" height="16" viewBox="0 0 28 28" fill="none">
                         <Defs>
                           <LinearGradient id="gemini-grad-avatar" x1="0" y1="0" x2="1" y2="1">
@@ -591,15 +662,17 @@ export default function ChatAIScreen() {
                   <View
                     style={[
                       styles.messageBubble,
-                      isUser ? styles.messageBubbleUser : styles.messageBubbleAI,
+                      isUser
+                        ? [styles.messageBubbleUser, { backgroundColor: isDark ? colors.surface : '#111111' }]
+                        : [styles.messageBubbleAI, { backgroundColor: colors.card, borderColor: colors.border }],
                     ]}
                   >
                     {isUser ? (
-                      <Text style={[styles.messageText, styles.messageTextUser]}>
+                      <Text style={[styles.messageText, styles.messageTextUser, isDark && { color: colors.text }]}>
                         {msg.content}
                       </Text>
                     ) : msg.content ? (
-                      <Markdown style={markdownStyles}>{msg.content}</Markdown>
+                      <Markdown style={dynamicMarkdownStyles}>{msg.content}</Markdown>
                     ) : (
                       <ActivityIndicator
                         size="small"
@@ -616,11 +689,11 @@ export default function ChatAIScreen() {
                     {msg.suggestions.map((s) => (
                       <TouchableOpacity
                         key={s.id}
-                        style={styles.suggestionPill}
+                        style={[styles.suggestionPill, { backgroundColor: colors.card, borderColor: colors.border }]}
                         onPress={() => handleSuggestionClick(index, s)}
                         activeOpacity={0.8}
                       >
-                        <Text style={styles.suggestionText}>{s.label}</Text>
+                        <Text style={[styles.suggestionText, { color: isDark ? colors.primary : '#8B5CF6' }]}>{s.label}</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -631,11 +704,11 @@ export default function ChatAIScreen() {
         </ScrollView>
 
         {/* Input Area */}
-        <View style={styles.inputArea}>
+        <View style={[styles.inputArea, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
           <TextInput
-            style={styles.textInput}
+            style={[styles.textInput, { backgroundColor: colors.surface, color: colors.text }]}
             placeholder="Ask me anything..."
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor={colors.textMuted}
             value={input}
             onChangeText={setInput}
             multiline
@@ -643,11 +716,15 @@ export default function ChatAIScreen() {
             editable={!isTyping}
           />
           <TouchableOpacity
-            style={[styles.sendBtn, (!input.trim() || isTyping) && styles.sendBtnDisabled]}
+            style={[
+              styles.sendBtn,
+              { backgroundColor: isDark ? colors.primary : '#1e293b' },
+              (!input.trim() || isTyping) && [styles.sendBtnDisabled, { backgroundColor: isDark ? colors.surface : '#94a3b8' }],
+            ]}
             onPress={() => handleSend()}
             disabled={!input.trim() || isTyping}
           >
-            <Ionicons name="paper-plane" size={20} color="#FFF" />
+            <Ionicons name="paper-plane" size={20} color={isDark ? colors.onPrimary : '#FFF'} />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -655,70 +732,7 @@ export default function ChatAIScreen() {
   );
 }
 
-const markdownStyles = {
-  body: {
-    fontFamily: FONTS.regular,
-    fontSize: 15,
-    lineHeight: 22,
-    color: '#334155',
-  },
-  heading1: {
-    fontFamily: FONTS.bold,
-    fontSize: 18,
-    marginTop: 8,
-    marginBottom: 4,
-    color: '#0f172a',
-  },
-  heading2: {
-    fontFamily: FONTS.bold,
-    fontSize: 16,
-    marginTop: 6,
-    marginBottom: 4,
-    color: '#1e293b',
-  },
-  strong: {
-    fontFamily: FONTS.bold,
-  },
-  em: {
-    fontStyle: 'italic',
-  },
-  code_inline: {
-    backgroundColor: '#f1f5f9',
-    borderRadius: 4,
-    paddingHorizontal: 4,
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-    color: '#e11d48',
-  },
-  code_block: {
-    backgroundColor: '#1e293b',
-    borderRadius: 8,
-    padding: 12,
-    color: '#f8fafc',
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-  },
-  link: {
-    color: '#2563eb',
-    textDecorationLine: 'underline',
-  },
-  list_item: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginTop: 2,
-    marginBottom: 2,
-  },
-  bullet_list: {
-    marginTop: 4,
-    marginBottom: 4,
-  },
-  ordered_list: {
-    marginTop: 4,
-    marginBottom: 4,
-  },
-  paragraph: {
-    marginTop: 4,
-    marginBottom: 4,
-  },
-} as any;
+
 
 const styles = StyleSheet.create({
   container: {

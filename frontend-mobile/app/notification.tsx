@@ -20,7 +20,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import { apiClient } from '@/services/api-client';
 import { useRouter } from 'expo-router';
-import { DataScreen, LessonListSkeleton, EmptyState } from '@/components';
+import DataScreen from '@/components/templates/DataScreen';
+import LessonListSkeleton from '@/components/skeletons/LessonListSkeleton';
+import EmptyState from '@/components/molecules/EmptyState';
 import { EmptyStates } from '@/assets/empty-states';
 import { ROUTES } from '@/constants';
 

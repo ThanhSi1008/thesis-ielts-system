@@ -152,17 +152,23 @@ export default function AdvancedWritingResultScreen() {
     }
 
     const overall_band = session.bandScore ?? rawFeedback.overall_band ?? rawFeedback.band ?? 6.0;
+    const taskFb = {
+      band: rawFeedback.band ?? rawFeedback.overall_band ?? overall_band,
+      criteria: rawFeedback.criteria ?? {},
+      ...rawFeedback,
+    };
+
     if (prompt?.taskType === 'TASK1') {
       return {
         overall_band,
-        task1: rawFeedback,
+        task1: taskFb,
         task2: null,
       };
     } else {
       return {
         overall_band,
         task1: null,
-        task2: rawFeedback,
+        task2: taskFb,
       };
     }
   }, [session, prompt]);

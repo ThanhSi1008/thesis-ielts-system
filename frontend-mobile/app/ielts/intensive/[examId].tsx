@@ -6,6 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -488,7 +490,11 @@ export default function ExamPlayerScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
-      <ExamHeader
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ExamHeader
         title={exam.title}
         examType={examType}
         timerDisplay={timerDisplay}
@@ -812,6 +818,7 @@ export default function ExamPlayerScreen() {
           onPress: () => setGradingErrorVisible(false),
         }}
       />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

@@ -15,6 +15,7 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { toast } from '@/components/ui/index';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNotification } from '@/contexts/NotificationContext';
 import { apiClient } from '@/services/api-client';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useThemedStyles } from '@/hooks/useThemedStyles';
@@ -28,6 +29,7 @@ export function ProfileAccountTab() {
   const router = useRouter();
   const { user, refreshUser } = useAuth();
   const { theme, resolvedTheme, colors } = useTheme();
+  const { unreadCount, fetchUnreadCount } = useNotification();
   const styles = useThemedStyles(createStyles);
   const isDarkMode = resolvedTheme === 'dark';
 
@@ -90,8 +92,9 @@ export function ProfileAccountTab() {
       setFirstName(user.firstName || '');
       setLastName(user.lastName || '');
       fetchData();
+      fetchUnreadCount().catch(() => null);
     }
-  }, [user]);
+  }, [user, fetchUnreadCount]);
 
   const handleEditAvatar = () => {
     setShowAvatarSheet(true);
@@ -285,6 +288,37 @@ export function ProfileAccountTab() {
           </Text>
         </View>
       </View>
+
+      {/* Notifications Card */}
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={() => router.push('/notification')}
+        style={{ marginBottom: 16 }}
+      >
+        <Card variant="outlined" style={styles.notifCard}>
+          <View style={styles.notifRow}>
+            <View style={styles.notifIconContainer}>
+              <Ionicons name="notifications" size={20} color="#FFC600" />
+            </View>
+            <View style={styles.notifTextContainer}>
+              <Text variant="body" weight="bold" color="text">
+                Notifications
+              </Text>
+              <Text variant="caption" color="textSecondary" style={styles.notifDesc}>
+                View streaks, grading reports and general updates.
+              </Text>
+            </View>
+            {unreadCount > 0 && (
+              <View style={styles.notifBadge}>
+                <Text style={styles.notifBadgeText}>
+                  {unreadCount}
+                </Text>
+              </View>
+            )}
+            <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+          </View>
+        </Card>
+      </TouchableOpacity>
 
       <Card variant="outlined" style={styles.card}>
         <Text variant="title" weight="bold" color="text" style={styles.cardTitle}>
@@ -635,6 +669,53 @@ const createStyles = (colors: any) => {
       marginBottom: 16,
       borderWidth: 1,
       borderColor: colors.border,
+    },
+    notifCard: {
+      backgroundColor: colors.card,
+      borderRadius: 16,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDark ? 0.2 : 0.04,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    notifRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    notifIconContainer: {
+      width: 40,
+      height: 40,
+      borderRadius: 12,
+      backgroundColor: 'rgba(255, 198, 0, 0.1)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    notifTextContainer: {
+      flex: 1,
+      minWidth: 0,
+    },
+    notifDesc: {
+      fontSize: 12,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    notifBadge: {
+      backgroundColor: '#EF4444',
+      borderRadius: 10,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    notifBadgeText: {
+      color: '#FFFFFF',
+      fontSize: 11,
+      fontFamily: FONTS.bold,
     },
     cardTitle: {
       fontSize: 16,

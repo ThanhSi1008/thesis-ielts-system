@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { ConfirmDialog } from '@/components';
 import { toast } from '@/components/ui';
@@ -319,7 +321,11 @@ export default function AdvancedPartScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      {/* Header */}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        {/* Header */}
       <View style={[styles.header, { backgroundColor: accentColor }]}>
         <TouchableOpacity
           onPress={() => router.back()}
@@ -561,6 +567,7 @@ export default function AdvancedPartScreen() {
           onToggleFlag={handleToggleFlag}
         />
       )}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
