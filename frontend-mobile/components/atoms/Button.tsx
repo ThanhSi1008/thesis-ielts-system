@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'google';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps {
@@ -74,6 +74,8 @@ export default function Button({
     iconColor = colors.primary;
   } else if (variant === 'secondary') {
     iconColor = colors.text;
+  } else if (variant === 'google') {
+    iconColor = '#4285F4'; // Brand Google Blue
   }
 
   const spinnerColor =
@@ -81,7 +83,9 @@ export default function Button({
       ? colors.primary
       : variant === 'secondary'
         ? colors.text
-        : '#FFFFFF';
+        : variant === 'google'
+          ? '#4285F4'
+          : '#FFFFFF';
 
   return (
     <AnimatedPressable
@@ -184,6 +188,16 @@ function createStyles(colors: any) {
       shadowRadius: 8,
       elevation: 3,
     },
+    google: {
+      backgroundColor: '#FFFFFF',
+      borderWidth: 1,
+      borderColor: '#E2E8F0',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.06,
+      shadowRadius: 3,
+      elevation: 2,
+    },
     // Sizes
     sm: {
       paddingVertical: spacing[2],
@@ -219,6 +233,9 @@ function createStyles(colors: any) {
     },
     text_danger: {
       color: '#FFFFFF',
+    },
+    text_google: {
+      color: '#3C4043',
     },
     text_sm: {
       fontSize: 14,

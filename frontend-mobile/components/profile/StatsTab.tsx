@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONTS } from '@/constants';
 import { vocabLabApi, gamificationApi } from '@/services';
@@ -9,6 +9,7 @@ import { useThemedStyles } from '@/hooks/useThemedStyles';
 import { GamificationProfile, AchievementItem } from '@/types';
 import { Text, ProgressBar } from '../atoms';
 import { Card } from '../molecules';
+import { BottomSheet } from '../organisms';
 
 export function ProfileStatsTab() {
   const { user } = useAuth();
@@ -20,6 +21,8 @@ export function ProfileStatsTab() {
   const [gamProfile, setGamProfile] = useState<GamificationProfile | null>(null);
   const [achievements, setAchievements] = useState<AchievementItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+  const [selectedAch, setSelectedAch] = useState<AchievementItem | null>(null);
 
   const fetchData = async () => {
     try {
@@ -71,7 +74,11 @@ export function ProfileStatsTab() {
   return (
     <View style={styles.section}>
       {gamProfile && (
-        <Card variant="gradient" gradientColors={['#1E293B', '#0F172A']} style={styles.levelCard}>
+        <Card
+          variant="gradient"
+          gradientColors={isDarkMode ? ['#1E293B', '#0F172A'] : ['#FFFBEB', '#FEF3C7']}
+          style={styles.levelCard}
+        >
           <View style={styles.levelHeader}>
             <View>
               <Text variant="title" weight="bold" style={styles.levelTitle}>
@@ -86,7 +93,13 @@ export function ProfileStatsTab() {
             </View>
           </View>
           
-          <ProgressBar value={progress} max={100} height={8} color="#38BDF8" trackColor="#334155" />
+          <ProgressBar
+            value={progress}
+            max={100}
+            height={8}
+            color={isDarkMode ? '#38BDF8' : '#FFC600'}
+            trackColor={isDarkMode ? '#334155' : colors.border}
+          />
           
           <View style={styles.progressTextRow}>
             <Text variant="caption" style={styles.progressText}>
@@ -139,45 +152,130 @@ export function ProfileStatsTab() {
           <Text variant="title" weight="bold" color="text" style={styles.sectionTitle}>
             Achievements
           </Text>
-          <View style={styles.achievementsList}>
-            {achievements.map((ach) => {
+          <View style={styles.achievementsGrid}>
+            {(showAll ? achievements : achievements.slice(0, 6)).map((ach) => {
               const isEarned = !!ach.earnedAt;
               return (
-                <Card
+                <TouchableOpacity
                   key={ach.id}
-                  variant="outlined"
-                  style={[styles.achCard, !isEarned && styles.achCardLocked]}
+                  style={styles.achGridItem}
+                  onPress={() => setSelectedAch(ach)}
+                  activeOpacity={0.7}
                 >
-                  <View style={[styles.achIconBox, !isEarned && { backgroundColor: colors.bgSubtle }]}>
-                    <Text style={styles.achIcon}>{ach.icon || '🏆'}</Text>
-                  </View>
-                  <View style={styles.achContent}>
-                    <Text variant="body" weight="bold" color="text" style={styles.achTitle}>
-                      {ach.name}
-                    </Text>
-                    <Text variant="caption" color="textSecondary" style={styles.achDesc}>
-                      {ach.description}
-                    </Text>
-                    {!isEarned && ach.progress !== undefined && (
-                      <View style={{ marginTop: 8 }}>
-                        <ProgressBar
-                          value={ach.progress}
-                          max={ach.conditionValue || 100}
-                          height={4}
-                          color="#10B981"
-                        />
+                  <View style={[
+                    styles.achBadgeOuter,
+                    isEarned ? styles.achBadgeEarned : styles.achBadgeLocked
+                  ]}>
+                    <Text style={styles.achGridIcon}>{ach.icon || '🏆'}</Text>
+                    {!isEarned && (
+                      <View style={styles.achLockOverlay}>
+                        <Ionicons name="lock-closed" size={10} color="#FFFFFF" />
                       </View>
                     )}
                   </View>
-                  <Text variant="caption" weight="bold" style={styles.achXp}>
-                    +{ach.xpReward} XP
+                  <Text variant="body" weight="bold" color="text" numberOfLines={1} style={styles.achGridName}>
+                    {ach.name}
                   </Text>
-                </Card>
+                  <Text variant="caption" style={[styles.achGridSub, { color: isEarned ? '#10B981' : colors.textSecondary }]}>
+                    {isEarned ? `+${ach.xpReward} XP` : '0 XP'}
+                  </Text>
+                </TouchableOpacity>
               );
             })}
           </View>
+
+          {achievements.length > 6 && (
+            <TouchableOpacity
+              style={styles.expandBtn}
+              onPress={() => setShowAll(!showAll)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.expandBtnText}>
+                {showAll ? 'Show Less' : `View All Achievements (${achievements.length})`}
+              </Text>
+              <Ionicons
+                name={showAll ? 'chevron-up' : 'chevron-down'}
+                size={16}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+          )}
         </>
       )}
+
+      {/* End of content footer */}
+      <View style={styles.footerDivider}>
+        <View style={styles.footerLine} />
+        <Ionicons name="sparkles" size={16} color={colors.textMuted} style={styles.footerIcon} />
+        <View style={styles.footerLine} />
+      </View>
+      <Text variant="caption" color="textMuted" style={styles.footerText}>
+        All caught up! ✨ Keep learning to unlock more achievements!
+      </Text>
+
+      <BottomSheet
+        visible={!!selectedAch}
+        onClose={() => setSelectedAch(null)}
+        snapPointHeight={selectedAch?.earnedAt ? 0.38 : 0.45}
+        title="Achievement Details"
+      >
+        {selectedAch && (
+          <View style={styles.achSheetContent}>
+            <View style={styles.achSheetHeader}>
+              <View style={[
+                styles.achSheetIconBox,
+                selectedAch.earnedAt ? styles.achBadgeEarned : styles.achBadgeLocked
+              ]}>
+                <Text style={styles.achSheetIcon}>{selectedAch.icon || '🏆'}</Text>
+              </View>
+              <View style={styles.achSheetHeaderInfo}>
+                <Text variant="body" weight="bold" color="text" style={{ fontSize: 18 }}>
+                  {selectedAch.name}
+                </Text>
+                <Text variant="caption" weight="bold" style={styles.achSheetXpReward}>
+                  +{selectedAch.xpReward} XP Reward
+                </Text>
+              </View>
+            </View>
+
+            <Text variant="body" color="textSecondary" style={styles.achSheetDesc}>
+              {selectedAch.description}
+            </Text>
+
+            <View style={styles.achSheetStatusBox}>
+              {selectedAch.earnedAt ? (
+                <View style={styles.achSheetEarnedRow}>
+                  <Ionicons name="checkmark-circle" size={20} color="#10B981" />
+                  <Text variant="body" weight="bold" style={{ color: '#10B981', marginLeft: 6 }}>
+                    Earned on {new Date(selectedAch.earnedAt).toLocaleDateString()}
+                  </Text>
+                </View>
+              ) : (
+                <View style={{ width: '100%' }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <Text variant="caption" color="textSecondary">Progress</Text>
+                    <Text variant="caption" weight="bold" color="text">
+                      {selectedAch.progress || 0} / {selectedAch.conditionValue || 100}
+                    </Text>
+                  </View>
+                  <ProgressBar
+                    value={selectedAch.progress || 0}
+                    max={selectedAch.conditionValue || 100}
+                    height={8}
+                    color="#10B981"
+                  />
+                  <View style={styles.achSheetLockedRow}>
+                    <Ionicons name="lock-closed" size={16} color={colors.textSecondary} />
+                    <Text variant="caption" color="textSecondary" style={{ marginLeft: 4 }}>
+                      Locked — Keep practicing to unlock!
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+      </BottomSheet>
     </View>
   );
 }
@@ -205,10 +303,10 @@ const createStyles = (colors: any) => {
       marginBottom: 16,
     },
     levelTitle: {
-      color: '#FFFFFF',
+      color: isDark ? '#FFFFFF' : colors.text,
     },
     levelSubtitle: {
-      color: '#94A3B8',
+      color: isDark ? '#94A3B8' : colors.textSecondary,
       marginTop: 2,
     },
     levelBadge: {
@@ -225,7 +323,7 @@ const createStyles = (colors: any) => {
       marginTop: 8,
     },
     progressText: {
-      color: '#94A3B8',
+      color: isDark ? '#94A3B8' : colors.textSecondary,
     },
     sectionTitle: {
       marginTop: 8,
@@ -252,40 +350,157 @@ const createStyles = (colors: any) => {
     statLabel: {
       marginTop: 4,
     },
-    achievementsList: {
-      gap: 12,
-    },
-    achCard: {
+    achievementsGrid: {
       flexDirection: 'row',
-      padding: 16,
+      flexWrap: 'wrap',
+      gap: 8,
+      justifyContent: 'space-between',
+      paddingHorizontal: 4,
+    },
+    achGridItem: {
+      width: '30%',
       alignItems: 'center',
+      marginBottom: 16,
     },
-    achCardLocked: {
-      opacity: 0.6,
-    },
-    achIconBox: {
-      width: 48,
-      height: 48,
-      borderRadius: 12,
+    achBadgeOuter: {
+      width: 72,
+      height: 72,
+      borderRadius: 36,
       alignItems: 'center',
       justifyContent: 'center',
-      marginRight: 16,
+      position: 'relative',
+      backgroundColor: colors.card,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isDark ? 0.2 : 0.04,
+      shadowRadius: 6,
+      elevation: 2,
     },
-    achIcon: {
-      fontSize: 24,
+    achBadgeEarned: {
+      backgroundColor: isDark ? 'rgba(251, 191, 36, 0.15)' : 'rgba(251, 191, 36, 0.12)',
+      borderColor: '#FBBF24',
+      borderWidth: 2,
     },
-    achContent: {
+    achBadgeLocked: {
+      backgroundColor: colors.bgSubtle,
+      borderColor: colors.border,
+      opacity: 0.5,
+    },
+    achGridIcon: {
+      fontSize: 32,
+    },
+    achLockOverlay: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      width: 20,
+      height: 20,
+      borderRadius: 10,
+      backgroundColor: 'rgba(71, 85, 105, 0.95)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1.5,
+      borderColor: '#FFFFFF',
+    },
+    achGridName: {
+      fontFamily: FONTS.bold,
+      fontSize: 13,
+      color: colors.text,
+      marginTop: 8,
+      textAlign: 'center',
+    },
+    achGridSub: {
+      fontSize: 11,
+      marginTop: 2,
+      textAlign: 'center',
+    },
+    achSheetContent: {
+      paddingVertical: 12,
+      gap: 16,
+    },
+    achSheetHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 16,
+    },
+    achSheetIconBox: {
+      width: 64,
+      height: 64,
+      borderRadius: 32,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    achSheetIcon: {
+      fontSize: 28,
+    },
+    achSheetHeaderInfo: {
       flex: 1,
     },
-    achTitle: {
-      fontSize: 15,
-    },
-    achDesc: {
-      marginTop: 2,
-    },
-    achXp: {
+    achSheetXpReward: {
       color: '#38BDF8',
-      marginLeft: 8,
+      fontSize: 14,
+      marginTop: 4,
+    },
+    achSheetDesc: {
+      fontSize: 15,
+      lineHeight: 22,
+    },
+    achSheetStatusBox: {
+      backgroundColor: colors.bgSubtle,
+      padding: 16,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    achSheetEarnedRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    achSheetLockedRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 12,
+    },
+    expandBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      paddingVertical: 12,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      borderRadius: 12,
+      marginTop: 8,
+      backgroundColor: colors.card,
+    },
+    expandBtnText: {
+      fontFamily: FONTS.bold,
+      fontSize: 14,
+      color: colors.primary,
+    },
+    footerDivider: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 32,
+      marginBottom: 12,
+      paddingHorizontal: 32,
+    },
+    footerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border,
+    },
+    footerIcon: {
+      marginHorizontal: 12,
+    },
+    footerText: {
+      textAlign: 'center',
+      marginBottom: 32,
+      fontSize: 12,
+      fontFamily: FONTS.regular,
     },
   });
 };

@@ -341,6 +341,7 @@ export default function ReadingExamBlock({
             ref={questionsScrollRef}
             style={styles.scroll}
             nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ padding: SPACING.lg, paddingBottom: SPACING.xxl }}
           >
             <View style={[styles.paneHeader, { borderColor: colors.border + '40' }]}>

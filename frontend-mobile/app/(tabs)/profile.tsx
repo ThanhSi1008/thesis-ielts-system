@@ -18,7 +18,6 @@ import {
   ProfileAccountTab,
   ProfileStatsTab,
   ProfileSettingsTab,
-  ConfirmDialog,
   Text,
 } from '@/components';
 
@@ -27,23 +26,18 @@ type TabType = 'account' | 'stats' | 'settings';
 export default function ProfileScreen() {
   const router = useRouter();
   const { tab } = useLocalSearchParams<{ tab?: TabType }>();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { colors, resolvedTheme } = useTheme();
   const styles = useThemedStyles(createStyles);
   const isDarkMode = resolvedTheme === 'dark';
 
   const [activeTab, setActiveTab] = useState<TabType>('account');
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   React.useEffect(() => {
     if (tab && ['account', 'stats', 'settings'].includes(tab)) {
       setActiveTab(tab);
     }
   }, [tab]);
-
-  const handleLogout = () => {
-    setShowLogoutConfirm(true);
-  };
 
   if (!user) {
     return (
@@ -121,47 +115,8 @@ export default function ProfileScreen() {
           {activeTab === 'stats' && <ProfileStatsTab />}
 
           {activeTab === 'settings' && <ProfileSettingsTab />}
-
-          <View style={styles.logoutWrapper}>
-            <TouchableOpacity
-              style={styles.fullLogoutBtn}
-              onPress={handleLogout}
-              accessible={true}
-              accessibilityRole="button"
-              accessibilityLabel="Log Out button"
-              accessibilityHint="Double tap to open log out confirmation dialog"
-            >
-              <Ionicons name="log-out-outline" size={24} color="#EF4444" />
-              <Text variant="body" weight="bold" style={styles.fullLogoutBtnText}>
-                Log Out
-              </Text>
-            </TouchableOpacity>
-          </View>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      <ConfirmDialog
-        visible={showLogoutConfirm}
-        onClose={() => setShowLogoutConfirm(false)}
-        variant="destructive"
-        title="Log Out"
-        message="Are you sure you want to log out?"
-        primaryAction={{
-          title: 'Log Out',
-          onPress: async () => {
-            setShowLogoutConfirm(false);
-            try {
-              await logout();
-            } catch (error) {
-              if (__DEV__) console.error('Logout failed', error);
-            }
-          },
-        }}
-        secondaryAction={{
-          title: 'Cancel',
-          onPress: () => setShowLogoutConfirm(false),
-        }}
-      />
     </SafeAreaView>
   );
 }
@@ -206,31 +161,6 @@ const createStyles = (colors: any) => {
     },
     activeTabText: {
       color: colors.primary,
-    },
-    logoutWrapper: {
-      paddingHorizontal: 16,
-      marginTop: 16,
-      marginBottom: 32,
-    },
-    fullLogoutBtn: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: colors.card,
-      paddingVertical: 16,
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-      shadowColor: '#EF4444',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.05,
-      shadowRadius: 12,
-      elevation: 2,
-      gap: 8,
-    },
-    fullLogoutBtnText: {
-      fontSize: 16,
-      color: '#EF4444',
     },
     guestContainer: {
       flex: 1,

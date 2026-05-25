@@ -19,6 +19,7 @@ import { toast } from '@/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { vocabLabApi } from '@/services/features.api';
+import Markdown from 'react-native-markdown-display';
 
 const { height: SCREEN_H } = Dimensions.get('window');
 const SHEET_MAX_H = SCREEN_H * 0.88;
@@ -150,6 +151,32 @@ export function CardDetailSheet({
   const ctFields: any[] = card.cardType?.fields ?? [];
   const hasCustomType = ctFields.length > 0;
 
+  const customColor = card.cardType?.templates?.[0]?.cardStyle?.color ?? COLORS.text;
+  const markdownStyles = React.useMemo(() => ({
+    body: {
+      fontSize: 16,
+      color: customColor,
+    },
+    paragraph: {
+      fontSize: 16,
+      color: customColor,
+      marginVertical: 2,
+    },
+    strong: {
+      fontWeight: 'bold',
+      color: customColor,
+    },
+    em: {
+      fontStyle: 'italic',
+      color: customColor,
+    },
+    code_inline: {
+      backgroundColor: '#f1f5f9',
+      borderRadius: 4,
+      paddingHorizontal: 4,
+    },
+  }), [customColor]);
+
   // Display text for read mode
   const displayFront = card.front || Object.values(card.fieldValues ?? {})[0] || '';
   const displayBack = card.back || Object.values(card.fieldValues ?? {})[1] || '';
@@ -246,16 +273,9 @@ export function CardDetailSheet({
                             >
                               {field.name}
                             </Text>
-                            <Text
-                              style={[
-                                s.fieldValue,
-                                card.cardType?.templates?.[0]?.cardStyle?.color
-                                  ? { color: card.cardType.templates[0].cardStyle.color }
-                                  : null,
-                              ]}
-                            >
+                            <Markdown style={markdownStyles as any}>
                               {cleanVal || '—'}
-                            </Text>
+                            </Markdown>
                           </View>
                         );
                       })
@@ -272,16 +292,9 @@ export function CardDetailSheet({
                         >
                           Front
                         </Text>
-                        <Text
-                          style={[
-                            s.fieldValue,
-                            card.cardType?.templates?.[0]?.cardStyle?.color
-                              ? { color: card.cardType.templates[0].cardStyle.color }
-                              : null,
-                          ]}
-                        >
+                        <Markdown style={markdownStyles as any}>
                           {String(displayFront) || '—'}
-                        </Text>
+                        </Markdown>
                       </View>
                       <View style={s.readField}>
                         <Text
@@ -294,16 +307,9 @@ export function CardDetailSheet({
                         >
                           Back
                         </Text>
-                        <Text
-                          style={[
-                            s.fieldValue,
-                            card.cardType?.templates?.[0]?.cardStyle?.color
-                              ? { color: card.cardType.templates[0].cardStyle.color }
-                              : null,
-                          ]}
-                        >
+                        <Markdown style={markdownStyles as any}>
                           {String(displayBack) || '—'}
-                        </Text>
+                        </Markdown>
                       </View>
                     </>
                   )}

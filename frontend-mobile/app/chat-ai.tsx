@@ -556,13 +556,16 @@ export default function ChatAIScreen() {
         });
 
         // Trigger Quick Add Card prefilled exactly matching web!
-        DeviceEventEmitter.emit('OPEN_QUICK_ADD_CARD', {
-          front: word,
-          back: context,
-          tags: ['AI-Chat'],
-          AICardType: cardType,
-          AIFieldValues: generatedFields,
-        });
+        router.back();
+        setTimeout(() => {
+          DeviceEventEmitter.emit('OPEN_QUICK_ADD_CARD', {
+            front: word,
+            back: context,
+            tags: ['AI-Chat'],
+            AICardType: cardType,
+            AIFieldValues: generatedFields,
+          });
+        }, 350);
       } catch (error) {
         if (__DEV__) console.error('Generation error:', error);
         setMessages((prev) => [
