@@ -17,6 +17,7 @@ import {
   ContentImportJob,
   ContentImportStatus,
   ContentImportSkill,
+  ContentImportSourceType,
 } from "@prisma/client";
 import { randomUUID } from "crypto";
 
@@ -33,12 +34,8 @@ export class ContentImportService {
    * Creates one or multiple import jobs based on target skill and triggers AMQP pipelines.
    */
   async create(dto: CreateImportJobDto, userId: string): Promise<any> {
-    if (dto.sourceType === "WEB_URL" as any) {
-      throw new BadRequestException("Web scraping is no longer supported. Please upload a physical PDF file.");
-    }
-
     // ─── COST GUARD: Prevention of budget runaway ───
-    const costGuardLimit = this.configService.get<number>("IMPORT_JOB_GEMINI_LIMIT_24H", 10000000); // 10M tokens limit
+    const costGuardLimit = this.configService.get<number>("IMPORT_JOB_GEMINI_LIMIT_24H", 10000000);
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const tokensAggregation = await this.prisma.contentImportJob.aggregate({
       _sum: {
@@ -55,7 +52,15 @@ export class ContentImportService {
       );
     }
 
+    const isRawTextPaste = dto.sourceType === ContentImportSourceType.RAW_TEXT_PASTE;
+
     if (dto.skill === ContentImportSkill.FULL_TEST) {
+      if (isRawTextPaste) {
+        throw new BadRequestException(
+          "RAW_TEXT_PASTE is not supported for FULL_TEST imports. Please upload a PDF file."
+        );
+      }
+
       const groupId = randomUUID();
       const groupExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days TTL
       const skills = [
@@ -64,7 +69,7 @@ export class ContentImportService {
         ContentImportSkill.WRITING,
         ContentImportSkill.SPEAKING,
       ];
-      
+
       const createdJobs: ContentImportJob[] = [];
       for (const s of skills) {
         const created = await this.prisma.contentImportJob.create({
@@ -83,7 +88,6 @@ export class ContentImportService {
         });
         createdJobs.push(created);
 
-        // Publish to AMQP extraction queue
         await this.aiClientService.publishExtractionTask({
           jobId: created.id,
           targetSystem: created.targetSystem,
@@ -104,7 +108,6 @@ export class ContentImportService {
 
       return { groupId, jobs: createdJobs };
     } else {
-      // Single skill import job
       const created = await this.prisma.contentImportJob.create({
         data: {
           createdById: userId,
@@ -113,12 +116,13 @@ export class ContentImportService {
           sourceType: dto.sourceType,
           sourceRef: dto.sourceRef,
           provenance: dto.provenance,
+          // Pre-populate rawText for RAW_TEXT_PASTE so Stage 1 is bypassed in the worker
+          rawText: isRawTextPaste ? dto.sourceRef : null,
           status: ContentImportStatus.PENDING,
           processingStartedAt: new Date(),
         },
       });
 
-      // Publish to AMQP extraction queue
       await this.aiClientService.publishExtractionTask({
         jobId: created.id,
         targetSystem: created.targetSystem,
@@ -126,6 +130,8 @@ export class ContentImportService {
         sourceType: created.sourceType,
         sourceRef: created.sourceRef,
         provenance: created.provenance,
+        // Signal the worker to skip Stage 1 and go directly to Gemini structuring
+        rawText: isRawTextPaste ? dto.sourceRef : undefined,
       });
 
       await this.auditLogService.log(

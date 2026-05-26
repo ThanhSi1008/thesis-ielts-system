@@ -57,7 +57,7 @@ export default function IELTSAdvancedAdminPage() {
 
   // New Import State
   const [skill, setSkill] = useState<string>("READING");
-  const [sourceType, setSourceType] = useState<string>("WEB_URL");
+  const [sourceType, setSourceType] = useState<string>("PDF_UPLOAD");
   const [sourceRef, setSourceRef] = useState<string>("");
   const [provSource, setProvSource] = useState<string>("cambridge");
   const [provBook, setProvBook] = useState<number>(18);
@@ -222,7 +222,11 @@ export default function IELTSAdvancedAdminPage() {
   const handleCreateImportJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sourceRef.trim()) {
-      toast.error("Please supply a URL or PDF file.");
+      if (sourceType === "PDF_UPLOAD") {
+        toast.error("Vui lòng tải lên file PDF.");
+      } else {
+        toast.error("Vui lòng nhập nội dung văn bản thô.");
+      }
       return;
     }
 
@@ -516,8 +520,8 @@ export default function IELTSAdvancedAdminPage() {
                     }}
                     className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
                   >
-                    <option value="WEB_URL">Web Page URL</option>
                     <option value="PDF_UPLOAD">PDF File Drop</option>
+                    <option value="RAW_TEXT_PASTE">Dán văn bản thô (Raw Text)</option>
                   </select>
                 </div>
                 <div>
@@ -534,16 +538,16 @@ export default function IELTSAdvancedAdminPage() {
                 </div>
               </div>
 
-              {/* URL Reference or PDF Upload Input */}
-              {sourceType === "WEB_URL" ? (
+              {/* PDF Upload or Raw Text Paste Input */}
+              {sourceType === "RAW_TEXT_PASTE" ? (
                 <div>
-                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Web URL *</label>
-                  <input
-                    type="url"
+                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Nội dung văn bản thô *</label>
+                  <textarea
                     value={sourceRef}
                     onChange={e => setSourceRef(e.target.value)}
-                    placeholder="https://ieltsonlinetests.com/..."
-                    className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
+                    placeholder="Dán nội dung bài đọc/bài nghe và câu hỏi tại đây..."
+                    rows={8}
+                    className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-y font-mono"
                     required
                   />
                 </div>

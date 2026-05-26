@@ -182,7 +182,7 @@ class ExtractionService:
             )
             contents_input.append(prompt_instruction)
         else:
-            # Traditional text-only import (e.g. Scraped WEB_URL)
+            # RAW_TEXT_PASTE path: raw text supplied directly, no PDF upload needed
             contents_input.append(f"Please extract structured content from the following raw text:\n\n{raw_text}")
 
         try:

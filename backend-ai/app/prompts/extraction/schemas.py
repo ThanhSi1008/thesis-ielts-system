@@ -27,7 +27,7 @@ class QuestionItem(BaseModel):
     )
     explanation: Optional[str] = Field(
         default=None,
-        description="Brief sentence explaining why this answer is correct or quoting the passage/transcript."
+        description="Highly detailed, comprehensive explanation written entirely in English. Must NOT be a simple re-statement of the answer. It must clearly state where the answer is located in the text/transcript, justify why it is correct based on logic/synonyms, and briefly analyze why other options are incorrect if multiple choice/matching."
     )
 
 # =====================================================================

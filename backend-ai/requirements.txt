@@ -44,6 +44,4 @@ opentelemetry-instrumentation-fastapi
 opentelemetry-exporter-otlp-proto-http
 opentelemetry-instrumentation-httpx
 
-# PDF Cache Parsing
-pymupdf==1.23.22
 

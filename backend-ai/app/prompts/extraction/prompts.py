@@ -15,7 +15,11 @@ Please follow these strict guidelines:
    - Extract the question text. Use underscores like '___' to indicate gap-filling slots.
    - For multiple_choice, list all options exactly as they appear (e.g., ['A. by car', 'B. by bus', 'C. on foot']).
    - Supply the exact correct `answer` key (e.g., 'A', 'B', or the text phrase for gap-filling). Must NOT be empty.
-   - Write a brief justification or quote from the transcript as the `explanation` **strictly in Vietnamese** (e.g. 'Người nói đề cập rằng...').
+   - Write a highly detailed, comprehensive explanation for the `explanation` field written **entirely in English**.
+   - The explanation must NOT be a simple re-statement of the answer. It MUST include:
+     1) Locating: Clearly state which speaker and part of the transcript contains the answer (e.g. quote/reference).
+     2) Justification: Explain why this is correct based on logic, synonyms, paraphrasing, or logical deduction.
+     3) Distractor Analysis (for Multiple Choice/Matching): Briefly explain why the other options are incorrect or misleading based on the context.
 6. **NO Verbatim Echoing**: Keep question texts clean and concise. Do NOT echo large chunks of the transcript inside the question text.
 """
 
@@ -32,7 +36,11 @@ Please follow these strict guidelines:
    - Extract the question text. Use underscores like '___' for gap-filling.
    - For true_false_not_given or yes_no_not_given, set `type` strictly to 'true_false_not_given' or 'yes_no_not_given'. The correct answer key MUST be strictly 'TRUE', 'FALSE', or 'NOT GIVEN' (or 'YES', 'NO', 'NOT GIVEN').
    - Supply the exact correct `answer` key (e.g., 'A', 'TRUE', 'NOT GIVEN', or the text words for gap-filling). Must NOT be empty.
-   - Write a brief quote from the passage justifying the answer as the `explanation` **strictly in Vietnamese** (e.g. 'Đoạn văn nêu rõ...').
+   - Write a highly detailed, comprehensive explanation for the `explanation` field written **entirely in English**.
+   - The explanation must NOT be a simple re-statement of the answer. It MUST include:
+     1) Locating: Clearly state which paragraph, section, or line of the passage contains the answer.
+     2) Justification: Explain why this specific word or option is correct based on logical deduction, paraphrasing, or synonyms.
+     3) Distractor Analysis (for Multiple Choice/Matching): Briefly explain why the other options are incorrect or misleading based on context.
 6. **NO Verbatim Echoing (Questions Only)**: Keep question texts and option labels concise. Do NOT copy the passage text into the question or option fields. This rule applies only to question/option/explanation fields — the `passage` field is exempt and MUST contain the full text.
 
 """

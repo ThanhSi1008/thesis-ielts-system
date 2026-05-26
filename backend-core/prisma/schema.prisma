@@ -1403,8 +1403,8 @@ enum ContentImportSkill {
 }
 
 enum ContentImportSourceType {
-  WEB_URL
   PDF_UPLOAD
+  RAW_TEXT_PASTE
 }
 
 enum ContentImportStatus {

@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 class ContentExtractionConsumer(threading.Thread):
-    """RabbitMQ consumer for IELTS Content Scrape and Structured Extraction Tasks"""
+    """RabbitMQ consumer for IELTS Content Extraction Tasks (PDF multimodal and raw text paste)"""
     
     def __init__(self):
         super().__init__(daemon=True)
@@ -61,7 +61,7 @@ class ContentExtractionConsumer(threading.Thread):
             self.connection.close()
 
     async def _async_process(self, task: dict) -> dict:
-        """Helper to run the async scrape & extraction services cleanly in thread"""
+        """Runs the two-stage extraction pipeline (Stage 1: PDF upload; Stage 2: Gemini structuring)"""
         job_id = task.get("jobId")
         target_system = task.get("targetSystem")
         skill = task.get("skill")
@@ -75,14 +75,13 @@ class ContentExtractionConsumer(threading.Thread):
         structurer = get_extraction_service()
         
         if raw_text:
-            logger.info(f"⏭️ [Stage 1] Skipping physical extraction, rawText already supplied for job {job_id}")
+            logger.info(f"⏭️ [Stage 1] Skipping PDF upload — rawText already supplied for job {job_id}")
             if not media_assets:
                 media_assets = []
         else:
-            from app.services.raw_extractor import get_raw_extractor
             extractor = get_raw_extractor()
-            # Step 1: Raw Scrape/Parse
-            logger.info(f"📥 [Stage 1] Physical extraction for job {job_id}...")
+            # Step 1: Upload PDF to Gemini Files API
+            logger.info(f"📥 [Stage 1] PDF upload for job {job_id}...")
             raw_result = await extractor.extract_raw(source_type, source_ref, skill)
             raw_text = raw_result["rawText"]
             media_assets = raw_result["mediaAssets"]
