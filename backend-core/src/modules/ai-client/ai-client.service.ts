@@ -40,6 +40,14 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
       await this.channel.assertQueue(this.pronunciationQueueName, {
         durable: true,
       });
+      await this.channel.assertQueue("content-extraction-queue", {
+        durable: true,
+        arguments: {
+          'x-message-ttl': 600000,
+          'x-dead-letter-exchange': '',
+          'x-dead-letter-routing-key': 'content-extraction-dlq'
+        }
+      });
       console.log("✅ RabbitMQ connected successfully");
     } catch (error) {
       console.error("❌ RabbitMQ connection error:", error);
@@ -82,5 +90,23 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
       { persistent: true },
     );
     console.log(`📤 Published pronunciation task for attempt: ${task.attemptId}`);
+  }
+
+  async publishExtractionTask(task: {
+    jobId: string;
+    targetSystem: string;
+    skill: string;
+    sourceType: string;
+    sourceRef: string;
+    provenance: any;
+    rawText?: string;
+    mediaAssets?: any;
+  }): Promise<void> {
+    if (!this.channel) throw new Error("RabbitMQ channel not initialized");
+    const message = JSON.stringify(task);
+    this.channel.sendToQueue("content-extraction-queue", Buffer.from(message), {
+      persistent: true,
+    });
+    console.log(`📤 Published extraction task for job: ${task.jobId}`);
   }
 }

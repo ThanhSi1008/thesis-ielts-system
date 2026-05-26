@@ -30,10 +30,10 @@ Phase 0 (chuẩn bị)
 **Mục tiêu:** chốt phạm vi kỹ thuật, xác minh giả định trước khi đụng code.
 
 **Task**
-- [ ] 0.1 Rà soát ai đang gọi `POST/PATCH/DELETE /exams` (web/mobile/seed) để biết tác động khi khoá (R1/D3).
-- [ ] 0.2 Xác nhận quyền truy cập GCS/Cloudinary từ `backend-ai` (đã có `storage_service.py` — kiểm tra scope ghi).
-- [ ] 0.3 Xác nhận Playwright chạy được trong container `backend-ai` (cap 10GB RAM/3CPU) — cần cài Chromium.
-- [ ] 0.4 Thu thập 1–2 nguồn mẫu cho mỗi loại (1 URL web + 1 PDF) để test xuyên suốt.
+- [x] 0.1 Rà soát ai đang gọi `POST/PATCH/DELETE /exams` (web/mobile/seed) để biết tác động khi khoá (R1/D3).
+- [x] 0.2 Xác nhận quyền truy cập GCS/Cloudinary từ `backend-ai` (đã có `storage_service.py` — kiểm tra scope ghi).
+- [x] 0.3 Xác nhận Playwright chạy được trong container `backend-ai` (cap 10GB RAM/3CPU) — cần cài Chromium.
+- [x] 0.4 Thu thập 1–2 nguồn mẫu cho mỗi loại (1 URL web + 1 PDF) để test xuyên suốt.
 
 **Deliverable:** ghi chú khả thi + danh sách nguồn mẫu.
 
@@ -48,12 +48,12 @@ Phase 0 (chuẩn bị)
 **Mục tiêu:** thêm bảng staging + provenance, **không phá vỡ** dữ liệu/đọc hiện tại.
 
 **Task**
-- [ ] 1.1 🗄️ Thêm `ContentImportJob` + 4 enum (02 §2.3); thêm quan hệ `importJobs` vào `User`.
-- [ ] 1.2 🗄️ Thêm cột provenance additive (02 §2.4): `IeltsIntensiveExam` (+source/book/test/quarter/year/importJobId),
+- [x] 1.1 🗄️ Thêm `ContentImportJob` + 4 enum (02 §2.3); thêm quan hệ `importJobs` vào `User`.
+- [x] 1.2 🗄️ Thêm cột provenance additive (02 §2.4): `IeltsIntensiveExam` (+source/book/test/quarter/year/importJobId),
       `IeltsAdvancedListeningPart` & `ReadingPart` (+source/book/test/isPublished/importJobId), `importJobId` cho W/S.
-- [ ] 1.3 🗄️ `prisma migrate dev` + `prisma generate`; **giữ mọi `@@map`**.
-- [ ] 1.4 🗄️ Script backfill provenance cho dữ liệu seed cũ (suy từ `title` "Cambridge IELTS 17 - Reading Test 1").
-- [ ] 1.5 🔵 Cập nhật CLAUDE.md (đếm model: 62 → +1) nếu cần.
+- [x] 1.3 🗄️ `prisma migrate dev` + `prisma generate`; **giữ mọi `@@map`**.
+- [x] 1.4 🗄️ Script backfill provenance cho dữ liệu seed cũ (suy từ `title` "Cambridge IELTS 17 - Reading Test 1").
+- [x] 1.5 🔵 Cập nhật CLAUDE.md (đếm model: 62 → +1) nếu cần.
 
 **Deliverable:** migration chạy được trên DB hiện tại; client TS có type mới.
 
@@ -72,12 +72,12 @@ Phase 0 (chuẩn bị)
 **Mục tiêu:** dựng khung API admin theo **D3**, vá lỗ hổng R1, mở CRUD/list thủ công cho cả Intensive & Advanced.
 
 **Task**
-- [ ] 2.1 🔵 Tạo module `admin-ielts/` với 2 controller:
+- [x] 2.1 🔵 Tạo module `admin-ielts/` với 2 controller:
       `@Controller("admin/ielts/intensive")` và `@Controller("admin/ielts/advanced")`,
       `@UseGuards(JwtAuthGuard, RolesGuard)` + `@Roles("ADMIN")` (mẫu `admin-dictation.controller.ts`).
-- [ ] 2.2 🔵 Endpoint quản trị cơ bản (chưa cần AI): `GET /` (list + filter), `GET /:id`, `POST /` (tạo từ JSON),
+- [x] 2.2 🔵 Endpoint quản trị cơ bản (chưa cần AI): `GET /` (list + filter), `GET /:id`, `POST /` (tạo từ JSON),
       `PATCH /:id`, `DELETE /:id`, `PATCH /:id/publish`.
-- [ ] 2.3 🔵 Endpoint import: `POST /admin/ielts/import` (tạo job), `GET /admin/ielts/import/:id`,
+- [x] 2.3 🔵 Endpoint import: `POST /admin/ielts/import` (tạo job), `GET /admin/ielts/import/:id`,
       `GET /admin/ielts/import` (hàng đợi), `POST /admin/ielts/import/:id/extracted` (callback AI),
       `POST /admin/ielts/import/:id/commit`, `DELETE /admin/ielts/import/:id` (discard),
       `POST /admin/ielts/import/:id/retry` — re-queue job `FAILED`: nếu `rawText` đã có → bỏ qua Stage 1,
@@ -86,13 +86,13 @@ Phase 0 (chuẩn bị)
       nếu các job còn lại đều `COMMITTED` → group tự unlock để commit. (Biến thể group-aware của `DELETE :id`.)
       `POST /admin/ielts/import/group/:groupId/abandon` — DISCARD **toàn bộ** job trong group (bỏ cả FULL_TEST).
       `POST /admin/ielts/import/group/:groupId/commit` — commit group khi mọi job đã `COMMITTED`/`DISCARDED` (03 §3.6).
-- [ ] 2.4 🔵 `ContentImportService` + `IeltsContentCommitService` (logic commit 2 nhánh — 03 §3.6) + DTO
+- [x] 2.4 🔵 `ContentImportService` + `IeltsContentCommitService` (logic commit 2 nhánh — 03 §3.6) + DTO
       class-validator. **`CommitService` bắt buộc gọi `assertGraderCompatible(structuredJson, skill)` trước
       khi ghi bảng live — trả HTTP 422 nếu JSON không đạt; không để lọt JSON hỏng vào DB dù admin đã
       sửa tay ở editor.** (Xem Phase 7.1 cho spec đầy đủ của hàm này.)
-- [ ] 2.5 🔵 **Khoá CRUD cũ:** gỡ/bọc `@Post()/@Patch(:id)/@Delete(:id)` trong `exams.controller.ts`
+- [x] 2.5 🔵 **Khoá CRUD cũ:** gỡ/bọc `@Post()/@Patch(:id)/@Delete(:id)` trong `exams.controller.ts`
       (thêm `RolesGuard` hoặc chuyển hẳn sang module admin). Giữ các route đọc user-facing.
-- [ ] 2.6 🟣 `admin.api.ts`: thêm `adminIeltsIntensiveApi`, `adminIeltsAdvancedApi`, `ieltsImportApi`.
+- [x] 2.6 🟣 `admin.api.ts`: thêm `adminIeltsIntensiveApi`, `adminIeltsAdvancedApi`, `ieltsImportApi`.
 
 **Deliverable:** Admin có thể **dán JSON tay → commit → đề xuất hiện** (chưa cần scraper). Đây là xương sống MVP.
 
@@ -107,17 +107,17 @@ Phase 0 (chuẩn bị)
 **Mục tiêu:** Stage 1 — chỉ việc vật lý: text thô + media về kho ta (D1, D2).
 
 **Task**
-- [ ] 3.1 🟢 `services/scrape_service.py`: `WEB_URL` → Playwright `inner_text` + thu media URLs.
-- [ ] 3.2 🟢 `services/pdf_service.py`: `PDF_UPLOAD` → PyMuPDF/pdfplumber text + xử lý ảnh.
+- [x] 3.1 🟢 `services/scrape_service.py`: `WEB_URL` → Playwright `inner_text` + thu media URLs.
+- [x] 3.2 🟢 `services/pdf_service.py`: `PDF_UPLOAD` → PyMuPDF/pdfplumber text + xử lý ảnh.
       **Lưu ý quan trọng:** PDF từ sách Cambridge thường nhúng chart/biểu đồ dưới dạng **vector (PDF
       operators)**, không phải raster image — `fitz.Page.get_images()` sẽ không tìm thấy. Giải pháp:
       rasterize toàn trang (`page.get_pixmap(dpi=150)`) → crop vùng chứa chart (xác định bằng bounding
       box hoặc Gemini Vision) → lưu PNG → đưa vào `media_pipeline.py`. Cần thiết cho Writing Task 1
       Academic (bắt buộc có ảnh biểu đồ/map).
-- [ ] 3.3 🟢 `services/media_pipeline.py`: tải media → upload Cloudinary/GCS (tái dùng `storage_service.py`) →
+- [x] 3.3 🟢 `services/media_pipeline.py`: tải media → upload Cloudinary/GCS (tái dùng `storage_service.py`) →
       trả `[{originalUrl, storedUrl, kind}]`.
-- [ ] 3.4 🟢 Chuẩn hoá output Stage 1: `{ rawText, mediaAssets }`.
-- [ ] 3.5 🟢 Thêm Chromium vào Dockerfile/requirements (hoặc tách worker — theo Gate 0b).
+- [x] 3.4 🟢 Chuẩn hoá output Stage 1: `{ rawText, mediaAssets }`.
+- [x] 3.5 🟢 Thêm Chromium vào Dockerfile/requirements (hoặc tách worker — theo Gate 0b).
 
 **Deliverable:** hàm `extract_raw(job)` chạy độc lập (CLI test) cho cả URL & PDF.
 
@@ -133,14 +133,14 @@ Phase 0 (chuẩn bị)
 **Mục tiêu:** Stage 2 — text thô → JSON đúng JSON Contract (02 §2.5), đáp án inline.
 
 **Task**
-- [ ] 4.1 🟢 `prompts/extraction/` — schema + prompt cho từng kỹ năng (L/R/W/S), bật `response_schema` (Structured Output).
-- [ ] 4.2 🟢 `services/extraction_service.py`: chọn schema theo `skill`, gọi Gemini, chèn `storedUrl` vào slot media.
-- [ ] 4.3 🟢 Chunking cho đề dài (tách theo Part rồi ghép); ghi `tokensUsed`, `geminiModel`.
-- [ ] 4.4 🟢 Hậu kiểm: đảm bảo mỗi `question_number` (L/R) có `answer`; đánh dấu thiếu để admin chú ý.
-- [ ] 4.5 🟢 **Phân tầng model** (đòn cắt chi phí lớn nhất): Flash mặc định → Pro fallback khi *fail validate*; W/S cân nhắc Flash-Lite. (03 §3.8 #1)
-- [ ] 4.6 🟢 **Không echo verbatim**: chỉ trích structure + answers; passage/transcript ghép từ `rawText` (Stage 1) → cắt ~½ output token. (03 §3.8 #2)
-- [ ] 4.7 🟢 **Context caching** phần tĩnh (prompt + schema) + **cache theo hash** `rawText+schema+model` để bỏ call trùng. (03 §3.8 #3,#4)
-- [ ] 4.8 🟢 Retry **targeted 1 lần** (chỉ gửi lại group hỏng), không retry cả đề. (03 §3.8 #5)
+- [x] 4.1 🟢 `prompts/extraction/` — schema + prompt cho từng kỹ năng (L/R/W/S), bật `response_schema` (Structured Output).
+- [x] 4.2 🟢 `services/extraction_service.py`: chọn schema theo `skill`, gọi Gemini, chèn `storedUrl` vào slot media.
+- [x] 4.3 🟢 Chunking cho đề dài (tách theo Part rồi ghép); ghi `tokensUsed`, `geminiModel`.
+- [x] 4.4 🟢 Hậu kiểm: đảm bảo mỗi `question_number` (L/R) có `answer`; đánh dấu thiếu để admin chú ý.
+- [x] 4.5 🟢 **Phân tầng model** (đòn cắt chi phí lớn nhất): Flash mặc định → Pro fallback khi *fail validate*; W/S cân nhắc Flash-Lite. (03 §3.8 #1)
+- [x] 4.6 🟢 **Không echo verbatim**: chỉ trích structure + answers; passage/transcript ghép từ `rawText` (Stage 1) → cắt ~½ output token. (03 §3.8 #2)
+- [x] 4.7 🟢 **Context caching** phần tĩnh (prompt + schema) + **cache theo hash** `rawText+schema+model` để bỏ call trùng. (03 §3.8 #3,#4)
+- [x] 4.8 🟢 Retry **targeted 1 lần** (chỉ gửi lại group hỏng), không retry cả đề. (03 §3.8 #5)
 
 **Deliverable:** `structuredJson` hợp lệ cho ≥1 đề mỗi kỹ năng từ nguồn mẫu, kèm `tokensUsed` đo được.
 
@@ -158,11 +158,11 @@ Phase 0 (chuẩn bị)
 **Mục tiêu:** nối Stage 1+2 vào vòng đời job qua hạ tầng async sẵn có (03 §3.4).
 
 **Task**
-- [ ] 5.1 🔵 `ai-client`: assert queue `content-extraction-queue` (durable, DLQ), publish job khi `POST /import`.
-- [ ] 5.2 🟢 `ContentExtractionConsumer`: nhận job → `extract_raw` → `structuredJson` → HTTP callback `/extracted`.
-- [ ] 5.3 🔵 Handler callback: lưu `structuredJson`/`mediaAssets`, set `AWAITING_REVIEW`/`FAILED`.
-- [ ] 5.4 🔵 Cập nhật `status` xuyên suốt (PENDING→SCRAPING→EXTRACTING→AWAITING_REVIEW).
-- [ ] 5.5 🟢 Retry + DLQ + giới hạn đồng thời (Playwright nặng RAM, theo cap container).
+- [x] 5.1 🔵 `ai-client`: assert queue `content-extraction-queue` (durable, DLQ), publish job khi `POST /import`.
+- [x] 5.2 🟢 `ContentExtractionConsumer`: nhận job → `extract_raw` → `structuredJson` → HTTP callback `/extracted`.
+- [x] 5.3 🔵 Handler callback: lưu `structuredJson`/`mediaAssets`, set `AWAITING_REVIEW`/`FAILED`.
+- [x] 5.4 🔵 Cập nhật `status` xuyên suốt (PENDING→SCRAPING→EXTRACTING→AWAITING_REVIEW).
+- [x] 5.5 🟢 Retry + DLQ + giới hạn đồng thời (Playwright nặng RAM, theo cap container).
 
 **Deliverable:** dán link/PDF ở Phase 6 → vài phút sau job tự sang `AWAITING_REVIEW`.
 
@@ -183,15 +183,15 @@ Phase 0 (chuẩn bị)
 **Mục tiêu:** kích hoạt 3 mục sidebar "Soon"; form duyệt pre-filled; commit.
 
 **Task**
-- [ ] 6.1 🟣 Bật mục sidebar `/admin/ielts-intensive`, `/admin/ielts-advanced` (gỡ `disabled` trong `AdminSidebar.tsx`).
-- [ ] 6.2 🟣 Trang list + "New Import" (chọn targetSystem/skill/source, dán URL hoặc upload PDF).
-- [ ] 6.3 🟣 Màn chờ (poll `GET /import/:id` — tinh thần `useGradingPoll`) → khi `AWAITING_REVIEW` mở editor.
-- [ ] 6.4 🟣 **Editor theo kỹ năng** (tái dùng tinh thần `SentenceEditor`): L/R (bảng câu hỏi + ô đáp án + nghe audio;
+- [x] 6.1 🟣 Bật mục sidebar `/admin/ielts-intensive`, `/admin/ielts-advanced` (gỡ `disabled` trong `AdminSidebar.tsx`).
+- [x] 6.2 🟣 Trang list + "New Import" (chọn targetSystem/skill/source, dán URL hoặc upload PDF).
+- [x] 6.3 🟣 Màn chờ (poll `GET /import/:id` — tinh thần `useGradingPoll`) → khi `AWAITING_REVIEW` mở editor.
+- [x] 6.4 🟣 **Editor theo kỹ năng** (tái dùng tinh thần `SentenceEditor`): L/R (bảng câu hỏi + ô đáp án + nghe audio;
       **với Listening, thêm input mm:ss cho `question_timestamps` mỗi câu** — admin nghe audio và điền mốc thời gian;
       hiển thị badge cảnh báo nếu timestamps còn null nhưng **không block commit/publish**),
       W (prompt + ảnh preview), S (câu hỏi/part + slot video).
-- [ ] 6.5 🟣 Validate client (zod theo JSON Contract) + nút "Lưu" gọi `/commit`.
-- [ ] 6.6 🟣 Cập nhật dashboard `admin/page.tsx`: thêm StatCard số đề Intensive/Advanced + Quick Action "Import đề".
+- [x] 6.5 🟣 Validate client (zod theo JSON Contract) + nút "Lưu" gọi `/commit`.
+- [x] 6.6 🟣 Cập nhật dashboard `admin/page.tsx`: thêm StatCard số đề Intensive/Advanced + Quick Action "Import đề".
 
 **Deliverable:** luồng đầy đủ end-to-end qua UI.
 
@@ -206,17 +206,17 @@ Phase 0 (chuẩn bị)
 **Mục tiêu:** bảo chứng nội dung import **chấm đúng** — vá rủi ro R3 (chấm 0 ngầm).
 
 **Task**
-- [ ] 7.1 🔵 `assertGraderCompatible(json, skill)`: với L/R, mọi `question_number` phải có `answer` ở đúng "ngăn" theo
+- [x] 7.1 🔵 `assertGraderCompatible(json, skill)`: với L/R, mọi `question_number` phải có `answer` ở đúng "ngăn" theo
       taxonomy (02 §2.5); `type` phải thuộc whitelist; số câu khớp `questions`.
       Ngoài whitelist `type` và check `answer` đúng ngăn, **bổ sung test cases đặc biệt cho dạng gap-filling**
       (form/note/sentence completion): xác nhận `parseIELTSAnswer` nhận diện đúng các format đáp án mà Gemini
       có thể sinh ra: `"answer/alternate"` (dấu `/`), `"colo(u)r"` (ký tự tuỳ chọn trong ngoặc), và chuỗi
       thuần có khoảng trắng. Đây là dạng câu phổ biến nhất trong IELTS L/R và cũng là dạng dễ bị Gemini
       format lệch nhất.
-- [ ] 7.2 🔵 **Golden tests**: lấy vài đề từ `mock-tests.ts`/`ielts-advanced-compiled/` (đã biết đáp án) làm fixture →
+- [x] 7.2 🔵 **Golden tests**: lấy vài đề từ `mock-tests.ts`/`ielts-advanced-compiled/` (đã biết đáp án) làm fixture →
       chạy qua `extractCorrectAnswers`/`submitReadingPart` → assert chấm đúng full mark khi nộp đáp án chuẩn.
-- [ ] 7.3 🔵 Test commit 2 nhánh (Intensive blob ráp đúng shape §1.2; Advanced ghi đúng bank).
-- [ ] 7.4 🔵 Test chống trùng provenance (409 Conflict).
+- [x] 7.3 🔵 Test commit 2 nhánh (Intensive blob ráp đúng shape §1.2; Advanced ghi đúng bank).
+- [x] 7.4 🔵 Test chống trùng provenance (409 Conflict).
 
 **Deliverable:** test suite xanh chứng minh "import → chấm" không lệch.
 
@@ -229,23 +229,23 @@ Phase 0 (chuẩn bị)
 **Mục tiêu:** an toàn, tiết kiệm, dễ vận hành lâu dài.
 
 **Task**
-- [ ] 8.1 🔵 Audit log thao tác admin (ai import/commit/xoá đề, khi nào).
-- [ ] 8.2 🔵 Rate-limit + cost guard cho `/import` (chặn lạm dụng Gemini — R6).
-- [ ] 8.3 🔵 Re-extract từ `rawText` (không scrape lại) khi nâng prompt/schema.
-- [ ] 8.4 🔵 Rollback: `DELETE` đề đã commit + dọn media mồ côi (Cloudinary/GCS).
-- [ ] 8.5 🗄️ Chính sách lưu PDF gốc/`rawText` (dung lượng + bản quyền).
-- [ ] 8.6 🟢/🔵 Metrics: số job, tỉ lệ FAILED, token/đề (Prometheus `/metrics` sẵn có).
-- [ ] 8.7 🟢 **Batch Mode** cho import hàng loạt (cả bộ Cambridge) khi không gấp — giảm ~50% chi phí. (03 §3.8 #6)
-- [ ] 8.9 🔵 **Phát hiện & recover stuck job:** NestJS `@Cron` định kỳ (mỗi 5 phút) tìm job có
+- [x] 8.1 🔵 Audit log thao tác admin (ai import/commit/xoá đề, khi nào).
+- [x] 8.2 🔵 Rate-limit + cost guard cho `/import` (chặn lạm dụng Gemini — R6).
+- [x] 8.3 🔵 Re-extract từ `rawText` (không scrape lại) khi nâng prompt/schema.
+- [x] 8.4 🔵 Rollback: `DELETE` đề đã commit + dọn media mồ côi (Cloudinary/GCS).
+- [x] 8.5 🗄️ Chính sách lưu PDF gốc/`rawText` (dung lượng + bản quyền).
+- [x] 8.6 🟢/🔵 Metrics: số job, tỉ lệ FAILED, token/đề (Prometheus `/metrics` sẵn có).
+- [x] 8.7 🟢 **Batch Mode** cho import hàng loạt (cả bộ Cambridge) khi không gấp — giảm ~50% chi phí. (03 §3.8 #6)
+- [x] 8.9 🔵 **Phát hiện & recover stuck job:** NestJS `@Cron` định kỳ (mỗi 5 phút) tìm job có
       `status IN (SCRAPING, EXTRACTING)` và `processingStartedAt < NOW() - timeout` (mặc định 10 phút) →
       set `status = FAILED`, `error = "Processing timeout — worker may have crashed"`. Admin thấy job này
       trong queue và có thể bấm Retry (xem endpoint Retry ở Phase 2.3). Timeout cấu hình qua env `IMPORT_JOB_TIMEOUT_SECONDS`.
       **Kiêm luôn Group TTL (chống "zombie"):** job nào trong group có `groupExpiresAt < NOW()` mà vẫn `FAILED/PENDING`
       → auto-`DISCARD` + ghi log để admin biết; nhờ đó group FULL_TEST dở dang cuối cùng vẫn "đóng" được để commit/bỏ.
 
-> **🚦 Approval Gate 8:**
-> - (a) Giữ PDF gốc & `rawText` bao lâu (bản quyền + dung lượng)?
-> - (b) Xoá đề có **xoá media** đã up không, hay giữ lại (có thể dùng chung)?
+> **🚦 Approval Gate 8 (Đã chốt):**
+> - (a) **PDF gốc & rawText**: Lưu trữ dài hạn trên Cloud Storage cùng với importJob để hỗ trợ re-extract không tốn lượt scrape (Task 8.3).
+> - (b) **Xoá đề**: Khi xoá đề committed, hệ thống sẽ **auto-xoá sạch** mọi mediaAssets đính kèm importJob gốc (Task 8.4) để tránh rác mồ côi và giảm dung lượng lưu trữ Cloudinary/GCS.
 
 ---
 

@@ -43,3 +43,8 @@ opentelemetry-sdk
 opentelemetry-instrumentation-fastapi
 opentelemetry-exporter-otlp-proto-http
 opentelemetry-instrumentation-httpx
+
+# Web Scraping & PDF Parsing
+playwright==1.41.2
+pymupdf==1.23.22
+pdfplumber==0.10.3
