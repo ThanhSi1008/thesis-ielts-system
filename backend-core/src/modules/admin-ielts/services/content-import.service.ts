@@ -74,6 +74,7 @@ export class ContentImportService {
             sourceRef: dto.sourceRef,
             provenance: dto.provenance,
             status: ContentImportStatus.PENDING,
+            processingStartedAt: new Date(),
           },
         });
         createdJobs.push(created);
@@ -109,6 +110,7 @@ export class ContentImportService {
           sourceRef: dto.sourceRef,
           provenance: dto.provenance,
           status: ContentImportStatus.PENDING,
+          processingStartedAt: new Date(),
         },
       });
 
@@ -301,10 +303,11 @@ export class ContentImportService {
     const nextStatus = job.rawText ? ContentImportStatus.EXTRACTING : ContentImportStatus.PENDING;
 
     const updated = await this.prisma.contentImportJob.update({
-      where: { id },
+      where: { id: job.id },
       data: {
         status: nextStatus,
         error: null,
+        processingStartedAt: new Date(),
       },
     });
 

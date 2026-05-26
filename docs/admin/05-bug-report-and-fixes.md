@@ -13,16 +13,16 @@
 
 | ID | Mức | Khu vực | Một dòng | Trạng thái |
 |----|-----|---------|----------|-----------|
-| [BUG-01](#bug-01) | 🔴 Cao | callback auth | HMAC `/extracted` lệch giữa Python ↔ Node → 401 với nội dung non-ASCII | Chưa fix |
-| [BUG-02](#bug-02) | 🔴 Cao | bảo mật | `CALLBACK_SECRET` có default public, không fail-closed | Chưa fix |
-| [BUG-03](#bug-03) | 🟠 Vừa | cron/recovery | Không ghi `SCRAPING/EXTRACTING`/`processingStartedAt` → cron không recover job kẹt `PENDING` | Chưa fix |
-| [BUG-04](#bug-04) | 🟠 Vừa | commit group | `commitGroup` lệch rule đã duyệt + per-job commit job nhóm tạo đề lẻ ngoài ý muốn | Chưa fix |
-| [BUG-05](#bug-05) | 🟠 Vừa | grader safety | Nhánh merge FULL_TEST bỏ qua `assertGraderCompatible` | Chưa fix |
-| [BUG-06](#bug-06) | 🟠 Vừa | tích hợp | Shape `questions` FULL_TEST chưa chứng minh player/grader tiêu thụ được | Chưa fix |
-| [BUG-07](#bug-07) | 🟠 Vừa | grader safety | `assertGraderCompatible` chưa phủ `matching`/`table_completion` | Chưa fix |
-| [BUG-08](#bug-08) | 🟡 Thấp | dedup | W/S không chống trùng khi `engnovateSlug = null` | Chưa fix |
-| [BUG-09](#bug-09) | 🟡 Thấp | runtime | Simulated fallback sinh đề giả khi Gemini key lỗi (rò vào prod) | Chưa fix |
-| [BUG-10](#bug-10) | 🟡 Thấp | dọn dẹp | Param `isPublished` thừa; verb `discard-skill`/`abandon` lệch docs | Chưa fix |
+| [BUG-01](#bug-01) | 🔴 Cao | callback auth | HMAC `/extracted` lệch giữa Python ↔ Node → 401 với nội dung non-ASCII | **Đã fix** |
+| [BUG-02](#bug-02) | 🔴 Cao | bảo mật | `CALLBACK_SECRET` có default public, không fail-closed | **Đã fix** |
+| [BUG-03](#bug-03) | 🟠 Vừa | cron/recovery | Không ghi `SCRAPING/EXTRACTING`/`processingStartedAt` → cron không recover job kẹt `PENDING` | **Đã fix** |
+| [BUG-04](#bug-04) | 🟠 Vừa | commit group | `commitGroup` lệch rule đã duyệt + per-job commit job nhóm tạo đề lẻ ngoài ý muốn | **Đã fix** |
+| [BUG-05](#bug-05) | 🟠 Vừa | grader safety | Nhánh merge FULL_TEST bỏ qua `assertGraderCompatible` | **Đã fix** |
+| [BUG-06](#bug-06) | 🟠 Vừa | tích hợp | Shape `questions` FULL_TEST chưa chứng minh player/grader tiêu thụ được | **Đã fix** |
+| [BUG-07](#bug-07) | 🟠 Vừa | grader safety | `assertGraderCompatible` chưa phủ `matching`/`table_completion` | **Đã fix** |
+| [BUG-08](#bug-08) | 🟡 Thấp | dedup | W/S không chống trùng khi `engnovateSlug = null` | **Đã fix** |
+| [BUG-09](#bug-09) | 🟡 Thấp | runtime | Simulated fallback sinh đề giả khi Gemini key lỗi (rò vào prod) | **Đã fix** |
+| [BUG-10](#bug-10) | 🟡 Thấp | dọn dẹp | Param `isPublished` thừa; verb `discard-skill`/`abandon` lệch docs | **Đã fix** |
 
 **Thứ tự fix đề xuất:** BUG-01 → BUG-02 (chặn pipeline & bảo mật) → BUG-05 → BUG-07 (lưới an toàn chấm điểm R3) → BUG-04 → BUG-03 → BUG-08 → BUG-06 (điều tra) → BUG-09 → BUG-10.
 

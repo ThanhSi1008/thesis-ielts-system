@@ -24,7 +24,12 @@ class ContentExtractionConsumer(threading.Thread):
         self.channel = None
         self.queue_name = "content-extraction-queue"
         self.backend_core_url = settings.backend_core_url
-        self.callback_secret = os.getenv("CALLBACK_SECRET", "test-callback-secret-value-for-ci")
+        callback_secret = os.getenv("CALLBACK_SECRET")
+        if not callback_secret:
+            if settings.environment == "production":
+                raise ValueError("CALLBACK_SECRET is required in production environment")
+            callback_secret = "test-callback-secret-value-for-ci"
+        self.callback_secret = callback_secret
 
     def run(self):
         try:
@@ -112,7 +117,8 @@ class ContentExtractionConsumer(threading.Thread):
         except Exception as e:
             logger.error(f"❌ Extraction pipeline failed for job {job_id}: {e}", exc_info=True)
             # If the API key is invalid/empty, let's fall back to returning simulated schema response so integration tests pass!
-            if "API key not valid" in str(e) or "API_KEY_INVALID" in str(e) or "GEMINI_API_KEY is empty" in str(e):
+            allow_simulated = os.getenv("ALLOW_SIMULATED_EXTRACTION", "false").lower() == "true"
+            if allow_simulated and ("API key not valid" in str(e) or "API_KEY_INVALID" in str(e) or "GEMINI_API_KEY is empty" in str(e)):
                 logger.warning(f"⚠️ Simulated structured output fallback triggered for job {job_id}")
                 payload = {
                     "structuredJson": {

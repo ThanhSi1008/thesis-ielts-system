@@ -57,6 +57,37 @@ export class IeltsContentCommitService {
           if (Array.isArray(obj)) {
             obj.forEach(extract);
           } else {
+            // BUG-07: matching answers in group.answers
+            if (
+              typeof obj.type === "string" &&
+              obj.type.startsWith("matching") &&
+              obj.answers &&
+              typeof obj.answers === "object"
+            ) {
+              for (const [k, v] of Object.entries(obj.answers)) {
+                const letter = (v as any)?.letter ?? v;
+                if (letter !== undefined && letter !== null) {
+                  ansMap.set(`match:${k}`, letter);
+                  typeMap.set(`match:${k}`, obj.type);
+                }
+              }
+            }
+
+            // BUG-07: table_completion answers in rows[].questions[qNum].answer
+            if (Array.isArray(obj.rows)) {
+              for (const row of obj.rows) {
+                if (row?.questions && typeof row.questions === "object") {
+                  for (const [qNum, cell] of Object.entries(row.questions)) {
+                    const cellAns = (cell as any)?.answer;
+                    if (cellAns !== undefined && cellAns !== null) {
+                      ansMap.set(String(qNum), cellAns);
+                      typeMap.set(String(qNum), "fill_blank");
+                    }
+                  }
+                }
+              }
+            }
+
             const ans =
               obj.correct_answer !== undefined
                 ? obj.correct_answer
@@ -140,13 +171,19 @@ export class IeltsContentCommitService {
   /**
    * Commits a single ContentImportJob to the live tables.
    */
-  async commit(jobId: string, overwrite = false, isPublished = false, userId?: string): Promise<string> {
+  async commit(jobId: string, overwrite = false, _unusedIsPublished = false, userId?: string, _fromGroup = false): Promise<string> {
     const job = await this.prisma.contentImportJob.findUnique({
       where: { id: jobId },
     });
 
     if (!job) {
       throw new NotFoundException(`Import job with ID ${jobId} not found.`);
+    }
+
+    if (job.groupId && !_fromGroup) {
+      throw new ConflictException(
+        "Job belongs to a FULL_TEST group — please use the group commit endpoint."
+      );
     }
 
     if (
@@ -320,6 +357,10 @@ export class IeltsContentCommitService {
             existing = await tx.ieltsAdvancedWritingPrompt.findUnique({
               where: { engnovateSlug },
             });
+          } else {
+            existing = await tx.ieltsAdvancedWritingPrompt.findFirst({
+              where: { source, bookNumber, testNumber, taskType: structuredJson.taskType || "TASK_1" },
+            });
           }
 
           if (existing && !overwrite) {
@@ -366,6 +407,10 @@ export class IeltsContentCommitService {
           if (engnovateSlug) {
             existing = await tx.ieltsAdvancedSpeakingPart.findUnique({
               where: { engnovateSlug_partNumber: { engnovateSlug, partNumber } },
+            });
+          } else {
+            existing = await tx.ieltsAdvancedSpeakingPart.findFirst({
+              where: { source, bookNumber, testNumber, partNumber },
             });
           }
 
@@ -441,16 +486,17 @@ export class IeltsContentCommitService {
       throw new NotFoundException(`No staging jobs found under groupId: ${groupId}`);
     }
 
-    // Lock gate: ensure no job is currently in progress
+    // Lock gate: ensure no job is currently in progress or failed
     const activeStates: ContentImportStatus[] = [
       ContentImportStatus.PENDING,
       ContentImportStatus.SCRAPING,
       ContentImportStatus.EXTRACTING,
+      ContentImportStatus.FAILED,
     ];
     const unfinishedJobs = jobs.filter((j) => activeStates.includes(j.status));
     if (unfinishedJobs.length > 0) {
       throw new ConflictException(
-        "Cannot commit group. Some parts of the test are still in progress (scraping/extracting)."
+        "Cannot commit group. Some parts of the test are still in progress or failed (retry or discard them first)."
       );
     }
 
@@ -474,6 +520,11 @@ export class IeltsContentCommitService {
 
       if (!listeningJob || !readingJob || !writingJob || !speakingJob) {
         throw new UnprocessableEntityException("Group requires exactly 4 skills (L, R, W, S) to merge.");
+      }
+
+      // Assert grader compatibility for all 4 skills before merging!
+      for (const j of [listeningJob, readingJob, writingJob, speakingJob]) {
+        this.assertGraderCompatible(j.structuredJson, j.skill, ContentImportTargetSystem.INTENSIVE);
       }
 
       const provenance = (listeningJob.provenance as any) || {};
@@ -539,7 +590,7 @@ export class IeltsContentCommitService {
       // 1-3 skills committed -> Commit them as multiple single-skill exams!
       for (const j of reviewableJobs) {
         if (j.status !== ContentImportStatus.COMMITTED) {
-          const liveId = await this.commit(j.id, true, isPublished, userId);
+          const liveId = await this.commit(j.id, true, isPublished, userId, true);
           examIds.push(liveId);
         } else if (j.committedEntityId) {
           examIds.push(j.committedEntityId);

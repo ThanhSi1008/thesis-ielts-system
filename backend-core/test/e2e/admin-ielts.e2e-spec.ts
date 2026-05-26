@@ -7,7 +7,7 @@ import {
   TestContext,
 } from '../helpers/test-setup';
 import { ContentImportStatus, ContentImportSkill, ContentImportTargetSystem } from '@prisma/client';
-import { randomUUID } from 'crypto';
+import { randomUUID, createHmac } from 'crypto';
 import { ExamsService } from '../../src/modules/exams/exams.service';
 
 const BASE = '/api/v1';
@@ -690,6 +690,262 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
       });
       expect(cleanedGroupJob!.status).toBe(ContentImportStatus.DISCARDED);
       expect(cleanedGroupJob!.error).toContain('Group TTL expired');
+    });
+
+    it('should successfully verify webhook callbacks on rawBody signature and fail on bad HMAC signatures (BUG-01 & BUG-02)', async () => {
+      const adminId = ctx.jwt.decode(adminToken).sub;
+      const job = await ctx.prisma.contentImportJob.create({
+        data: {
+          createdById: adminId,
+          targetSystem: ContentImportTargetSystem.INTENSIVE,
+          skill: ContentImportSkill.READING,
+          status: ContentImportStatus.PENDING,
+          sourceType: 'WEB_URL',
+          sourceRef: 'https://example.com/hmac-test',
+          provenance: { source: 'cambridge', bookNumber: 17, testNumber: 3 },
+          structuredJson: {},
+        },
+      });
+
+      const secret = process.env.CALLBACK_SECRET || 'test-callback-secret-value-for-ci';
+      const callbackPayload = {
+        structuredJson: {
+          title: 'HMAC non-ASCII café – test',
+          passage: 'Passage',
+          content: [
+            {
+              question_number: 1,
+              type: 'sentence_completion',
+              question_text: 'The answer is ___',
+              answer: 'yes',
+            },
+          ],
+        },
+      };
+
+      const payloadStr = JSON.stringify(callbackPayload);
+      const signature = createHmac('sha256', secret).update(Buffer.from(payloadStr)).digest('hex');
+
+      // Valid signature -> OK 201
+      await request(app.getHttpServer())
+        .post(`${BASE}/admin/ielts/import/${job.id}/extracted`)
+        .set('x-callback-signature', signature)
+        .send(callbackPayload)
+        .expect(HttpStatus.CREATED);
+
+      // Invalid signature -> Unauthorized 401
+      await request(app.getHttpServer())
+        .post(`${BASE}/admin/ielts/import/${job.id}/extracted`)
+        .set('x-callback-signature', 'invalid-hmac-signature-here')
+        .send(callbackPayload)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should prevent group commits if any job has FAILED (BUG-04) and enforce individual commit locks', async () => {
+      const groupId = randomUUID();
+      const adminId = ctx.jwt.decode(adminToken).sub;
+
+      const jobs = [];
+      const skills = [ContentImportSkill.LISTENING, ContentImportSkill.READING];
+      for (let i = 0; i < skills.length; i++) {
+        const s = skills[i];
+        const job = await ctx.prisma.contentImportJob.create({
+          data: {
+            createdById: adminId,
+            targetSystem: ContentImportTargetSystem.INTENSIVE,
+            skill: s,
+            groupId,
+            status: i === 0 ? ContentImportStatus.AWAITING_REVIEW : ContentImportStatus.FAILED,
+            sourceType: 'WEB_URL',
+            sourceRef: 'https://example.com/fail-test',
+            provenance: { source: 'cambridge', bookNumber: 18, testNumber: 3 },
+            structuredJson: {
+              title: `Fail Group ${s}`,
+              content: [{ question_number: 1, type: 'sentence_completion', answer: 'test' }],
+            },
+          },
+        });
+        jobs.push(job);
+      }
+
+      // Group commit should block with 409 Conflict due to FAILED status
+      await request(app.getHttpServer())
+        .post(`${BASE}/admin/ielts/import/group/${groupId}/commit`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ isPublished: false })
+        .expect(HttpStatus.CONFLICT);
+
+      // Manual per-job commit on group-linked job should block with 409 Conflict
+      await request(app.getHttpServer())
+        .post(`${BASE}/admin/ielts/import/${jobs[0].id}/commit`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ overwrite: true })
+        .expect(HttpStatus.CONFLICT);
+    });
+
+    it('should synchronously grade FULL_TEST Listening/Reading sub-sections and create structured result records (BUG-05, BUG-06 & BUG-07)', async () => {
+      const groupId = randomUUID();
+      const adminId = ctx.jwt.decode(adminToken).sub;
+
+      // Seed 4 staging jobs representing Listening, Reading, Writing, Speaking
+      const skills = [
+        ContentImportSkill.LISTENING,
+        ContentImportSkill.READING,
+        ContentImportSkill.WRITING,
+        ContentImportSkill.SPEAKING,
+      ];
+
+      const jobs = [];
+      for (const s of skills) {
+        const job = await ctx.prisma.contentImportJob.create({
+          data: {
+            createdById: adminId,
+            targetSystem: ContentImportTargetSystem.INTENSIVE,
+            skill: s,
+            groupId,
+            status: ContentImportStatus.AWAITING_REVIEW,
+            sourceType: 'WEB_URL',
+            sourceRef: 'https://example.com/fulltest-grading',
+            provenance: { source: 'cambridge', bookNumber: 19, testNumber: 1 },
+            structuredJson: {
+              title: `Grading Group ${s}`,
+              // BUG-07: Testing matching extraction in Listening Part
+              answers: s === ContentImportSkill.LISTENING ? { '1': { letter: 'A' }, '2': 'B' } : undefined,
+              type: s === ContentImportSkill.LISTENING ? 'matching' : undefined,
+              // BUG-07: Testing table completion in Reading Part
+              rows: s === ContentImportSkill.READING ? [
+                {
+                  questions: {
+                    '3': { answer: 'yes' },
+                    '4': { answer: 'no' }
+                  }
+                }
+              ] : undefined,
+              prompt: s === ContentImportSkill.WRITING ? 'Write essay' : undefined,
+              questions: s === ContentImportSkill.SPEAKING ? [{ text: 'Question 1' }] : undefined,
+            },
+          },
+        });
+        jobs.push(job);
+      }
+
+      // Group commit to compile the FULL_TEST mock exam
+      const mergeRes = await request(app.getHttpServer())
+        .post(`${BASE}/admin/ielts/import/group/${groupId}/commit`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ isPublished: true })
+        .expect(HttpStatus.CREATED);
+
+      const examId = mergeRes.body.examIds[0];
+      expect(examId).toBeDefined();
+
+      // Create a student exam session on the FULL_TEST
+      const student = await ctx.prisma.user.create({
+        data: {
+          email: `fulltest-student-${Date.now()}@example.com`,
+          password: 'Password123!',
+          firstName: 'Full',
+          lastName: 'Tester',
+          role: 'STUDENT',
+        },
+      });
+
+      // Grant the student a PREMIUM subscription so they can submit writing answers!
+      await ctx.prisma.subscription.create({
+        data: {
+          userId: student.id,
+          tier: 'PREMIUM',
+          status: 'ACTIVE',
+        },
+      });
+
+      const studentToken = ctx.jwt.sign({
+        email: student.email,
+        sub: student.id,
+        role: 'STUDENT',
+      });
+
+      const sessionRes = await request(app.getHttpServer())
+        .post(`${BASE}/exams/${examId}/sessions`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .send({ userId: student.id })
+        .expect(HttpStatus.CREATED);
+
+      const sessionId = sessionRes.body.id;
+
+      // Submit answers:
+      // - match:1 correct: A, student: A
+      // - match:2 correct: B, student: B
+      // - 3 correct: yes, student: yes
+      // - 4 correct: no, student: maybe (wrong)
+      // also include some writing answers starting with 'w'
+      const studentAnswers = {
+        'match:1': 'A',
+        'match:2': 'B',
+        '3': 'yes',
+        '4': 'maybe',
+        'w-task1': 'Writing task 1 content essay goes here...',
+      };
+
+      const submitRes = await request(app.getHttpServer())
+        .post(`${BASE}/exams/sessions/${sessionId}/submit`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .send({ answers: studentAnswers })
+        .expect(HttpStatus.CREATED);
+
+      // Should be SUBMITTED since writing answers exist (requires AI grading)
+      expect(submitRes.body.status).toBe('SUBMITTED');
+
+      // Check results
+      const result = await ctx.prisma.ieltsIntensiveResult.findUnique({
+        where: { sessionId },
+      });
+
+      expect(result).not.toBeNull();
+      // Listening Score: match:1 (correct), match:2 (correct) -> 2
+      expect(result!.listeningScore).toBe(2);
+      // Reading Score: 3 (correct), 4 (wrong) -> 1
+      expect(result!.readingScore).toBe(1);
+      // TotalScore (Listening + Reading synchronously) -> 3
+      expect(result!.totalScore).toBe(3);
+    });
+
+    it('should enforce composite duplicate blocks on Writing/Speaking prompts when engnovateSlug is null (BUG-08)', async () => {
+      const adminId = ctx.jwt.decode(adminToken).sub as string;
+
+      const jobData = {
+        createdById: adminId,
+        targetSystem: ContentImportTargetSystem.ADVANCED,
+        skill: ContentImportSkill.WRITING,
+        status: ContentImportStatus.AWAITING_REVIEW,
+        sourceType: 'WEB_URL',
+        sourceRef: 'https://example.com/WS-duplicate',
+        provenance: { source: 'forecast-ws', bookNumber: 0, testNumber: 99 },
+        structuredJson: {
+          title: 'Composite Duplicate Prompt',
+          prompt: 'Write about duplicate blocks',
+          taskType: 'TASK_2',
+          engnovateSlug: null, // Null to trigger composite duplicate matching
+        } as any,
+      };
+
+      // Create two identical jobs
+      const job1 = await ctx.prisma.contentImportJob.create({ data: jobData as any });
+      const job2 = await ctx.prisma.contentImportJob.create({ data: { ...jobData, provenance: { ...jobData.provenance, source: 'forecast-ws' } } as any });
+
+      // First commit should succeed
+      await request(app.getHttpServer())
+        .post(`${BASE}/admin/ielts/import/${job1.id}/commit`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ overwrite: false })
+        .expect(HttpStatus.CREATED);
+
+      // Second commit of identical composite attributes should fail with 409 Conflict
+      await request(app.getHttpServer())
+        .post(`${BASE}/admin/ielts/import/${job2.id}/commit`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ overwrite: false })
+        .expect(HttpStatus.CONFLICT);
     });
   });
 });

@@ -13,6 +13,7 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  Req,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { StorageService } from "../../../common/storage/storage.service";
@@ -28,7 +29,7 @@ import {
   CommitJobDto,
 } from "../dto/admin-ielts.dto";
 import { ConfigService } from "@nestjs/config";
-import { createHmac } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 
 @Controller("admin/ielts/import")
 export class AdminIeltsImportController {
@@ -76,15 +77,29 @@ export class AdminIeltsImportController {
   extracted(
     @Param("id") id: string,
     @Headers("x-callback-signature") signature: string,
+    @Req() req: any,
     @Body() body: CallbackExtractedDto
   ) {
     // Verify HMAC-SHA256 signature for secure webhook callback from backend-ai
-    const secret = this.configService.get<string>("CALLBACK_SECRET", "test-callback-secret-value-for-ci");
-    const computed = createHmac("sha256", secret)
-      .update(JSON.stringify(body))
+    const secret = this.configService.get<string>("CALLBACK_SECRET");
+    if (!secret) {
+      if (this.configService.get("NODE_ENV") === "production") {
+        throw new Error("CALLBACK_SECRET is required in production environment");
+      }
+    }
+    const secretKey = secret || "test-callback-secret-value-for-ci";
+
+    const raw: Buffer = req.rawBody ?? Buffer.from(JSON.stringify(body));
+    const computed = createHmac("sha256", secretKey)
+      .update(raw)
       .digest("hex");
 
-    if (signature !== computed) {
+    const ok =
+      signature &&
+      computed.length === signature.length &&
+      timingSafeEqual(Buffer.from(computed), Buffer.from(signature));
+
+    if (!ok) {
       throw new UnauthorizedException("Invalid callback signature");
     }
 
@@ -119,14 +134,14 @@ export class AdminIeltsImportController {
     return this.importService.retry(id, req.user.id);
   }
 
-  @Delete(":id/discard-skill")
+  @Post(":id/discard-skill")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("ADMIN")
   discardSkill(@Param("id") id: string, @Request() req: any) {
     return this.importService.discard(id, req.user.id);
   }
 
-  @Delete("group/:groupId/abandon")
+  @Post("group/:groupId/abandon")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("ADMIN")
   abandonGroup(@Param("groupId") groupId: string, @Request() req: any) {

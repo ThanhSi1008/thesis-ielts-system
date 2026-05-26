@@ -464,6 +464,30 @@ export class ExamsService {
       if (Array.isArray(obj)) {
         obj.forEach((x) => this.extractCorrectAnswers(x, ansMap));
       } else {
+        // Extract matching-type answers
+        if (typeof obj.type === "string" && obj.type.startsWith("matching") && obj.answers && typeof obj.answers === "object") {
+          for (const [k, v] of Object.entries(obj.answers)) {
+            const letter = (v as any)?.letter ?? v;
+            if (letter !== undefined && letter !== null) {
+              ansMap.set(`match:${k}`, letter);
+            }
+          }
+        }
+
+        // Extract table_completion answers
+        if (Array.isArray(obj.rows)) {
+          for (const row of obj.rows) {
+            if (row?.questions && typeof row.questions === "object") {
+              for (const [qNum, cell] of Object.entries(row.questions)) {
+                const cellAns = (cell as any)?.answer;
+                if (cellAns !== undefined && cellAns !== null) {
+                  ansMap.set(String(qNum), cellAns);
+                }
+              }
+            }
+          }
+        }
+
         // Some nodes have "question_number," others "question_numbers"
         const ans =
           obj.correct_answer !== undefined
@@ -503,7 +527,10 @@ export class ExamsService {
     let totalScore = 0;
     let graded = false;
 
-    // 2. Synchronous grading for IELTS LISTENING and READING
+    // 2. Synchronous grading for IELTS LISTENING, READING, and FULL_TEST (Listening/Reading sub-sections)
+    let listeningScore: number | null = null;
+    let readingScore: number | null = null;
+
     if (
       existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.LISTENING ||
       existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.READING
@@ -550,6 +577,104 @@ export class ExamsService {
 
       status = "COMPLETED";
       graded = true;
+    } else if (existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.FULL_TEST) {
+      const examQuestions = existing.ieltsIntensiveExam.questions as any;
+
+      if (examQuestions?.listening) {
+        const listenAnsMap = new Map<string, any>();
+        this.extractCorrectAnswers(examQuestions.listening, listenAnsMap);
+        let lScore = 0;
+        for (const [key, correct] of listenAnsMap.entries()) {
+          const userAns = submitDto.answers[key];
+          if (key.includes(",")) {
+            const qCount = key.split(",").length;
+            const correctArr = Array.isArray(correct) ? correct : [String(correct)];
+            const userArr = key.split(",").map((k) => String(submitDto.answers[k] || "")).filter((v) => v.trim() !== "");
+            let multiScore = 0;
+            const correctNorm = correctArr.flatMap((c) => this.parseIELTSAnswer(String(c)));
+            for (const ua of userArr) {
+              const uan = String(ua).toLowerCase().replace(/[^a-z0-9]/g, "");
+              const idx = correctNorm.indexOf(uan);
+              if (idx !== -1) {
+                multiScore++;
+                correctNorm.splice(idx, 1);
+              }
+            }
+            lScore += Math.min(multiScore, qCount);
+          } else {
+            if (this.isAnswerCorrect(String(userAns || ""), correct)) {
+              lScore++;
+            }
+          }
+        }
+        listeningScore = lScore;
+      }
+
+      if (examQuestions?.reading) {
+        const readAnsMap = new Map<string, any>();
+        this.extractCorrectAnswers(examQuestions.reading, readAnsMap);
+        let rScore = 0;
+        for (const [key, correct] of readAnsMap.entries()) {
+          const userAns = submitDto.answers[key];
+          if (key.includes(",")) {
+            const qCount = key.split(",").length;
+            const correctArr = Array.isArray(correct) ? correct : [String(correct)];
+            const userArr = key.split(",").map((k) => String(submitDto.answers[k] || "")).filter((v) => v.trim() !== "");
+            let multiScore = 0;
+            const correctNorm = correctArr.flatMap((c) => this.parseIELTSAnswer(String(c)));
+            for (const ua of userArr) {
+              const uan = String(ua).toLowerCase().replace(/[^a-z0-9]/g, "");
+              const idx = correctNorm.indexOf(uan);
+              if (idx !== -1) {
+                multiScore++;
+                correctNorm.splice(idx, 1);
+              }
+            }
+            rScore += Math.min(multiScore, qCount);
+          } else {
+            if (this.isAnswerCorrect(String(userAns || ""), correct)) {
+              rScore++;
+            }
+          }
+        }
+        readingScore = rScore;
+      }
+
+      const hasWritingAnswers = examQuestions?.writing && Object.keys(submitDto.answers).some(k => k.toLowerCase().startsWith("w"));
+      const hasSpeakingAnswers = examQuestions?.speaking && Object.keys(submitDto.answers).some(k => k.toLowerCase().startsWith("s"));
+
+      if (hasWritingAnswers) {
+        const allowed = await this.subscriptionsService.incrementUsage(existing.userId, "AI_WRITING_GRADING");
+        if (!allowed) {
+          const sub = await this.subscriptionsService.getOrCreateSubscription(existing.userId);
+          throw new ForbiddenException({
+            statusCode: 403,
+            error: "QUOTA_EXCEEDED",
+            message: "You've reached your writing grading limit for this month",
+            feature: "AI_WRITING_GRADING",
+            currentTier: sub.tier,
+            upgradeUrl: "/pricing",
+          });
+        }
+      }
+
+      if (hasSpeakingAnswers) {
+        const allowed = await this.subscriptionsService.incrementUsage(existing.userId, "AI_SPEAKING_GRADING");
+        if (!allowed) {
+          const sub = await this.subscriptionsService.getOrCreateSubscription(existing.userId);
+          throw new ForbiddenException({
+            statusCode: 403,
+            error: "QUOTA_EXCEEDED",
+            message: "You've reached your speaking grading limit for this month",
+            feature: "AI_SPEAKING_GRADING",
+            currentTier: sub.tier,
+            upgradeUrl: "/pricing",
+          });
+        }
+      }
+
+      status = (hasWritingAnswers || hasSpeakingAnswers) ? "SUBMITTED" : "COMPLETED";
+      graded = true;
     }
 
     // 2b. WRITING & SPEAKING: AI grading
@@ -591,11 +716,22 @@ export class ExamsService {
       const resultData = {
         userId: existing.userId,
         sessionId: existing.id,
-        totalScore,
+        totalScore:
+          existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.FULL_TEST
+            ? (listeningScore || 0) + (readingScore || 0)
+            : totalScore,
         listeningScore:
-          existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.LISTENING ? totalScore : null,
+          existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.LISTENING
+            ? totalScore
+            : existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.FULL_TEST
+              ? listeningScore
+              : null,
         readingScore:
-          existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.READING ? totalScore : null,
+          existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.READING
+            ? totalScore
+            : existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.FULL_TEST
+              ? readingScore
+              : null,
         gradedAt: new Date(),
       };
 

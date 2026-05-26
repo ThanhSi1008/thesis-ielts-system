@@ -28,11 +28,15 @@ export class ImportCronService {
 
     try {
       // 1. Recover Stuck Jobs
-      // Find jobs stuck in SCRAPING or EXTRACTING that started processing before the threshold time.
+      // Find jobs stuck in PENDING, SCRAPING or EXTRACTING that started processing before the threshold time.
       const stuckJobs = await this.prisma.contentImportJob.findMany({
         where: {
           status: {
-            in: [ContentImportStatus.SCRAPING, ContentImportStatus.EXTRACTING],
+            in: [
+              ContentImportStatus.PENDING,
+              ContentImportStatus.SCRAPING,
+              ContentImportStatus.EXTRACTING,
+            ],
           },
           OR: [
             { processingStartedAt: { lt: thresholdTime } },
