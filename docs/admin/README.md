@@ -42,8 +42,9 @@ Admin chỉ việc kiểm duyệt và bấm Lưu.** Mục tiêu xuyên suốt l�
 | [`02-data-model-and-schema.md`](./02-data-model-and-schema.md) | **Thiết kế Database Schema** — bảng staging `ContentImportJob`, cột provenance bổ sung, và **JSON Contract** (schema Gemini xuất ra = input importer) cho từng kỹ năng, ánh xạ chính xác với grader | Backend / DB |
 | [`03-data-flow-and-pipeline.md`](./03-data-flow-and-pipeline.md) | **Luồng dữ liệu end-to-end** — từ lúc dán link/upload PDF → scraper → Gemini → form duyệt → commit vào DB; thiết kế công cụ scrape & pipeline async | Kiến trúc hệ thống |
 | [`04-implementation-phases.md`](./04-implementation-phases.md) | **Kế hoạch hiện thực theo phase** — mỗi phase có mục tiêu, task cụ thể, deliverable, và **Approval Gate** (quyết định cần duyệt) | Quản lý tiến độ |
+| [`05-bug-report-and-fixes.md`](./05-bug-report-and-fixes.md) | **Báo cáo lỗi & hướng dẫn fix** — kết quả verify implementation (commit `58fab9c`): 10 lỗi (2 cao/5 vừa/3 thấp), mỗi lỗi có vị trí, nguyên nhân, cách fix từng bước + cách kiểm chứng | QA / sửa lỗi |
 
-Đọc theo thứ tự `01 → 02 → 03 → 04`.
+Đọc theo thứ tự `01 → 02 → 03 → 04`; sau khi đã code thì xem `05` để rà lỗi.
 
 ---
 
