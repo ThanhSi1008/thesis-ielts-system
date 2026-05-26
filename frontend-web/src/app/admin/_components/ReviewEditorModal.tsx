@@ -26,29 +26,39 @@ const WHITELISTED_TYPES = [
 
 // ─── Zod Schema for Client-Side Validation ───
 const questionSchema = z.object({
-  question_number: z.number().optional(),
-  question_numbers: z.array(z.number()).optional(),
+  question_number: z.number().nullish(),
+  question_numbers: z.array(z.number()).nullish(),
   type: z.string().refine(t => WHITELISTED_TYPES.includes(t.toLowerCase().trim()), {
     message: "Question type must be a whitelisted IELTS type."
   }),
   question_text: z.string().min(1, "Question text is required."),
-  answer: z.string().optional(),
-  correct_answer: z.string().optional(),
-  correct_answers: z.array(z.string()).optional(),
-  options: z.array(z.string()).optional(),
-  question_timestamp: z.string().optional()
+  answer: z.string().nullish(),
+  correct_answer: z.string().nullish(),
+  correct_answers: z.array(z.string()).nullish(),
+  options: z.array(z.string()).nullish(),
+  question_timestamp: z.string().nullish()
+});
+
+const partSchema = z.object({
+  partNumber: z.number().nullish(),
+  title: z.string().nullish(),
+  passage: z.string().nullish(),
+  transcript: z.array(z.any()).nullish(),
+  content: z.array(questionSchema).nullish(),
+  questionTypes: z.array(z.string()).nullish()
 });
 
 const structuredJsonSchema = z.object({
   title: z.string().min(1, "Title is required."),
-  description: z.string().optional(),
-  duration: z.number().min(1, "Duration must be at least 1 minute.").optional(),
-  passage: z.string().optional(),
-  transcript: z.array(z.any()).optional(),
-  prompt: z.string().optional(),
-  imageUrl: z.string().optional(),
-  questions: z.array(z.any()).optional(),
-  content: z.array(questionSchema).optional()
+  description: z.string().nullish(),
+  duration: z.number().min(1, "Duration must be at least 1 minute.").nullish(),
+  passage: z.string().nullish(),
+  transcript: z.array(z.any()).nullish(),
+  prompt: z.string().nullish(),
+  imageUrl: z.string().nullish(),
+  questions: z.array(z.any()).nullish(),
+  content: z.array(questionSchema).nullish(),
+  parts: z.array(partSchema).nullish()
 });
 
 interface ReviewEditorModalProps {
@@ -78,6 +88,9 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     testNumber: 1
   });
   const [jsonText, setJsonText] = useState("");
+  const [activeReviewPartIdx, setActiveReviewPartIdx] = useState(0);
+  const isMultiPart = Array.isArray(structuredJson?.parts);
+  const activePart = isMultiPart ? (structuredJson?.parts[activeReviewPartIdx] || {}) : structuredJson;
 
   // Initialize
   useEffect(() => {
@@ -109,37 +122,92 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
 
   // ─── Form Handlers ───
   const handleContentFieldChange = (index: number, field: string, value: any) => {
-    const newContent = [...(structuredJson.content || [])];
-    newContent[index] = {
-      ...newContent[index],
-      [field]: value
-    };
-    updateStructuredJson({
-      ...structuredJson,
-      content: newContent
-    });
+    if (isMultiPart) {
+      const newParts = [...(structuredJson.parts || [])];
+      const activePartLocal = { ...newParts[activeReviewPartIdx] };
+      const newContent = [...(activePartLocal.content || [])];
+      newContent[index] = {
+        ...newContent[index],
+        [field]: value
+      };
+      activePartLocal.content = newContent;
+      newParts[activeReviewPartIdx] = activePartLocal;
+      updateStructuredJson({
+        ...structuredJson,
+        parts: newParts
+      });
+    } else {
+      const newContent = [...(structuredJson.content || [])];
+      newContent[index] = {
+        ...newContent[index],
+        [field]: value
+      };
+      updateStructuredJson({
+        ...structuredJson,
+        content: newContent
+      });
+    }
   };
 
   const handleAddQuestion = () => {
-    const newContent = [...(structuredJson.content || [])];
-    newContent.push({
-      question_number: newContent.length + 1,
-      type: "sentence_completion",
-      question_text: "New question text...",
-      answer: ""
-    });
-    updateStructuredJson({
-      ...structuredJson,
-      content: newContent
-    });
+    if (isMultiPart) {
+      const newParts = [...(structuredJson.parts || [])];
+      const activePartLocal = { ...newParts[activeReviewPartIdx] };
+      const newContent = [...(activePartLocal.content || [])];
+      
+      // Find maximum question number across all parts to auto-increment correctly
+      let maxQNum = 0;
+      structuredJson.parts.forEach((p: any) => {
+        (p.content || []).forEach((q: any) => {
+          if (q.question_number > maxQNum) maxQNum = q.question_number;
+        });
+      });
+
+      newContent.push({
+        question_number: maxQNum + 1,
+        type: "sentence_completion",
+        question_text: "New question text...",
+        answer: ""
+      });
+      activePartLocal.content = newContent;
+      newParts[activeReviewPartIdx] = activePartLocal;
+      updateStructuredJson({
+        ...structuredJson,
+        parts: newParts
+      });
+    } else {
+      const newContent = [...(structuredJson.content || [])];
+      newContent.push({
+        question_number: newContent.length + 1,
+        type: "sentence_completion",
+        question_text: "New question text...",
+        answer: ""
+      });
+      updateStructuredJson({
+        ...structuredJson,
+        content: newContent
+      });
+    }
   };
 
   const handleRemoveQuestion = (index: number) => {
-    const newContent = (structuredJson.content || []).filter((_: any, idx: number) => idx !== index);
-    updateStructuredJson({
-      ...structuredJson,
-      content: newContent
-    });
+    if (isMultiPart) {
+      const newParts = [...(structuredJson.parts || [])];
+      const activePartLocal = { ...newParts[activeReviewPartIdx] };
+      const newContent = (activePartLocal.content || []).filter((_: any, idx: number) => idx !== index);
+      activePartLocal.content = newContent;
+      newParts[activeReviewPartIdx] = activePartLocal;
+      updateStructuredJson({
+        ...structuredJson,
+        parts: newParts
+      });
+    } else {
+      const newContent = (structuredJson.content || []).filter((_: any, idx: number) => idx !== index);
+      updateStructuredJson({
+        ...structuredJson,
+        content: newContent
+      });
+    }
   };
 
   // ─── Local Validations ───
@@ -156,12 +224,20 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     }
 
     // 2. Deep validation on answer formatting
-    const content = structuredJson.content || [];
-    if ((job.skill === "LISTENING" || job.skill === "READING") && content.length === 0) {
-      errors.push("Reading and Listening exams must have at least one question in content.");
+    let allQuestions: any[] = [];
+    if (isMultiPart) {
+      (structuredJson.parts || []).forEach((p: any) => {
+        allQuestions.push(...(p.content || []));
+      });
+    } else {
+      allQuestions = structuredJson.content || [];
     }
 
-    content.forEach((q: any, index: number) => {
+    if ((job.skill === "LISTENING" || job.skill === "READING") && allQuestions.length === 0) {
+      errors.push("Reading and Listening exams must have at least one question.");
+    }
+
+    allQuestions.forEach((q: any, index: number) => {
       const qNum = q.question_number || (q.question_numbers ? q.question_numbers.join(",") : `Row ${index + 1}`);
       const answer = q.correct_answer !== undefined ? q.correct_answer : q.answer !== undefined ? q.answer : q.correct_answers;
 
@@ -452,6 +528,29 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
           ) : (
             /* VISUAL FORMS EDITOR TAB */
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+              {/* Part Selector Tabs for Multi-Part Exams */}
+              {isMultiPart && (
+                <div className="bg-gray-50 dark:bg-gray-955 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-2 shrink-0">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-2">Select Part:</span>
+                  {(structuredJson.parts || []).map((p: any, idx: number) => {
+                    const isActive = idx === activeReviewPartIdx;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveReviewPartIdx(idx)}
+                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+                          isActive
+                            ? "bg-primary text-white shadow-md scale-105"
+                            : "bg-white hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-800"
+                        }`}
+                      >
+                        {job.skill === "READING" ? `Passage ${idx + 1}` : `Part ${idx + 1}`}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               {/* Common metadata */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -511,11 +610,24 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
               {/* ─── Reading / Passage text ─── */}
               {job.skill === "READING" && (
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Passage Content</label>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">
+                    Passage Content {isMultiPart ? `(Passage ${activeReviewPartIdx + 1})` : ""}
+                  </label>
                   <textarea
-                    value={structuredJson.passage || ""}
-                    onChange={e => updateStructuredJson({ ...structuredJson, passage: e.target.value })}
-                    rows={6}
+                    value={activePart.passage || ""}
+                    onChange={e => {
+                      if (isMultiPart) {
+                        const newParts = [...(structuredJson.parts || [])];
+                        newParts[activeReviewPartIdx] = {
+                          ...newParts[activeReviewPartIdx],
+                          passage: e.target.value
+                        };
+                        updateStructuredJson({ ...structuredJson, parts: newParts });
+                      } else {
+                        updateStructuredJson({ ...structuredJson, passage: e.target.value });
+                      }
+                    }}
+                    rows={8}
                     className="w-full text-xs font-mono px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none leading-relaxed"
                   />
                 </div>
@@ -566,7 +678,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                   </div>
 
                   <div className="flex flex-col gap-4">
-                    {(structuredJson.content || []).map((q: any, idx: number) => {
+                    {(activePart.content || []).map((q: any, idx: number) => {
                       const ans = q.correct_answer !== undefined ? q.correct_answer : q.answer !== undefined ? q.answer : q.correct_answers;
                       
                       return (

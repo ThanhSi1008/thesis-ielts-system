@@ -67,9 +67,17 @@ class ExtractionService:
             
             # For Listening/Reading, ensure every question has a valid answer
             if skill_upper in ["LISTENING", "READING"]:
-                questions = result.get("content", [])
+                parts = result.get("parts", [])
+                if not parts:
+                    logger.warning(f"[Extractor Validation] Parts list is empty for {skill_upper}")
+                    return False
+                
+                questions = []
+                for p in parts:
+                    questions.extend(p.get("content", []))
+                    
                 if not questions:
-                    logger.warning(f"[Extractor Validation] Question list 'content' is empty for {skill_upper}")
+                    logger.warning(f"[Extractor Validation] Combined question list is empty for {skill_upper}")
                     return False
                 
                 for idx, q in enumerate(questions):

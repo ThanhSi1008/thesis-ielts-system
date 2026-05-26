@@ -38,24 +38,32 @@ class SpeakerText(BaseModel):
     speaker: str = Field(description="Name or label of the speaker (e.g. 'Man', 'Woman', 'John').")
     text: str = Field(description="Verbatim spoken words of this speaker segment.")
 
-class ListeningPartSchema(BaseModel):
-    title: str = Field(description="Cohesive title of this Listening part (e.g. 'Cambridge 17 Test 1 - Listening Part 1').")
+class ListeningSectionSchema(BaseModel):
     partNumber: int = Field(description="The Part number, integer from 1 to 4.")
+    title: str = Field(description="Title of this specific Listening part (e.g. 'Part 1: Travel Inquiry').")
     audioUrl: Optional[str] = Field(default=None, description="Set as null. Populated dynamically by pipeline.")
     transcript: List[SpeakerText] = Field(description="Spoken transcript segmented by speakers.")
     content: List[QuestionItem] = Field(description="List of structured question items with inline answers.")
-    questionTypes: List[str] = Field(description="Unique list of question types present in this part (e.g. ['form_completion', 'multiple_choice']).")
+    questionTypes: List[str] = Field(description="Unique list of question types present in this part.")
+
+class ListeningPartSchema(BaseModel):
+    title: str = Field(description="Title of this Listening Test (e.g. 'Cambridge IELTS 18 - Listening Test 1').")
+    parts: List[ListeningSectionSchema] = Field(description="List of all 4 listening parts in this test.")
 
 # =====================================================================
 # READING SCHEMA
 # =====================================================================
 
-class ReadingPartSchema(BaseModel):
-    title: str = Field(description="Title of this Reading passage (e.g. 'Cambridge 17 Test 1 - Reading Passage 1').")
+class ReadingPassageSchema(BaseModel):
     partNumber: int = Field(description="The Passage number, integer from 1 to 3.")
+    title: str = Field(description="Title of this specific Reading passage (e.g. 'Passage 1: London Underground').")
     passage: str = Field(description="The complete visible text of the reading passage. Do NOT truncate or abbreviate.")
     content: List[QuestionItem] = Field(description="List of structured question items with inline answers.")
-    questionTypes: List[str] = Field(description="Unique list of question types present in this passage (e.g. ['note_completion', 'true_false_not_given']).")
+    questionTypes: List[str] = Field(description="Unique list of question types present in this passage.")
+
+class ReadingPartSchema(BaseModel):
+    title: str = Field(description="Title of this Reading Test (e.g. 'Cambridge IELTS 18 - Reading Test 1').")
+    parts: List[ReadingPassageSchema] = Field(description="List of all 3 reading passages in this test.")
 
 # =====================================================================
 # WRITING SCHEMA

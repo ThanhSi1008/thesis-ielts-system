@@ -249,7 +249,9 @@ export class IeltsContentCommitService {
           type,
           difficulty: (structuredJson.difficulty?.toUpperCase() as Difficulty) || Difficulty.ADVANCED,
           isPublished: false, // Default isPublished to false during admin commit
-          questions: structuredJson,
+          questions: (type === IeltsIntensiveExamType.READING || type === IeltsIntensiveExamType.LISTENING)
+            ? this.transformToPartsFormat(structuredJson, job.skill, title)
+            : structuredJson,
           source,
           bookNumber,
           testNumber,
@@ -537,8 +539,8 @@ export class IeltsContentCommitService {
 
       const mergedQuestions = {
         type: "full_test",
-        listening: listeningJob.structuredJson,
-        reading: readingJob.structuredJson,
+        listening: this.transformToPartsFormat(listeningJob.structuredJson, ContentImportSkill.LISTENING, `${title} - Listening`),
+        reading: this.transformToPartsFormat(readingJob.structuredJson, ContentImportSkill.READING, `${title} - Reading`),
         writing: writingJob.structuredJson,
         speaking: speakingJob.structuredJson,
       };
@@ -599,5 +601,243 @@ export class IeltsContentCommitService {
     }
 
     return { examIds };
+  }
+
+  transformToPartsFormat(flatJson: any, skill: ContentImportSkill, title: string): any {
+    if (!flatJson) return flatJson;
+    
+    // If it already has parts, check if they are in the AI format or player format
+    if (Array.isArray(flatJson.parts)) {
+      // If the first part already has question_groups, it's already in the correct player format!
+      if (flatJson.parts.length > 0 && Array.isArray(flatJson.parts[0].question_groups)) {
+        return flatJson;
+      }
+
+      // Otherwise, transform each AI part into the player format
+      const transformedParts = flatJson.parts.map((p: any) => {
+        const content = p.content || [];
+        const questionGroups: any[] = [];
+        let currentGroup: any = null;
+
+        for (const q of content) {
+          const qType = String(q.type || "").toLowerCase().trim();
+          let mappedType = "Short Answer";
+          let instructions = "Answer the questions below.";
+          
+          if (qType.includes("multiple_choice")) {
+            mappedType = "Multiple Choice";
+            instructions = "Choose the correct letter, A, B, C or D.";
+          } else if (qType.includes("true_false_not_given")) {
+            mappedType = "True/False/Not Given";
+            instructions = "Do the following statements agree with the information given in the Reading Passage? Write TRUE, FALSE or NOT GIVEN.";
+          } else if (qType.includes("yes_no_not_given")) {
+            mappedType = "Yes/No/Not Given";
+            instructions = "Do the following statements agree with the claims of the writer? Write YES, NO or NOT GIVEN.";
+          } else if (qType.includes("matching")) {
+            mappedType = "Matching";
+            instructions = "Match the correct options.";
+          } else if (qType.includes("sentence_completion")) {
+            mappedType = "Sentence Completion";
+            instructions = "Complete the sentences below. Choose ONE WORD ONLY from the passage.";
+          } else if (qType.includes("note_completion")) {
+            mappedType = "Note Completion";
+            instructions = "Complete the notes below. Choose ONE WORD ONLY from the passage.";
+          } else if (qType.includes("summary_completion")) {
+            mappedType = "Summary Completion";
+            instructions = "Complete the summary below. Choose ONE WORD ONLY from the passage.";
+          } else if (qType.includes("table_completion")) {
+            mappedType = "Table Completion";
+            instructions = "Complete the table below. Choose ONE WORD ONLY from the passage.";
+          } else if (qType.includes("form_completion")) {
+            mappedType = "Form Completion";
+            instructions = "Complete the form below. Choose ONE WORD ONLY from the passage.";
+          }
+
+          let formattedOptions: any = null;
+          if (Array.isArray(q.options)) {
+            formattedOptions = {};
+            for (const opt of q.options) {
+              const optStr = String(opt).trim();
+              const dotIdx = optStr.indexOf(".");
+              if (dotIdx > 0) {
+                const letter = optStr.substring(0, dotIdx).trim().toUpperCase();
+                const val = optStr.substring(dotIdx + 1).trim();
+                formattedOptions[letter] = val;
+              } else {
+                const letter = optStr.substring(0, 1).toUpperCase();
+                const val = optStr.substring(1).trim();
+                formattedOptions[letter] = val;
+              }
+            }
+          }
+
+          const item: any = {
+            question_number: q.question_number,
+            question_text: q.question_text || q.text || "",
+            answer: q.correct_answer || q.answer || "",
+            explanation: q.explanation || null,
+          };
+          if (formattedOptions) {
+            item.options = formattedOptions;
+          }
+
+          if (!currentGroup || currentGroup.question_type !== mappedType) {
+            currentGroup = {
+              question_type: mappedType,
+              instructions: instructions,
+              questions: "",
+              items: []
+            };
+            questionGroups.push(currentGroup);
+          }
+          
+          currentGroup.items.push(item);
+        }
+
+        for (const g of questionGroups) {
+          const qNums = g.items.map((i: any) => i.question_number).filter((n: any) => typeof n === "number");
+          if (qNums.length > 0) {
+            const min = Math.min(...qNums);
+            const max = Math.max(...qNums);
+            g.questions = min === max ? `${min}` : `${min}–${max}`;
+          }
+        }
+
+        const transformedPart: any = {
+          part_number: p.partNumber || p.part_number || 1,
+          part_type: skill === ContentImportSkill.READING ? "Reading Passage" : "Listening Part",
+          topic: p.title || p.topic || title,
+          question_groups: questionGroups
+        };
+
+        if (skill === ContentImportSkill.READING) {
+          transformedPart.passage_text = p.passage || p.passage_text || "";
+        } else {
+          transformedPart.transcript = p.transcript || [];
+        }
+
+        return transformedPart;
+      });
+
+      return {
+        test_title: flatJson.title || title,
+        section: skill === ContentImportSkill.READING ? "Reading" : "Listening",
+        parts: transformedParts
+      };
+    }
+
+    const content = flatJson.content || [];
+    if (content.length === 0) return flatJson;
+
+    // Group consecutive questions by their type
+    const questionGroups: any[] = [];
+    let currentGroup: any = null;
+
+    for (const q of content) {
+      const qType = String(q.type || "").toLowerCase().trim();
+      
+      // Determine the group type and instructions based on the question type
+      let mappedType = "Short Answer";
+      let instructions = "Answer the questions below.";
+      
+      if (qType.includes("multiple_choice")) {
+        mappedType = "Multiple Choice";
+        instructions = "Choose the correct letter, A, B, C or D.";
+      } else if (qType.includes("true_false_not_given")) {
+        mappedType = "True/False/Not Given";
+        instructions = "Do the following statements agree with the information given in the Reading Passage? Write TRUE, FALSE or NOT GIVEN.";
+      } else if (qType.includes("yes_no_not_given")) {
+        mappedType = "Yes/No/Not Given";
+        instructions = "Do the following statements agree with the claims of the writer? Write YES, NO or NOT GIVEN.";
+      } else if (qType.includes("matching")) {
+        mappedType = "Matching";
+        instructions = "Match the correct options.";
+      } else if (qType.includes("sentence_completion")) {
+        mappedType = "Sentence Completion";
+        instructions = "Complete the sentences below. Choose ONE WORD ONLY from the passage.";
+      } else if (qType.includes("note_completion")) {
+        mappedType = "Note Completion";
+        instructions = "Complete the notes below. Choose ONE WORD ONLY from the passage.";
+      } else if (qType.includes("summary_completion")) {
+        mappedType = "Summary Completion";
+        instructions = "Complete the summary below. Choose ONE WORD ONLY from the passage.";
+      } else if (qType.includes("table_completion")) {
+        mappedType = "Table Completion";
+        instructions = "Complete the table below. Choose ONE WORD ONLY from the passage.";
+      } else if (qType.includes("form_completion")) {
+        mappedType = "Form Completion";
+        instructions = "Complete the form below. Choose ONE WORD ONLY from the passage.";
+      }
+
+      // Format options from array ["A. Text", "B. Text"] into record {"A": "Text", "B": "Text"} if multiple_choice
+      let formattedOptions: any = null;
+      if (Array.isArray(q.options)) {
+        formattedOptions = {};
+        for (const opt of q.options) {
+          const optStr = String(opt).trim();
+          const dotIdx = optStr.indexOf(".");
+          if (dotIdx > 0) {
+            const letter = optStr.substring(0, dotIdx).trim().toUpperCase();
+            const val = optStr.substring(dotIdx + 1).trim();
+            formattedOptions[letter] = val;
+          } else {
+            const letter = optStr.substring(0, 1).toUpperCase();
+            const val = optStr.substring(1).trim();
+            formattedOptions[letter] = val;
+          }
+        }
+      }
+
+      const item: any = {
+        question_number: q.question_number,
+        question_text: q.question_text || q.text || "",
+        answer: q.correct_answer || q.answer || "",
+        explanation: q.explanation || null,
+      };
+      if (formattedOptions) {
+        item.options = formattedOptions;
+      }
+
+      if (!currentGroup || currentGroup.question_type !== mappedType) {
+        currentGroup = {
+          question_type: mappedType,
+          instructions: instructions,
+          questions: "",
+          items: []
+        };
+        questionGroups.push(currentGroup);
+      }
+      
+      currentGroup.items.push(item);
+    }
+
+    // Calculate question range string for each group (e.g. "1-6")
+    for (const g of questionGroups) {
+      const qNums = g.items.map((i: any) => i.question_number).filter((n: any) => typeof n === "number");
+      if (qNums.length > 0) {
+        const min = Math.min(...qNums);
+        const max = Math.max(...qNums);
+        g.questions = min === max ? `${min}` : `${min}–${max}`;
+      }
+    }
+
+    const part: any = {
+      part_number: flatJson.partNumber || 1,
+      part_type: skill === ContentImportSkill.READING ? "Reading Passage" : "Listening Part",
+      topic: flatJson.topic || flatJson.title || title,
+      question_groups: questionGroups
+    };
+
+    if (skill === ContentImportSkill.READING) {
+      part.passage_text = flatJson.passage || "";
+    } else {
+      part.transcript = flatJson.transcript || [];
+    }
+
+    return {
+      test_title: title,
+      section: skill === ContentImportSkill.READING ? "Reading" : "Listening",
+      parts: [part]
+    };
   }
 }

@@ -585,6 +585,7 @@ export default function IELTSIntensiveAdminPage() {
                   <option value="READING">Reading (Đọc)</option>
                   <option value="WRITING">Writing (Viết)</option>
                   <option value="SPEAKING">Speaking (Nói)</option>
+                  <option value="FULL_TEST">FULL_TEST (Cả 4 kỹ năng)</option>
                 </select>
               </div>
 
