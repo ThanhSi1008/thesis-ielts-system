@@ -161,35 +161,40 @@ commit(job, editedJson, isPublished):
 ### Commit group `FULL_TEST` (hybrid: per-job Discard + per-group Abandon)
 
 Một group `FULL_TEST` = 4 job cùng `groupId`. **Phân biệt 2 mức commit:**
-- **Per-job commit** (`POST /import/:id/commit`): với job thuộc group (`groupId != null`) chỉ validate +
-  `assertGraderCompatible` + set job `COMMITTED` — **KHÔNG** tạo `IeltsIntensiveExam` ngay (job lẻ `groupId == null`
-  vẫn tạo bản ghi live như pseudocode trên).
-- **Group commit** (`POST /import/group/:groupId/commit`): nơi thực sự sinh `IeltsIntensiveExam`, chỉ chạy khi group đã "đóng".
+- **Per-job commit** (`POST /import/:id/commit`): **Bị khoá hoàn toàn** (ném ra Conflict 409) đối với các job thuộc group nhằm tránh việc admin vô tình commit tạo ra đề đơn lẻ làm trùng lặp dữ liệu.
+- **Group commit** (`POST /import/group/:groupId/commit`): Nơi thực sự sinh `IeltsIntensiveExam` (FULL_TEST hoặc nhiều đề lẻ song song tùy thuộc số skill không bị Discard). Chạy trực tiếp trên các job đang có trạng thái `AWAITING_REVIEW`.
 
 ```
 commitGroup(groupId, isPublished):
   jobs = ContentImportJob.where({ groupId })
 
-  # Gate — giữ tinh thần "commit = không còn job dang dở"
-  if jobs.any(j => j.status in [PENDING, SCRAPING, EXTRACTING, AWAITING_REVIEW, FAILED]):
-     return 409 Conflict("Group còn job chưa xử lý xong")
+  # Gate — giữ tinh thần "commit = không còn job dang dở hoặc đang lỗi"
+  if jobs.any(j => j.status in [PENDING, SCRAPING, EXTRACTING, FAILED]):
+     return 409 Conflict("Group còn job chưa xử lý xong hoặc đang lỗi — hãy Retry hoặc Discard trước")
 
-  committed = jobs.filter(j => j.status == COMMITTED)     # bỏ qua DISCARDED
-  if committed.isEmpty: return 422("Mọi job đều DISCARDED — không có gì để tạo")
+  reviewable = jobs.filter(j => j.status == AWAITING_REVIEW)
+  if reviewable.isEmpty: return 422("Không có job nào ở trạng thái AWAITING_REVIEW để commit")
 
-  skills = committed.map(j => j.skill)
+  # Validate grader compatibility cho từng job trước khi gom
+  for j in reviewable:
+     assertGraderCompatible(j.structuredJson, j.skill)
+
+  skills = reviewable.map(j => j.skill)
   if skills.length == 4:
-     create IeltsIntensiveExam({ type: FULL_TEST, questions: mergeFourSkills(committed), ... })
+     create IeltsIntensiveExam({ type: FULL_TEST, questions: mergeFourSkills(reviewable), ... })
   else:
-     # 1–3 skill COMMITTED → mỗi skill 1 đề single-skill RIÊNG LẺ
-     for j in committed:
+     # 1–3 skill AWAITING_REVIEW → mỗi skill 1 đề single-skill RIÊNG LẺ
+     for j in reviewable:
         create IeltsIntensiveExam({ type: j.skill, questions: assembleIntensiveBlob(j), ... })
+
+  # Chuyển trạng thái các job sang COMMITTED
+  for j in reviewable:
+     j.update({ status: COMMITTED, committedEntityId })
 ```
 
 - **2–3 skill ⇒ nhiều đề single-skill**, **không** phải 1 đề tổng hợp → tránh thêm enum `type` mới, tái dùng
   trọn vẹn luồng single-skill (`LISTENING/READING/WRITING/SPEAKING` đã có trong `IeltsIntensiveExamType`).
-- **2 action mở khoá:** `discard-skill` (DISCARD 1 job → nếu phần còn lại đều `COMMITTED` thì gate pass, group
-  commit được); `abandon` (DISCARD toàn bộ → group không sinh đề nào).
+- **2 action mở khoá:** `discard-skill` (DISCARD 1 job → phần còn lại có thể commit); `abandon` (DISCARD toàn bộ → không sinh đề nào).
 - **Group TTL chống "zombie":** job `FAILED/PENDING` quá `groupExpiresAt` (createdAt + 7 ngày) bị cron Phase 8.9
   auto-`DISCARD`, nhờ đó group dở dang cuối cùng vẫn đóng được thay vì kẹt mãi.
 

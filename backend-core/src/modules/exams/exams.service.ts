@@ -530,6 +530,8 @@ export class ExamsService {
     // 2. Synchronous grading for IELTS LISTENING, READING, and FULL_TEST (Listening/Reading sub-sections)
     let listeningScore: number | null = null;
     let readingScore: number | null = null;
+    let hasWritingAnswers = false;
+    let hasSpeakingAnswers = false;
 
     if (
       existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.LISTENING ||
@@ -585,11 +587,14 @@ export class ExamsService {
         this.extractCorrectAnswers(examQuestions.listening, listenAnsMap);
         let lScore = 0;
         for (const [key, correct] of listenAnsMap.entries()) {
-          const userAns = submitDto.answers[key];
+          const userAns = submitDto.answers["L" + key] !== undefined ? submitDto.answers["L" + key] : submitDto.answers[key];
           if (key.includes(",")) {
             const qCount = key.split(",").length;
             const correctArr = Array.isArray(correct) ? correct : [String(correct)];
-            const userArr = key.split(",").map((k) => String(submitDto.answers[k] || "")).filter((v) => v.trim() !== "");
+            const userArr = key.split(",").map((k) => {
+              const val = submitDto.answers["L" + k] !== undefined ? submitDto.answers["L" + k] : submitDto.answers[k];
+              return String(val || "");
+            }).filter((v) => v.trim() !== "");
             let multiScore = 0;
             const correctNorm = correctArr.flatMap((c) => this.parseIELTSAnswer(String(c)));
             for (const ua of userArr) {
@@ -615,11 +620,14 @@ export class ExamsService {
         this.extractCorrectAnswers(examQuestions.reading, readAnsMap);
         let rScore = 0;
         for (const [key, correct] of readAnsMap.entries()) {
-          const userAns = submitDto.answers[key];
+          const userAns = submitDto.answers["R" + key] !== undefined ? submitDto.answers["R" + key] : submitDto.answers[key];
           if (key.includes(",")) {
             const qCount = key.split(",").length;
             const correctArr = Array.isArray(correct) ? correct : [String(correct)];
-            const userArr = key.split(",").map((k) => String(submitDto.answers[k] || "")).filter((v) => v.trim() !== "");
+            const userArr = key.split(",").map((k) => {
+              const val = submitDto.answers["R" + k] !== undefined ? submitDto.answers["R" + k] : submitDto.answers[k];
+              return String(val || "");
+            }).filter((v) => v.trim() !== "");
             let multiScore = 0;
             const correctNorm = correctArr.flatMap((c) => this.parseIELTSAnswer(String(c)));
             for (const ua of userArr) {
@@ -640,8 +648,8 @@ export class ExamsService {
         readingScore = rScore;
       }
 
-      const hasWritingAnswers = examQuestions?.writing && Object.keys(submitDto.answers).some(k => k.toLowerCase().startsWith("w"));
-      const hasSpeakingAnswers = examQuestions?.speaking && Object.keys(submitDto.answers).some(k => k.toLowerCase().startsWith("s"));
+      hasWritingAnswers = examQuestions?.writing && Object.keys(submitDto.answers).some(k => k.toLowerCase().startsWith("w"));
+      hasSpeakingAnswers = examQuestions?.speaking && Object.keys(submitDto.answers).some(k => k.toLowerCase().startsWith("s"));
 
       if (hasWritingAnswers) {
         const allowed = await this.subscriptionsService.incrementUsage(existing.userId, "AI_WRITING_GRADING");
@@ -743,7 +751,8 @@ export class ExamsService {
     }
 
     // 5. Asynchronous AI grader for Writing & Speaking via RabbitMQ
-    if (isWriting || isSpeaking) {
+    const isFullTestWithAi = existing.ieltsIntensiveExam.type === IeltsIntensiveExamType.FULL_TEST && (hasWritingAnswers || hasSpeakingAnswers);
+    if (isWriting || isSpeaking || isFullTestWithAi) {
       await this.aiClientService.publishGradingTask({
         sessionId: session.id,
         examType: existing.ieltsIntensiveExam.type,

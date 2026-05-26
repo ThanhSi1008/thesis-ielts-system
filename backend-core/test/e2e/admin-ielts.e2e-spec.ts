@@ -9,6 +9,7 @@ import {
 import { ContentImportStatus, ContentImportSkill, ContentImportTargetSystem } from '@prisma/client';
 import { randomUUID, createHmac } from 'crypto';
 import { ExamsService } from '../../src/modules/exams/exams.service';
+import { AiClientService } from '../../src/modules/ai-client/ai-client.service';
 
 const BASE = '/api/v1';
 
@@ -874,16 +875,16 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
       const sessionId = sessionRes.body.id;
 
       // Submit answers:
-      // - match:1 correct: A, student: A
-      // - match:2 correct: B, student: B
-      // - 3 correct: yes, student: yes
-      // - 4 correct: no, student: maybe (wrong)
+      // - Lmatch:1 correct: A, student: A
+      // - Lmatch:2 correct: B, student: B
+      // - R3 correct: yes, student: yes
+      // - R4 correct: no, student: maybe (wrong)
       // also include some writing answers starting with 'w'
       const studentAnswers = {
-        'match:1': 'A',
-        'match:2': 'B',
-        '3': 'yes',
-        '4': 'maybe',
+        'Lmatch:1': 'A',
+        'Lmatch:2': 'B',
+        'R3': 'yes',
+        'R4': 'maybe',
         'w-task1': 'Writing task 1 content essay goes here...',
       };
 
@@ -908,6 +909,16 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
       expect(result!.readingScore).toBe(1);
       // TotalScore (Listening + Reading synchronously) -> 3
       expect(result!.totalScore).toBe(3);
+
+      // Verify that the writing/speaking AI grading task was published to the queue
+      const aiClientService = app.get(AiClientService);
+      expect(aiClientService.publishGradingTask).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sessionId,
+          examType: 'FULL_TEST',
+          answers: studentAnswers,
+        })
+      );
     });
 
     it('should enforce composite duplicate blocks on Writing/Speaking prompts when engnovateSlug is null (BUG-08)', async () => {

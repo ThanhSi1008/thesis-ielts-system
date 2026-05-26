@@ -149,14 +149,15 @@ model ContentImportJob {
 > dùng chung `groupId`; mỗi job có vòng đời độc lập, admin thấy chúng như 1 nhóm trong UI.
 >
 > **Rule commit group** (giữ tinh thần "commit = không còn job dang dở"):
-> - ✅ commit khi **mọi job** trong group là `COMMITTED` **hoặc** `DISCARDED`.
-> - ❌ block nếu còn job ở `PENDING / SCRAPING / EXTRACTING / AWAITING_REVIEW / FAILED`.
+> - ✅ commit khi các job trong group là `AWAITING_REVIEW`, `COMMITTED` **hoặc** `DISCARDED`.
+> - ❌ block nếu còn job ở `PENDING / SCRAPING / EXTRACTING / FAILED` (chặn FAILED buộc admin Retry hoặc Discard tường minh).
+> - 🔒 Khoá per-job commit đối với job thuộc group (tránh sinh đề lẻ trùng lặp).
 >
-> **2 action mở khoá:** `POST /import/:jobId/discard-skill` (bỏ 1 kỹ năng → nếu phần còn lại đều `COMMITTED` thì
-> group tự unlock); `POST /import/group/:groupId/abandon` (bỏ cả group → mọi job `DISCARDED`).
+> **2 action mở khoá:** `POST /import/:jobId/discard-skill` (bỏ 1 kỹ năng → các job còn lại được commit);
+> `POST /import/group/:groupId/abandon` (bỏ cả group → mọi job `DISCARDED`).
 >
-> **Suy `type` thực tế khi commit** (chỉ tính job `COMMITTED`): 4 skill → 1 đề `FULL_TEST`; **2–3 skill → 2–3 đề
-> single-skill RIÊNG LẺ** (không phải 1 đề tổng hợp → tránh thêm enum, tái dùng luồng single-skill); 1 skill → 1 đề
+> **Suy `type` thực tế khi commit** (chỉ tính các job được commit): 4 skill → 1 đề `FULL_TEST`; **2–3 skill → 2–3 đề
+> single-skill RIÊNG LẺ** (không phải 1 đề tổng hợp -> tránh thêm enum, tái dùng luồng single-skill); 1 skill → 1 đề
 > single-skill. Pseudocode đầy đủ ở [`03` §3.6](./03-data-flow-and-pipeline.md).
 >
 > **Group TTL chống "zombie":** `groupExpiresAt = createdAt + 7 ngày`; cron (Phase 8.9) auto-`DISCARD` job
