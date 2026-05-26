@@ -33,6 +33,10 @@ export class ContentImportService {
    * Creates one or multiple import jobs based on target skill and triggers AMQP pipelines.
    */
   async create(dto: CreateImportJobDto, userId: string): Promise<any> {
+    if (dto.sourceType === "WEB_URL" as any) {
+      throw new BadRequestException("Web scraping is no longer supported. Please upload a physical PDF file.");
+    }
+
     // ─── COST GUARD: Prevention of budget runaway ───
     const costGuardLimit = this.configService.get<number>("IMPORT_JOB_GEMINI_LIMIT_24H", 10000000); // 10M tokens limit
     const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);

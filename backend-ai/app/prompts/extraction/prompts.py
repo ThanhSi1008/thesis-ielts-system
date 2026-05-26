@@ -2,36 +2,39 @@
 # SYSTEM PROMPTS FOR GEMINI EXTRACTIONS
 # =====================================================================
 
-LISTENING_EXTRACTION_PROMPT = """You are an expert IELTS Listening parser. Your job is to extract the complete structure of a full IELTS Listening Test (all 4 parts, 40 questions in total) from the provided RAW TEXT (which contains transcripts, instructions, and questions).
+LISTENING_EXTRACTION_PROMPT = """You are an expert IELTS Listening parser. Your job is to extract the complete structure of a full IELTS Listening Test (all 4 parts, 40 questions in total) from the provided RAW TEXT or PDF file.
 
 Please follow these strict guidelines:
 1. **Title**: You MUST strictly format the main test `title` as: `Cambridge IELTS <BookNumber> - Listening Test <TestNumber>` (e.g., `Cambridge IELTS 18 - Listening Test 1`). Deduce the BookNumber (default to 18 if not found) and TestNumber (default to 1 if not found) from the context.
 2. **Parts (all 4 sections)**: You MUST extract all 4 parts of the listening test (Part 1, Part 2, Part 3, and Part 4) as a list of sections in the `parts` field. Do NOT stop after the first part. Ensure the full test containing all 40 questions is extracted.
 3. **Transcript**: For each part, parse and extract the transcript sections. Group them by speaker (e.g. 'Speaker 1', 'Man', 'Woman', 'John') with their verbatim spoken text.
-4. **Content & Answers**: For every single question block in each part:
+4. **Answer Key & Answers**: The raw document contains an 'Answer Key' section at the end. You MUST scan the end of the document, locate the exact answer keys for this listening test, and inline them perfectly into the `answer` field of each question item. For gap-filling, use the exact text words from the answer key.
+5. **Content & Question Fields**: For every single question block in each part:
    - Identify the precise `question_number` (1 to 40).
    - Choose the correct whitelisted `type` (e.g., matching, multiple_choice, table_completion, form_completion, note_completion, sentence_completion).
    - Extract the question text. Use underscores like '___' to indicate gap-filling slots.
    - For multiple_choice, list all options exactly as they appear (e.g., ['A. by car', 'B. by bus', 'C. on foot']).
-   - Find and supply the exact correct `answer` key (e.g., 'A', 'B', or the text phrase for gap-filling). Must NOT be empty.
-   - Write a brief justification or quote from the transcript as the `explanation`.
-5. **NO Verbatim Echoing**: Keep question texts clean and concise. Do NOT echo large chunks of the transcript inside the question text.
+   - Supply the exact correct `answer` key (e.g., 'A', 'B', or the text phrase for gap-filling). Must NOT be empty.
+   - Write a brief justification or quote from the transcript as the `explanation` **strictly in Vietnamese** (e.g. 'Người nói đề cập rằng...').
+6. **NO Verbatim Echoing**: Keep question texts clean and concise. Do NOT echo large chunks of the transcript inside the question text.
 """
 
-READING_EXTRACTION_PROMPT = """You are an expert IELTS Reading parser. Your job is to extract the complete structure of a full IELTS Reading Test (all 3 passages, 40 questions in total) from the provided RAW TEXT.
+READING_EXTRACTION_PROMPT = """You are an expert IELTS Reading parser. Your job is to extract the complete structure of a full IELTS Reading Test (all 3 passages, 40 questions in total) from the provided RAW TEXT or PDF file.
 
 Please follow these strict guidelines:
 1. **Title**: You MUST strictly format the main test `title` as: `Cambridge IELTS <BookNumber> - Reading Test <TestNumber>` (e.g., `Cambridge IELTS 18 - Reading Test 1`). Deduce the BookNumber (default to 18 if not found) and TestNumber (default to 1 if not found) from the context.
 2. **Parts (all 3 passages)**: You MUST extract all 3 reading passages (Passage 1, Passage 2, and Passage 3) as a list of passages in the `parts` field. Do NOT stop after the first passage. Ensure the full test containing all 40 questions is extracted.
-3. **Passage**: For each passage, extract the complete, clean reading passage text verbatim in the `passage` field. Maintain paragraph breaks.
-4. **Content & Answers**: For every single question in each passage:
+3. **Passage Content (Full Verbatim Text Required)**: For the `passage` field of each reading part, you MUST read the passage text directly from the multimodal PDF document and return the COMPLETE, FULL content verbatim in clean Markdown format. Do NOT truncate, do NOT summarize, and do NOT return a 50-character seed text. Every single paragraph of the passage must appear in the output exactly as it appears in the source document.
+4. **Answer Key & Answers**: The raw document contains an 'Answer Key' section at the end. You MUST scan the end of the document, locate the exact answer keys for this reading test, and inline them perfectly into the `answer` field of each question item.
+5. **Content & Question Fields**: For every single question in each passage:
    - Identify the precise `question_number` (1 to 40).
    - Choose the correct whitelisted `type` (e.g., matching, matching_headings, multiple_choice, table_completion, note_completion, sentence_completion, true_false_not_given, yes_no_not_given).
    - Extract the question text. Use underscores like '___' for gap-filling.
    - For true_false_not_given or yes_no_not_given, set `type` strictly to 'true_false_not_given' or 'yes_no_not_given'. The correct answer key MUST be strictly 'TRUE', 'FALSE', or 'NOT GIVEN' (or 'YES', 'NO', 'NOT GIVEN').
    - Supply the exact correct `answer` key (e.g., 'A', 'TRUE', 'NOT GIVEN', or the text words for gap-filling). Must NOT be empty.
-   - Write a brief quote from the passage justifying the answer as the `explanation`.
-5. **NO Verbatim Echoing**: Keep question texts concise. Do NOT copy the passage text into the questions.
+   - Write a brief quote from the passage justifying the answer as the `explanation` **strictly in Vietnamese** (e.g. 'Đoạn văn nêu rõ...').
+6. **NO Verbatim Echoing (Questions Only)**: Keep question texts and option labels concise. Do NOT copy the passage text into the question or option fields. This rule applies only to question/option/explanation fields — the `passage` field is exempt and MUST contain the full text.
+
 """
 
 WRITING_EXTRACTION_PROMPT = """You are an expert IELTS Writing parser. Your job is to extract IELTS Writing tasks and prompts from the provided RAW TEXT.

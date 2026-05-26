@@ -88,7 +88,7 @@ export class IeltsContentCommitService {
               }
             }
 
-            const ans =
+            let ans =
               obj.correct_answer !== undefined
                 ? obj.correct_answer
                 : obj.answer !== undefined
@@ -105,11 +105,51 @@ export class IeltsContentCommitService {
                 );
               }
               
-              if (typeof obj.question_number === "number" && ans !== undefined) {
+              if (ans === undefined || ans === null || String(ans).trim() === "") {
+                throw new UnprocessableEntityException(
+                  `Invalid answer key for question(s) [${obj.question_number || (obj.question_numbers && obj.question_numbers.join(',')) || 'unknown'}]: Answer cannot be empty.`
+                );
+              }
+
+              // Strict Server-Side Normalization
+              let ansStr = String(ans).trim();
+              const isCompletion = 
+                qType.includes("completion") || 
+                qType.includes("short_answer") || 
+                qType.includes("fill_blank");
+              
+              const isTrueFalse = 
+                qType.includes("true_false_not_given") || 
+                qType.includes("yes_no_not_given");
+
+              if (isCompletion) {
+                ansStr = ansStr.toLowerCase();
+              } else if (isTrueFalse) {
+                ansStr = ansStr.toUpperCase();
+                if (
+                  ansStr !== "TRUE" && ansStr !== "FALSE" && ansStr !== "NOT GIVEN" &&
+                  ansStr !== "YES" && ansStr !== "NO"
+                ) {
+                  throw new UnprocessableEntityException(
+                    `Invalid evaluation answer "${ansStr}" for type "${obj.type}". Must be TRUE, FALSE, YES, NO or NOT GIVEN.`
+                  );
+                }
+              }
+
+              // Update the mutable object so that the committed DB questions payload is clean and fully normalized!
+              if (obj.correct_answer !== undefined) {
+                obj.correct_answer = ansStr;
+              }
+              if (obj.answer !== undefined) {
+                obj.answer = ansStr;
+              }
+              ans = ansStr;
+
+              if (typeof obj.question_number === "number") {
                 const key = String(obj.question_number);
                 ansMap.set(key, ans);
                 if (obj.type) typeMap.set(key, String(obj.type));
-              } else if (Array.isArray(obj.question_numbers) && ans !== undefined) {
+              } else if (Array.isArray(obj.question_numbers)) {
                 const key = (obj.question_numbers as number[]).join(",");
                 ansMap.set(key, ans);
                 if (obj.type) typeMap.set(key, String(obj.type));
@@ -131,12 +171,6 @@ export class IeltsContentCommitService {
 
       // Check answer format (parentheses, slashes, blanks)
       for (const [key, correct] of ansMap.entries()) {
-        if (correct === undefined || correct === null || String(correct).trim() === "") {
-          throw new UnprocessableEntityException(
-            `Invalid answer key for question(s) [${key}]: Answer cannot be empty.`
-          );
-        }
-
         const ansStr = String(correct);
 
         // 1. Verify Balanced Parentheses for optional spellings like "colo(u)r"

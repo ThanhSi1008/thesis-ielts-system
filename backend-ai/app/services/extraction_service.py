@@ -131,8 +131,9 @@ class ExtractionService:
 
     async def extract_structured(self, raw_text: str, skill: str) -> Dict[str, Any]:
         """
-        Transforms raw text into a clean structured JSON contract.
-        Implements context caching, model tiering (Flash -> Pro fallback), and grader compatibility assertions.
+        Transforms raw text or uploaded PDF reference into a clean structured JSON contract.
+        Implements multimodal AI calls, Try-Catch model tiering (Flash -> Pro fallback),
+        15,000 token Cost Guard, and safe Gemini file cleanup.
         """
         if not self.client:
             raise RuntimeError("Gemini client is not initialized")
@@ -154,37 +155,91 @@ class ExtractionService:
         result_dict = {}
         tokens_used = 0
         
-        try:
-            # Tier 1: Try using cheap and fast gemini-2.5-flash
-            logger.info(f"⚡ [Tier 1] Calling {flash_model} for {skill} structuring...")
-            response = await self.client.aio.models.generate_content(
-                model=flash_model,
-                contents=f"Please extract structured content from the following raw text:\n\n{raw_text}",
-                config=types.GenerateContentConfig(
-                    system_instruction=system_prompt,
-                    temperature=0.1,
-                    response_mime_type="application/json",
-                    response_schema=schema_model,
-                ),
+        # Parse Multimodal Cloud File URI if uploaded during Stage 1
+        gemini_file_prefix = "gemini_file_uri:"
+        gemini_file = None
+        file_name = None
+        contents_input = []
+        
+        if raw_text.startswith(gemini_file_prefix):
+            # Format: gemini_file_uri:files/xxxx (header line only; no offline text cache)
+            newline_idx = raw_text.find("\n")
+            header_line = raw_text[:newline_idx] if newline_idx != -1 else raw_text
+            file_name = header_line[len(gemini_file_prefix):].strip()
+            logger.info(f"📁 Identified Gemini uploaded file: {file_name}")
+            try:
+                gemini_file = self.client.files.get(name=file_name)
+                contents_input.append(gemini_file)
+            except Exception as get_err:
+                logger.error(f"❌ Failed to retrieve Gemini file reference {file_name}: {get_err}")
+                raise RuntimeError(f"Could not load physical PDF from Gemini Files API: {get_err}")
+
+            prompt_instruction = (
+                "Please extract the complete structured JSON from this PDF file according to instructions. "
+                "For Reading passages, you MUST read the passage text directly from the PDF and return the "
+                "COMPLETE, FULL content verbatim in clean Markdown format in the 'passage' field. "
+                "Do NOT truncate, do NOT summarize, and do NOT return a seed text."
             )
-            
-            result_dict = json.loads(response.text)
-            
-            # Capture token usage
-            if response.usage_metadata:
-                tokens_used = response.usage_metadata.total_token_count
+            contents_input.append(prompt_instruction)
+        else:
+            # Traditional text-only import (e.g. Scraped WEB_URL)
+            contents_input.append(f"Please extract structured content from the following raw text:\n\n{raw_text}")
+
+        try:
+            # 2. COST GUARD: Verify token limit before invoking generation
+            try:
+                token_count_resp = self.client.models.count_tokens(
+                    model=flash_model,
+                    contents=contents_input
+                )
+                total_tokens = token_count_resp.total_tokens
+                logger.info(f"📊 Cost Guard Token Check: {total_tokens} total tokens.")
+                if total_tokens > 15000:
+                    raise ValueError(f"Job size ({total_tokens} tokens) exceeds the budget safety limit of 15,000 tokens. Aborting to prevent budget runaway.")
+            except Exception as token_err:
+                if "exceeds the budget safety limit" in str(token_err):
+                    raise
+                logger.warning(f"⚠️ Could not check token count (continuing anyway): {token_err}")
+
+            # 3. CONTEXT CACHING: If the size is huge and supported, we could cache the schema.
+            # (Note: Flash 2.5 context caches require min 32,768 tokens, which our 15k limit avoids, but we remain compliant)
+
+            # 4. TIERED GENERATION CALL WITH FALLBACKS
+            try:
+                # Tier 1: Try using cheap and fast gemini-2.5-flash
+                logger.info(f"⚡ [Tier 1] Calling {flash_model} for {skill} structuring...")
+                response = await self.client.aio.models.generate_content(
+                    model=flash_model,
+                    contents=contents_input,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_prompt,
+                        temperature=0.1,
+                        response_mime_type="application/json",
+                        response_schema=schema_model,
+                    ),
+                )
                 
-            # Validate output compatibility
-            is_valid = self._validate_extraction_result(result_dict, skill)
-            
+                result_dict = json.loads(response.text)
+                if response.usage_metadata:
+                    tokens_used = response.usage_metadata.total_token_count
+                    
+                is_valid = self._validate_extraction_result(result_dict, skill)
+            except Exception as flash_err:
+                logger.warning(f"⚠️ [Tier 1] {flash_model} failed execution or parsing: {flash_err}")
+                is_valid = False
+
             # Tier 2 Fallback: If Flash failed validation, retry with gemini-2.5-pro
             if not is_valid:
-                logger.warning(f"⚠️ [Tier 1] {flash_model} validation failed! Falling back to {pro_model}...")
+                logger.warning(f"⚠️ [Tier 1] Flash structuring validation failed! Falling back to {pro_model}...")
                 selected_model = pro_model
+                
+                # Append high-fidelity instructions
+                if isinstance(contents_input[-1], str):
+                    contents_input[-1] += " (Ensure 100% answer keys correctness and strict schema compliance)"
                 
                 response = await self.client.aio.models.generate_content(
                     model=pro_model,
-                    contents=f"Please extract structured content from the following raw text (Ensure 100% answer keys correctness):\n\n{raw_text}",
+                    contents=contents_input,
                     config=types.GenerateContentConfig(
                         system_instruction=system_prompt,
                         temperature=0.1,
@@ -201,6 +256,7 @@ class ExtractionService:
                 is_valid = self._validate_extraction_result(result_dict, skill)
                 if not is_valid:
                     logger.error(f"❌ [Tier 2] {pro_model} structured output also failed validation checks!")
+                    raise ValueError("Structured extraction failed: Gemini Pro output is also incompatible with IELTS grading engine.")
                     
             logger.info(f"✅ Structuring completed using {selected_model}. Tokens used: {tokens_used}")
             
@@ -218,6 +274,15 @@ class ExtractionService:
         except Exception as e:
             logger.error(f"❌ Gemini structuring pipeline failed: {e}")
             raise
+        finally:
+            # 5. SAFE GEMINI FILE CLEANUP: Delete the uploaded file from Google Cloud server immediately
+            if file_name:
+                try:
+                    logger.info(f"🗑️ Deleting Gemini cloud file to keep storage clean: {file_name}")
+                    self.client.files.delete(name=file_name)
+                    logger.info(f"✅ Gemini cloud file deleted successfully.")
+                except Exception as del_err:
+                    logger.warning(f"⚠️ Failed to clean up Gemini file {file_name}: {del_err}")
 
 # Singleton instance
 _extraction_service = None
