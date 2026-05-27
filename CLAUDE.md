@@ -187,7 +187,7 @@ Pronunciation tasks share the grading channel via the `pronunciation-check-queue
 
 **Storage (`src/common/storage/`):** Wraps Cloudinary v2 SDK — `uploadFile(file, folder)` returns the secure URL, `deleteFile(url)` parses `public_id` from the URL. Used for all user-uploaded images.
 
-**Database:** Prisma 5 (`schema.prisma`, ~1360 lines, **62 models**). The Postgres datasource takes both `DATABASE_URL` (pooled) and `directUrl` (`DIRECT_URL`, used by migrations). Key domains:
+**Database:** Prisma 5 (`schema.prisma`, ~1360 lines, **63 models**). The Postgres datasource takes both `DATABASE_URL` (pooled) and `directUrl` (`DIRECT_URL`, used by migrations). Key domains:
 
 | Domain                      | Representative models                                                                                                                                                                                                       |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

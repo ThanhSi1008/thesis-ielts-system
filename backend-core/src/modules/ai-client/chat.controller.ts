@@ -9,8 +9,8 @@ export class ChatController {
     const { stream = true } = body;
 
     const options = {
-      hostname: "backend-ai",
-      port: 8000,
+      hostname: process.env.BACKEND_AI_HOST || "backend-ai",
+      port: Number(process.env.BACKEND_AI_PORT) || 8000,
       path: "/api/v1/chat",
       method: "POST",
       headers: {

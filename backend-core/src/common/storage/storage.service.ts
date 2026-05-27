@@ -30,19 +30,22 @@ export class StorageService {
    * @returns URL of the uploaded file
    */
   async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
+    const isImage = file.mimetype?.startsWith("image/") ?? false;
+    const resourceType = isImage ? "image" : "raw";
+
     return new Promise((resolve, reject) => {
       const upload = cloudinary.uploader.upload_stream(
         {
           folder: folder,
-          resource_type: "auto",
+          resource_type: resourceType,
         },
-        (error, ieltsIntensiveResult) => {
+        (error, result) => {
           if (error) {
             this.logger.error(`❌ File upload failed: ${error.message}`);
             return reject(error);
           }
-          this.logger.log(`✅ File uploaded: ${ieltsIntensiveResult.secure_url}`);
-          resolve(ieltsIntensiveResult.secure_url);
+          this.logger.log(`✅ File uploaded: ${result.secure_url}`);
+          resolve(result.secure_url);
         },
       );
       Readable.from(file.buffer).pipe(upload);
@@ -60,25 +63,18 @@ export class StorageService {
       // public_id: folder/filename (without extension)
 
       const urlParts = fileUrl.split("/");
-      const versionIndex = urlParts.findIndex(
-        (part) => part.startsWith("v") && !isNaN(Number(part.substring(1))),
-      );
-      // If version is present, public_id starts after it. If not, it's safer to rely on regex or assumption.
-      // A common strategy is to store public_id in DB, but if we only have URL:
-      // Last segment is filename.ext
       const filenameWithExt = urlParts[urlParts.length - 1];
-      const filename = filenameWithExt.split(".")[0];
+      
+      const isRaw = fileUrl.includes("/raw/upload/");
+      // In Cloudinary, raw resource public_ids include the extension, unlike images!
+      const filename = isRaw ? filenameWithExt : filenameWithExt.split(".")[0];
       const folder = urlParts[urlParts.length - 2];
-      // This parsing is brittle. Ideally we store public_id.
-      // For now, let's assume 'folder/filename' structure from the upload.
-
-      // Better approach: Cloudinary public_id extraction from URL is complex.
-      // For this specific app, we are uploading to `folder/uuid`.
-      // So public_id is `folder/uuid`.
-
       const publicId = `${folder}/${filename}`;
 
-      await cloudinary.uploader.destroy(publicId);
+      await cloudinary.uploader.destroy(
+        publicId,
+        isRaw ? { resource_type: "raw" } : undefined
+      );
       this.logger.log(`✅ File deleted: ${fileUrl}`);
     } catch (error) {
       this.logger.error(`❌ File deletion failed: ${error.message}`);

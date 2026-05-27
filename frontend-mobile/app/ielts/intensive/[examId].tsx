@@ -201,7 +201,10 @@ export default function ExamPlayerScreen() {
 
   const [audioPlayingPartIndex, setAudioPlayingPartIndex] = useState(0);
   const listeningParts = exam?.questions?.parts ?? [];
-  const audioUrl = listeningParts[audioPlayingPartIndex]?.audio_url ?? null;
+  // Support both snake_case (seed data) and camelCase (AI import pipeline)
+  const audioUrl = listeningParts[audioPlayingPartIndex]?.audio_url
+    ?? listeningParts[audioPlayingPartIndex]?.audioUrl
+    ?? null;
   const player = useAudioPlayer(audioUrl || '');
   const playerStatus = useAudioPlayerStatus(player);
 

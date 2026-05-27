@@ -12,6 +12,7 @@ interface TakeWritingBoardProps {
   sessionInfo: any;
   secondsLeft: number;
   formatTime: (sec: number) => string;
+  submitAndTrack?: (data: any) => Promise<any>;
 }
 
 export default function TakeWritingBoard({
@@ -19,6 +20,7 @@ export default function TakeWritingBoard({
   sessionInfo,
   secondsLeft,
   formatTime,
+  submitAndTrack: propSubmitAndTrack,
 }: TakeWritingBoardProps) {
   const router = useRouter();
   const sessionId = sessionInfo?.id as string;
@@ -29,7 +31,8 @@ export default function TakeWritingBoard({
   const writingAnswersRef = useRef<{ task1: string; task2: string }>({ task1: "", task2: "" });
   const writingTasks = (exam.questions?.tasks as any[]) || [];
 
-  const { submitAndTrack, jobs } = useGrading();
+  const { submitAndTrack: contextSubmit, jobs } = useGrading();
+  const submitAndTrack = propSubmitAndTrack || contextSubmit;
   const activeJob = jobs.find((j) => j.sessionId === sessionId);
   const isAiProcessing =
     !!activeJob &&

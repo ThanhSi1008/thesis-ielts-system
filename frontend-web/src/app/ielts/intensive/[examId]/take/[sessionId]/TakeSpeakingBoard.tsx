@@ -11,12 +11,14 @@ interface TakeSpeakingBoardProps {
   exam: ExamDetail;
   sessionInfo: any;
   secondsLeft: number;
+  submitAndTrack?: (data: any) => Promise<any>;
 }
 
 export default function TakeSpeakingBoard({
   exam,
   sessionInfo,
   secondsLeft,
+  submitAndTrack: propSubmitAndTrack,
 }: TakeSpeakingBoardProps) {
   const router = useRouter();
   const sessionId = sessionInfo?.id as string;
@@ -34,7 +36,8 @@ export default function TakeSpeakingBoard({
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
-  const { submitAndTrack, jobs } = useGrading();
+  const { submitAndTrack: contextSubmit, jobs } = useGrading();
+  const submitAndTrack = propSubmitAndTrack || contextSubmit;
   const activeJob = jobs.find((j) => j.sessionId === sessionId);
   const isAiProcessing =
     !!activeJob &&

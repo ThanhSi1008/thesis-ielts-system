@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
@@ -10,6 +10,7 @@ import { extractAllItemsFromPart, type NormalizedItem } from "@/lib/exam-parser"
 import WritingResultView from "@/components/WritingResultView";
 import SpeakingResultView from "@/components/SpeakingResultView";
 import FloatingSelectionManager from "@/components/FloatingSelectionManager";
+import { parseTextAndBlanks } from "@/components/AnswerField";
 // Auth helpers
 // ─────────────────────────────────────────────────────────────
 
@@ -500,7 +501,7 @@ function ReviewItemField({
     const userAns = normalizeAnswer(userAnswers[key]);
     const correctAns = normalizeAnswer(correctMap.get(key));
     const isCorr = correctMap.has(key) ? isCorrect(userAns, correctAns) : null;
-    const parts = (item.text || "").split(/_+|\.{3,}|\[blank\]/i);
+    const parts = parseTextAndBlanks(item.text || "");
 
     const renderInputBox = () => {
       if (isCorr === true) {
@@ -535,27 +536,27 @@ function ReviewItemField({
 
         <div className="flex items-start gap-[8px]">
           <span className="mt-[10px] w-1.5 h-1.5 rounded-full bg-[#1a1a1a] flex-shrink-0"></span>
-          <div className="flex items-center gap-[6px] flex-wrap flex-1">
+          <div className="text-[17px] leading-[2.1] flex-1">
             {parts.length > 1 ? (
               parts.map((p, idx) => (
-                <span key={idx} className="flex items-center gap-[6px] flex-wrap leading-[2]">
-                  <span className="text-[17px] leading-relaxed">{p}</span>
+                <React.Fragment key={idx}>
+                  <span>{p}</span>
                   {idx < parts.length - 1 && (
-                    <span className="inline-flex items-center gap-1 mx-1 align-middle">
+                    <span className="inline-flex items-center gap-1 mx-1.5 align-middle">
                       <span className="text-[12px] font-bold text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{item.qn}</span>
                       {renderInputBox()}
                     </span>
                   )}
-                </span>
+                </React.Fragment>
               ))
             ) : (
-              <div className="flex items-center gap-[6px] flex-wrap leading-relaxed">
-                <div className="text-[17px] font-medium leading-relaxed">{item.text}</div>
-                <span className="inline-flex items-center gap-1 mx-1 align-middle">
+              <span className="inline">
+                <span className="font-medium">{item.text}</span>
+                <span className="inline-flex items-center gap-1 mx-1.5 align-middle">
                   <span className="text-[12px] font-bold text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{item.qn}</span>
                   {renderInputBox()}
                 </span>
-              </div>
+              </span>
             )}
           </div>
         </div>
@@ -592,7 +593,7 @@ function ReviewItemField({
                     const userAns = normalizeAnswer(userAnswers[key]);
                     const correctAns = normalizeAnswer(correctMap.get(key));
                     const isCorr = correctMap.has(key) ? isCorrect(userAns, correctAns) : null;
-                    const parts = (cell.text || "").split(/_+|\.{3,}|\[blank\]/i);
+                    const parts = parseTextAndBlanks(cell.text || "");
 
                     const renderInputBox = () => {
                       if (isCorr === true) {
@@ -614,10 +615,10 @@ function ReviewItemField({
 
                     return (
                       <td key={cIdx} className="border border-[#e2e1df] px-3 py-4 align-middle">
-                        <div id={`review-question-${qn}`} className="flex items-center gap-[6px] flex-wrap leading-[2]">
+                        <div id={`review-question-${qn}`} className="text-[15px] leading-[1.8]">
                           {parts.length > 1 ? (
                             parts.map((p, idx) => (
-                              <span key={idx} className="flex items-center gap-[6px] flex-wrap leading-[2]">
+                              <React.Fragment key={idx}>
                                 {p && <span className="leading-relaxed">{p}</span>}
                                 {idx < parts.length - 1 && (
                                   <span className="inline-flex items-center gap-1 mx-1 align-middle">
@@ -625,16 +626,16 @@ function ReviewItemField({
                                     {renderInputBox()}
                                   </span>
                                 )}
-                              </span>
+                              </React.Fragment>
                             ))
                           ) : (
-                            <>
+                            <span className="inline">
                               {cell.text && <span className="leading-relaxed">{cell.text}</span>}
                               <span className="inline-flex items-center gap-1 mx-1 align-middle">
                                 <span className="text-[12px] font-bold text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{qn}</span>
                                 {renderInputBox()}
                               </span>
-                            </>
+                            </span>
                           )}
                         </div>
                         <div className="mt-2">

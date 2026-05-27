@@ -78,6 +78,29 @@ async function upsertCambridgeExam(params: {
 }
 
 async function main() {
+  console.log("👤 Seeding admin user account...");
+  const adminEmail = "admin@example.com";
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail },
+  });
+
+  if (!existingAdmin) {
+    const bcrypt = require("bcrypt");
+    const hashedPassword = await bcrypt.hash("123456", 10);
+    await prisma.user.create({
+      data: {
+        email: adminEmail,
+        password: hashedPassword,
+        firstName: "System",
+        lastName: "Admin",
+        role: "ADMIN",
+      },
+    });
+    console.log("  ✓ Created admin user account (admin@example.com / 123456)");
+  } else {
+    console.log("  ✓ Admin user account already exists");
+  }
+
   console.log("🌱 Seeding database with comprehensive vocabulary data...");
 
   // Clear existing data safely

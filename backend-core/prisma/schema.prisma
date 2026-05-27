@@ -67,6 +67,8 @@ model User {
   bookmarks     PostBookmark[]       @relation("UserBookmarks")
   subscription  Subscription?
   pushTokens    PushToken[]
+  importJobs    ContentImportJob[]
+  auditLogs     AdminAuditLog[]
 
   @@map("users")
 }
@@ -90,6 +92,14 @@ model IeltsIntensiveExam {
   questions   Json // Stores questions in JSON format
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @updatedAt
+
+  // Provenance fields
+  source      String?
+  bookNumber  Int?
+  testNumber  Int?
+  quarter     String?
+  year        Int?
+  importJobId String?
 
   // Relations
   sessions IeltsIntensiveSession[]
@@ -902,6 +912,13 @@ model IeltsAdvancedListeningPart {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  // Provenance fields
+  source      String?
+  bookNumber  Int?
+  testNumber  Int?
+  isPublished Boolean @default(true)
+  importJobId String?
+
   sessions IeltsAdvancedListeningSession[]
 
   @@map("ielts_practice_listening_parts")
@@ -934,6 +951,13 @@ model IeltsAdvancedReadingPart {
   questionTypes        String[] // e.g., ["multiple_choice", "matching_headings"]
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+
+  // Provenance fields
+  source      String?
+  bookNumber  Int?
+  testNumber  Int?
+  isPublished Boolean @default(true)
+  importJobId String?
 
   sessions IeltsAdvancedReadingSession[]
 
@@ -974,6 +998,7 @@ model IeltsAdvancedWritingPrompt {
   difficulty    String   @default("medium")
   engnovateSlug String?  @unique
   isPublished   Boolean  @default(true)
+  importJobId   String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -1018,6 +1043,7 @@ model IeltsAdvancedSpeakingPart {
   questions     Json // Array of { text: string }
   engnovateSlug String?
   isPublished   Boolean  @default(true)
+  importJobId   String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -1351,10 +1377,100 @@ model PushToken {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   token     String   @unique
-  platform  String   // "ios" | "android"
+  platform  String // "ios" | "android"
   lastUsed  DateTime @default(now())
   createdAt DateTime @default(now())
 
   @@index([userId])
   @@map("push_tokens")
+}
+
+// ============================================================
+// CONTENT IMPORT STAGING (ADMIN EXAM BUILDER)
+// ============================================================
+
+enum ContentImportTargetSystem {
+  INTENSIVE
+  ADVANCED
+}
+
+enum ContentImportSkill {
+  LISTENING
+  READING
+  WRITING
+  SPEAKING
+  FULL_TEST
+}
+
+enum ContentImportSourceType {
+  PDF_UPLOAD
+  RAW_TEXT_PASTE
+}
+
+enum ContentImportStatus {
+  PENDING
+  SCRAPING
+  EXTRACTING
+  AWAITING_REVIEW
+  COMMITTING
+  COMMITTED
+  FAILED
+  DISCARDED
+}
+
+model ContentImportJob {
+  id          String @id @default(uuid())
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  targetSystem   ContentImportTargetSystem
+  skill          ContentImportSkill
+  groupId        String? // dùng cho FULL_TEST: nhiều job cùng groupId = cùng 1 IeltsIntensiveExam
+  groupExpiresAt DateTime? // = createdAt + 7 ngày khi tạo group; cron auto-DISCARD job FAILED/PENDING quá hạn
+  status         ContentImportStatus       @default(PENDING)
+
+  // --- Nguồn ---
+  sourceType       ContentImportSourceType
+  sourceRef        String                  @db.Text // URL của Question Booklet PDF đã upload
+  audioscriptRef   String?                 @db.Text // URL của Audioscripts PDF (LISTENING only)
+  contractVersion  String                  @default("v1") // phiên bản JSON Contract — tăng khi schema Gemini thay đổi
+  provenance       Json // { source, bookNumber?, testNumber?, quarter?, year?, title? }
+
+  // --- Dữ liệu pipeline ---
+  rawText        String? @db.Text // Stage 1 output (innerText / PDF text)
+  structuredJson Json? // Stage 2 output (Gemini) = bản nháp admin sửa
+  mediaAssets    Json? // [{ originalUrl, storedUrl, kind, bytes? }] — kept for non-audio assets
+  audioUrls      String[] // direct Cloudinary URLs for the 4 audio tracks (LISTENING only); bypass AI pipeline
+
+  // --- Telemetry & kết quả ---
+  geminiModel       String?
+  tokensUsed        Int?
+  error             String? @db.Text
+  committedEntityId String? // id của IeltsIntensiveExam / *Part / *Prompt
+
+  processingStartedAt DateTime? // worker ghi khi bắt đầu xử lý — dùng để detect stuck job
+  version             Int       @default(0) // optimistic locking
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([createdById])
+  @@index([status])
+  @@index([targetSystem, skill])
+  @@index([groupId])
+  @@map("content_import_jobs")
+}
+
+model AdminAuditLog {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action      String   // "IMPORT", "COMMIT", "DISCARD", "RETRY", "DELETE", "PUBLISH", "UPDATE"
+  entityType  String   // "INTENSIVE_EXAM", "ADVANCED_LISTENING_PART", "IMPORT_JOB", etc.
+  entityId    String?
+  details     Json?    // { title?, bookNumber?, testNumber?, skill?, targetSystem?, error?, etc. }
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@map("admin_audit_logs")
 }

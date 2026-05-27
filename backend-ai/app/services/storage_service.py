@@ -34,6 +34,14 @@ class StorageService:
                 use_ssl=settings.storage_use_ssl
             )
             logger.info("✅ Storage client initialized")
+            # Automatically create bucket in local/dev environments
+            if "localhost" in (settings.storage_endpoint or ""):
+                try:
+                    self.s3_client.create_bucket(Bucket=settings.storage_bucket)
+                    logger.info(f"🪣 Created local storage bucket: {settings.storage_bucket}")
+                except Exception as bucket_err:
+                    # Ignore if bucket already exists
+                    pass
         except Exception as e:
             logger.error(f"❌ Failed to initialize storage client: {e}")
             raise

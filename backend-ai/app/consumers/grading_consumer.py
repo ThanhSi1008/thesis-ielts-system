@@ -94,6 +94,32 @@ class GradingConsumer:
                 result = self._grade_speaking(session_id, answers, questions)
                 self._save_result(session_id, user_id, exam_type, result)
                 self._update_session_status(session_id, 'GRADED')
+            elif exam_type == 'FULL_TEST':
+                writing_answers = {}
+                speaking_answers = {}
+                for k, v in answers.items():
+                    k_lower = k.lower()
+                    if k_lower.startswith('w'):
+                        clean_k = k[1:]
+                        if clean_k.startswith('-') or clean_k.startswith('_'):
+                            clean_k = clean_k[1:]
+                        writing_answers[clean_k] = v
+                    elif k_lower.startswith('s'):
+                        clean_k = k[1:]
+                        if clean_k.startswith('-') or clean_k.startswith('_'):
+                            clean_k = clean_k[1:]
+                        speaking_answers[clean_k] = v
+                
+                writing_res = None
+                if writing_answers and questions.get('writing'):
+                    writing_res = self._grade_writing(session_id, writing_answers, questions.get('writing'))
+                
+                speaking_res = None
+                if speaking_answers and questions.get('speaking'):
+                    speaking_res = self._grade_speaking(session_id, speaking_answers, questions.get('speaking'))
+                
+                self._save_full_test_result(session_id, user_id, writing_res, speaking_res)
+                self._update_session_status(session_id, 'GRADED')
             elif exam_type == 'ADVANCED_WRITING':
                 self._grade_advanced_writing(task)
             elif exam_type == 'ADVANCED_SPEAKING':
@@ -224,6 +250,52 @@ class GradingConsumer:
             
         except Exception as e:
             logger.error(f"❌ Database update failed: {e}")
+            raise
+
+    def _save_full_test_result(self, session_id: str, user_id: str, writing_res: Dict[str, Any] | None, speaking_res: Dict[str, Any] | None):
+        """Write full test grading result to the database, combining writing and speaking feedbacks"""
+        try:
+            conn = psycopg2.connect(settings.database_url)
+            cursor = conn.cursor()
+            
+            # Fetch existing scores if any to ensure totalScore is consistent
+            cursor.execute('SELECT "listeningScore", "readingScore" FROM "results" WHERE "sessionId" = %s', (session_id,))
+            row = cursor.fetchone()
+            listening_score = row[0] if row else 0
+            reading_score = row[1] if row else 0
+            
+            w_score = writing_res.get('overallBand', 0) if writing_res else None
+            s_score = speaking_res.get('overallBand', 0) if speaking_res else None
+            
+            combined_feedback = {}
+            if writing_res:
+                combined_feedback['writing'] = writing_res.get('feedback', {})
+            if speaking_res:
+                combined_feedback['speaking'] = speaking_res.get('feedback', {})
+                
+            feedback_json = json.dumps(combined_feedback)
+            
+            cursor.execute("""
+                INSERT INTO "results" ("id", "userId", "sessionId", "totalScore",
+                                     "writingScore", "speakingScore", "feedback", "gradedAt", "createdAt", "updatedAt")
+                VALUES (gen_random_uuid(), %s, %s, %s, %s, %s, %s::jsonb, NOW(), NOW(), NOW())
+                ON CONFLICT ("sessionId") DO UPDATE SET
+                    "writingScore" = COALESCE(EXCLUDED."writingScore", "results"."writingScore"),
+                    "speakingScore" = COALESCE(EXCLUDED."speakingScore", "results"."speakingScore"),
+                    "feedback" = COALESCE("results"."feedback"::jsonb, '{}'::jsonb) || EXCLUDED."feedback"::jsonb,
+                    "gradedAt" = NOW(),
+                    "updatedAt" = NOW()
+            """, (
+                user_id, session_id, (listening_score or 0) + (reading_score or 0),
+                w_score, s_score,
+                feedback_json,
+            ))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+        except Exception as e:
+            logger.error(f"❌ Database update failed for FULL_TEST result: {e}")
             raise
 
     def _update_session_status(self, session_id: str, status: str):

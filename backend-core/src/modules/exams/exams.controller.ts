@@ -20,6 +20,8 @@ import { StorageService } from "../../common/storage/storage.service";
 import { ExamsService } from "./exams.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { ThrottlerGuard } from "@nestjs/throttler";
+import { RolesGuard } from "../../common/guards/roles.guard";
+import { Roles } from "../../common/decorators/roles.decorator";
 import {
   CreateExamDto,
   UpdateExamDto,
@@ -37,6 +39,8 @@ export class ExamsController {
   ) {}
 
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles("ADMIN")
   create(@Body() createExamDto: CreateExamDto) {
     return this.examsService.create(createExamDto);
   }
@@ -73,11 +77,15 @@ export class ExamsController {
   }
 
   @Patch(":id")
+  @UseGuards(RolesGuard)
+  @Roles("ADMIN")
   update(@Param("id") id: string, @Body() updateExamDto: UpdateExamDto) {
     return this.examsService.update(id, updateExamDto);
   }
 
   @Delete(":id")
+  @UseGuards(RolesGuard)
+  @Roles("ADMIN")
   remove(@Param("id") id: string) {
     return this.examsService.remove(id);
   }

@@ -307,6 +307,72 @@ export function extractAllItemsFromPart(part: any): NormalizedItem[] {
             instructions: g?.instructions || '',
             timestamp: firstTimestamp,
           });
+      } else if (qt.includes('summary') && Array.isArray(g?.items)) {
+        const qns: number[] = [];
+        const texts: string[] = [];
+        for (const it of g.items) {
+          if (typeof it?.question_number === 'number') {
+            const qNum = it.question_number;
+            qns.push(qNum);
+            let txt = it.question_text || it.prompt || it.question || '';
+            let replaced = false;
+
+            const leadingMatch = txt.match(/^(\s*\.{3,}\s*)/);
+            const leading = leadingMatch ? leadingMatch[1] : '';
+            
+            const trailingMatch = txt.match(/(\s*\.{3,}\s*)$/);
+            const trailing = trailingMatch && (!leadingMatch || txt.length > leadingMatch[1].length)
+              ? trailingMatch[1]
+              : '';
+              
+            let middle = txt;
+            if (leading) middle = middle.substring(leading.length);
+            if (trailing) middle = middle.substring(0, middle.length - trailing.length);
+            
+            const blankMatch = middle.match(/_+|\.{3,}|\[blank\]/i);
+            if (blankMatch) {
+              const idx = blankMatch.index!;
+              middle = middle.substring(0, idx) + ` ${qNum} [blank] ` + middle.substring(idx + blankMatch[0].length);
+              replaced = true;
+            }
+            
+            txt = leading + middle + trailing;
+            if (!replaced) {
+              txt = txt.trim() + ` ${qNum} [blank]`;
+            }
+            texts.push(txt);
+          }
+        }
+        if (qns.length > 0) {
+          let mergedText = '';
+          for (let idx = 0; idx < texts.length; idx++) {
+            let current = texts[idx].trim();
+            if (idx === 0) {
+              mergedText = current;
+            } else {
+              if (mergedText.endsWith('...')) {
+                mergedText = mergedText.slice(0, -3).trim();
+              }
+              if (current.startsWith('...')) {
+                current = current.substring(3).trim();
+              }
+              mergedText = mergedText + ' ' + current;
+            }
+          }
+          mergedText = mergedText
+            .replace(/\s+/g, ' ')
+            .replace(/\b(or|and)\s+\1\b/gi, '$1')
+            .trim();
+            
+          items.push({
+            kind: 'summary_completion',
+            qns,
+            text: mergedText,
+            heading: g?.heading || '',
+            instructions: g?.instructions || '',
+            options: g?.options_box?.options
+          });
+        }
       } else if (Array.isArray(g?.items)) {
         for (const it of g.items) {
           if (typeof it?.question_number === 'number') {
