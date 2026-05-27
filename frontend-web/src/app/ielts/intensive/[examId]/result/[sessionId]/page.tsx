@@ -1037,9 +1037,11 @@ function ReviewItemField({
               )}
             </div>
           </div>
-          <div className="w-full lg:w-[320px] shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm p-2">
-            <img src={item.imageUrl} alt="Plan/Map/Diagram" className="w-full h-auto rounded-lg" />
-          </div>
+          {item.imageUrl && (
+            <div className="w-full lg:w-[320px] shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm p-2">
+              <img src={item.imageUrl} alt="Plan/Map/Diagram" className="w-full h-auto rounded-lg" />
+            </div>
+          )}
         </div>
         {renderActions(item.qn)}
       </div>

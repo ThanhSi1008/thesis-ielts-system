@@ -48,8 +48,11 @@ export type NormalizedItem = NormalizedItemBase & (
   | {
       kind: "plan_label";
       qn: number;
-      imageUrl: string;
+      imageUrl?: string;
       prompt?: string;
+      qns?: number[];
+      instructions?: string;
+      heading?: string;
     }
   | {
       kind: "summary_completion";
@@ -319,6 +322,34 @@ export function extractAllItemsFromPart(part: any): NormalizedItem[] {
             instructions: g?.instructions || "",
             options: g?.options_box?.options
           });
+        }
+      } else if (
+        (qt.includes("map") || qt.includes("plan") || qt.includes("diagram") || qt.includes("label")) &&
+        Array.isArray(g?.items)
+      ) {
+        // Map / plan / diagram labelling: ONE image for the whole group (promoted to
+        // group.image_url from the admin upload at commit time), shown once, followed
+        // by a labelled input per question. Only the first item carries the image +
+        // group header so neither repeats down the list.
+        const groupImage = g?.image_url || g?.imageUrl || g?.ln || "";
+        const groupQns: number[] = g.items
+          .map((i: any) => i.question_number)
+          .filter((n: any) => typeof n === "number");
+        let isFirst = true;
+        for (const it of g.items) {
+          if (typeof it?.question_number === "number") {
+            items.push({
+              kind: "plan_label",
+              qn: it.question_number,
+              prompt: it.question_text || it.question || it.prompt || "",
+              imageUrl: isFirst ? groupImage : undefined,
+              qns: isFirst ? groupQns : undefined,
+              instructions: isFirst ? (g.instructions || "") : undefined,
+              heading: isFirst ? (g.heading || "") : undefined,
+              timestamp: it.timestamp_seconds,
+            });
+            isFirst = false;
+          }
         }
       } else if (Array.isArray(g?.items)) {
         for (const it of g.items) {
