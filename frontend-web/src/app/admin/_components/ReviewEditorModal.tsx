@@ -514,12 +514,12 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
               </span>
               <div>
                 <h4 className="text-xs font-bold text-amber-800 dark:text-amber-400">
-                  {apiError.status === 429 ? "Giới hạn lượt yêu cầu đã hết (Quota Drained)" : "Hệ thống AI quá tải tạm thời (Transient Overload)"}
+                  {apiError.status === 429 ? "API Quota Exhausted (Rate Limit / Quota Drained)" : "AI Service Temporary Overload (Transient Overload)"}
                 </h4>
                 <p className="text-[11px] text-amber-700 dark:text-amber-450 mt-0.5">
                   {apiError.status === 429 
-                    ? "Bạn đã sử dụng hết hạn ngạch (quota) API hoặc đang gửi quá nhiều yêu cầu cùng lúc. Vui lòng đợi một lát hoặc nâng cấp tài khoản của bạn để tiếp tục."
-                    : "Máy chủ đang gặp tình trạng quá tải hoặc đang bảo trì tạm thời. Vui lòng đợi trong giây lát và thực hiện lưu nháp hoặc commit lại."
+                    ? "You have exhausted your API quota or sent too many requests at once. Please wait a moment or upgrade your account to continue."
+                    : "The AI service is experiencing temporary overload or maintenance. Please wait a few seconds and try saving draft or committing again."
                   }
                 </p>
               </div>
@@ -528,7 +528,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
               onClick={() => setApiError(null)} 
               className="text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:opacity-80 px-2 py-1 border border-amber-250 dark:border-amber-800 rounded-md"
             >
-              Đóng
+              Close
             </button>
           </div>
         </div>
