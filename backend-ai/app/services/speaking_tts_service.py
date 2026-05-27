@@ -5,12 +5,22 @@ Speaking TTS Service
 Turns the TEXT-ONLY structured JSON that Gemini extracts for an IELTS Intensive
 Speaking mock exam into the final, player-ready contract by:
 
-  1. Synthesising every examiner line into an .mp3 with Microsoft Edge neural TTS
+  1. Building the natural exam flow: a welcoming examiner introduction is prepended
+     to Part 1's first question, a transitional bridge to Part 3's first question,
+     and Part 2 carries a topic intro (``video``) + start-speaking cue (``video2``).
+  2. Synthesising every examiner line into an .mp3 with Microsoft Edge neural TTS
      (``edge-tts``) using a high-quality British English voice.
-  2. Uploading each .mp3 to Cloudinary and capturing the secure CDN URL.
-  3. Assembling the final ``IntensiveSpeakingQuestionsJson`` shape — injecting the
+  3. Uploading each .mp3 to Cloudinary and capturing the secure CDN URL.
+  4. Assembling the final ``IntensiveSpeakingQuestionsJson`` shape — injecting the
      examiner block, the canonical part_type labels, and the audio URLs into the
      ``video`` / ``video2`` fields.
+
+IMPORTANT — spoken text vs. stored text:
+  The text passed to Edge-TTS is *cleaned* (textbook guide brackets like ``[Why?]``
+  stripped, whitespace normalised) and, for the first question of Parts 1 & 3,
+  *prefixed* with an examiner script. The original Gemini-extracted ``text`` stored
+  in the JSON is NEVER mutated — it keeps its brackets verbatim for DB persistence
+  and frontend rendering.
 
 The Gemini extraction layer produces NO audio URLs; this service is the single
 place that owns examiner-voice generation, mirroring how ``media_pipeline`` owns
@@ -20,6 +30,7 @@ image/audio asset upload for the Listening pipeline.
 import asyncio
 import logging
 import os
+import re
 import tempfile
 import uuid
 
@@ -33,6 +44,28 @@ from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+# Matches textbook guide brackets such as "[Why?]" or "[Why/Why not?]" that appear
+# in the printed question text. These must be removed before TTS so the examiner
+# audio flows as natural prose — but kept in the stored JSON for the student UI.
+_BRACKET_RE = re.compile(r"\[[^\]]*\]")
+
+
+def clean_for_tts(text: str) -> str:
+    """
+    Strip textbook guide brackets and normalise whitespace for natural speech.
+
+    e.g. "Have you ever forgotten to pay a bill? [Why/Why not?]"
+         -> "Have you ever forgotten to pay a bill?"
+
+    This is applied ONLY to the string handed to the Edge-TTS engine. The caller
+    must keep the original (bracketed) text in the JSON payload.
+    """
+    cleaned = _BRACKET_RE.sub("", text or "")
+    # Collapse any whitespace runs (incl. the double spaces left by removed
+    # brackets and stray newlines) into a single space.
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    return cleaned
 
 # Canonical, player-facing labels keyed by part number. Set deterministically
 # here (not by Gemini) so the committed exam always carries the exact strings.
@@ -116,13 +149,15 @@ class SpeakingTtsService:
         # into the freshly-built part/question dict once synthesis completes.
         synthesis_jobs: List[Tuple[str, Callable[[str], None]]] = []
 
+        examiner_name = settings.speaking_examiner_name
+
         for raw in raw_parts:
             part_number = int(raw.get("part_number", 0))
             part_type = PART_TYPE_LABELS.get(part_number, f"Part {part_number}")
             topic = (raw.get("topic") or "").strip()
 
             if part_number == 2:
-                # --- Part 2: Long Turn (Cue Card) ---
+                # --- Part 2: Long Turn (Cue Card) — no questions array, two fixed clips ---
                 cue_card = (raw.get("cue_card") or "").strip()
                 if not cue_card:
                     raise ValueError("Part 2 is missing the required cue_card text.")
@@ -131,15 +166,17 @@ class SpeakingTtsService:
                     "part_number": 2,
                     "part_type": part_type,
                     "topic": topic,
-                    "cue_card": cue_card,
-                    "video": "",   # examiner introduces the cue card
-                    "video2": "",  # examiner tells the candidate to start speaking
+                    "cue_card": cue_card,       # raw, with \n — preserved for the UI
+                    "video": "",                # examiner introduces the topic
+                    "video2": "",               # examiner tells the candidate to start speaking
                 }
 
-                intro_script = self._build_part2_intro(cue_card)
+                # `video`: dynamic intro keyed off the TOPIC (not the cue-card body).
+                intro_script = self._build_part2_intro(topic)
                 synthesis_jobs.append(
                     (intro_script, lambda url, p=part_obj: p.__setitem__("video", url))
                 )
+                # `video2`: fixed start-speaking cue after the 1-minute prep.
                 synthesis_jobs.append(
                     (PART2_START_SCRIPT, lambda url, p=part_obj: p.__setitem__("video2", url))
                 )
@@ -151,13 +188,24 @@ class SpeakingTtsService:
                     raise ValueError(f"Part {part_number} has no questions to synthesise.")
 
                 question_objs: List[Dict[str, str]] = []
-                for q in questions_src:
-                    text = (q.get("text") if isinstance(q, dict) else str(q) or "").strip()
-                    if not text:
+                for idx, q in enumerate(questions_src):
+                    # `raw_text` is stored verbatim (brackets intact) for DB + UI.
+                    raw_text = (q.get("text") if isinstance(q, dict) else str(q) or "").strip()
+                    if not raw_text:
                         raise ValueError(f"Part {part_number} contains an empty question text.")
-                    q_obj = {"text": text, "video": ""}
+
+                    # `spoken_text` is bracket-stripped for natural TTS prose, and the
+                    # FIRST question is prefixed with the examiner's flow script.
+                    spoken_text = clean_for_tts(raw_text)
+                    if idx == 0:
+                        if part_number == 1:
+                            spoken_text = f"{self._build_part1_intro(examiner_name, topic)} {spoken_text}"
+                        elif part_number == 3:
+                            spoken_text = f"{self._build_part3_intro(topic)} {spoken_text}"
+
+                    q_obj = {"text": raw_text, "video": ""}  # NOTE: raw_text, never spoken_text
                     synthesis_jobs.append(
-                        (text, lambda url, d=q_obj: d.__setitem__("video", url))
+                        (spoken_text, lambda url, d=q_obj: d.__setitem__("video", url))
                     )
                     question_objs.append(q_obj)
 
@@ -188,17 +236,30 @@ class SpeakingTtsService:
     # ------------------------------------------------------------------ #
     # Synthesis helpers
     # ------------------------------------------------------------------ #
-    def _build_part2_intro(self, cue_card: str) -> str:
-        """
-        Build the examiner's Part 2 introduction, dynamically embedding the cue
-        card's main task line so the spoken intro matches the displayed topic.
-        """
-        main_line = cue_card.split("\n", 1)[0].strip()
+    def _build_part1_intro(self, examiner_name: str, topic: str) -> str:
+        """Welcoming examiner intro prepended to Part 1's FIRST question (TTS only)."""
         return (
-            "Now, I'm going to give you a topic, and I'd like you to talk about it "
+            "Good afternoon. Welcome to the IELTS Speaking Mock Test. "
+            f"My name is {examiner_name}, and I will be your examiner today. "
+            "Now, in this first part, I'd like to ask you some questions about yourself. "
+            f"Let's talk about {topic}."
+        )
+
+    def _build_part2_intro(self, topic: str) -> str:
+        """Examiner's Part 2 intro (the `video` clip), dynamically naming the topic."""
+        return (
+            "Now, I'm going to give you a topic and I'd like you to talk about it "
             "for one to two minutes. Before you talk, you'll have one minute to think "
             "about what you're going to say. You can make some notes if you wish. "
-            f"Here is your topic. {main_line}"
+            f"Here is your topic: {topic}."
+        )
+
+    def _build_part3_intro(self, topic: str) -> str:
+        """Transitional examiner script prepended to Part 3's FIRST question (TTS only)."""
+        return (
+            "All right. Now, in this third part of the test, I'm going to ask you "
+            "some more general questions related to the topic we just discussed. "
+            f"Let's look at {topic}."
         )
 
     async def _run_synthesis_jobs(
