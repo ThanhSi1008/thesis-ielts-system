@@ -34,6 +34,9 @@ export class IeltsContentCommitService {
       const ansMap = new Map<string, any>();
       const typeMap = new Map<string, string>();
 
+      // Full-spectrum IELTS Listening + Reading question types taught in the
+      // IELTS Basic curriculum. British "-labelling" spellings are canonical;
+      // the US "map_labeling" alias is tolerated for backward compatibility.
       const whitelistedTypes = new Set([
         "multiple_choice",
         "multiple_choice_multiple",
@@ -42,14 +45,24 @@ export class IeltsContentCommitService {
         "note_completion",
         "sentence_completion",
         "summary_completion",
+        "table_completion",
+        "flowchart_completion",
+        "diagram_completion",
         "matching",
         "matching_features",
         "matching_information",
         "matching_headings",
-        "table_completion",
+        "matching_sentence_endings",
+        "map_labelling",
+        "plan_labelling",
+        "diagram_labelling",
         "true_false_not_given",
         "yes_no_not_given",
-        "fill_blank"
+        "fill_blank",
+        // Tolerated aliases (US spelling / flow-chart variants)
+        "map_labeling",
+        "flow_chart",
+        "flow_chart_completion",
       ]);
 
       // Recursive answer and type extractor identical to the grader's logic
@@ -124,7 +137,19 @@ export class IeltsContentCommitService {
                 qType.includes("yes_no_not_given");
 
               if (isCompletion) {
-                ansStr = ansStr.toLowerCase();
+                // A completion that ships a phrase bank (A–F) is answered by a LETTER,
+                // not free text — keep it uppercase so it matches the options_box keys
+                // and the word-bank selector. Otherwise lowercase as usual.
+                const hasBank =
+                  obj.options &&
+                  (Array.isArray(obj.options)
+                    ? obj.options.length > 0
+                    : Object.keys(obj.options).length > 0);
+                if (hasBank && /^[a-z]$/i.test(ansStr)) {
+                  ansStr = ansStr.toUpperCase();
+                } else {
+                  ansStr = ansStr.toLowerCase();
+                }
               } else if (isTrueFalse) {
                 ansStr = ansStr.toUpperCase();
                 if (
@@ -135,6 +160,10 @@ export class IeltsContentCommitService {
                     `Invalid evaluation answer "${ansStr}" for type "${obj.type}". Must be TRUE, FALSE, YES, NO or NOT GIVEN.`
                   );
                 }
+              } else if (qType.includes("label") && /^[a-z]$/i.test(ansStr)) {
+                // Map / plan / diagram labelling answers are single letters keyed to a
+                // lettered bank — keep them uppercase so they match the options keys.
+                ansStr = ansStr.toUpperCase();
               }
 
               // Update the mutable object so that the committed DB questions payload is clean and fully normalized!
@@ -201,6 +230,60 @@ export class IeltsContentCommitService {
         }
       }
     }
+
+    // Intensive Speaking mock exams store the assembled examiner JSON verbatim in
+    // IeltsIntensiveExam.questions (no auto-graded answer keys). Validate the shape
+    // produced by the AI pipeline so a malformed extraction or a clip that failed to
+    // synthesise is never committed to a live exam.
+    if (
+      targetSystem === ContentImportTargetSystem.INTENSIVE &&
+      skill === ContentImportSkill.SPEAKING
+    ) {
+      if (json.type !== "speaking") {
+        throw new UnprocessableEntityException(
+          `Invalid intensive speaking exam: 'type' must be 'speaking' (got '${json.type}').`
+        );
+      }
+      if (!Array.isArray(json.parts) || json.parts.length !== 3) {
+        throw new UnprocessableEntityException(
+          `Invalid intensive speaking exam: 'parts' must contain exactly 3 parts (got ${Array.isArray(json.parts) ? json.parts.length : "none"}).`
+        );
+      }
+      for (const part of json.parts) {
+        const pn = Number(part.part_number);
+        if (![1, 2, 3].includes(pn)) {
+          throw new UnprocessableEntityException(
+            `Invalid intensive speaking part_number: ${part.part_number}. Must be 1, 2, or 3.`
+          );
+        }
+        if (pn === 2) {
+          // Part 2: cue card + two examiner audio clips (intro + start-speaking).
+          if (!part.cue_card || String(part.cue_card).trim() === "") {
+            throw new UnprocessableEntityException("Speaking Part 2 is missing the cue_card text.");
+          }
+          if (!part.video || !part.video2) {
+            throw new UnprocessableEntityException(
+              "Speaking Part 2 is missing examiner audio (both 'video' and 'video2' are required)."
+            );
+          }
+        } else {
+          // Part 1 & 3: every question must have text and a synthesised audio URL.
+          if (!Array.isArray(part.questions) || part.questions.length === 0) {
+            throw new UnprocessableEntityException(`Speaking Part ${pn} has no questions.`);
+          }
+          for (const q of part.questions) {
+            if (!q.text || String(q.text).trim() === "") {
+              throw new UnprocessableEntityException(`Speaking Part ${pn} has an empty question text.`);
+            }
+            if (!q.video || String(q.video).trim() === "") {
+              throw new UnprocessableEntityException(
+                `Speaking Part ${pn} question "${q.text}" is missing its examiner audio URL.`
+              );
+            }
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -213,12 +296,6 @@ export class IeltsContentCommitService {
 
     if (!job) {
       throw new NotFoundException(`Import job with ID ${jobId} not found.`);
-    }
-
-    if (job.groupId && !_fromGroup) {
-      throw new ConflictException(
-        "Job belongs to a FULL_TEST group — please use the group commit endpoint."
-      );
     }
 
     if (job.status === ContentImportStatus.FAILED) {
@@ -253,7 +330,7 @@ export class IeltsContentCommitService {
 
     // Run inside database transaction for safety
     await this.prisma.$transaction(async (tx) => {
-      if (job.targetSystem === ContentImportTargetSystem.INTENSIVE) {
+      if (job.targetSystem === ContentImportTargetSystem.INTENSIVE || job.targetSystem === ContentImportTargetSystem.BOTH) {
         // --- INTENSIVE MOCK EXAM BRANCH ---
         const intensiveSkillMap: Record<ContentImportSkill, IeltsIntensiveExamType> = {
           [ContentImportSkill.LISTENING]: IeltsIntensiveExamType.LISTENING,
@@ -281,7 +358,11 @@ export class IeltsContentCommitService {
           title,
           description: structuredJson.description || null,
           imageUrl: structuredJson.imageUrl || null,
-          duration: structuredJson.duration ? Number(structuredJson.duration) : 60,
+          // Duration is derived strictly from the skill (L=40, R/W=60, S=15). An explicit
+          // admin-provided structuredJson.duration still wins so custom exams stay editable.
+          duration: structuredJson.duration
+            ? Number(structuredJson.duration)
+            : this.getIntensiveDurationForSkill(job.skill),
           type,
           difficulty: (structuredJson.difficulty?.toUpperCase() as Difficulty) || Difficulty.ADVANCED,
           isPublished: false, // Default isPublished to false during admin commit
@@ -310,185 +391,30 @@ export class IeltsContentCommitService {
           });
           liveId = created.id;
         }
-      } else {
-        // --- ADVANCED BANK BRANCH ---
-        if (job.skill === ContentImportSkill.LISTENING) {
-          const partNumber = Number(structuredJson.partNumber || 1);
-          const existing = await tx.ieltsAdvancedListeningPart.findFirst({
-            where: { source, bookNumber, testNumber, partNumber },
-          });
 
-          if (existing && !overwrite) {
-            throw new ConflictException({
-              message: `An advanced listening part for source ${source} book ${bookNumber} test ${testNumber} part ${partNumber} already exists.`,
-              existingId: existing.id,
-            });
-          }
-
-          const data = {
+        if (job.targetSystem === ContentImportTargetSystem.BOTH) {
+          await this.autoSplitAndCreateAdvancedParts(
+            tx,
+            job,
+            structuredJson,
             title,
-            partNumber,
-            audioUrl: structuredJson.audioUrl || "",
-            transcript: structuredJson.transcript || {},
-            content: structuredJson.content || {},
-            questionTypes: structuredJson.questionTypes || [],
             source,
             bookNumber,
-            testNumber,
-            isPublished: false,
-            importJobId: job.id,
-          };
-
-          if (existing && overwrite) {
-            const updated = await tx.ieltsAdvancedListeningPart.update({
-              where: { id: existing.id },
-              data,
-            });
-            liveId = updated.id;
-          } else {
-            const created = await tx.ieltsAdvancedListeningPart.create({
-              data,
-            });
-            liveId = created.id;
-          }
-        } else if (job.skill === ContentImportSkill.READING) {
-          const partNumber = Number(structuredJson.partNumber || 1);
-          const existing = await tx.ieltsAdvancedReadingPart.findFirst({
-            where: { source, bookNumber, testNumber, partNumber },
-          });
-
-          if (existing && !overwrite) {
-            throw new ConflictException({
-              message: `An advanced reading part for source ${source} book ${bookNumber} test ${testNumber} part ${partNumber} already exists.`,
-              existingId: existing.id,
-            });
-          }
-
-          const data = {
-            title,
-            partNumber,
-            passage: structuredJson.passage || "",
-            passageWithLocations: structuredJson.passageWithLocations || {},
-            content: structuredJson.content || {},
-            questionTypes: structuredJson.questionTypes || [],
-            source,
-            bookNumber,
-            testNumber,
-            isPublished: false,
-            importJobId: job.id,
-          };
-
-          if (existing && overwrite) {
-            const updated = await tx.ieltsAdvancedReadingPart.update({
-              where: { id: existing.id },
-              data,
-            });
-            liveId = updated.id;
-          } else {
-            const created = await tx.ieltsAdvancedReadingPart.create({
-              data,
-            });
-            liveId = created.id;
-          }
-        } else if (job.skill === ContentImportSkill.WRITING) {
-          const engnovateSlug = structuredJson.engnovateSlug || null;
-          let existing = null;
-          if (engnovateSlug) {
-            existing = await tx.ieltsAdvancedWritingPrompt.findUnique({
-              where: { engnovateSlug },
-            });
-          } else {
-            existing = await tx.ieltsAdvancedWritingPrompt.findFirst({
-              where: { source, bookNumber, testNumber, taskType: structuredJson.taskType || "TASK_1" },
-            });
-          }
-
-          if (existing && !overwrite) {
-            throw new ConflictException({
-              message: `An advanced writing prompt with slug "${engnovateSlug}" already exists.`,
-              existingId: existing.id,
-            });
-          }
-
-          const data = {
-            taskType: structuredJson.taskType || "TASK_1",
-            subType: structuredJson.subType || "essay",
-            source: structuredJson.source || source,
-            category: structuredJson.category || "cambridge-academic",
-            bookNumber,
-            testNumber,
-            title,
-            prompt: structuredJson.prompt || "",
-            imageUrl: structuredJson.imageUrl || null,
-            minimumWords: structuredJson.minimumWords ? Number(structuredJson.minimumWords) : 150,
-            suggestedTime: structuredJson.suggestedTime ? Number(structuredJson.suggestedTime) : 20,
-            difficulty: structuredJson.difficulty || "medium",
-            engnovateSlug,
-            isPublished: false,
-            importJobId: job.id,
-          };
-
-          if (existing && overwrite) {
-            const updated = await tx.ieltsAdvancedWritingPrompt.update({
-              where: { id: existing.id },
-              data,
-            });
-            liveId = updated.id;
-          } else {
-            const created = await tx.ieltsAdvancedWritingPrompt.create({
-              data,
-            });
-            liveId = created.id;
-          }
-        } else if (job.skill === ContentImportSkill.SPEAKING) {
-          const partNumber = Number(structuredJson.partNumber || 1);
-          const engnovateSlug = structuredJson.engnovateSlug || null;
-          let existing = null;
-          if (engnovateSlug) {
-            existing = await tx.ieltsAdvancedSpeakingPart.findUnique({
-              where: { engnovateSlug_partNumber: { engnovateSlug, partNumber } },
-            });
-          } else {
-            existing = await tx.ieltsAdvancedSpeakingPart.findFirst({
-              where: { source, bookNumber, testNumber, partNumber },
-            });
-          }
-
-          if (existing && !overwrite) {
-            throw new ConflictException({
-              message: `An advanced speaking part with slug "${engnovateSlug}" and part ${partNumber} already exists.`,
-              existingId: existing.id,
-            });
-          }
-
-          const data = {
-            partNumber,
-            partType: structuredJson.partType || "interview",
-            topic: structuredJson.topic || "",
-            source: structuredJson.source || source,
-            category: structuredJson.category || "cambridge-academic",
-            bookNumber,
-            testNumber,
-            title,
-            questions: structuredJson.questions || [],
-            engnovateSlug,
-            isPublished: false,
-            importJobId: job.id,
-          };
-
-          if (existing && overwrite) {
-            const updated = await tx.ieltsAdvancedSpeakingPart.update({
-              where: { id: existing.id },
-              data,
-            });
-            liveId = updated.id;
-          } else {
-            const created = await tx.ieltsAdvancedSpeakingPart.create({
-              data,
-            });
-            liveId = created.id;
-          }
+            testNumber
+          );
         }
+      } else {
+        // --- ADVANCED BANK BRANCH (Auto split and create all parts) ---
+        await this.autoSplitAndCreateAdvancedParts(
+          tx,
+          job,
+          structuredJson,
+          title,
+          source,
+          bookNumber,
+          testNumber
+        );
+        liveId = job.id;
       }
 
       // 3. Mark the staging job as committed
@@ -648,6 +574,25 @@ export class IeltsContentCommitService {
   }
 
   /**
+   * Returns the official IELTS time limit (minutes) for an intensive exam by skill:
+   * Listening = 40, Reading = 60, Writing = 60, Speaking = 15. FULL_TEST has its own
+   * aggregate duration set in commitGroup, so it falls back to 60 here defensively.
+   */
+  private getIntensiveDurationForSkill(skill: ContentImportSkill): number {
+    switch (skill) {
+      case ContentImportSkill.LISTENING:
+        return 40;
+      case ContentImportSkill.SPEAKING:
+        return 15;
+      case ContentImportSkill.READING:
+      case ContentImportSkill.WRITING:
+        return 60;
+      default:
+        return 60;
+    }
+  }
+
+  /**
    * Converts the AI/Admin WritingExamSchema format into the IeltsIntensiveExam.questions seed contract.
    * AI format:  { title, tasks: [{ taskType, subType, prompt, imageUrl, minimumWords, ... }] }
    * Seed format: { type: "writing", tasks: [{ task_number, task_type, prompt, image_url, min_words }] }
@@ -727,6 +672,23 @@ export class IeltsContentCommitService {
           } else if (qType.includes("form_completion")) {
             mappedType = "Form Completion";
             instructions = "Complete the form below. Choose ONE WORD ONLY from the passage.";
+          } else if (qType.includes("flow")) {
+            // Flow-chart completion is a TEXT gap-fill (boxes + arrows), not a visual
+            // image task — route it to the form-completion family, never to diagram.
+            mappedType = "Flowchart Completion";
+            instructions = "Complete the flow-chart below.";
+          } else if (qType.includes("plan_label")) {
+            mappedType = "Plan Labelling";
+            instructions = "Label the plan below.";
+          } else if (qType.includes("diagram_label")) {
+            mappedType = "Diagram Labelling";
+            instructions = "Label the diagram below.";
+          } else if (qType.includes("map_label")) {
+            mappedType = "Map Labelling";
+            instructions = "Label the map below.";
+          } else if (qType.includes("diagram")) {
+            mappedType = "Diagram Completion";
+            instructions = "Complete the labels on the diagram below.";
           }
 
           let formattedOptions: any = null;
@@ -750,23 +712,75 @@ export class IeltsContentCommitService {
           // Matching groups split on options fingerprint so matching_information (A-G)
           // and matching_features (A. TSI Cut…) are never merged into one group.
           const isMatchingGroup = mappedType === "Matching";
+          // Completion sets can also ship a labelled phrase bank A–F (e.g. "Complete the
+          // summary using the list of phrases, A–F, below"). These render a word-bank
+          // selector, so the bank must be promoted to the group-level options_box.
+          const isBankCompletion = ["Summary Completion", "Sentence Completion", "Note Completion"].includes(mappedType);
+          // Phrase-bank variant: correct the instruction away from the from-passage default.
+          if (isBankCompletion && formattedOptions && Object.keys(formattedOptions).length > 0) {
+            instructions = "Complete the summary using the list of phrases below. Write the correct letter for each blank.";
+          }
+          // Visual groups (map / plan / diagram) carry a shared image. Promote the
+          // admin-uploaded URL to the group level so the player's DiagramMapBlock can
+          // render it. The "PENDING_ADMIN_UPLOAD" placeholder is treated as "no image"
+          // so a never-uploaded group never ships a broken image src to the live exam.
+          const visualSnakeType = mappedType === "Map Labelling"
+            ? "map_labelling"
+            : mappedType === "Plan Labelling"
+            ? "plan_labelling"
+            : mappedType === "Diagram Labelling"
+            ? "diagram_labelling"
+            : mappedType === "Diagram Completion"
+            ? "diagram_completion"
+            : null;
+          const itemImageUrl =
+            typeof q.image_url === "string" && q.image_url.trim() && q.image_url.trim() !== "PENDING_ADMIN_UPLOAD"
+              ? q.image_url.trim()
+              : null;
           const isMultiSelect = qType === "multiple_choice_multiple";
           const groupKey = isMatchingGroup
             ? `${mappedType}::${JSON.stringify(formattedOptions)}`
+            : visualSnakeType
+            ? `${mappedType}::${itemImageUrl ?? "pending"}`
             : mappedType;
 
           if (!currentGroup || (currentGroup as any)._groupKey !== groupKey) {
+            let groupSnakeType = String(mappedType).toLowerCase().replace(/[\s/]/g, "_");
+            if (groupSnakeType === "matching") {
+              groupSnakeType = qType;
+            } else if (groupSnakeType === "multiple_choice" && isMultiSelect) {
+              groupSnakeType = "multiple_choice_multiple";
+            } else if (groupSnakeType === "sentence_completion") {
+              groupSnakeType = "note_completion";
+            } else if (groupSnakeType === "table_completion") {
+              groupSnakeType = "table";
+            } else if (groupSnakeType === "flowchart_completion") {
+              groupSnakeType = skill === ContentImportSkill.READING ? "flowchart_completion" : "flow_chart";
+            }
+
             currentGroup = {
+              type: visualSnakeType || groupSnakeType,
               question_type: mappedType,
               instructions: instructions,
               questions: "",
               items: [],
             } as any;
-            if (isMatchingGroup && formattedOptions && Object.keys(formattedOptions).length > 0) {
+            if ((isMatchingGroup || isBankCompletion) && formattedOptions && Object.keys(formattedOptions).length > 0) {
               (currentGroup as any).options_box = { options: formattedOptions };
+            }
+            if (visualSnakeType && itemImageUrl) {
+              (currentGroup as any).image_url = itemImageUrl;
             }
             (currentGroup as any)._groupKey = groupKey;
             questionGroups.push(currentGroup);
+          }
+          // Backfill the phrase bank if it only appears on a later item of the same set.
+          if (isBankCompletion && !(currentGroup as any).options_box && formattedOptions && Object.keys(formattedOptions).length > 0) {
+            (currentGroup as any).options_box = { options: formattedOptions };
+          }
+          // Backfill the group image if it only appears on a later item of the visual set.
+          if (visualSnakeType && !(currentGroup as any).image_url && itemImageUrl) {
+            (currentGroup as any).image_url = itemImageUrl;
           }
 
           if (isMultiSelect) {
@@ -886,6 +900,23 @@ export class IeltsContentCommitService {
       } else if (qType.includes("form_completion")) {
         mappedType = "Form Completion";
         instructions = "Complete the form below. Choose ONE WORD ONLY from the passage.";
+      } else if (qType.includes("flow")) {
+        // Flow-chart completion is a TEXT gap-fill, not a visual image task — route it
+        // to the form-completion family, never to diagram.
+        mappedType = "Flowchart Completion";
+        instructions = "Complete the flow-chart below.";
+      } else if (qType.includes("plan_label")) {
+        mappedType = "Plan Labelling";
+        instructions = "Label the plan below.";
+      } else if (qType.includes("diagram_label")) {
+        mappedType = "Diagram Labelling";
+        instructions = "Label the diagram below.";
+      } else if (qType.includes("map_label")) {
+        mappedType = "Map Labelling";
+        instructions = "Label the map below.";
+      } else if (qType.includes("diagram")) {
+        mappedType = "Diagram Completion";
+        instructions = "Complete the labels on the diagram below.";
       }
 
       // Format options from array ["A. Text", "B. Text"] into record {"A": "Text", "B": "Text"} if multiple_choice
@@ -908,23 +939,70 @@ export class IeltsContentCommitService {
       }
 
       const isMatchingGroup = mappedType === "Matching";
+      // Completion sets can also ship a labelled phrase bank A–F (e.g. "Complete the
+      // summary using the list of phrases, A–F, below"). These render a word-bank
+      // selector, so the bank must be promoted to the group-level options_box.
+      const isBankCompletion = ["Summary Completion", "Sentence Completion", "Note Completion"].includes(mappedType);
+      // Phrase-bank variant: correct the instruction away from the from-passage default.
+      if (isBankCompletion && formattedOptions && Object.keys(formattedOptions).length > 0) {
+        instructions = "Complete the summary using the list of phrases below. Write the correct letter for each blank.";
+      }
+      // Visual groups (map / plan / diagram) carry a shared image — promote the
+      // admin-uploaded URL to the group level for the player. The unresolved
+      // "PENDING_ADMIN_UPLOAD" placeholder is treated as "no image".
+      const visualSnakeType = mappedType === "Map Labelling"
+        ? "map_labelling"
+        : mappedType === "Diagram Completion"
+        ? "diagram_completion"
+        : null;
+      const itemImageUrl =
+        typeof q.image_url === "string" && q.image_url.trim() && q.image_url.trim() !== "PENDING_ADMIN_UPLOAD"
+          ? q.image_url.trim()
+          : null;
       const isMultiSelect = qType === "multiple_choice_multiple";
       const groupKey = isMatchingGroup
         ? `${mappedType}::${JSON.stringify(formattedOptions)}`
+        : visualSnakeType
+        ? `${mappedType}::${itemImageUrl ?? "pending"}`
         : mappedType;
 
       if (!currentGroup || (currentGroup as any)._groupKey !== groupKey) {
+        let groupSnakeType = String(mappedType).toLowerCase().replace(/[\s/]/g, "_");
+        if (groupSnakeType === "matching") {
+          groupSnakeType = qType;
+        } else if (groupSnakeType === "multiple_choice" && isMultiSelect) {
+          groupSnakeType = "multiple_choice_multiple";
+        } else if (groupSnakeType === "sentence_completion") {
+          groupSnakeType = "note_completion";
+        } else if (groupSnakeType === "table_completion") {
+          groupSnakeType = "table";
+        } else if (groupSnakeType === "flowchart_completion") {
+          groupSnakeType = skill === ContentImportSkill.READING ? "flowchart_completion" : "flow_chart";
+        }
+
         currentGroup = {
+          type: visualSnakeType || groupSnakeType,
           question_type: mappedType,
           instructions: instructions,
           questions: "",
           items: [],
         } as any;
-        if (isMatchingGroup && formattedOptions && Object.keys(formattedOptions).length > 0) {
+        if ((isMatchingGroup || isBankCompletion) && formattedOptions && Object.keys(formattedOptions).length > 0) {
           (currentGroup as any).options_box = { options: formattedOptions };
+        }
+        if (visualSnakeType && itemImageUrl) {
+          (currentGroup as any).image_url = itemImageUrl;
         }
         (currentGroup as any)._groupKey = groupKey;
         questionGroups.push(currentGroup);
+      }
+      // Backfill the phrase bank if it only appears on a later item of the same set.
+      if (isBankCompletion && !(currentGroup as any).options_box && formattedOptions && Object.keys(formattedOptions).length > 0) {
+        (currentGroup as any).options_box = { options: formattedOptions };
+      }
+      // Backfill the group image if it only appears on a later item of the visual set.
+      if (visualSnakeType && !(currentGroup as any).image_url && itemImageUrl) {
+        (currentGroup as any).image_url = itemImageUrl;
       }
 
       if (isMultiSelect) {
@@ -995,5 +1073,191 @@ export class IeltsContentCommitService {
       section: skill === ContentImportSkill.READING ? "Reading" : "Listening",
       parts: [part]
     };
+  }
+
+  private async autoSplitAndCreateAdvancedParts(
+    tx: any,
+    job: any,
+    structuredJson: any,
+    title: string,
+    source: string,
+    bookNumber: number | null,
+    testNumber: number | null
+  ): Promise<void> {
+    if (job.skill === ContentImportSkill.LISTENING) {
+      const partsObj = this.transformToPartsFormat(structuredJson, job.skill, title, job.audioUrls);
+      const parts = Array.isArray(partsObj?.parts) ? partsObj.parts : [];
+
+      for (const p of parts) {
+        const partNumber = Number(p.part_number || 1);
+        const existing = await tx.ieltsAdvancedListeningPart.findFirst({
+          where: { source, bookNumber, testNumber, partNumber },
+        });
+
+        const partTitle = `${title} - Part ${partNumber}`;
+        const data = {
+          title: partTitle,
+          partNumber,
+          audioUrl: p.audio_url || "",
+          transcript: p.transcript || [],
+          content: p.question_groups || [],
+          questionTypes: this.extractQuestionTypesFromGroups(p.question_groups),
+          source,
+          bookNumber,
+          testNumber,
+          isPublished: false,
+          importJobId: job.id,
+        };
+
+        if (existing) {
+          await tx.ieltsAdvancedListeningPart.update({
+            where: { id: existing.id },
+            data,
+          });
+        } else {
+          await tx.ieltsAdvancedListeningPart.create({
+            data,
+          });
+        }
+      }
+    } else if (job.skill === ContentImportSkill.READING) {
+      const partsObj = this.transformToPartsFormat(structuredJson, job.skill, title);
+      const parts = Array.isArray(partsObj?.parts) ? partsObj.parts : [];
+
+      for (const p of parts) {
+        const partNumber = Number(p.part_number || 1);
+        const existing = await tx.ieltsAdvancedReadingPart.findFirst({
+          where: { source, bookNumber, testNumber, partNumber },
+        });
+
+        const partTitle = `${title} - Part ${partNumber}`;
+        const data = {
+          title: partTitle,
+          partNumber,
+          passage: p.passage_text || "",
+          passageWithLocations: [],
+          content: p.question_groups || [],
+          questionTypes: this.extractQuestionTypesFromGroups(p.question_groups),
+          source,
+          bookNumber,
+          testNumber,
+          isPublished: false,
+          importJobId: job.id,
+        };
+
+        if (existing) {
+          await tx.ieltsAdvancedReadingPart.update({
+            where: { id: existing.id },
+            data,
+          });
+        } else {
+          await tx.ieltsAdvancedReadingPart.create({
+            data,
+          });
+        }
+      }
+    } else if (job.skill === ContentImportSkill.WRITING) {
+      const rawTasks = Array.isArray(structuredJson.tasks) ? structuredJson.tasks : [];
+
+      for (const t of rawTasks) {
+        const taskType = t.taskType === "TASK_1" ? "TASK_1" : "TASK_2";
+        const engnovateSlug = t.engnovateSlug || `${source}_b${bookNumber}_t${testNumber}_${taskType.toLowerCase()}`;
+        
+        let existing = await tx.ieltsAdvancedWritingPrompt.findUnique({
+          where: { engnovateSlug },
+        });
+        if (!existing) {
+          existing = await tx.ieltsAdvancedWritingPrompt.findFirst({
+            where: { source, bookNumber, testNumber, taskType },
+          });
+        }
+
+        const taskTitle = `${title} - Task ${taskType === "TASK_1" ? "1" : "2"}`;
+        const data = {
+          taskType,
+          subType: t.subType || (taskType === "TASK_1" ? "academic_chart" : "opinion"),
+          source,
+          category: "cambridge-academic",
+          bookNumber,
+          testNumber,
+          title: taskTitle,
+          prompt: t.prompt || "",
+          imageUrl: t.imageUrl || null,
+          minimumWords: t.minimumWords ? Number(t.minimumWords) : (taskType === "TASK_1" ? 150 : 250),
+          suggestedTime: t.suggestedTime ? Number(t.suggestedTime) : (taskType === "TASK_1" ? 20 : 40),
+          difficulty: "medium",
+          engnovateSlug,
+          isPublished: false,
+          importJobId: job.id,
+        };
+
+        if (existing) {
+          await tx.ieltsAdvancedWritingPrompt.update({
+            where: { id: existing.id },
+            data,
+          });
+        } else {
+          await tx.ieltsAdvancedWritingPrompt.create({
+            data,
+          });
+        }
+      }
+    } else if (job.skill === ContentImportSkill.SPEAKING) {
+      const parts = Array.isArray(structuredJson.parts) ? structuredJson.parts : [];
+
+      for (const p of parts) {
+        const partNumber = Number(p.part_number || p.partNumber || 1);
+        const engnovateSlug = structuredJson.engnovateSlug || `${source}_b${bookNumber}_t${testNumber}_s${partNumber}`;
+        
+        let existing = await tx.ieltsAdvancedSpeakingPart.findUnique({
+          where: { engnovateSlug_partNumber: { engnovateSlug, partNumber } },
+        });
+        if (!existing) {
+          existing = await tx.ieltsAdvancedSpeakingPart.findFirst({
+            where: { source, bookNumber, testNumber, partNumber },
+          });
+        }
+
+        const partType = partNumber === 1 ? "interview" : partNumber === 2 ? "cue_card" : "discussion";
+        const partTitle = `${title} - Speaking Part ${partNumber}`;
+        const data = {
+          partNumber,
+          partType,
+          topic: p.topic || p.title || structuredJson.topic || "",
+          source,
+          category: "cambridge-academic",
+          bookNumber,
+          testNumber,
+          title: partTitle,
+          questions: p.questions || [],
+          engnovateSlug,
+          isPublished: false,
+          importJobId: job.id,
+        };
+
+        if (existing) {
+          await tx.ieltsAdvancedSpeakingPart.update({
+            where: { id: existing.id },
+            data,
+          });
+        } else {
+          await tx.ieltsAdvancedSpeakingPart.create({
+            data,
+          });
+        }
+      }
+    }
+  }
+
+  private extractQuestionTypesFromGroups(questionGroups: any[]): string[] {
+    if (!Array.isArray(questionGroups)) return [];
+    const typesSet = new Set<string>();
+    for (const g of questionGroups) {
+      if (g.question_type) {
+        const t = String(g.question_type).toLowerCase().replace(/[\s/]/g, "_");
+        typesSet.add(t);
+      }
+    }
+    return Array.from(typesSet);
   }
 }

@@ -50,7 +50,7 @@ function parseStageText(
       <span
         key={`b-${qNum}`}
         id={`question-${qNum}`}
-        className={`inline-flex items-center border rounded px-2 py-0.5 mx-0.5 min-w-[100px] transition-colors ${
+        className={`inline-flex items-center border rounded px-2 py-0.5 mx-0.5 w-24 transition-colors ${
           submitted
             ? isCorrect ? 'border-green-400 bg-green-50' : 'border-red-300 bg-red-50'
             : 'border-gray-400 bg-white focus-within:border-[#FFC107]'
@@ -160,7 +160,7 @@ export function FlowchartCompletionGroup({
                       {stage.stage_name}
                     </p>
                   )}
-                  <span className="flex flex-wrap justify-center items-baseline gap-0.5">
+                  <span className="block text-center whitespace-normal">
                     {parseStageText(stage.text, qMap, answers, submitted, showAnswers, onAnswer, checkAnswer)}
                   </span>
                 </div>

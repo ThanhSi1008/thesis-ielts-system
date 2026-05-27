@@ -10,11 +10,20 @@ class QuestionItem(BaseModel):
         description="The unique IELTS question number (e.g. 1, 2, 3)."
     )
     type: str = Field(
-        description="The specific type of the question. MUST be chosen from the whitelist: "
-                    "multiple_choice, multiple_choice_multiple, short_answer, fill_blank, "
-                    "form_completion, note_completion, sentence_completion, summary_completion, table_completion, "
-                    "matching, matching_features, matching_information, matching_headings, "
-                    "true_false_not_given, yes_no_not_given."
+        description="The specific type of the question. MUST be chosen EXACTLY from this whitelist "
+                    "(use the British '-labelling' spelling):\n"
+                    "  • Selection: multiple_choice, multiple_choice_multiple, "
+                    "true_false_not_given, yes_no_not_given\n"
+                    "  • Matching: matching, matching_features, matching_information, matching_headings, "
+                    "matching_sentence_endings\n"
+                    "  • Completion (text gap-fill): form_completion, note_completion, table_completion, "
+                    "flowchart_completion, sentence_completion, summary_completion, diagram_completion, "
+                    "short_answer, fill_blank\n"
+                    "  • Visual labelling (answered against a printed image — see image_url): "
+                    "map_labelling, plan_labelling, diagram_labelling\n"
+                    "Note: flowchart_completion is a TEXT gap-fill of a flow-chart's boxes — it is NOT a "
+                    "visual image task and must NOT get an image_url. Only map_labelling, plan_labelling, "
+                    "diagram_labelling and diagram_completion may carry an image_url."
     )
     question_text: str = Field(
         description="The question text or prompt. For gap-filling, use underscores to indicate blank slots (e.g., 'The speaker's name is ___.')"
@@ -25,13 +34,22 @@ class QuestionItem(BaseModel):
             "multiple_choice and multiple_choice_multiple (e.g. ['A. increased efficiency', 'B. reduced costs', 'C. greater accuracy']); "
             "matching / matching_features / matching_information — complete choice bank (e.g. ['A. a TSI Cut', 'B. a Salvage Cut']); "
             "matching_headings — all headings with Roman numeral prefix (e.g. ['i. The role of technology', 'ii. A new approach']). "
-            "MUST be null for: sentence_completion, note_completion, form_completion, table_completion, "
-            "summary_completion, fill_blank, short_answer, true_false_not_given, yes_no_not_given."
+            "SPECIAL CASE — summary_completion / note_completion / sentence_completion WITH A PROVIDED WORD/PHRASE BANK "
+            "(instruction says 'Complete the summary using the list of phrases, A-F, below' / 'Write the correct letter, A-F'): "
+            "in this variant `options` is REQUIRED (non-null) — populate it with the COMPLETE labelled bank EXACTLY as printed "
+            "(e.g. ['A. medical practitioners', 'B. specialised tasks', 'C. available resources', 'D. reduced illness', "
+            "'E. professional authority', 'F. technology experts']), and the same full bank MUST be repeated on EVERY item of "
+            "that question set. "
+            "MUST be null for the from-passage gap-fill variant of these completion types ('Choose ONE WORD ONLY from the passage', "
+            "no labelled bank) and ALWAYS for: form_completion, table_completion, fill_blank, short_answer, "
+            "true_false_not_given, yes_no_not_given."
         )
     )
     answer: str = Field(
-        description="The correct answer key. Must NOT be empty. Can be a letter choice (e.g., 'A'), "
-                    "a Boolean/Evaluation status (e.g., 'TRUE', 'YES', 'NOT GIVEN'), or plain text answer words for completion."
+        description="The correct answer key. Must NOT be empty. Can be a letter choice (e.g., 'A') — including "
+                    "summary/note/sentence completion that uses a provided A-F phrase bank, where the answer is the LETTER, not the phrase; "
+                    "a Boolean/Evaluation status (e.g., 'TRUE', 'YES', 'NOT GIVEN'); "
+                    "or the plain text word(s) for from-passage completion (no bank)."
     )
     explanation: Optional[str] = Field(
         description=(
@@ -41,6 +59,27 @@ class QuestionItem(BaseModel):
             "Distractor Analysis: [for multiple_choice, multiple_choice_multiple, matching, matching_features, matching_information, matching_headings — briefly explain why each wrong option is incorrect or misleading]\n"
             "Must NOT be a simple re-statement of the answer."
         )
+    )
+    image_url: Optional[str] = Field(
+        default=None,
+        description=(
+            "Visual-asset pointer for question groups that depend on an image the test-taker must read. "
+            "POPULATE this field ONLY when you have visually DETECTED such an asset on the page using your "
+            "multimodal capabilities, and ONLY for these visual types:\n"
+            "  • map_labelling — a map or area layout (Listening).\n"
+            "  • plan_labelling — a building/floor plan (Listening).\n"
+            "  • diagram_labelling — a labelled diagram answered from a lettered bank (Listening/Reading).\n"
+            "  • diagram_completion — a technical drawing, biological/scientific process diagram, or "
+            "mechanical chart whose labels are completed (Listening/Reading).\n"
+            "Do NOT set image_url for flowchart_completion or any text completion/matching/selection type.\n"
+            "When detected, set this to the EXACT literal string \"PENDING_ADMIN_UPLOAD\" on EVERY question item "
+            "that belongs to that visual group (the same placeholder repeated across the whole group, mirroring "
+            "how a shared `options` bank is repeated). An admin crops the image from the source PDF during review "
+            "and overwrites this placeholder with the real secure image URL. "
+            "NEVER fabricate or guess a real URL. "
+            "For every other question type — and whenever NO map/plan/diagram is present — OMIT this field or set "
+            "it to null, so no uploader is rendered during review."
+        ),
     )
 
 # =====================================================================
@@ -102,7 +141,16 @@ class WritingPromptSchema(BaseModel):
                     "opinion, discussion, double_question, advantages_disadvantages)."
     )
     title: str = Field(description="Title describing this writing task.")
-    prompt: str = Field(description="The complete prompt, task instructions, and question text.")
+    prompt: str = Field(
+        description=(
+            "The complete prompt in Markdown. "
+            "Bold (**…**): timing instruction line and core action instruction line. "
+            "Italic (*…*): the quoted opinion/statement box in TASK_2. "
+            "Separate every logical block with a SINGLE newline (\\n) — no blank lines (\\n\\n): "
+            "timing → description → action instruction → supporting note → word-count reminder. "
+            "All text must be verbatim from the source document."
+        )
+    )
     imageUrl: Optional[str] = Field(description="Set as null. Populated dynamically by pipeline.")
     minimumWords: int = Field(description="Minimum word requirement: 150 for TASK_1, 250 for TASK_2.")
     suggestedTime: int = Field(description="Suggested time limit in minutes: 20 for TASK_1, 40 for TASK_2.")
@@ -129,3 +177,44 @@ class SpeakingPartSchema(BaseModel):
     title: str = Field(description="Descriptive title of this speaking section.")
     questions: List[SpeakingQuestion] = Field(description="The list of examiner questions. For Part 2 cue_card, provide 1 item representing the cue card text prompt.")
     engnovateSlug: Optional[str] = Field(description="Set as null.")
+
+# =====================================================================
+# INTENSIVE SPEAKING SCHEMA (full 3-part mock exam)
+# Used only when targetSystem == INTENSIVE. Gemini extracts the TEXT content
+# of all 3 parts in one shot; the pipeline (speaking_tts_service) then
+# synthesises the examiner audio and rewrites the audio URL fields. The
+# Gemini layer therefore returns NO audio/video URLs — those start empty.
+# =====================================================================
+
+class IntensiveSpeakingQuestionText(BaseModel):
+    text: str = Field(
+        description="The exact examiner question text, copied verbatim from the source (e.g. 'What kinds of bills do you have to pay?')."
+    )
+
+class IntensiveSpeakingPartSchema(BaseModel):
+    part_number: int = Field(description="Speaking part number: exactly 1, 2, or 3.")
+    topic: str = Field(
+        description="The headline topic/theme of this part as printed in the source (e.g. 'Paying bills', 'Young people and cooking')."
+    )
+    questions: Optional[List[IntensiveSpeakingQuestionText]] = Field(
+        default=None,
+        description=(
+            "The list of examiner questions. REQUIRED (non-null) for Part 1 and Part 3 — one entry per question, "
+            "verbatim. For Part 3 that spans multiple discussion sub-topics, flatten every example question across "
+            "all sub-topics into this single list. MUST be null for Part 2."
+        ),
+    )
+    cue_card: Optional[str] = Field(
+        default=None,
+        description=(
+            "REQUIRED (non-null) for Part 2 ONLY. The COMPLETE cue-card prompt as a single string with literal "
+            "newline characters (\\n) separating each line. Preserve the structure exactly: the main task line "
+            "('Describe ...'), then 'You should say:' followed by each bullet on its own line, then the final "
+            "'and explain ...' line. MUST be null for Part 1 and Part 3."
+        ),
+    )
+
+class IntensiveSpeakingExamSchema(BaseModel):
+    parts: List[IntensiveSpeakingPartSchema] = Field(
+        description="EXACTLY 3 parts, ordered Part 1, Part 2, Part 3."
+    )

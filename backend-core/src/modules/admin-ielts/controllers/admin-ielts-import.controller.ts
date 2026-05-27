@@ -52,6 +52,27 @@ export class AdminIeltsImportController {
     return { url: fileUrl };
   }
 
+  // AI-assisted Refinement: repair the current draft JSON from an Admin instruction
+  // (+ optional pasted screenshot). Stateless proxy → returns the repaired JSON for
+  // review; the Admin still saves/commits explicitly.
+  @Post("refine")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("ADMIN")
+  @UseInterceptors(
+    FileInterceptor("image", { limits: { fileSize: 10 * 1024 * 1024 } })
+  )
+  async refine(
+    @UploadedFile() image: Express.Multer.File,
+    @Body() body: { payload?: string; instruction?: string; skill?: string }
+  ) {
+    return this.importService.refineWithAi({
+      payload: body?.payload ?? "",
+      instruction: body?.instruction ?? "",
+      skill: body?.skill,
+      image,
+    });
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("ADMIN")

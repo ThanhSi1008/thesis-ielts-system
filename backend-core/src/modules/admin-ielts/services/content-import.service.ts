@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
+  ServiceUnavailableException,
 } from "@nestjs/common";
 import { PrismaService } from "../../../common/prisma/prisma.service";
 import { AiClientService } from "../../ai-client/ai-client.service";
@@ -29,6 +30,80 @@ export class ContentImportService {
     private readonly auditLogService: AdminAuditLogService,
     private readonly configService: ConfigService
   ) {}
+
+  /**
+   * AI-assisted Refinement proxy. Forwards the current structured JSON, the Admin's
+   * natural-language instruction, and an optional screenshot to the FastAPI
+   * backend-ai `/refine` endpoint (multipart/form-data) and returns the repaired
+   * JSON. This is a stateless pass-through — it never mutates the import job record;
+   * the Admin reviews the returned JSON in the editor and decides whether to commit.
+   */
+  async refineWithAi(params: {
+    payload: string;
+    instruction: string;
+    skill?: string;
+    image?: Express.Multer.File;
+  }): Promise<{ structuredJson: any }> {
+    const { payload, instruction, skill, image } = params;
+
+    if (!instruction || !instruction.trim()) {
+      throw new BadRequestException("A refinement instruction is required.");
+    }
+    try {
+      JSON.parse(payload);
+    } catch {
+      throw new BadRequestException("payload must be a valid JSON string.");
+    }
+    if (image && !(image.mimetype || "").startsWith("image/")) {
+      throw new BadRequestException("The attached file must be an image.");
+    }
+
+    const host = this.configService.get<string>("BACKEND_AI_HOST") || "backend-ai";
+    const port = this.configService.get<string>("BACKEND_AI_PORT") || "8000";
+    const url = `http://${host}:${port}/api/v1/refine`;
+
+    // multipart/form-data via the global fetch/FormData/Blob (Node 18+, undici) —
+    // the same native-fetch approach already used elsewhere in this service tier.
+    const form = new FormData();
+    form.append("payload", payload);
+    form.append("instruction", instruction);
+    if (skill) form.append("skill", skill);
+    if (image) {
+      // Wrap in a fresh Uint8Array so the Blob part is backed by a plain ArrayBuffer
+      // (Node's Buffer is typed as ArrayBufferLike, which BlobPart rejects).
+      const blob = new Blob([new Uint8Array(image.buffer)], {
+        type: image.mimetype || "image/png",
+      });
+      form.append("image", blob, image.originalname || "screenshot.png");
+    }
+
+    const response = await fetch(url, { method: "POST", body: form }).catch((e: any) => {
+      throw new ServiceUnavailableException(
+        `Could not reach the AI refinement service: ${e?.message || e}`
+      );
+    });
+
+    const text = await response.text();
+    if (!response.ok) {
+      // Surface the FastAPI `detail` (422 schema rejection, 502 Gemini error, …).
+      let detail: any = text;
+      try {
+        detail = JSON.parse(text)?.detail ?? text;
+      } catch {
+        /* keep raw text */
+      }
+      if (response.status === 400 || response.status === 422) {
+        throw new BadRequestException(detail || "AI could not apply the requested refinement.");
+      }
+      throw new ServiceUnavailableException(detail || "AI refinement service error.");
+    }
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      throw new ServiceUnavailableException("AI refinement returned malformed JSON.");
+    }
+  }
 
   /**
    * Creates one or multiple import jobs based on target skill and triggers AMQP pipelines.
@@ -192,25 +267,69 @@ export class ContentImportService {
       
       let friendlyError = callbackDto.error;
       const lowerErr = callbackDto.error.toLowerCase();
-      if (lowerErr.includes("503") || lowerErr.includes("service unavailable") || lowerErr.includes("overloaded")) {
+      if (lowerErr.includes("skill mismatch")) {
+        // Strip the "Extraction failed: " prefix added by the Python consumer so the
+        // descriptive mismatch message reaches the admin UI directly.
+        friendlyError = callbackDto.error.replace(/^extraction failed:\s*/i, "");
+      } else if (lowerErr.includes("503") || lowerErr.includes("service unavailable") || lowerErr.includes("overloaded")) {
         friendlyError = "Google's AI server is temporarily overloaded. Please wait a moment and click 'Extract' again!";
       } else if (lowerErr.includes("429") || lowerErr.includes("resource_exhausted") || lowerErr.includes("quota") || lowerErr.includes("rate limit") || lowerErr.includes("quota drained")) {
-        friendlyError = "The daily free-tier quota for Gemini Pro has been exhausted. The system will automatically reset and resume normal operation tomorrow.";
+        friendlyError = "The daily free-tier quota for Gemini Flash has been exhausted. The system will automatically reset and resume normal operation tomorrow.";
       }
       
       data.error = friendlyError;
     } else {
       data.status = ContentImportStatus.AWAITING_REVIEW;
-      data.structuredJson = callbackDto.structuredJson || null;
-      // Defensive fallback: the text-only AI worker never sends mediaAssets, so
-      // callbackDto.mediaAssets is typically undefined. Use ?? (not ||) so an
-      // explicit empty-array from a future media-aware worker is still honoured,
-      // while undefined/null falls back to whatever the admin uploaded at job
-      // creation time. Default to [] rather than null to avoid downstream nulls.
-      data.mediaAssets = callbackDto.mediaAssets ?? (job.mediaAssets as any[]) ?? [];
       data.geminiModel = callbackDto.geminiModel || null;
       data.tokensUsed = callbackDto.tokensUsed || null;
       data.error = null;
+
+      // Merge mediaAssets: start from the user-uploaded assets stored at job-creation
+      // time (e.g. chart_image for WRITING), then add any NEW assets the Python worker
+      // extracted (e.g. audio/image assets from the PDF). Never overwrite by storedUrl.
+      const existingAssets: any[] = Array.isArray(job.mediaAssets) ? (job.mediaAssets as any[]) : [];
+      const callbackAssets: any[] = Array.isArray(callbackDto.mediaAssets) ? callbackDto.mediaAssets : [];
+      const existingUrls = new Set(existingAssets.map((a: any) => a.storedUrl).filter(Boolean));
+      const newAssets = callbackAssets.filter((a: any) => !existingUrls.has(a.storedUrl));
+      data.mediaAssets = [...existingAssets, ...newAssets];
+
+      // Post-process structuredJson server-side — NestJS has both provenance and
+      // mediaAssets, making it a more reliable injection point than the Python worker.
+      let structuredJson = callbackDto.structuredJson || null;
+      if (structuredJson) {
+        const prov = job.provenance as any;
+
+        // 1. Override title with a canonical format derived from provenance so the
+        //    admin never sees a Gemini-hallucinated or differently-formatted title.
+        //    Format: "Cambridge IELTS <N> - <Skill> Test <T>"
+        if (prov?.bookNumber && prov?.testNumber) {
+          const skillLabel = ({
+            WRITING: "Writing", LISTENING: "Listening",
+            READING: "Reading", SPEAKING: "Speaking",
+          } as Record<string, string>)[job.skill] ?? job.skill;
+          structuredJson = {
+            ...structuredJson,
+            title: `Cambridge IELTS ${prov.bookNumber} - ${skillLabel} Test ${prov.testNumber}`,
+          };
+        }
+
+        // 2. Inject chart imageUrl into TASK_1 using the merged mediaAssets so the
+        //    image uploaded at job-creation is always present in the review editor.
+        if (job.skill === ContentImportSkill.WRITING) {
+          const chartAsset = (data.mediaAssets as any[]).find((a: any) => a.kind === "chart_image");
+          if (chartAsset?.storedUrl && Array.isArray(structuredJson.tasks)) {
+            structuredJson = {
+              ...structuredJson,
+              tasks: (structuredJson.tasks as any[]).map((t: any) =>
+                t.taskType === "TASK_1" && !t.imageUrl
+                  ? { ...t, imageUrl: chartAsset.storedUrl }
+                  : t
+              ),
+            };
+          }
+        }
+      }
+      data.structuredJson = structuredJson;
     }
 
     return this.prisma.contentImportJob.update({
@@ -352,7 +471,7 @@ export class ContentImportService {
       audioscriptRef: job.audioscriptRef || undefined,
       provenance: updated.provenance,
       rawText: job.rawText || undefined,
-      mediaAssets: job.mediaAssets || undefined,
+      mediaAssets: (job.mediaAssets as any[])?.length ? (job.mediaAssets as any[]) : undefined,
     });
 
     await this.auditLogService.log(

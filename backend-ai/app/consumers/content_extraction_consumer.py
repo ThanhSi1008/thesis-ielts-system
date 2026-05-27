@@ -7,6 +7,8 @@ import hmac
 import hashlib
 import requests
 
+import time
+
 from app.config import get_settings
 from app.services.raw_extractor import get_raw_extractor
 from app.services.extraction_service import get_extraction_service
@@ -32,28 +34,36 @@ class ContentExtractionConsumer(threading.Thread):
         self.callback_secret = callback_secret
 
     def run(self):
-        try:
-            params = pika.URLParameters(settings.rabbitmq_url)
-            self.connection = pika.BlockingConnection(params)
-            self.channel = self.connection.channel()
-            
-            # Assert queue matching NestJS durable definition
-            self.channel.queue_declare(
-                queue=self.queue_name, 
-                durable=True,
-                arguments={
-                    'x-message-ttl': 600000,
-                    'x-dead-letter-exchange': '',
-                    'x-dead-letter-routing-key': 'content-extraction-dlq'
-                }
-            )
-            self.channel.basic_qos(prefetch_count=1)
-            self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.process_message)
-            
-            logger.info("✅ ContentExtractionConsumer listening on content-extraction-queue...")
-            self.channel.start_consuming()
-        except Exception as e:
-            logger.error(f"❌ ContentExtractionConsumer error: {e}")
+        retry_delay = 5
+        max_delay = 60
+        while not self.should_stop:
+            try:
+                params = pika.URLParameters(settings.rabbitmq_url)
+                self.connection = pika.BlockingConnection(params)
+                self.channel = self.connection.channel()
+                
+                # Assert queue matching NestJS durable definition
+                self.channel.queue_declare(
+                    queue=self.queue_name, 
+                    durable=True,
+                    arguments={
+                        'x-message-ttl': 600000,
+                        'x-dead-letter-exchange': '',
+                        'x-dead-letter-routing-key': 'content-extraction-dlq'
+                    }
+                )
+                self.channel.basic_qos(prefetch_count=1)
+                self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.process_message)
+                
+                logger.info("✅ ContentExtractionConsumer listening on content-extraction-queue...")
+                retry_delay = 5
+                self.channel.start_consuming()
+            except Exception as e:
+                if self.should_stop:
+                    break
+                logger.error(f"❌ ContentExtractionConsumer error: {e} — reconnecting in {retry_delay}s")
+                time.sleep(retry_delay)
+                retry_delay = min(retry_delay * 2, max_delay)
 
     def stop(self):
         self.should_stop = True
@@ -71,6 +81,18 @@ class ContentExtractionConsumer(threading.Thread):
         raw_text = task.get("rawText")
         media_assets = task.get("mediaAssets")
 
+        # Flatten media_assets defensively if nested as [[{...}]] or containing nested lists
+        flat_media_assets = []
+        if isinstance(media_assets, list):
+            for item in media_assets:
+                if isinstance(item, list):
+                    for subitem in item:
+                        if isinstance(subitem, dict):
+                            flat_media_assets.append(subitem)
+                elif isinstance(item, dict):
+                    flat_media_assets.append(item)
+        media_assets = flat_media_assets
+
         logger.info(f"🚀 Starting background extraction job: {job_id} [{skill}]")
 
         structurer = get_extraction_service()
@@ -85,14 +107,34 @@ class ContentExtractionConsumer(threading.Thread):
             logger.info(f"📥 [Stage 1] PDF upload for job {job_id}...")
             raw_result = await extractor.extract_raw(source_type, source_ref, skill, audioscript_ref=audioscript_ref)
             raw_text = raw_result["rawText"]
-            media_assets = raw_result["mediaAssets"]
+            extracted_assets = raw_result.get("mediaAssets") or []
+            if media_assets:
+                existing_urls = {a.get("storedUrl") for a in media_assets if a.get("storedUrl")}
+                for asset in extracted_assets:
+                    if asset.get("storedUrl") not in existing_urls:
+                        media_assets.append(asset)
+            else:
+                media_assets = extracted_assets
         
         # Step 2: Gemini Structuring
         logger.info(f"🧠 [Stage 2] Gemini structuring for job {job_id}...")
-        struct_result = await structurer.extract_structured(raw_text, skill, media_assets=media_assets)
-        
+        struct_result = await structurer.extract_structured(
+            raw_text, skill, media_assets=media_assets, target_system=target_system
+        )
+        structured_json = struct_result["structuredJson"]
+
+        # Step 3 (INTENSIVE SPEAKING only): synthesise examiner audio with edge-tts,
+        # upload each clip to Cloudinary, and assemble the final speaking contract
+        # (type + examiner + video/video2 URLs). Other skills/systems skip this.
+        if skill.upper() == "SPEAKING" and (target_system or "").upper() == "INTENSIVE":
+            from app.services.speaking_tts_service import get_speaking_tts_service
+            logger.info(f"🎧 [Stage 3] Generating examiner TTS audio for intensive speaking job {job_id}...")
+            speaking_tts = get_speaking_tts_service()
+            structured_json = await speaking_tts.build_intensive_speaking_exam(structured_json)
+            logger.info(f"✅ [Stage 3] Examiner audio generated for job {job_id}")
+
         return {
-            "structuredJson": struct_result["structuredJson"],
+            "structuredJson": structured_json,
             "mediaAssets": media_assets,
             "geminiModel": struct_result["geminiModel"],
             "tokensUsed": struct_result["tokensUsed"]

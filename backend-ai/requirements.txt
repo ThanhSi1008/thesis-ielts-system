@@ -38,6 +38,10 @@ yt-dlp>=2024.3.10
 # Google Gemini AI
 google-genai>=0.1.0
 
+# Text-to-Speech & media CDN (IELTS Speaking mock-exam audio generation)
+edge-tts>=6.1.9           # Free Microsoft Edge neural TTS (async) — examiner voice synthesis
+cloudinary>=1.36.0        # Audio/image CDN — shares the same account as backend-core
+
 # OpenTelemetry
 opentelemetry-sdk
 opentelemetry-instrumentation-fastapi

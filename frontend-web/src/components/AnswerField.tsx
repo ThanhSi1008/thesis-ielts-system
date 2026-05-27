@@ -613,20 +613,34 @@ export function AnswerField({
     );
   }
 
-  // Plan labeling placeholder (image + input)
+  // Map / plan / diagram labelling: group header + image (once, on the first item) + a
+  // labelled input per question.
   if (item.kind === "plan_label") {
     const key = String(item.qn);
     const value = typeof answers[key] === "string" ? (answers[key] as string) : "";
+    const planQns = (item as any).qns as number[] | undefined;
     return (
       <div id={`question-${item.qn}`} className="pb-6 pt-1 ">
-
+        {planQns && (
+          <div className="text-[18px] font-bold text-gray-900 mb-1">
+            Questions {planQns.length > 1 ? `${planQns[0]} - ${planQns[planQns.length - 1]}` : String(planQns[0])}
+          </div>
+        )}
+        {(item as any).instructions && (
+          <div className="text-[15px] text-gray-700 mb-3">{(item as any).instructions}</div>
+        )}
+        {(item as any).heading && (
+          <div className="font-bold text-[16px] uppercase mb-2">{(item as any).heading}</div>
+        )}
+        {item.imageUrl && (
+          <div className="rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm p-2 mb-4">
+            <img src={item.imageUrl} alt="Plan/Map/Diagram" className="w-full h-auto rounded-lg" />
+          </div>
+        )}
         <div className="flex items-start gap-4">
           <QnBadge n={item.qn} isFocused={focusedQn === item.qn} />
           <div className="flex-1 min-w-0">
-            {item.prompt && <div className="text-gray-800 font-medium text-[15px] mb-4">{item.prompt}</div>}
-            <div className="rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm p-2 mb-4">
-              <img src={item.imageUrl} alt="Plan/Map/Diagram" className="w-full h-auto rounded-lg" />
-            </div>
+            {item.prompt && <div className="text-gray-800 font-medium text-[15px] mb-2">{item.prompt}</div>}
             <div className="max-w-sm">
               <input
                 value={value}

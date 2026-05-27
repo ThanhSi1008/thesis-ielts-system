@@ -27,6 +27,62 @@ import { seedShadowingLessons, seedDictationLessons } from "./seeders/shadowing.
 import { seedAchievements } from "./seed-achievements";
 import { seedPlans } from "./seed-plans";
 
+function normalizeIntensiveQuestions(questions: any) {
+  if (!questions) return questions;
+  const normalized = { ...questions };
+  if (Array.isArray(normalized.parts)) {
+    normalized.parts = normalized.parts.map((part: any) => {
+      const p = { ...part };
+      // Ensure passage_with_locations is at least an empty array for Reading parts
+      if (normalized.section === "Reading" && !p.passage_with_locations) {
+        p.passage_with_locations = [];
+      }
+      // Also check question_groups
+      if (Array.isArray(p.question_groups)) {
+        p.question_groups = p.question_groups.map((group: any) => {
+          const g = { ...group };
+          // If questions is not an array but items is, map questions to items for basic uniform format
+          if (Array.isArray(g.questions) && !g.items) {
+            g.items = g.questions;
+          }
+          if (Array.isArray(g.items) && (!g.questions || Array.isArray(g.questions))) {
+            // Convert questions to string range if it's an array or missing
+            const qNums = g.items.flatMap((i: any) =>
+              Array.isArray(i.question_numbers) ? i.question_numbers : [i.question_number]
+            ).filter((n: any) => typeof n === "number");
+            if (qNums.length > 0) {
+              const min = Math.min(...qNums);
+              const max = Math.max(...qNums);
+              g.questions = min === max ? `${min}` : `${min}–${max}`;
+            }
+          }
+          // Ensure snake_case type is present if question_type is set
+          if (!g.type && g.question_type) {
+            let resolvedType = String(g.question_type).toLowerCase().replace(/[\s/]/g, "_");
+            if (resolvedType === "matching") {
+              const firstItem = g.items?.[0];
+              const qType = String(firstItem?.type || "").toLowerCase().trim();
+              resolvedType = qType.startsWith("matching") ? qType : "matching";
+            } else if (resolvedType === "multiple_choice" && g.items?.[0]?.question_numbers) {
+              resolvedType = "multiple_choice_multiple";
+            } else if (resolvedType === "sentence_completion") {
+              resolvedType = "note_completion";
+            } else if (resolvedType === "table_completion") {
+              resolvedType = "table";
+            } else if (resolvedType === "flowchart_completion") {
+              resolvedType = "flow_chart";
+            }
+            g.type = resolvedType;
+          }
+          return g;
+        });
+      }
+      return p;
+    });
+  }
+  return normalized;
+}
+
 async function upsertCambridgeExam(params: {
   title: string;
   type:
@@ -42,6 +98,8 @@ async function upsertCambridgeExam(params: {
   questions: any;
   isPublished: boolean;
 }) {
+  const normalizedQuestions = normalizeIntensiveQuestions(params.questions);
+
   const existing = await prisma.ieltsIntensiveExam.findFirst({
     where: { title: params.title, type: params.type as any },
     select: { id: true },
@@ -54,7 +112,7 @@ async function upsertCambridgeExam(params: {
         difficulty: params.difficulty as any,
         duration: params.durationMinutes,
         imageUrl: params.imageUrl,
-        questions: params.questions,
+        questions: normalizedQuestions,
         isPublished: params.isPublished,
       },
     });
@@ -70,7 +128,7 @@ async function upsertCambridgeExam(params: {
       type: params.type as any,
       difficulty: params.difficulty as any,
       duration: params.durationMinutes,
-      questions: params.questions,
+      questions: normalizedQuestions,
       isPublished: params.isPublished,
     },
   });

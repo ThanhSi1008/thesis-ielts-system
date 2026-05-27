@@ -58,6 +58,28 @@ export function ExerciseDetailContent({
     if (exerciseId) fetchData();
   }, [exerciseId, lessonId, isReading, isWriting, isSpeaking]);
 
+  // Lock parent <main> scrollbars to enable independent column scrolls inside layout
+  useEffect(() => {
+    const mainElements = document.querySelectorAll("main");
+    const originalStyles = new Map<Element, string>();
+    mainElements.forEach((main) => {
+      const htmlMain = main as HTMLElement;
+      originalStyles.set(htmlMain, htmlMain.style.overflow);
+      htmlMain.style.overflow = "hidden";
+    });
+
+    return () => {
+      mainElements.forEach((main) => {
+        const htmlMain = main as HTMLElement;
+        const orig = originalStyles.get(htmlMain);
+        if (orig !== undefined) {
+          htmlMain.style.overflow = orig;
+        }
+      });
+    };
+  }, []);
+
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full text-gray-400 font-medium animate-pulse">

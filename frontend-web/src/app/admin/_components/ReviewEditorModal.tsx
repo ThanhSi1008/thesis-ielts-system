@@ -19,15 +19,32 @@ const WHITELISTED_TYPES = [
   "matching_information",
   "matching_headings",
   "table_completion",
+  "flowchart_completion",
   "true_false_not_given",
   "yes_no_not_given",
-  "fill_blank"
+  "fill_blank",
+  "matching_sentence_endings",
+  "map_labelling",
+  "plan_labelling",
+  "diagram_labelling",
+  "diagram_completion",
+  // Tolerated US-spelling alias
+  "map_labeling"
 ];
+
+// Sentinel emitted by Gemini for map/plan/diagram groups awaiting a real image.
+// The admin uploads the cropped asset during review; uploading overwrites this
+// placeholder with the secure Cloudinary URL.
+const VISUAL_PLACEHOLDER = "PENDING_ADMIN_UPLOAD";
 
 // ─── Question-type taxonomy helpers ───
 const CHOICE_TYPES = new Set([
   "multiple_choice", "multiple_choice_multiple",
   "matching", "matching_features", "matching_information", "matching_headings",
+  "matching_sentence_endings",
+  // Visual labelling types answer from a lettered bank → options editor + answer
+  // dropdown (the diagram/map image itself is rendered by the visual-asset zone).
+  "map_labelling", "plan_labelling", "diagram_labelling", "map_labeling",
 ]);
 
 const TOGGLE_TYPES: Record<string, string[]> = {
@@ -65,7 +82,8 @@ const questionSchema = z.object({
   correct_answer: z.string().nullish(),
   correct_answers: z.array(z.string()).nullish(),
   options: z.array(z.string()).nullish(),
-  question_timestamp: z.string().nullish()
+  question_timestamp: z.string().nullish(),
+  image_url: z.string().nullish()
 });
 
 const partSchema = z.object({
@@ -206,6 +224,48 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     });
   };
 
+  // ─── Speaking Handlers ───
+  const handleSpeakingTopicChange = (val: string) => {
+    const newParts = [...(structuredJson.parts || [])];
+    newParts[activeReviewPartIdx] = {
+      ...newParts[activeReviewPartIdx],
+      topic: val
+    };
+    updateStructuredJson({ ...structuredJson, parts: newParts });
+  };
+
+  const handleSpeakingQuestionTextChange = (qIdx: number, val: string) => {
+    const newParts = [...(structuredJson.parts || [])];
+    const part = { ...newParts[activeReviewPartIdx] };
+    const newQuestions = [...(part.questions || [])];
+    newQuestions[qIdx] = {
+      ...newQuestions[qIdx],
+      text: val
+    };
+    part.questions = newQuestions;
+    newParts[activeReviewPartIdx] = part;
+    updateStructuredJson({ ...structuredJson, parts: newParts });
+  };
+
+  const handleAddSpeakingQuestion = () => {
+    const newParts = [...(structuredJson.parts || [])];
+    const part = { ...newParts[activeReviewPartIdx] };
+    const newQuestions = [...(part.questions || [])];
+    newQuestions.push({ text: "New question...", video: "" });
+    part.questions = newQuestions;
+    newParts[activeReviewPartIdx] = part;
+    updateStructuredJson({ ...structuredJson, parts: newParts });
+  };
+
+  const handleRemoveSpeakingQuestion = (qIdx: number) => {
+    const newParts = [...(structuredJson.parts || [])];
+    const part = { ...newParts[activeReviewPartIdx] };
+    const newQuestions = (part.questions || []).filter((_: any, i: number) => i !== qIdx);
+    part.questions = newQuestions;
+    newParts[activeReviewPartIdx] = part;
+    updateStructuredJson({ ...structuredJson, parts: newParts });
+  };
+
   // ─── Form Handlers ───
   const handleContentFieldChange = (index: number, field: string, value: any) => {
     if (isMultiPart) {
@@ -300,6 +360,43 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     const errors: string[] = [];
     setValidationErrors([]);
 
+    if (job.skill === "SPEAKING") {
+      if (!structuredJson.title || String(structuredJson.title).trim() === "") {
+        errors.push("Exam Title is required.");
+      }
+      if (!Array.isArray(structuredJson.parts) || structuredJson.parts.length !== 3) {
+        errors.push("Speaking exam must contain exactly 3 parts.");
+      } else {
+        structuredJson.parts.forEach((p: any, idx: number) => {
+          const partNum = p.part_number || (idx + 1);
+          if (!p.topic || String(p.topic).trim() === "") {
+            errors.push(`[Part ${partNum}] Topic is required.`);
+          }
+          if (partNum === 2) {
+            if (!p.cue_card || String(p.cue_card).trim() === "") {
+              errors.push(`[Part ${partNum}] Cue card text is required.`);
+            }
+          } else {
+            if (!Array.isArray(p.questions) || p.questions.length === 0) {
+              errors.push(`[Part ${partNum}] At least one question is required.`);
+            } else {
+              p.questions.forEach((q: any, qIdx: number) => {
+                if (!q.text || String(q.text).trim() === "") {
+                  errors.push(`[Part ${partNum} Question ${qIdx + 1}] Question text cannot be empty.`);
+                }
+              });
+            }
+          }
+        });
+      }
+      if (errors.length > 0) {
+        setValidationErrors(errors);
+        toast.error("Validation failed. Please correct errors before committing.", 5000);
+        return false;
+      }
+      return true;
+    }
+
     const schemaResult = structuredJsonSchema.safeParse(structuredJson);
     if (!schemaResult.success) {
       schemaResult.error.errors.forEach(err => {
@@ -344,6 +441,12 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
         errors.push(`[Question ${qNum}] "${q.type}" requires an "options" array to be populated.`);
       }
 
+      // A map/plan/diagram group must have its image uploaded before commit —
+      // the placeholder must never reach the live exam.
+      if (q.image_url === VISUAL_PLACEHOLDER) {
+        errors.push(`[Question ${qNum}] A map/diagram image is still awaiting upload. Upload the cropped visual or clear the image field before committing.`);
+      }
+
       if (!CHOICE_TYPES.has(q.type) && !TOGGLE_TYPES[q.type]) {
         let parenCount = 0;
         for (let i = 0; i < ansStr.length; i++) {
@@ -374,6 +477,272 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     return true;
   };
 
+  // ─── Chart image upload (recover missing image for WRITING jobs) ───
+  const handleChartImageUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
+      return;
+    }
+    setIsUploadingChartImage(true);
+    try {
+      const storedUrl = await ieltsImportApi.uploadFile(file);
+      const newAsset = { kind: "chart_image", storedUrl, originalUrl: file.name };
+
+      // Merge into mediaAssets (replace any existing chart_image)
+      const existingAssets: any[] = Array.isArray(job.mediaAssets) ? (job.mediaAssets as any[]) : [];
+      const merged = [
+        ...existingAssets.filter((a: any) => a.kind !== "chart_image"),
+        newAsset,
+      ];
+
+      // Inject imageUrl into TASK_1
+      const updatedTasks = Array.isArray(structuredJson.tasks)
+        ? structuredJson.tasks.map((t: any) =>
+            t.taskType === "TASK_1" ? { ...t, imageUrl: storedUrl } : t
+          )
+        : structuredJson.tasks;
+      const updatedJson = { ...structuredJson, tasks: updatedTasks };
+
+      await ieltsImportApi.saveDraft(job.id, {
+        structuredJson: updatedJson,
+        mediaAssets: merged,
+        version: job.version || 0,
+      });
+
+      // Update local state so the preview appears immediately
+      setStructuredJson(updatedJson);
+      setJsonText(JSON.stringify(updatedJson, null, 2));
+      job.mediaAssets = merged;
+      toast.success("Chart image saved successfully.");
+    } catch (e: any) {
+      const msg = e.response?.data?.message || "Failed to upload chart image.";
+      toast.error(Array.isArray(msg) ? msg.join(", ") : msg, 6000);
+    } finally {
+      setIsUploadingChartImage(false);
+    }
+  };
+
+  // ─── Visual asset upload (map / plan / diagram groups flagged by Gemini) ───
+  // Tracks which group (by its start index in the active part's content) is
+  // currently uploading, so only that dropzone shows a spinner.
+  const [uploadingVisualGroupIdx, setUploadingVisualGroupIdx] = useState<number | null>(null);
+
+  // Apply a resolved image URL (or null to clear) to every question item that
+  // belongs to the contiguous group starting at startIdx. Group membership
+  // mirrors the renderer: same `type` + same `options` fingerprint. The image
+  // is a property of the whole group, so the value is written onto each item.
+  const applyGroupImageUrl = (startIdx: number, url: string | null) => {
+    const mutate = (content: any[]): any[] => {
+      const ref = content[startIdx];
+      if (!ref) return content;
+      const next = [...content];
+      for (let i = startIdx; i < next.length; i++) {
+        const sameGroup =
+          next[i].type === ref.type &&
+          JSON.stringify(next[i].options ?? []) === JSON.stringify(ref.options ?? []);
+        if (!sameGroup) break;
+        if (url === null) {
+          const { image_url, ...rest } = next[i];
+          next[i] = rest;
+        } else {
+          next[i] = { ...next[i], image_url: url };
+        }
+      }
+      return next;
+    };
+
+    if (isMultiPart) {
+      const newParts = [...(structuredJson.parts || [])];
+      const part = { ...newParts[activeReviewPartIdx] };
+      part.content = mutate(part.content || []);
+      newParts[activeReviewPartIdx] = part;
+      updateStructuredJson({ ...structuredJson, parts: newParts });
+    } else {
+      updateStructuredJson({ ...structuredJson, content: mutate(structuredJson.content || []) });
+    }
+  };
+
+  const handleGroupImageUpload = async (startIdx: number, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
+      return;
+    }
+    setUploadingVisualGroupIdx(startIdx);
+    try {
+      const storedUrl = await ieltsImportApi.uploadFile(file);
+      applyGroupImageUrl(startIdx, storedUrl);
+      toast.success("Visual uploaded. Save Draft or Commit to persist it.");
+    } catch (e: any) {
+      const msg = e.response?.data?.message || "Failed to upload image.";
+      toast.error(Array.isArray(msg) ? msg.join(", ") : msg, 6000);
+    } finally {
+      setUploadingVisualGroupIdx(null);
+    }
+  };
+
+  // Renders the drag-and-drop / preview zone for a visual question group.
+  // Returns null unless the group carries an `image_url` (the placeholder set by
+  // Gemini, or an already-uploaded Cloudinary URL) — so non-visual groups never
+  // show an uploader.
+  const renderGroupVisualZone = (
+    groupStartIdx: number,
+    imageUrl: string | null | undefined,
+  ): React.ReactNode => {
+    if (imageUrl === undefined || imageUrl === null) return null;
+    const isPending = imageUrl === VISUAL_PLACEHOLDER;
+    const isUploading = uploadingVisualGroupIdx === groupStartIdx;
+    const inputId = `group-visual-${activeReviewPartIdx}-${groupStartIdx}`;
+    const onPick = (file?: File | null) => { if (file) handleGroupImageUpload(groupStartIdx, file); };
+
+    return (
+      <div
+        key={`gv-${groupStartIdx}`}
+        className="shrink-0 rounded-xl border border-amber-300 dark:border-amber-800/70 bg-amber-50/60 dark:bg-amber-950/20 p-3"
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16v12H4z" /></svg>
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+            Visual Asset {isPending ? "(awaiting upload)" : "(uploaded)"}
+          </span>
+        </div>
+
+        {isPending ? (
+          <div
+            onDragOver={e => e.preventDefault()}
+            onDrop={e => { e.preventDefault(); onPick(e.dataTransfer.files?.[0]); }}
+            className="flex flex-col items-center justify-center gap-1.5 px-4 py-6 border-2 border-dashed border-amber-300 dark:border-amber-800 rounded-lg bg-white/60 dark:bg-gray-900/40 text-center"
+          >
+            <input id={inputId} type="file" accept="image/*" className="hidden" onChange={e => onPick(e.target.files?.[0])} />
+            <p className="text-[11px] font-bold text-gray-700 dark:text-gray-200">
+              Gemini detected a map / plan / diagram for this group.
+            </p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+              Crop it from the source PDF, then drag &amp; drop here or
+            </p>
+            <label
+              htmlFor={inputId}
+              className={[
+                "mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider cursor-pointer transition-colors",
+                isUploading
+                  ? "bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-wait"
+                  : "bg-amber-500 hover:bg-amber-600 text-white",
+              ].join(" ")}
+            >
+              {isUploading ? "Uploading…" : "Upload image"}
+            </label>
+          </div>
+        ) : (
+          <div className="flex items-start gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imageUrl} alt="Question group visual" className="h-28 w-auto max-w-[55%] rounded-lg border border-gray-200 dark:border-gray-700 object-contain bg-white" />
+            <div className="flex flex-col gap-1.5">
+              <input id={inputId} type="file" accept="image/*" className="hidden" onChange={e => onPick(e.target.files?.[0])} />
+              <label
+                htmlFor={inputId}
+                className={[
+                  "inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider cursor-pointer transition-colors",
+                  isUploading
+                    ? "bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-wait"
+                    : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-primary",
+                ].join(" ")}
+              >
+                {isUploading ? "Uploading…" : "Replace image"}
+              </label>
+              <button
+                type="button"
+                onClick={() => applyGroupImageUrl(groupStartIdx, VISUAL_PLACEHOLDER)}
+                className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ─── AI-assisted Refinement panel ───
+  const [showRefinePanel, setShowRefinePanel] = useState(false);
+  const [refineInstruction, setRefineInstruction] = useState("");
+  const [refineImage, setRefineImage] = useState<File | null>(null);
+  const [refineImagePreview, setRefineImagePreview] = useState<string | null>(null);
+  const [isRefining, setIsRefining] = useState(false);
+
+  const setRefineImageFromFile = (file: File) => {
+    setRefineImage(file);
+    setRefineImagePreview(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+  };
+
+  const clearRefineImage = () => {
+    setRefineImagePreview(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setRefineImage(null);
+  };
+
+  // Revoke the object URL on unmount to avoid leaking blobs.
+  useEffect(() => {
+    return () => {
+      if (refineImagePreview) URL.revokeObjectURL(refineImagePreview);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Ctrl+V inside the panel: grab a screenshot straight from the clipboard.
+  const handleRefinePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const it of Array.from(items)) {
+      if (it.type.startsWith("image/")) {
+        const file = it.getAsFile();
+        if (file) {
+          e.preventDefault();
+          setRefineImageFromFile(file);
+        }
+        return;
+      }
+    }
+  };
+
+  const handleRefine = async () => {
+    if (!refineInstruction.trim() && !refineImage) {
+      toast.error("Type an instruction or paste a screenshot first.");
+      return;
+    }
+    if (jsonError) {
+      toast.error("Please resolve JSON syntax errors first.");
+      return;
+    }
+    setIsRefining(true);
+    try {
+      const form = new FormData();
+      form.append("payload", JSON.stringify(structuredJson));
+      form.append("instruction", refineInstruction);
+      if (job.skill) form.append("skill", job.skill);
+      if (refineImage) form.append("image", refineImage);
+
+      const res = await ieltsImportApi.refine(form);
+      if (res?.structuredJson) {
+        updateStructuredJson(res.structuredJson);
+        toast.success("AI refinement applied. Review the changes, then Save Draft or Commit.");
+        setRefineInstruction("");
+        clearRefineImage();
+      } else {
+        toast.error("Refinement returned no JSON.");
+      }
+    } catch (e: any) {
+      const errMsg = e.response?.data?.message || e.message || "Refinement failed.";
+      toast.error(Array.isArray(errMsg) ? errMsg.join(", ") : errMsg, 6000);
+    } finally {
+      setIsRefining(false);
+    }
+  };
+
   // ─── Actions ───
   const handleSaveDraft = async () => {
     if (jsonError) {
@@ -383,11 +752,14 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     setIsSaving(true);
     setApiError(null);
     try {
-      await ieltsImportApi.saveDraft(job.id, {
+      const updatedJob = await ieltsImportApi.saveDraft(job.id, {
         structuredJson,
         provenance,
         version: job.version || 0
       });
+      if (updatedJob && typeof updatedJob.version === "number") {
+        job.version = updatedJob.version;
+      }
       toast.success("Draft saved successfully.");
     } catch (e: any) {
       if (e.response?.status === 429 || e.response?.status === 503) {
@@ -420,11 +792,22 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
       if (cleanedProvenance.originalFileName) delete cleanedProvenance.originalFileName;
 
       // Pre-save the clean state back to the database draft
-      await ieltsImportApi.saveDraft(job.id, {
-        structuredJson: cleanedStructuredJson,
-        provenance: cleanedProvenance,
-        version: job.version || 0
-      });
+      try {
+        const updatedJob = await ieltsImportApi.saveDraft(job.id, {
+          structuredJson: cleanedStructuredJson,
+          provenance: cleanedProvenance,
+          version: job.version || 0
+        });
+        if (updatedJob && typeof updatedJob.version === "number") {
+          job.version = updatedJob.version;
+        }
+      } catch (err: any) {
+        if (err.response?.status === 409) {
+          toast.error("Save failed: The job has been modified by another process. Please reload and try again.", 6000);
+          return;
+        }
+        throw err;
+      }
 
       // Execute the live commit transition
       await ieltsImportApi.commitJob(job.id, {
@@ -451,8 +834,14 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
   const isListening = job.skill === "LISTENING";
   const isWriting = job.skill === "WRITING";
 
+  const task1 = Array.isArray(structuredJson?.tasks)
+    ? structuredJson.tasks.find((t: any) => t.taskType === "TASK_1")
+    : null;
+  const isWritingWithoutChart = isWriting && !task1?.imageUrl;
+
   // Re-extract: trigger a fresh Gemini extraction for this job (discards current draft)
   const [isRetrying, setIsRetrying] = useState(false);
+  const [isUploadingChartImage, setIsUploadingChartImage] = useState(false);
   const handleReExtract = async () => {
     if (!confirm("Re-extract will discard the current AI output and re-run Gemini on the original PDF. Continue?")) return;
     setIsRetrying(true);
@@ -528,20 +917,6 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
 
         {/* Buttons */}
         <div className="flex items-center gap-2">
-          {isWriting && (
-            <button
-              onClick={handleReExtract}
-              disabled={isRetrying}
-              title="Discard current AI output and re-run Gemini extraction on the original PDF"
-              className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 rounded-xl hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-colors disabled:opacity-60"
-            >
-              {isRetrying
-                ? <span className="w-3.5 h-3.5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
-                : <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
-              }
-              Re-extract from PDF
-            </button>
-          )}
           <button
             onClick={handleSaveDraft}
             disabled={isSaving}
@@ -552,11 +927,16 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
           </button>
           <button
             onClick={() => handleCommit(false)}
-            disabled={isCommitting}
-            className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-primary rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60"
+            disabled={isCommitting || isUploadingChartImage || isWritingWithoutChart}
+            title={isWritingWithoutChart ? "Please upload the chart image for Task 1 before committing!" : isUploadingChartImage ? "Uploading chart image..." : undefined}
+            className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-primary rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isCommitting && <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-            {job.status === "COMMITTED" ? "Re-commit to Live" : "Commit & Publish Draft"}
+            {isCommitting ? (
+              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : isUploadingChartImage ? (
+              <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+            ) : null}
+            {isUploadingChartImage ? "Uploading chart…" : job.status === "COMMITTED" ? "Re-commit to Live" : "Commit & Publish Draft"}
           </button>
         </div>
       </header>
@@ -612,6 +992,47 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
       <main className="flex-1 overflow-hidden flex w-full max-w-[1600px] mx-auto p-6 gap-6">
         {/* Left Column: Provenance Card */}
         <section className="w-[300px] flex flex-col gap-4 shrink-0 overflow-y-auto pr-1">
+          {/* Exam Settings Card */}
+          <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 shadow-sm">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Exam Settings</h3>
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Exam Title *</label>
+                <input
+                  type="text"
+                  value={structuredJson.title || ""}
+                  onChange={e => updateStructuredJson({ ...structuredJson, title: e.target.value })}
+                  className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
+                  required
+                />
+              </div>
+
+              {job.skill !== "SPEAKING" && job.skill !== "WRITING" && (
+                <div>
+                  <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Duration (minutes) *</label>
+                  <input
+                    type="number"
+                    value={structuredJson.duration || (job.skill === "LISTENING" ? 40 : 60)}
+                    onChange={e => updateStructuredJson({ ...structuredJson, duration: Number(e.target.value) })}
+                    className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
+                    required
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Description / Instructions</label>
+                <textarea
+                  value={structuredJson.description || ""}
+                  onChange={e => updateStructuredJson({ ...structuredJson, description: e.target.value })}
+                  rows={2}
+                  className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none resize-none"
+                  placeholder="Optional instructions..."
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 shadow-sm">
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Provenance Metadata</h3>
             
@@ -634,7 +1055,23 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                     <input
                       type="number"
                       value={provenance.bookNumber || ""}
-                      onChange={e => setProvenance({ ...provenance, bookNumber: Number(e.target.value) })}
+                      onChange={e => {
+                        const newBook = Number(e.target.value);
+                        const nextProvenance = { ...provenance, bookNumber: newBook };
+                        setProvenance(nextProvenance);
+                        
+                        // Automatically update title if from Cambridge source
+                        const skillLabel = ({
+                          WRITING: "Writing", LISTENING: "Listening",
+                          READING: "Reading", SPEAKING: "Speaking"
+                        } as Record<string, string>)[job.skill] ?? job.skill;
+                        if (provenance.source === "cambridge" && nextProvenance.testNumber) {
+                          updateStructuredJson({
+                            ...structuredJson,
+                            title: `Cambridge IELTS ${newBook} - ${skillLabel} Test ${nextProvenance.testNumber}`
+                          });
+                        }
+                      }}
                       className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
                     />
                   </div>
@@ -643,7 +1080,23 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                     <input
                       type="number"
                       value={provenance.testNumber || ""}
-                      onChange={e => setProvenance({ ...provenance, testNumber: Number(e.target.value) })}
+                      onChange={e => {
+                        const newTest = Number(e.target.value);
+                        const nextProvenance = { ...provenance, testNumber: newTest };
+                        setProvenance(nextProvenance);
+                        
+                        // Automatically update title if from Cambridge source
+                        const skillLabel = ({
+                          WRITING: "Writing", LISTENING: "Listening",
+                          READING: "Reading", SPEAKING: "Speaking"
+                        } as Record<string, string>)[job.skill] ?? job.skill;
+                        if (provenance.source === "cambridge" && nextProvenance.bookNumber) {
+                          updateStructuredJson({
+                            ...structuredJson,
+                            title: `Cambridge IELTS ${nextProvenance.bookNumber} - ${skillLabel} Test ${newTest}`
+                          });
+                        }
+                      }}
                       className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
                     />
                   </div>
@@ -724,88 +1177,6 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
               {/* IF LISTENING: Show Modern Media Management Hub */}
               {isListening && (
                 <div className="p-6 pb-2 shrink-0 border-b border-gray-100 dark:border-gray-800">
-                  {/* Media Assets Hub Section */}
-                  <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 shadow-sm shrink-0 mb-4 bg-gradient-to-r from-gray-50/50 to-white dark:from-gray-900 dark:to-gray-950">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-1.5 h-3.5 bg-primary rounded-full" />
-                      <h3 className="text-[11px] font-extrabold uppercase tracking-wider text-[#001f3f] dark:text-gray-100">Media Assets Hub</h3>
-                    </div>
-
-                    <div className="grid grid-cols-12 gap-4">
-                      {/* PDF Question Booklet Slot */}
-                      <div className="col-span-4 bg-white dark:bg-gray-900 p-3.5 border border-gray-100 dark:border-gray-800 rounded-xl flex flex-col justify-between shadow-sm">
-                        <div className="flex items-start gap-3">
-                          <div className="p-2 bg-red-50 dark:bg-red-950/20 text-red-650 rounded-xl shrink-0">
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                          </div>
-                          <div className="overflow-hidden">
-                            <h4 className="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate">PDF Question Booklet</h4>
-                            <p className="text-[9px] text-gray-400 truncate mt-0.5">Cambridge IELTS Booklet.pdf</p>
-                          </div>
-                        </div>
-                        <div className="mt-2.5 flex items-center justify-between">
-                          <span className="inline-flex items-center gap-1 text-[9px] font-bold text-green-600">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                            Uploaded
-                          </span>
-                          <button className="text-[9px] font-bold text-primary hover:opacity-85">Replace</button>
-                        </div>
-                      </div>
-
-                      {/* 4 Audio Tracks Slot */}
-                      <div className="col-span-8 bg-white dark:bg-gray-900 p-3.5 border border-gray-100 dark:border-gray-800 rounded-xl flex flex-col justify-between shadow-sm">
-                        <div>
-                          <h4 className="text-[11px] font-bold text-gray-800 dark:text-gray-200 mb-2">Audio Tracks (Part 1–4)</h4>
-                          <div className="grid grid-cols-4 gap-1.5">
-                            {[1, 2, 3, 4].map(partNum => {
-                              const hasAudio = !!jobAudioUrls[partNum - 1];
-                              const isActive = activeReviewPartIdx + 1 === partNum;
-                              return (
-                                <button
-                                  key={partNum}
-                                  type="button"
-                                  onClick={() => setActiveReviewPartIdx(partNum - 1)}
-                                  className={[
-                                    "py-1.5 rounded-lg text-[9px] font-bold border transition-all text-center flex flex-col items-center gap-0.5",
-                                    isActive
-                                      ? "bg-primary border-primary text-white shadow-sm"
-                                      : hasAudio
-                                        ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-250 dark:border-emerald-900 text-emerald-600 dark:text-emerald-400"
-                                        : "bg-gray-50 dark:bg-gray-850 border-gray-200 dark:border-gray-800 text-gray-400"
-                                  ].join(" ")}
-                                >
-                                  <span>P{partNum}</span>
-                                  <span className="text-[7px] font-normal uppercase select-none">
-                                    {hasAudio ? "Live" : "–"}
-                                  </span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Master Audio Dashboard */}
-                        <div className="mt-2.5 pt-2 border-t border-gray-150 dark:border-gray-800 flex flex-col">
-                          {activeTrackUrl ? (
-                            <div className="flex items-center gap-2">
-                              <audio
-                                key={`${activeReviewPartIdx}-${activeTrackUrl}`}
-                                src={activeTrackUrl}
-                                controls
-                                className="flex-1 h-7 text-xs focus:outline-none"
-                              />
-                              <span className="text-[9px] font-bold text-gray-400 shrink-0 select-all truncate max-w-[90px]">
-                                Part {activeReviewPartIdx + 1}
-                              </span>
-                            </div>
-                          ) : (
-                            <div className="text-[10px] text-gray-400 italic">No audio uploaded for Part {activeReviewPartIdx + 1}.</div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* McKinsey-style tabbed navigation for Parts 1, 2, 3, 4 */}
                   <div className="bg-gray-50 dark:bg-gray-955 p-2.5 rounded-2xl border border-gray-150 dark:border-gray-800 flex items-center gap-2">
                     <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-wider mr-2">IELTS Parts:</span>
@@ -828,6 +1199,31 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                       );
                     })}
                   </div>
+
+                  {/* Relocated Audio Playback Controller below IELTS Parts */}
+                  <div className="mt-3 bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-3 shadow-sm flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="p-1.5 bg-primary/10 text-primary rounded-lg shrink-0">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>
+                      </div>
+                      <span className="text-[10px] font-extrabold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
+                        Part {activeReviewPartIdx + 1} Audio Track
+                      </span>
+                    </div>
+
+                    {activeTrackUrl ? (
+                      <div className="flex-1 flex items-center gap-4">
+                        <audio
+                          key={`${activeReviewPartIdx}-${activeTrackUrl}`}
+                          src={activeTrackUrl}
+                          controls
+                          className="flex-1 h-7 text-xs focus:outline-none"
+                        />
+                      </div>
+                    ) : (
+                      <div className="text-[10px] text-gray-400 italic">No audio track uploaded for Part {activeReviewPartIdx + 1}.</div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -835,7 +1231,9 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
               {!isListening && isMultiPart && (
                 <div className="p-6 pb-2 shrink-0 border-b border-gray-100 dark:border-gray-800">
                   <div className="bg-gray-50 dark:bg-gray-955 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-2">Select Passage:</span>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-2">
+                      {job.skill === "SPEAKING" ? "Select Part:" : "Select Passage:"}
+                    </span>
                     {(structuredJson.parts || []).map((p: any, idx: number) => {
                       const isActive = idx === activeReviewPartIdx;
                       return (
@@ -849,7 +1247,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                               : "bg-white hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-800"
                           }`}
                         >
-                          Passage {idx + 1}
+                          {job.skill === "SPEAKING" ? `Part ${idx + 1}` : `Passage ${idx + 1}`}
                         </button>
                       );
                     })}
@@ -864,7 +1262,10 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
               >
                 {isListening ? (
                   /* TWO COLUMN LISTENING WORKSPACE */
-                  <div className="flex-1 flex gap-6 overflow-hidden p-6">
+                  <div className="flex-1 flex flex-col overflow-hidden p-6 gap-4">
+                    {/* Common Metadata moved to Left Sidebar */}
+
+                    <div className="flex-1 flex gap-6 overflow-hidden">
                     {/* LEFT COLUMN: Verbatim Transcript Area */}
                     <div className="w-5/12 flex flex-col bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-5 shadow-sm overflow-hidden">
                       <div className="flex items-center justify-between mb-3.5 shrink-0">
@@ -947,6 +1348,8 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                                 </span>
                               </div>
                             );
+                            const visualZone = renderGroupVisualZone(idx, q.image_url);
+                            if (visualZone) nodes.push(visualZone);
                           }
 
                           const parsedExplanation = parseExplanation(q.explanation || "");
@@ -1257,44 +1660,11 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                       </div>
                     </div>
                   </div>
+                  </div>
                 ) : (
                   /* ORIGINAL SINGLE COLUMN WORKSPACE FOR OTHER SKILLS */
                   <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
-                    {/* Common metadata */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Exam Title *</label>
-                        <input
-                          type="text"
-                          value={structuredJson.title || ""}
-                          onChange={e => updateStructuredJson({ ...structuredJson, title: e.target.value })}
-                          className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                          required
-                        />
-                      </div>
-                      {job.skill !== "SPEAKING" && job.skill !== "WRITING" && (
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Duration (minutes) *</label>
-                          <input
-                            type="number"
-                            value={structuredJson.duration || 60}
-                            onChange={e => updateStructuredJson({ ...structuredJson, duration: Number(e.target.value) })}
-                            className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                            required
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Description / Instructions</label>
-                      <textarea
-                        value={structuredJson.description || ""}
-                        onChange={e => updateStructuredJson({ ...structuredJson, description: e.target.value })}
-                        rows={2}
-                        className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none resize-none"
-                      />
-                    </div>
+                    {/* Common Metadata moved to Left Sidebar */}
 
                     {/* Reading Passage content */}
                     {job.skill === "READING" && (
@@ -1319,6 +1689,197 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                           rows={8}
                           className="w-full text-xs font-mono px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none leading-relaxed"
                         />
+                      </div>
+                    )}
+
+                    {/* Speaking Content — Part 1 & 3 questions or Part 2 cue card */}
+                    {job.skill === "SPEAKING" && (
+                      <div className="flex flex-col gap-6">
+                        {/* Topic Input */}
+                        <div className="bg-gray-50 dark:bg-gray-850 p-5 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm">
+                          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 uppercase tracking-wider">
+                            Topic of Part {activeReviewPartIdx + 1}
+                          </label>
+                          <input
+                            type="text"
+                            value={activePart.topic || ""}
+                            onChange={e => handleSpeakingTopicChange(e.target.value)}
+                            placeholder="e.g. Hometown, A beautiful place..."
+                            className="w-full text-xs px-3.5 py-2.5 border border-gray-250 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+                          />
+                        </div>
+
+                        {/* Part 1 & 3: Render Questions List */}
+                        {(activeReviewPartIdx === 0 || activeReviewPartIdx === 2) && (
+                          <div className="flex flex-col gap-4">
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-gray-400">
+                                Part {activeReviewPartIdx + 1} Examiner Questions
+                              </h4>
+                              <button
+                                type="button"
+                                onClick={handleAddSpeakingQuestion}
+                                className="flex items-center gap-1 px-3 py-1.5 bg-gray-50 hover:bg-gray-150 dark:bg-gray-800 dark:hover:bg-gray-750 text-gray-700 dark:text-gray-200 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-colors"
+                              >
+                                <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Add Question
+                              </button>
+                            </div>
+
+                            <div className="flex flex-col gap-4">
+                              {((activePart.questions || []) as any[]).map((q: any, qIdx: number) => (
+                                <div
+                                  key={qIdx}
+                                  className="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-150 dark:border-gray-800 shadow-sm relative group/card flex flex-col gap-3.5"
+                                >
+                                  {/* Remove Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveSpeakingQuestion(qIdx)}
+                                    className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-955/20 transition-colors opacity-0 group-hover/card:opacity-100"
+                                    aria-label="Remove Question"
+                                  >
+                                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                  </button>
+
+                                  {/* Header */}
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-black text-[#001f3f] dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+                                      Q{qIdx + 1}
+                                    </span>
+                                  </div>
+
+                                  {/* Main Input + Audio Group */}
+                                  <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
+                                    {/* Question Text Input */}
+                                    <div className="flex-1">
+                                      <label className="block text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                        Question Text
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={q.text || ""}
+                                        onChange={e => handleSpeakingQuestionTextChange(qIdx, e.target.value)}
+                                        className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-705 rounded-xl bg-gray-50 dark:bg-gray-850 text-gray-900 dark:text-gray-100 focus:outline-none"
+                                        placeholder="Enter examiner question..."
+                                      />
+                                    </div>
+
+                                    {/* Audio Controller */}
+                                    <div className="flex flex-col shrink-0 min-w-[280px]">
+                                      <label className="block text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                        AI Voice Preview (Edge-TTS)
+                                      </label>
+                                      {q.video ? (
+                                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-850 p-1 px-2 border border-gray-200 dark:border-gray-750 rounded-lg shadow-inner h-9">
+                                          <audio
+                                            src={q.video}
+                                            controls
+                                            className="w-full h-6 text-xs focus:outline-none"
+                                          />
+                                        </div>
+                                      ) : (
+                                        <div className="text-[10px] text-amber-500 italic p-2 border border-dashed border-amber-250 dark:border-amber-900 bg-amber-500/5 rounded-lg flex items-center justify-center h-9">
+                                          No examiner audio synthesised
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+
+                              {(activePart.questions || []).length === 0 && (
+                                <div className="text-center py-8 text-xs text-gray-400 italic bg-gray-50 dark:bg-gray-955 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
+                                  No questions defined for Part {activeReviewPartIdx + 1}. Click 'Add Question' above to start.
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Part 2: Render Cue Card text & double audio streams */}
+                        {activeReviewPartIdx === 1 && (
+                          <div className="flex flex-col gap-5">
+                            <div className="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-150 dark:border-gray-800 shadow-sm flex flex-col gap-4">
+                              <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-gray-400">
+                                Part 2 Long Turn (Cue Card Prompt)
+                              </h4>
+
+                              <div>
+                                <label className="block text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                  Cue Card Text (separate lines with Enter)
+                                </label>
+                                <textarea
+                                  value={activePart.cue_card || ""}
+                                  onChange={e => {
+                                    const newParts = [...(structuredJson.parts || [])];
+                                    newParts[1] = {
+                                      ...newParts[1],
+                                      cue_card: e.target.value
+                                    };
+                                    updateStructuredJson({ ...structuredJson, parts: newParts });
+                                  }}
+                                  rows={8}
+                                  className="w-full text-xs font-mono px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none leading-relaxed"
+                                  placeholder={`Describe a book that you enjoyed reading.\nYou should say:\n- what the book is\n- when you read it\n- what it is about\nand explain why you enjoyed reading this book.`}
+                                />
+                              </div>
+
+                              {/* Part 2 Voice Previews */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                {/* Video Player 1 */}
+                                <div className="flex flex-col gap-1.5 p-3.5 border border-gray-150 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-900/60 shadow-sm">
+                                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                                    Cue Card Spoken Intro (video)
+                                  </label>
+                                  <p className="text-[9px] text-gray-400 leading-normal mb-1.5">
+                                    The spoken instructions introducing this cue card topic to the candidate.
+                                  </p>
+                                  {activePart.video ? (
+                                    <div className="flex items-center gap-2 bg-white dark:bg-gray-850 p-1.5 border border-gray-200 dark:border-gray-700 rounded-lg shadow-inner">
+                                      <audio
+                                        src={activePart.video}
+                                        controls
+                                        className="w-full h-7 text-xs focus:outline-none"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="text-[10px] text-amber-500 italic p-3 border border-dashed border-amber-250 dark:border-amber-900 bg-amber-500/5 rounded-lg flex items-center justify-center">
+                                      No intro audio synthesised
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Video Player 2 */}
+                                <div className="flex flex-col gap-1.5 p-3.5 border border-gray-150 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-900/60 shadow-sm">
+                                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                                    Start Speaking Transition (video2)
+                                  </label>
+                                  <p className="text-[9px] text-gray-400 leading-normal mb-1.5">
+                                    The spoken prompt after 1 min preparation time (e.g. "Can you start speaking now?").
+                                  </p>
+                                  {activePart.video2 ? (
+                                    <div className="flex items-center gap-2 bg-white dark:bg-gray-850 p-1.5 border border-gray-200 dark:border-gray-700 rounded-lg shadow-inner">
+                                      <audio
+                                        src={activePart.video2}
+                                        controls
+                                        className="w-full h-7 text-xs focus:outline-none"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="text-[10px] text-amber-500 italic p-3 border border-dashed border-amber-250 dark:border-amber-900 bg-amber-500/5 rounded-lg flex items-center justify-center">
+                                      No transition audio synthesised
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -1369,27 +1930,43 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                                   className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none leading-relaxed"
                                 />
                               </div>
-                              {/* Chart image — read-only preview, URL injected automatically by pipeline */}
-                              {task1.imageUrl ? (
-                                <div>
-                                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
-                                    Chart Image
+                              {/* Chart image — preview + upload/replace */}
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+                                  Chart Image
+                                  {task1.imageUrl && (
                                     <span className="ml-1.5 text-[8px] font-semibold normal-case text-violet-500 bg-violet-500/10 px-1.5 py-0.5 rounded-full">Auto-injected by pipeline</span>
-                                  </label>
-                                  <div className="border border-violet-100 dark:border-violet-900/40 rounded-xl overflow-hidden max-w-md bg-white dark:bg-gray-900">
-                                    <img
-                                      src={task1.imageUrl}
-                                      alt="Task 1 Chart Preview"
-                                      className="w-full h-auto object-contain max-h-[220px]"
-                                    />
+                                  )}
+                                </label>
+                                {task1.imageUrl ? (
+                                  <div className="flex flex-col gap-2">
+                                    <div className="border border-violet-100 dark:border-violet-900/40 rounded-xl overflow-hidden max-w-md bg-white dark:bg-gray-900">
+                                      <img
+                                        src={task1.imageUrl}
+                                        alt="Task 1 Chart Preview"
+                                        className="w-full h-auto object-contain max-h-[220px]"
+                                      />
+                                    </div>
+                                    <label className={`inline-flex items-center gap-1.5 self-start cursor-pointer text-[10px] font-semibold text-violet-600 dark:text-violet-400 hover:underline ${isUploadingChartImage ? "opacity-50 pointer-events-none" : ""}`}>
+                                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                      {isUploadingChartImage ? "Uploading…" : "Replace image"}
+                                      <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleChartImageUpload(f); e.target.value = ""; }} />
+                                    </label>
                                   </div>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700">
-                                  <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                  <span className="text-[10px] text-gray-400 italic">No chart image — upload one when creating the import job.</span>
-                                </div>
-                              )}
+                                ) : (
+                                  <label className={`flex items-center gap-2 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-300 dark:border-gray-600 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/20 cursor-pointer transition-colors ${isUploadingChartImage ? "opacity-60 pointer-events-none" : ""}`}>
+                                    {isUploadingChartImage ? (
+                                      <span className="w-4 h-4 border-2 border-violet-400 border-t-transparent rounded-full animate-spin shrink-0" />
+                                    ) : (
+                                      <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                    )}
+                                    <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                                      {isUploadingChartImage ? "Uploading chart image…" : "Click to upload chart image"}
+                                    </span>
+                                    <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleChartImageUpload(f); e.target.value = ""; }} />
+                                  </label>
+                                )}
+                              </div>
                             </div>
                           </div>
 
@@ -1495,6 +2072,8 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                                   )}
                                 </div>
                               );
+                              const visualZone = renderGroupVisualZone(idx, q.image_url);
+                              if (visualZone) nodes.push(visualZone);
                             }
 
                             nodes.push(
@@ -1621,6 +2200,103 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
           )}
         </section>
       </main>
+
+      {/* ─── AI Refinement Panel ─── */}
+      {!showRefinePanel && (
+        <button
+          type="button"
+          onClick={() => setShowRefinePanel(true)}
+          className="fixed bottom-6 right-6 z-[120] flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-white shadow-lg hover:opacity-90 transition-opacity"
+          title="AI-assisted Refinement"
+        >
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5L13 3z" /></svg>
+          <span className="text-xs font-bold uppercase tracking-wider">Refine with AI</span>
+        </button>
+      )}
+      {showRefinePanel && (
+        <div className="fixed bottom-6 right-6 z-[120] w-[24rem] max-w-[calc(100vw-3rem)] bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-150 dark:border-gray-800 bg-gray-50 dark:bg-gray-850">
+            <div className="flex items-center gap-2">
+              <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5L13 3z" /></svg>
+              <span className="text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-200">AI Refinement</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowRefinePanel(false)}
+              className="p-1 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-lg hover:bg-gray-150 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Close refinement panel"
+            >
+              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+
+          <div className="p-4 flex flex-col gap-3">
+            <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed">
+              Describe the fix (e.g. <span className="italic">"Split question 4 into two"</span>, <span className="italic">"Fix the typo in paragraph 2"</span>) and/or paste a screenshot (Ctrl+V). Gemini repairs only the area you point to; review the result before committing.
+            </p>
+
+            <textarea
+              value={refineInstruction}
+              onChange={e => setRefineInstruction(e.target.value)}
+              onPaste={handleRefinePaste}
+              rows={4}
+              placeholder="Type your instruction here… (you can also paste a screenshot)"
+              className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-850 text-gray-900 dark:text-gray-100 focus:outline-none resize-none leading-relaxed"
+            />
+
+            {refineImagePreview ? (
+              <div className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={refineImagePreview} alt="Pasted screenshot" className="w-full max-h-40 object-contain rounded-lg border border-gray-200 dark:border-gray-700 bg-white" />
+                <button
+                  type="button"
+                  onClick={clearRefineImage}
+                  className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                  aria-label="Remove screenshot"
+                >
+                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            ) : (
+              <label
+                onPaste={handleRefinePaste}
+                tabIndex={0}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl text-center cursor-pointer hover:border-primary/60 transition-colors"
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) setRefineImageFromFile(f); }}
+                />
+                <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16v12H4z" /></svg>
+                <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">Paste (Ctrl+V) or click to attach a screenshot</span>
+              </label>
+            )}
+
+            <button
+              type="button"
+              onClick={handleRefine}
+              disabled={isRefining}
+              className={[
+                "flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-colors",
+                isRefining
+                  ? "bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-wait"
+                  : "bg-primary text-white hover:opacity-90",
+              ].join(" ")}
+            >
+              {isRefining ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+                  Refining…
+                </>
+              ) : (
+                "Refine with AI"
+              )}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ─── Overwrite Confirm Dialog ─── */}
       {showOverwriteConfirm && (

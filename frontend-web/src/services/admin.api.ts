@@ -158,6 +158,19 @@ export const ieltsImportApi = {
     api.post<string>(`/admin/ielts/import/${id}/commit`, dto).then(r => r.data),
   discardJob: (id: string) => api.delete(`/admin/ielts/import/${id}`).then(r => r.data),
   retryJob: (id: string) => api.post<any>(`/admin/ielts/import/${id}/retry`).then(r => r.data),
+  uploadFile: (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return api.post<{ url: string }>('/admin/ielts/import/upload', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data.url);
+  },
+  // AI-assisted Refinement: send the current JSON + instruction + optional screenshot
+  // (multipart/form-data) and receive the repaired structured JSON.
+  refine: (form: FormData) =>
+    api.post<{ structuredJson: any }>('/admin/ielts/import/refine', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data),
   discardSkill: (id: string) => api.delete(`/admin/ielts/import/${id}/discard-skill`).then(r => r.data),
   abandonGroup: (groupId: string) => api.delete(`/admin/ielts/import/group/${groupId}/abandon`).then(r => r.data),
   commitGroup: (groupId: string, dto?: { isPublished?: boolean }) =>

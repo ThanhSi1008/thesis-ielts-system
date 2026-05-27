@@ -43,8 +43,36 @@ export function MatchingInformationGroup({
 }) {
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
 
-  const qNums = group.questions.map(q => q.question_number);
-  const optionLetters = group.options.map(o => o.letter);
+  const qNums = (group.questions || []).map(q => q.question_number);
+  
+  let options = group.options || [];
+  if (options.length === 0 && (group as any).options_box?.options) {
+    const boxOpts = (group as any).options_box.options;
+    options = Object.entries(boxOpts).map(([letter, text]) => ({
+      letter,
+      text: String(text),
+    }));
+  }
+  let optionLetters = options.map(o => o.letter);
+  if (optionLetters.length === 0 && group.questions) {
+    const uniqueAnswers = Array.from(
+      new Set(group.questions.map(q => (q.answer || '').toUpperCase().trim()).filter(Boolean))
+    ).sort();
+    if (uniqueAnswers.length > 0) {
+      const maxLetter = uniqueAnswers[uniqueAnswers.length - 1];
+      const maxCharCode = maxLetter.charCodeAt(0);
+      const minCharCode = 'A'.charCodeAt(0);
+      if (maxCharCode >= minCharCode && maxCharCode <= 'Z'.charCodeAt(0)) {
+        for (let code = minCharCode; code <= maxCharCode; code++) {
+          optionLetters.push(String.fromCharCode(code));
+        }
+      } else {
+        optionLetters = uniqueAnswers;
+      }
+    } else {
+      optionLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+    }
+  }
 
   return (
     <div className="mb-8 font-sans">
@@ -86,7 +114,7 @@ export function MatchingInformationGroup({
                   </td>
                   <td className="p-4 border-r border-gray-300 text-[14px] text-gray-700 leading-snug">
                     <div id={`question-${q.question_number}`}>
-                      {q.text}
+                      {q.text || (q as any).question_text}
                     </div>
                   </td>
                   {optionLetters.map(letter => {
@@ -126,25 +154,27 @@ export function MatchingInformationGroup({
       </div>
 
       {/* List of Paragraphs Box */}
-      <div className="mb-8 overflow-hidden border border-gray-300 rounded-lg shadow-sm max-w-sm">
-        <div className="bg-gray-50 border-b border-gray-300 px-4 py-3">
-          <h4 className="text-[12px] font-bold text-gray-600 uppercase tracking-widest leading-none">
-            List of Paragraphs
-          </h4>
-        </div>
-        <div className="bg-white">
-          {group.options.map((opt, idx) => (
-            <div key={idx} className="flex border-b border-gray-200 last:border-0 hover:bg-gray-50 transition-colors">
-              <div className="w-10 px-4 py-3 flex items-center justify-center border-r border-gray-200 bg-gray-50/30 font-bold text-gray-700 text-[13px]">
-                {opt.letter}
+      {options.length > 0 && (
+        <div className="mb-8 overflow-hidden border border-gray-300 rounded-lg shadow-sm max-w-sm">
+          <div className="bg-gray-50 border-b border-gray-300 px-4 py-3">
+            <h4 className="text-[12px] font-bold text-gray-600 uppercase tracking-widest leading-none">
+              List of Paragraphs
+            </h4>
+          </div>
+          <div className="bg-white">
+            {options.map((opt, idx) => (
+              <div key={idx} className="flex border-b border-gray-200 last:border-0 hover:bg-gray-50 transition-colors">
+                <div className="w-10 px-4 py-3 flex items-center justify-center border-r border-gray-200 bg-gray-50/30 font-bold text-gray-700 text-[13px]">
+                  {opt.letter}
+                </div>
+                <div className="flex-1 px-4 py-3 text-[13.5px] text-gray-700 font-medium">
+                  {opt.text}
+                </div>
               </div>
-              <div className="flex-1 px-4 py-3 text-[13.5px] text-gray-700 font-medium">
-                {opt.text}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Post-submit Action Buttons */}
       {showAnswers && (

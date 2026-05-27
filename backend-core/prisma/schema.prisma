@@ -1392,6 +1392,7 @@ model PushToken {
 enum ContentImportTargetSystem {
   INTENSIVE
   ADVANCED
+  BOTH
 }
 
 enum ContentImportSkill {
