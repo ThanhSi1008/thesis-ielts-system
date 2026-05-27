@@ -88,7 +88,7 @@ class ContentExtractionConsumer(threading.Thread):
         
         # Step 2: Gemini Structuring
         logger.info(f"🧠 [Stage 2] Gemini structuring for job {job_id}...")
-        struct_result = await structurer.extract_structured(raw_text, skill)
+        struct_result = await structurer.extract_structured(raw_text, skill, media_assets=media_assets)
         
         return {
             "structuredJson": struct_result["structuredJson"],

@@ -136,11 +136,17 @@ class ExtractionService:
             logger.error(f"[Extractor Validation] Error during verification checks: {err}")
             return False
 
-    async def extract_structured(self, raw_text: str, skill: str) -> Dict[str, Any]:
+    async def extract_structured(self, raw_text: str, skill: str, media_assets: list | None = None) -> Dict[str, Any]:
         """
         Transforms raw text or uploaded PDF reference into a clean structured JSON contract.
         Implements multimodal AI calls, Try-Catch model tiering (Flash -> Pro fallback),
         15,000 token Cost Guard, and safe Gemini file cleanup.
+
+        media_assets: optional list of uploaded asset dicts forwarded from the NestJS job
+          payload (fields: storedUrl, kind, partIndex, originalUrl). When present for
+          LISTENING jobs, the exact URLs are injected into the Gemini prompt so the model
+          can populate audioUrl/imageUrl directly, and a post-processing pass guarantees
+          hydration even if the model ignores the instruction.
         """
         if not self.client:
             raise RuntimeError("Gemini client is not initialized")
@@ -191,6 +197,44 @@ class ExtractionService:
         else:
             # RAW_TEXT_PASTE path: raw text supplied directly, no PDF upload needed
             contents_input.append(f"Please extract structured content from the following raw text:\n\n{raw_text}")
+
+        # Inject media asset URLs into the prompt for LISTENING jobs so Gemini can
+        # populate audioUrl per part and imageUrl at root directly from the context.
+        if skill.upper() == "LISTENING" and media_assets:
+            audio_assets = sorted(
+                [a for a in media_assets if a.get("kind") == "audio"],
+                key=lambda a: (a.get("partIndex") or 0)
+            )
+            image_asset = next((a for a in media_assets if a.get("kind") == "image"), None)
+
+            if audio_assets or image_asset:
+                lines = [
+                    "",
+                    "=== AVAILABLE MEDIA ASSETS — inject these exact URLs into the JSON output ===",
+                ]
+                for audio in audio_assets:
+                    part_idx = audio.get("partIndex") or (audio_assets.index(audio) + 1)
+                    url = audio.get("storedUrl", "")
+                    name = audio.get("originalUrl", f"part{part_idx}.mp3")
+                    lines.append(
+                        f"  Audio Part {part_idx}  →  audioUrl for parts[{part_idx - 1}]: \"{url}\"  (file: {name})"
+                    )
+                if image_asset:
+                    url = image_asset.get("storedUrl", "")
+                    name = image_asset.get("originalUrl", "answer_key.jpg")
+                    lines.append(
+                        f"  Answer Key Image  →  imageUrl at root level: \"{url}\"  (file: {name})"
+                    )
+                lines += [
+                    "=== END OF MEDIA ASSETS ===",
+                    "CRITICAL: copy each URL above verbatim into the corresponding audioUrl / imageUrl field. Do NOT leave them null.",
+                ]
+                asset_block = "\n".join(lines)
+
+                if isinstance(contents_input[-1], str):
+                    contents_input[-1] += asset_block
+                else:
+                    contents_input.append(asset_block)
 
         try:
             # 2. COST GUARD: Verify token limit before invoking generation
@@ -266,7 +310,31 @@ class ExtractionService:
                     raise ValueError("Structured extraction failed: Gemini Pro output is also incompatible with IELTS grading engine.")
                     
             logger.info(f"✅ Structuring completed using {selected_model}. Tokens used: {tokens_used}")
-            
+
+            # Post-processing: guarantee audioUrl/imageUrl are always populated for
+            # LISTENING jobs regardless of whether Gemini honoured the URL injection.
+            if skill.upper() == "LISTENING" and media_assets:
+                audio_assets = sorted(
+                    [a for a in media_assets if a.get("kind") == "audio"],
+                    key=lambda a: (a.get("partIndex") or 0)
+                )
+                image_asset = next((a for a in media_assets if a.get("kind") == "image"), None)
+
+                for part in result_dict.get("parts", []):
+                    part_num = part.get("partNumber", 0)
+                    # Prefer partIndex match; fall back to positional slot (Part N → index N-1)
+                    matched_audio = next(
+                        (a for a in audio_assets if (a.get("partIndex") or 0) == part_num),
+                        audio_assets[part_num - 1] if 0 < part_num <= len(audio_assets) else None
+                    )
+                    if matched_audio and not part.get("audioUrl"):
+                        part["audioUrl"] = matched_audio.get("storedUrl")
+                        logger.info(f"  ↳ Hydrated audioUrl for Part {part_num}: {part['audioUrl']}")
+
+                if image_asset and not result_dict.get("imageUrl"):
+                    result_dict["imageUrl"] = image_asset.get("storedUrl")
+                    logger.info(f"  ↳ Hydrated root imageUrl: {result_dict['imageUrl']}")
+
             # Form final payload
             output = {
                 "structuredJson": result_dict,

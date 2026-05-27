@@ -15,15 +15,20 @@ Please follow these strict guidelines:
 
 2. **Parts (all 4 sections — MANDATORY)**: You MUST extract all 4 parts of the listening test (Part 1, Part 2, Part 3, and Part 4) as a list of exactly 4 objects in the `parts` field. Do NOT stop after the first part. The full test MUST contain all 40 questions distributed across all 4 parts.
 
-3. **Audio Part Index (`audio_part_index` — CRITICAL)**: Every object in the `parts` array MUST include an `audio_part_index` field — a plain integer from 1 to 4 — that declares which of the 4 supplied audio files governs the questions in that part. Part 1 questions → `"audio_part_index": 1`, Part 2 → `"audio_part_index": 2`, and so on. This field is MANDATORY; never omit it or set it to null.
+3. **Media Asset URL Injection (CRITICAL)**: The user message that accompanies this prompt will contain an `=== AVAILABLE MEDIA ASSETS ===` block listing the exact cloud storage URLs for each Part's audio file and the official Answer Key Image. You MUST:
+   - Copy the exact `audioUrl` string from that block into the corresponding `parts[]` element — match by part number (Part 1 audio → `parts[0].audioUrl`, etc.). Do NOT leave `audioUrl` null if a URL is listed.
+   - Copy the exact `imageUrl` string from that block into the root-level `imageUrl` field of the JSON output. Do NOT leave `imageUrl` null if a URL is listed.
+   If no AVAILABLE MEDIA ASSETS block is present, leave both fields as `null`.
 
-4. **Answer Key Extraction from Image (CRITICAL — DO NOT SOLVE AUTONOMOUSLY)**: You are provided with an official Answer Key Image. You MUST read each question's `answer` field DIRECTLY and STRICTLY from the printed text in that image, matching the question numbers shown. DO NOT attempt to derive or infer answers independently from the transcript or question text. Use the exact text printed in the image for each answer (the exact letter for multiple-choice, the exact phrase for gap-filling). The `answer` field MUST NOT be empty or null.
+5. **Audio Part Index (`audio_part_index`)**: Every object in the `parts` array MUST include an `audio_part_index` field — a plain integer from 1 to 4 — that declares which of the 4 audio files governs the questions in that part. Part 1 questions → `"audio_part_index": 1`, Part 2 → `"audio_part_index": 2`, and so on. This field is MANDATORY; never omit it or set it to null.
 
-5. **Transcript**: For each part, parse and extract the transcript sections. Group them by speaker (e.g., 'Speaker 1', 'Man', 'Woman', 'John') with their verbatim spoken text.
+6. **Answer Key Extraction from Image (CRITICAL — DO NOT SOLVE AUTONOMOUSLY)**: You are provided with an official Answer Key Image. You MUST read each question's `answer` field DIRECTLY and STRICTLY from the printed text in that image, matching the question numbers shown. DO NOT attempt to derive or infer answers independently from the transcript or question text. Use the exact text printed in the image for each answer (the exact letter for multiple-choice, the exact phrase for gap-filling). The `answer` field MUST NOT be empty or null.
 
-6. **Timestamp (`question_timestamp` — PART-RELATIVE, format "mm:ss")**: For each question item, extract `question_timestamp` in `"mm:ss"` format. This timestamp MUST be relative to the START of that specific part's audio file (the file identified by `audio_part_index`), NOT cumulative from the beginning of Part 1. For example, if the answer cue for Q7 appears at 1 minute 30 seconds into Part 2's own audio file, write `"01:30"`.
+7. **Transcript**: For each part, parse and extract the transcript sections. Group them by speaker (e.g., 'Speaker 1', 'Man', 'Woman', 'John') with their verbatim spoken text.
 
-7. **Content & Question Fields**: For every single question block in each part:
+8. **Timestamp (`question_timestamp` — PART-RELATIVE, format "mm:ss")**: For each question item, extract `question_timestamp` in `"mm:ss"` format. This timestamp MUST be relative to the START of that specific part's audio file (the file identified by `audio_part_index`), NOT cumulative from the beginning of Part 1. For example, if the answer cue for Q7 appears at 1 minute 30 seconds into Part 2's own audio file, write `"01:30"`.
+
+9. **Content & Question Fields**: For every single question block in each part:
    - Identify the precise `question_number` (1 to 40).
    - Choose the correct whitelisted `type` from: multiple_choice, multiple_choice_multiple, short_answer, fill_blank, form_completion, note_completion, sentence_completion, summary_completion, table_completion, matching, matching_features, matching_information, matching_headings, true_false_not_given, yes_no_not_given.
    - Extract the question text. Use underscores like '___' to indicate gap-filling slots.
@@ -39,24 +44,31 @@ Please follow these strict guidelines:
      * `matching_headings`: Populate `options` with ALL headings using their Roman numeral prefix (e.g., `["i. The role of technology", "ii. A new approach"]`). The `answer` MUST be the exact Roman numeral string (e.g., `"i"`).
      * Gap-filling types (`form_completion`, `note_completion`, `sentence_completion`, `summary_completion`, `table_completion`, `fill_blank`, `short_answer`): Set `options` to `null`. **HARD RULE — 1 question_number = 1 blank = 1 answer text. Each `question_text` MUST contain EXACTLY ONE `___`.** If two consecutive question numbers (e.g. Q33 and Q34) reside within the same long sentence or cloze passage, you MUST split/fragment that sentence so each item's `question_text` shows only its own single blank. Split at the nearest natural boundary: a conjunction ("or", "and"), a punctuation mark (comma, semicolon), or a clause/phrase boundary. Example: source sentence "The ___ or ___ lasted ten days" → Q33 `question_text`: `"The ___ or ..."` (truncate just after Q33's blank); Q34 `question_text`: `"... or ___ lasted ten days"` (begin just before Q34's blank). NEVER copy the full multi-blank sentence to multiple question items.
 
-8. **NO Verbatim Echoing**: Keep question texts clean and concise. Do NOT echo large chunks of the transcript inside the question text.
+10. **NO Verbatim Echoing**: Keep question texts clean and concise. Do NOT echo large chunks of the transcript inside the question text.
 
-Output schema for each object in the `parts` array:
+Output schema (root level + one part example):
 ```json
 {
-  "audio_part_index": 1,
-  "partNumber": 1,
-  "title": "Part 1: ...",
-  "transcript": [{ "speaker": "Man", "text": "..." }],
-  "content": [
+  "title": "Cambridge IELTS 18 - Listening Test 1",
+  "imageUrl": "<storedUrl of the answer key image from AVAILABLE MEDIA ASSETS>",
+  "parts": [
     {
-      "question_number": 1,
-      "type": "form_completion",
-      "question_text": "Name: ___",
-      "answer": "<exact text from Answer Key Image>",
-      "explanation": "Locating: ... Justification: ... Distractor Analysis: N/A",
-      "options": null,
-      "question_timestamp": "00:35"
+      "audio_part_index": 1,
+      "partNumber": 1,
+      "title": "Part 1: ...",
+      "audioUrl": "<storedUrl of Part 1 audio from AVAILABLE MEDIA ASSETS>",
+      "transcript": [{ "speaker": "Man", "text": "..." }],
+      "content": [
+        {
+          "question_number": 1,
+          "type": "form_completion",
+          "question_text": "Name: ___",
+          "answer": "<exact text from Answer Key Image>",
+          "explanation": "Locating: ... Justification: ... Distractor Analysis: N/A",
+          "options": null,
+          "question_timestamp": "00:35"
+        }
+      ]
     }
   ]
 }

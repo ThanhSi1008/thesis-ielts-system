@@ -56,13 +56,28 @@ class SpeakerText(BaseModel):
 class ListeningSectionSchema(BaseModel):
     partNumber: int = Field(description="The Part number, integer from 1 to 4.")
     title: str = Field(description="Title of this specific Listening part (e.g. 'Part 1: Travel Inquiry').")
-    audioUrl: Optional[str] = Field(default=None, description="Set as null. Populated dynamically by pipeline.")
+    audioUrl: Optional[str] = Field(
+        default=None,
+        description=(
+            "Cloud storage URL of this part's audio file. "
+            "When an AVAILABLE MEDIA ASSETS block is provided in the prompt, you MUST copy the exact "
+            "storedUrl of the matching audio asset here (matched by Part number). Do NOT leave null if a URL is supplied."
+        )
+    )
     transcript: List[SpeakerText] = Field(description="Spoken transcript segmented by speakers.")
     content: List[QuestionItem] = Field(description="List of structured question items with inline answers.")
     questionTypes: List[str] = Field(description="Unique list of question types present in this part.")
 
 class ListeningPartSchema(BaseModel):
     title: str = Field(description="Title of this Listening Test (e.g. 'Cambridge IELTS 18 - Listening Test 1').")
+    imageUrl: Optional[str] = Field(
+        default=None,
+        description=(
+            "Cloud storage URL of the official answer key image. "
+            "When an AVAILABLE MEDIA ASSETS block is provided in the prompt, you MUST copy the exact "
+            "storedUrl of the image asset here. Do NOT leave null if a URL is supplied."
+        )
+    )
     parts: List[ListeningSectionSchema] = Field(description="List of all 4 listening parts in this test.")
 
 # =====================================================================
