@@ -11,15 +11,19 @@ Please follow these strict guidelines:
 4. **Answer Key & Answers**: The raw document contains an 'Answer Key' section at the end. You MUST scan the end of the document, locate the exact answer keys for this listening test, and inline them perfectly into the `answer` field of each question item. For gap-filling, use the exact text words from the answer key.
 5. **Content & Question Fields**: For every single question block in each part:
    - Identify the precise `question_number` (1 to 40).
-   - Choose the correct whitelisted `type` (e.g., matching, multiple_choice, table_completion, form_completion, note_completion, sentence_completion).
+   - Choose the correct whitelisted `type` from: multiple_choice, multiple_choice_multiple, short_answer, fill_blank, form_completion, note_completion, sentence_completion, summary_completion, table_completion, matching, matching_features, matching_information, matching_headings, true_false_not_given, yes_no_not_given.
    - Extract the question text. Use underscores like '___' to indicate gap-filling slots.
-   - For multiple_choice, list all options exactly as they appear (e.g., ['A. by car', 'B. by bus', 'C. on foot']).
    - Supply the exact correct `answer` key (e.g., 'A', 'B', or the text phrase for gap-filling). Must NOT be empty.
-   - Write a highly detailed, comprehensive explanation for the `explanation` field written **entirely in English**.
-   - The explanation must NOT be a simple re-statement of the answer. It MUST include:
-     1) Locating: Clearly state which speaker and part of the transcript contains the answer (e.g. quote/reference).
-     2) Justification: Explain why this is correct based on logic, synonyms, paraphrasing, or logical deduction.
-     3) Distractor Analysis (for Multiple Choice/Matching): Briefly explain why the other options are incorrect or misleading based on the context.
+   - Write a highly detailed, comprehensive explanation for the `explanation` field written **entirely in English** using this STRICT literal prefix format:
+     Locating: [state the exact speaker turn and a short verbatim quote from the transcript where the answer evidence appears]
+     Justification: [explain why the answer is correct via synonym mapping, paraphrase analysis, or logical deduction]
+     Distractor Analysis: [for multiple_choice, multiple_choice_multiple, matching, matching_features, matching_information, matching_headings — briefly explain why each wrong option is incorrect or misleading]
+   - **`options` field rules (CRITICAL — apply for every question)**:
+     * `multiple_choice`: Populate `options` with ALL available choices exactly as printed (e.g., `["A. by car", "B. by bus", "C. on foot"]`). The `answer` MUST be a single uppercase letter (e.g., `"A"`).
+     * `multiple_choice_multiple` (Choose TWO/THREE): Create one SEPARATE question item per required answer. EACH item MUST carry the SAME complete `options` array. Each item's `answer` MUST be a single uppercase letter. NEVER combine multiple letters into one `answer` string.
+     * `matching`, `matching_features`, `matching_information`: Populate `options` with the COMPLETE choice bank (e.g., `["A. Booking procedure", "B. Equipment needed", "C. Location details"]`). The `answer` MUST be the corresponding single uppercase letter.
+     * `matching_headings`: Populate `options` with ALL headings using their Roman numeral prefix (e.g., `["i. The role of technology", "ii. A new approach"]`). The `answer` MUST be the exact Roman numeral string (e.g., `"i"`).
+     * Gap-filling types (`form_completion`, `note_completion`, `sentence_completion`, `summary_completion`, `table_completion`, `fill_blank`, `short_answer`): Set `options` to `null`. Strict rule: 1 question_number = 1 blank = 1 answer text.
 6. **NO Verbatim Echoing**: Keep question texts clean and concise. Do NOT echo large chunks of the transcript inside the question text.
 """
 
@@ -32,15 +36,22 @@ Please follow these strict guidelines:
 4. **Answer Key & Answers**: The raw document contains an 'Answer Key' section at the end. You MUST scan the end of the document, locate the exact answer keys for this reading test, and inline them perfectly into the `answer` field of each question item.
 5. **Content & Question Fields**: For every single question in each passage:
    - Identify the precise `question_number` (1 to 40).
-   - Choose the correct whitelisted `type` (e.g., matching, matching_headings, multiple_choice, table_completion, note_completion, sentence_completion, true_false_not_given, yes_no_not_given).
+   - Choose the correct whitelisted `type` from: multiple_choice, multiple_choice_multiple, short_answer, fill_blank, form_completion, note_completion, sentence_completion, summary_completion, table_completion, matching, matching_features, matching_information, matching_headings, true_false_not_given, yes_no_not_given.
    - Extract the question text. Use underscores like '___' for gap-filling.
-   - For true_false_not_given or yes_no_not_given, set `type` strictly to 'true_false_not_given' or 'yes_no_not_given'. The correct answer key MUST be strictly 'TRUE', 'FALSE', or 'NOT GIVEN' (or 'YES', 'NO', 'NOT GIVEN').
+   - For `true_false_not_given` or `yes_no_not_given`, the `answer` MUST be strictly `'TRUE'`, `'FALSE'`, or `'NOT GIVEN'` (or `'YES'`, `'NO'`, `'NOT GIVEN'`) — all uppercase, no abbreviations.
    - Supply the exact correct `answer` key (e.g., 'A', 'TRUE', 'NOT GIVEN', or the text words for gap-filling). Must NOT be empty.
-   - Write a highly detailed, comprehensive explanation for the `explanation` field written **entirely in English**.
-   - The explanation must NOT be a simple re-statement of the answer. It MUST include:
-     1) Locating: Clearly state which paragraph, section, or line of the passage contains the answer.
-     2) Justification: Explain why this specific word or option is correct based on logical deduction, paraphrasing, or synonyms.
-     3) Distractor Analysis (for Multiple Choice/Matching): Briefly explain why the other options are incorrect or misleading based on context.
+   - Write a highly detailed, comprehensive explanation for the `explanation` field written **entirely in English** using this STRICT literal prefix format:
+     Locating: [state the exact paragraph letter/number and a short verbatim quote from the passage where the answer evidence appears]
+     Justification: [explain why the answer is correct via synonym mapping, paraphrase analysis, or logical deduction]
+     Distractor Analysis: [for multiple_choice, multiple_choice_multiple, matching, matching_features, matching_information, matching_headings — briefly explain why each wrong option is incorrect or misleading]
+   - **`options` field rules (CRITICAL — MUST apply for every question)**:
+     * `multiple_choice`: Populate `options` with ALL available choices exactly as printed (e.g., `["A. increased efficiency", "B. reduced costs", "C. greater accuracy", "D. better communication"]`). The `answer` MUST be a single uppercase letter (e.g., `"A"`).
+     * `multiple_choice_multiple` (Choose TWO/THREE): Create one SEPARATE question item per required answer. EACH item MUST carry the SAME complete `options` array. Each item's `answer` MUST be a single uppercase letter. NEVER combine multiple letters into one `answer` string.
+     * `matching`, `matching_features`, `matching_information`: Populate `options` with the COMPLETE choice bank (e.g., `["A. a TSI Cut", "B. a Salvage Cut", "C. A nurse", "D. A teacher"]`). The `answer` MUST be the corresponding single uppercase letter.
+     * `matching_headings`: Populate `options` with ALL available headings using their Roman numeral prefix exactly as printed (e.g., `["i. The role of technology", "ii. A new approach to education", "iii. Early challenges faced"]`). The `answer` MUST be the exact Roman numeral string (e.g., `"i"` or `"ii"`).
+     * Gap-filling types (`sentence_completion`, `note_completion`, `form_completion`, `table_completion`, `summary_completion`, `fill_blank`, `short_answer`): Set `options` to `null`. Strict rule: 1 question_number = 1 blank = 1 answer. The `answer` MUST be the exact text from the answer key (e.g., `"fuel"`).
+     * `true_false_not_given`: Set `options` to `null`. The `answer` MUST be EXACTLY one of: `"TRUE"`, `"FALSE"`, or `"NOT GIVEN"` — all uppercase, no abbreviations.
+     * `yes_no_not_given`: Set `options` to `null`. The `answer` MUST be EXACTLY one of: `"YES"`, `"NO"`, or `"NOT GIVEN"` — all uppercase, no abbreviations.
 6. **NO Verbatim Echoing (Questions Only)**: Keep question texts and option labels concise. Do NOT copy the passage text into the question or option fields. This rule applies only to question/option/explanation fields — the `passage` field is exempt and MUST contain the full text.
 
 """

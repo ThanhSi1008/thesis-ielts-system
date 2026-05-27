@@ -93,10 +93,17 @@ class ExtractionService:
                         logger.warning(f"[Extractor Validation] Question number {q_num} has empty or missing answer key")
                         return False
                         
-                    # Basic whitelist check
+                    # Full whitelist — must match NestJS grading engine exactly
                     valid_types = {
-                        "multiple_choice", "short_answer", "form_completion", "note_completion",
-                        "sentence_completion", "matching", "table_completion", "true_false_not_given", "yes_no_not_given"
+                        # Basic types
+                        "multiple_choice", "multiple_choice_multiple",
+                        "short_answer", "fill_blank",
+                        "form_completion", "note_completion", "sentence_completion",
+                        "summary_completion", "table_completion",
+                        # Matching family
+                        "matching", "matching_features", "matching_information", "matching_headings",
+                        # Evaluation types
+                        "true_false_not_given", "yes_no_not_given",
                     }
                     if q_type not in valid_types:
                         logger.warning(f"[Extractor Validation] Question number {q_num} has invalid type: {q_type}")

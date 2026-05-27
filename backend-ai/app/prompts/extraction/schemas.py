@@ -11,15 +11,24 @@ class QuestionItem(BaseModel):
     )
     type: str = Field(
         description="The specific type of the question. MUST be chosen from the whitelist: "
-                    "multiple_choice, short_answer, form_completion, note_completion, "
-                    "sentence_completion, matching, table_completion, true_false_not_given, yes_no_not_given."
+                    "multiple_choice, multiple_choice_multiple, short_answer, fill_blank, "
+                    "form_completion, note_completion, sentence_completion, summary_completion, table_completion, "
+                    "matching, matching_features, matching_information, matching_headings, "
+                    "true_false_not_given, yes_no_not_given."
     )
     question_text: str = Field(
         description="The question text or prompt. For gap-filling, use underscores to indicate blank slots (e.g., 'The speaker's name is ___.')"
     )
     options: Optional[List[str]] = Field(
         default=None,
-        description="List of options (e.g., ['A. Teacher', 'B. Doctor']) if the type is multiple_choice. Otherwise, leave as null."
+        description=(
+            "List of selectable answer choices. REQUIRED (non-null) for selection-based types: "
+            "multiple_choice and multiple_choice_multiple (e.g. ['A. increased efficiency', 'B. reduced costs', 'C. greater accuracy']); "
+            "matching / matching_features / matching_information — complete choice bank (e.g. ['A. a TSI Cut', 'B. a Salvage Cut']); "
+            "matching_headings — all headings with Roman numeral prefix (e.g. ['i. The role of technology', 'ii. A new approach']). "
+            "MUST be null for: sentence_completion, note_completion, form_completion, table_completion, "
+            "summary_completion, fill_blank, short_answer, true_false_not_given, yes_no_not_given."
+        )
     )
     answer: str = Field(
         description="The correct answer key. Must NOT be empty. Can be a letter choice (e.g., 'A'), "
@@ -27,7 +36,13 @@ class QuestionItem(BaseModel):
     )
     explanation: Optional[str] = Field(
         default=None,
-        description="Highly detailed, comprehensive explanation written entirely in English. Must NOT be a simple re-statement of the answer. It must clearly state where the answer is located in the text/transcript, justify why it is correct based on logic/synonyms, and briefly analyze why other options are incorrect if multiple choice/matching."
+        description=(
+            "Highly detailed, comprehensive explanation written entirely in English using this STRICT literal prefix format:\n"
+            "Locating: [state the exact speaker turn / paragraph / section label where the answer evidence appears, with a short verbatim quote]\n"
+            "Justification: [explain why the answer is correct via synonym mapping, paraphrase analysis, or logical deduction]\n"
+            "Distractor Analysis: [for multiple_choice, multiple_choice_multiple, matching, matching_features, matching_information, matching_headings — briefly explain why each wrong option is incorrect or misleading]\n"
+            "Must NOT be a simple re-statement of the answer."
+        )
     )
 
 # =====================================================================
