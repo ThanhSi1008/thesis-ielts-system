@@ -131,7 +131,13 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
   // Initialize
   useEffect(() => {
     if (job) {
-      const parsedJson = job.structuredJson || { title: "", content: [] };
+      const parsedJson = { ...(job.structuredJson || { title: "", content: [] }) };
+      const imageAsset = Array.isArray(job.mediaAssets)
+        ? job.mediaAssets.find((a: any) => a.kind === "image")
+        : null;
+      if (imageAsset && !parsedJson.imageUrl) {
+        parsedJson.imageUrl = imageAsset.storedUrl;
+      }
       setStructuredJson(parsedJson);
       setJsonText(JSON.stringify(parsedJson, null, 2));
       setProvenance(job.provenance || { source: "cambridge" });

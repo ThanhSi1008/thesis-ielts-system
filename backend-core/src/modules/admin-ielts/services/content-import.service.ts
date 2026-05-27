@@ -197,7 +197,7 @@ export class ContentImportService {
     } else {
       data.status = ContentImportStatus.AWAITING_REVIEW;
       data.structuredJson = callbackDto.structuredJson || null;
-      data.mediaAssets = callbackDto.mediaAssets || null;
+      data.mediaAssets = callbackDto.mediaAssets || job.mediaAssets || null;
       data.geminiModel = callbackDto.geminiModel || null;
       data.tokensUsed = callbackDto.tokensUsed || null;
       data.error = null;
