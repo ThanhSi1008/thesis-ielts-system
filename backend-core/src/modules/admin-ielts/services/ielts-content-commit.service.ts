@@ -713,19 +713,10 @@ export class IeltsContentCommitService {
             }
           }
 
-          const item: any = {
-            question_number: q.question_number,
-            question_text: q.question_text || q.text || "",
-            answer: q.correct_answer || q.answer || "",
-            explanation: q.explanation || null,
-          };
-          if (formattedOptions) {
-            item.options = formattedOptions;
-          }
-
           // Matching groups split on options fingerprint so matching_information (A-G)
           // and matching_features (A. TSI Cut…) are never merged into one group.
           const isMatchingGroup = mappedType === "Matching";
+          const isMultiSelect = qType === "multiple_choice_multiple";
           const groupKey = isMatchingGroup
             ? `${mappedType}::${JSON.stringify(formattedOptions)}`
             : mappedType;
@@ -744,12 +735,49 @@ export class IeltsContentCommitService {
             questionGroups.push(currentGroup);
           }
 
-          currentGroup.items.push(item);
+          if (isMultiSelect) {
+            // Merge consecutive multiple_choice_multiple questions with the same options
+            // into one item with question_numbers array so the player renders a single
+            // checkbox block (mc_multi) rather than separate radio-button blocks.
+            const optFingerprint = JSON.stringify(formattedOptions);
+            const lastItem = currentGroup.items[currentGroup.items.length - 1];
+            const answerVal = q.correct_answer || q.answer || "";
+            if (
+              lastItem &&
+              Array.isArray(lastItem.question_numbers) &&
+              JSON.stringify(lastItem.options) === optFingerprint
+            ) {
+              lastItem.question_numbers.push(q.question_number);
+              lastItem.answer = Array.isArray(lastItem.answer)
+                ? [...lastItem.answer, answerVal]
+                : [lastItem.answer, answerVal];
+            } else {
+              const multiItem: any = {
+                question_numbers: [q.question_number],
+                question_text: q.question_text || q.text || "",
+                answer: [answerVal],
+                explanation: q.explanation || null,
+              };
+              if (formattedOptions) multiItem.options = formattedOptions;
+              currentGroup.items.push(multiItem);
+            }
+          } else {
+            const item: any = {
+              question_number: q.question_number,
+              question_text: q.question_text || q.text || "",
+              answer: q.correct_answer || q.answer || "",
+              explanation: q.explanation || null,
+            };
+            if (formattedOptions) item.options = formattedOptions;
+            currentGroup.items.push(item);
+          }
         }
 
         for (const g of questionGroups) {
           delete (g as any)._groupKey;
-          const qNums = g.items.map((i: any) => i.question_number).filter((n: any) => typeof n === "number");
+          const qNums = g.items.flatMap((i: any) =>
+            Array.isArray(i.question_numbers) ? i.question_numbers : [i.question_number]
+          ).filter((n: any) => typeof n === "number");
           if (qNums.length > 0) {
             const min = Math.min(...qNums);
             const max = Math.max(...qNums);
@@ -845,17 +873,8 @@ export class IeltsContentCommitService {
         }
       }
 
-      const item: any = {
-        question_number: q.question_number,
-        question_text: q.question_text || q.text || "",
-        answer: q.correct_answer || q.answer || "",
-        explanation: q.explanation || null,
-      };
-      if (formattedOptions) {
-        item.options = formattedOptions;
-      }
-
       const isMatchingGroup = mappedType === "Matching";
+      const isMultiSelect = qType === "multiple_choice_multiple";
       const groupKey = isMatchingGroup
         ? `${mappedType}::${JSON.stringify(formattedOptions)}`
         : mappedType;
@@ -874,13 +893,47 @@ export class IeltsContentCommitService {
         questionGroups.push(currentGroup);
       }
 
-      currentGroup.items.push(item);
+      if (isMultiSelect) {
+        const optFingerprint = JSON.stringify(formattedOptions);
+        const lastItem = currentGroup.items[currentGroup.items.length - 1];
+        const answerVal = q.correct_answer || q.answer || "";
+        if (
+          lastItem &&
+          Array.isArray(lastItem.question_numbers) &&
+          JSON.stringify(lastItem.options) === optFingerprint
+        ) {
+          lastItem.question_numbers.push(q.question_number);
+          lastItem.answer = Array.isArray(lastItem.answer)
+            ? [...lastItem.answer, answerVal]
+            : [lastItem.answer, answerVal];
+        } else {
+          const multiItem: any = {
+            question_numbers: [q.question_number],
+            question_text: q.question_text || q.text || "",
+            answer: [answerVal],
+            explanation: q.explanation || null,
+          };
+          if (formattedOptions) multiItem.options = formattedOptions;
+          currentGroup.items.push(multiItem);
+        }
+      } else {
+        const item: any = {
+          question_number: q.question_number,
+          question_text: q.question_text || q.text || "",
+          answer: q.correct_answer || q.answer || "",
+          explanation: q.explanation || null,
+        };
+        if (formattedOptions) item.options = formattedOptions;
+        currentGroup.items.push(item);
+      }
     }
 
     // Calculate question range string for each group (e.g. "1-6")
     for (const g of questionGroups) {
       delete (g as any)._groupKey;
-      const qNums = g.items.map((i: any) => i.question_number).filter((n: any) => typeof n === "number");
+      const qNums = g.items.flatMap((i: any) =>
+        Array.isArray(i.question_numbers) ? i.question_numbers : [i.question_number]
+      ).filter((n: any) => typeof n === "number");
       if (qNums.length > 0) {
         const min = Math.min(...qNums);
         const max = Math.max(...qNums);
