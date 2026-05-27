@@ -215,12 +215,6 @@ export class IeltsContentCommitService {
       throw new NotFoundException(`Import job with ID ${jobId} not found.`);
     }
 
-    if (job.groupId && !_fromGroup) {
-      throw new ConflictException(
-        "Job belongs to a FULL_TEST group — please use the group commit endpoint."
-      );
-    }
-
     if (job.status === ContentImportStatus.FAILED) {
       throw new BadRequestException(job.error || "Job has failed extraction. Please retry.");
     }

@@ -496,6 +496,11 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
   const isListening = job.skill === "LISTENING";
   const isWriting = job.skill === "WRITING";
 
+  const task1 = Array.isArray(structuredJson?.tasks)
+    ? structuredJson.tasks.find((t: any) => t.taskType === "TASK_1")
+    : null;
+  const isWritingWithoutChart = isWriting && !task1?.imageUrl;
+
   // Re-extract: trigger a fresh Gemini extraction for this job (discards current draft)
   const [isRetrying, setIsRetrying] = useState(false);
   const [isUploadingChartImage, setIsUploadingChartImage] = useState(false);
@@ -598,11 +603,16 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
           </button>
           <button
             onClick={() => handleCommit(false)}
-            disabled={isCommitting}
-            className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-primary rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60"
+            disabled={isCommitting || isUploadingChartImage || isWritingWithoutChart}
+            title={isWritingWithoutChart ? "Vui lòng tải lên ảnh biểu đồ cho Task 1 trước khi Commit!" : isUploadingChartImage ? "Đang tải ảnh biểu đồ..." : undefined}
+            className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-primary rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isCommitting && <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-            {job.status === "COMMITTED" ? "Re-commit to Live" : "Commit & Publish Draft"}
+            {isCommitting ? (
+              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : isUploadingChartImage ? (
+              <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+            ) : null}
+            {isUploadingChartImage ? "Uploading chart…" : job.status === "COMMITTED" ? "Re-commit to Live" : "Commit & Publish Draft"}
           </button>
         </div>
       </header>
