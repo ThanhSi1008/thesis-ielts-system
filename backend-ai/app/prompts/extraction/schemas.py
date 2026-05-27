@@ -113,6 +113,12 @@ class WritingPromptSchema(BaseModel):
     difficulty: str = Field(default="medium", description="Difficulty classification: easy, medium, or hard.")
     engnovateSlug: Optional[str] = Field(default=None, description="Set as null.")
 
+class WritingExamSchema(BaseModel):
+    title: str = Field(description="Title of the Writing test (e.g. 'Cambridge IELTS 18 - Writing Test 1').")
+    tasks: List[WritingPromptSchema] = Field(
+        description="Array of writing tasks. Must contain exactly TASK_1 and TASK_2 in that order."
+    )
+
 # =====================================================================
 # SPEAKING SCHEMA
 # =====================================================================

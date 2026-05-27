@@ -103,6 +103,8 @@ export default function IELTSIntensiveAdminPage() {
   const [isSubmittingJob, setIsSubmittingJob] = useState(false);
   const [audioUrls, setAudioUrls] = useState<(string | null)[]>([null, null, null, null]);
   const [uploadingAudioPart, setUploadingAudioPart] = useState<number | null>(null);
+  const [chartImageUrl, setChartImageUrl] = useState<string | null>(null);
+  const [isUploadingChartImage, setIsUploadingChartImage] = useState(false);
 
   // Grouped Jobs Map (groupId -> array of jobs)
   const [groups, setGroups] = useState<Record<string, any[]>>({});
@@ -289,6 +291,25 @@ export default function IELTSIntensiveAdminPage() {
     }
   };
 
+  const handleChartImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingChartImage(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await api.post("/admin/ielts/import/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      setChartImageUrl((res.data as any).url);
+      toast.success("Chart image uploaded successfully.");
+    } catch {
+      toast.error("Failed to upload chart image.");
+    } finally {
+      setIsUploadingChartImage(false);
+    }
+  };
+
   const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>, partNum: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -346,7 +367,10 @@ export default function IELTSIntensiveAdminPage() {
         sourceRef: sourceRef.trim(),
         audioscriptRef: skill === "LISTENING" && audioscriptRef.trim() ? audioscriptRef.trim() : undefined,
         provenance,
-        audioUrls: skill === "LISTENING" ? (audioUrls.filter(Boolean) as string[]) : undefined
+        audioUrls: skill === "LISTENING" ? (audioUrls.filter(Boolean) as string[]) : undefined,
+        mediaAssets: skill === "WRITING" && chartImageUrl
+          ? [{ kind: "chart_image", storedUrl: chartImageUrl, originalUrl: chartImageUrl }]
+          : undefined
       });
 
       toast.success("Import job created successfully. Scraper & structuring is running.");
@@ -357,6 +381,7 @@ export default function IELTSIntensiveAdminPage() {
       setAudioscriptRef("");
       setProvTitle("");
       setAudioUrls([null, null, null, null]);
+      setChartImageUrl(null);
 
       fetchStagingQueue();
     } catch (e: any) {
@@ -768,6 +793,47 @@ export default function IELTSIntensiveAdminPage() {
                     <div className="mt-4 text-center">
                       <span className="text-[10px] text-green-500 font-bold block">✓ File uploaded successfully</span>
                       <span className="text-[9px] text-gray-400 block truncate max-w-[240px] select-all mt-1">{sourceRef}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Task 1 Chart/Graph Image — WRITING only */}
+              {skill === "WRITING" && (
+                <div className="border-2 border-dashed border-violet-200 dark:border-violet-900 hover:border-violet-400/60 rounded-2xl p-5 flex flex-col items-center justify-center bg-violet-50/30 dark:bg-violet-950/10 transition-colors">
+                  <svg viewBox="0 0 24 24" className="w-7 h-7 text-violet-400 mb-1.5" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 21h18M6.75 3h10.5A2.25 2.25 0 0119.5 5.25v13.5A2.25 2.25 0 0117.25 21H6.75A2.25 2.25 0 014.5 18.75V5.25A2.25 2.25 0 016.75 3z" /></svg>
+                  <span className="text-xs text-violet-700 dark:text-violet-300 font-semibold mb-0.5">Task 1 Chart / Graph Image</span>
+                  <span className="text-[10px] text-violet-400/80 dark:text-violet-500 mb-3">Upload the chart, graph, map, or diagram for IELTS Writing Task 1</span>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleChartImageUpload}
+                    className="hidden"
+                    id="chart-image-picker"
+                  />
+                  <label
+                    htmlFor="chart-image-picker"
+                    className="px-4 py-1.5 bg-white dark:bg-gray-800 border border-violet-200 dark:border-violet-800 rounded-xl text-xs font-bold text-violet-700 dark:text-violet-300 cursor-pointer shadow-sm hover:bg-violet-50 transition-colors flex items-center gap-1.5"
+                  >
+                    {isUploadingChartImage && <span className="w-3 h-3 border border-violet-400 border-t-transparent rounded-full animate-spin" />}
+                    Select Chart Image
+                  </label>
+
+                  {chartImageUrl && (
+                    <div className="mt-3 w-full flex flex-col items-center gap-2">
+                      <span className="text-[10px] text-green-500 font-bold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                        Chart image uploaded
+                      </span>
+                      <img src={chartImageUrl} alt="Task 1 Chart Preview" className="max-h-[120px] rounded-lg border border-violet-200 dark:border-violet-800 object-contain" />
+                      <button
+                        type="button"
+                        onClick={() => setChartImageUrl(null)}
+                        className="text-[9px] text-red-400 hover:text-red-600 font-semibold"
+                      >
+                        Remove
+                      </button>
                     </div>
                   )}
                 </div>

@@ -114,11 +114,13 @@ Please follow these strict guidelines:
 WRITING_EXTRACTION_PROMPT = """You are an expert IELTS Writing parser. Your job is to extract IELTS Writing tasks and prompts from the provided RAW TEXT.
 
 Please follow these strict guidelines:
-1. **Task Type**: Identify whether the task is 'TASK_1' (data reports, graphs, maps, charts) or 'TASK_2' (opinion/discussion essays).
-2. **Sub-Type**: Deduce the exact IELTS task sub-type (e.g. line_graph, bar_chart, map, opinion, discussion, etc.).
-3. **Prompt & Instructions**: Extract the complete prompt and instructions verbatim.
-4. **Telemetry**: Populate standard defaults: minimumWords=150 and suggestedTime=20 for TASK_1, or minimumWords=250 and suggestedTime=40 for TASK_2.
-5. **No Placeholders**: If the task references an image or chart, set `imageUrl` to null (populated dynamically by the pipeline). Do NOT use fake URLs.
+1. **BOTH TASKS**: Always extract BOTH writing tasks into the 'tasks' array — one TASK_1 entry and one TASK_2 entry, in that order. Never return only a single task.
+2. **Task Type**: Identify whether each task is 'TASK_1' (data reports, graphs, maps, charts) or 'TASK_2' (opinion/discussion essays).
+3. **Sub-Type**: Deduce the exact IELTS task sub-type (e.g. line_graph, bar_chart, pie_chart, table, diagram, map, opinion, discussion, double_question, advantages_disadvantages).
+4. **Prompt & Instructions**: Extract the complete prompt and instructions verbatim for each task.
+5. **Telemetry**: Populate standard defaults: minimumWords=150 and suggestedTime=20 for TASK_1, or minimumWords=250 and suggestedTime=40 for TASK_2.
+6. **No Placeholders**: If a task references an image or chart, set `imageUrl` to null (populated dynamically by the pipeline). Do NOT use fake URLs.
+7. **Title**: Add a descriptive title for the overall writing test (e.g. 'Cambridge IELTS 18 - Writing Test 1').
 """
 
 SPEAKING_EXTRACTION_PROMPT = """You are an expert IELTS Speaking parser. Your job is to extract IELTS Speaking parts, topics, and examiner questions from the provided RAW TEXT.

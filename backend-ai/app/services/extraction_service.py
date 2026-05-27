@@ -11,6 +11,7 @@ from app.prompts.extraction.schemas import (
     ListeningPartSchema,
     ReadingPartSchema,
     WritingPromptSchema,
+    WritingExamSchema,
     SpeakingPartSchema
 )
 from app.prompts.extraction.prompts import (
@@ -51,7 +52,7 @@ class ExtractionService:
         elif skill_upper == "READING":
             return ReadingPartSchema, READING_EXTRACTION_PROMPT
         elif skill_upper == "WRITING":
-            return WritingPromptSchema, WRITING_EXTRACTION_PROMPT
+            return WritingExamSchema, WRITING_EXTRACTION_PROMPT
         elif skill_upper == "SPEAKING":
             return SpeakingPartSchema, SPEAKING_EXTRACTION_PROMPT
         else:
@@ -109,16 +110,20 @@ class ExtractionService:
                         logger.warning(f"[Extractor Validation] Question number {q_num} has invalid type: {q_type}")
                         return False
                         
-            # For Writing, ensure tasks are TASK_1 or TASK_2
+            # For Writing, validate WritingExamSchema — must have tasks array with TASK_1 and TASK_2
             elif skill_upper == "WRITING":
-                task_type = result.get("taskType")
-                prompt = result.get("prompt")
-                if task_type not in ["TASK_1", "TASK_2"]:
-                    logger.warning(f"[Extractor Validation] Writing prompt has invalid taskType: {task_type}")
+                tasks = result.get("tasks", [])
+                if not tasks or len(tasks) < 2:
+                    logger.warning(f"[Extractor Validation] Writing exam must contain at least 2 tasks (TASK_1 + TASK_2), got {len(tasks)}")
                     return False
-                if not prompt or str(prompt).strip() == "":
-                    logger.warning("[Extractor Validation] Writing prompt has empty prompt text")
+                task_types = {t.get("taskType") for t in tasks}
+                if not {"TASK_1", "TASK_2"}.issubset(task_types):
+                    logger.warning(f"[Extractor Validation] Writing exam is missing TASK_1 or TASK_2 (found: {task_types})")
                     return False
+                for t in tasks:
+                    if not t.get("prompt", "").strip():
+                        logger.warning(f"[Extractor Validation] Writing task {t.get('taskType')} has empty prompt text")
+                        return False
                     
             # For Speaking, ensure questions are present
             elif skill_upper == "SPEAKING":
@@ -359,6 +364,18 @@ class ExtractionService:
                 if image_asset and not result_dict.get("imageUrl"):
                     result_dict["imageUrl"] = image_asset.get("storedUrl")
                     logger.info(f"  ↳ Hydrated root imageUrl: {result_dict['imageUrl']}")
+
+            # Post-processing: inject chart image URL into TASK_1's imageUrl for WRITING jobs.
+            if skill.upper() == "WRITING" and media_assets:
+                chart_asset = next(
+                    (a for a in media_assets if a.get("kind") == "chart_image"),
+                    None
+                )
+                if chart_asset:
+                    for task in result_dict.get("tasks", []):
+                        if task.get("taskType") == "TASK_1" and not task.get("imageUrl"):
+                            task["imageUrl"] = chart_asset.get("storedUrl")
+                            logger.info(f"  ↳ Hydrated TASK_1 imageUrl from chart asset: {task['imageUrl']}")
 
             # Form final payload
             output = {

@@ -287,6 +287,8 @@ export class IeltsContentCommitService {
           isPublished: false, // Default isPublished to false during admin commit
           questions: (type === IeltsIntensiveExamType.READING || type === IeltsIntensiveExamType.LISTENING)
             ? this.transformToPartsFormat(structuredJson, job.skill, title, job.audioUrls)
+            : type === IeltsIntensiveExamType.WRITING
+            ? this.transformToWritingFormat(structuredJson)
             : structuredJson,
           source,
           bookNumber,
@@ -583,7 +585,7 @@ export class IeltsContentCommitService {
         type: "full_test",
         listening: this.transformToPartsFormat(listeningJob.structuredJson, ContentImportSkill.LISTENING, `${title} - Listening`, listeningJob.audioUrls),
         reading: this.transformToPartsFormat(readingJob.structuredJson, ContentImportSkill.READING, `${title} - Reading`),
-        writing: writingJob.structuredJson,
+        writing: this.transformToWritingFormat(writingJob.structuredJson),
         speaking: speakingJob.structuredJson,
       };
 
@@ -643,6 +645,38 @@ export class IeltsContentCommitService {
     }
 
     return { examIds };
+  }
+
+  /**
+   * Converts the AI/Admin WritingExamSchema format into the IeltsIntensiveExam.questions seed contract.
+   * AI format:  { title, tasks: [{ taskType, subType, prompt, imageUrl, minimumWords, ... }] }
+   * Seed format: { type: "writing", tasks: [{ task_number, task_type, prompt, image_url, min_words }] }
+   */
+  transformToWritingFormat(structuredJson: any): any {
+    if (!structuredJson) return structuredJson;
+
+    const rawTasks: any[] = Array.isArray(structuredJson.tasks) ? structuredJson.tasks : [];
+
+    const mapSubType = (subType: string, isTask1: boolean): string => {
+      if (!isTask1) return "essay";
+      return subType === "map" ? "academic_map" : "academic_chart";
+    };
+
+    const tasks = rawTasks.map((t: any) => {
+      const isTask1 = t.taskType === "TASK_1";
+      const result: Record<string, any> = {
+        task_number: isTask1 ? 1 : 2,
+        task_type: mapSubType(t.subType || "", isTask1),
+        prompt: t.prompt || "",
+        min_words: t.minimumWords ? Number(t.minimumWords) : (isTask1 ? 150 : 250),
+      };
+      const imageUrl = t.imageUrl || t.image_url;
+      if (imageUrl) result.image_url = imageUrl;
+      if (t.suggestedTime) result.time_advice = `${t.suggestedTime} minutes`;
+      return result;
+    });
+
+    return { type: "writing", tasks };
   }
 
   transformToPartsFormat(flatJson: any, skill: ContentImportSkill, title: string, audioUrls?: string[]): any {

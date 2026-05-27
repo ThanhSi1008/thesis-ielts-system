@@ -1278,35 +1278,109 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                       </div>
                     )}
 
-                    {/* Writing attachment */}
-                    {job.skill === "WRITING" && (
-                      <div className="flex flex-col gap-4">
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Writing Prompt</label>
-                          <textarea
-                            value={structuredJson.prompt || ""}
-                            onChange={e => updateStructuredJson({ ...structuredJson, prompt: e.target.value })}
-                            rows={6}
-                            className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Prompt Attachment Image URL</label>
-                          <input
-                            type="text"
-                            value={structuredJson.imageUrl || ""}
-                            onChange={e => updateStructuredJson({ ...structuredJson, imageUrl: e.target.value })}
-                            placeholder="https://..."
-                            className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                          />
-                          {structuredJson.imageUrl && (
-                            <div className="mt-2 border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden max-w-sm">
-                              <img src={structuredJson.imageUrl} alt="Prompt Preview" className="w-full h-auto object-cover max-h-[200px]" />
+                    {/* Writing — Stacked Block Layout (Task 1 + Task 2) */}
+                    {job.skill === "WRITING" && (() => {
+                      const TASK_1_SUBTYPES = ["line_graph", "bar_chart", "pie_chart", "table", "diagram", "map", "process"];
+                      const TASK_2_SUBTYPES = ["opinion", "discussion", "double_question", "advantages_disadvantages", "problem_solution"];
+
+                      const writingTasks: any[] = Array.isArray(structuredJson?.tasks) ? structuredJson.tasks : [];
+                      const task1 = writingTasks.find((t: any) => t.taskType === "TASK_1") ?? { taskType: "TASK_1", subType: "bar_chart", prompt: "", imageUrl: null, minimumWords: 150 };
+                      const task2 = writingTasks.find((t: any) => t.taskType === "TASK_2") ?? { taskType: "TASK_2", subType: "opinion", prompt: "", minimumWords: 250 };
+
+                      const updateTask = (taskType: "TASK_1" | "TASK_2", field: string, value: any) => {
+                        const existing = writingTasks.filter((t: any) => t.taskType !== taskType);
+                        const target = writingTasks.find((t: any) => t.taskType === taskType) ?? { taskType };
+                        const updatedTask = { ...target, [field]: value };
+                        const newTasks = taskType === "TASK_1" ? [updatedTask, ...existing] : [...existing, updatedTask];
+                        updateStructuredJson({ ...structuredJson, tasks: newTasks });
+                      };
+
+                      return (
+                        <div className="flex flex-col gap-5">
+                          {/* TASK 1 Block */}
+                          <div className="border border-violet-200 dark:border-violet-900/60 rounded-2xl overflow-hidden">
+                            <div className="flex items-center gap-2 px-4 py-2.5 bg-violet-50 dark:bg-violet-950/20 border-b border-violet-200 dark:border-violet-900/60">
+                              <span className="w-5 h-5 flex items-center justify-center rounded-full bg-violet-500 text-white text-[9px] font-black shrink-0">1</span>
+                              <span className="text-[11px] font-extrabold uppercase tracking-wider text-violet-700 dark:text-violet-300">Task 1 — Data / Chart / Map</span>
                             </div>
-                          )}
+                            <div className="p-4 flex flex-col gap-3">
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Sub-Type</label>
+                                <select
+                                  value={task1.subType || "bar_chart"}
+                                  onChange={e => updateTask("TASK_1", "subType", e.target.value)}
+                                  className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
+                                >
+                                  {TASK_1_SUBTYPES.map(s => (
+                                    <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Prompt / Instructions</label>
+                                <textarea
+                                  value={task1.prompt || ""}
+                                  onChange={e => updateTask("TASK_1", "prompt", e.target.value)}
+                                  rows={5}
+                                  className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none leading-relaxed"
+                                />
+                              </div>
+                              {/* Chart image — read directly from task1.imageUrl, no dynamic scan */}
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Chart / Graph Image URL</label>
+                                <input
+                                  type="text"
+                                  value={task1.imageUrl || ""}
+                                  onChange={e => updateTask("TASK_1", "imageUrl", e.target.value || null)}
+                                  placeholder="https://res.cloudinary.com/..."
+                                  className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none font-mono"
+                                />
+                                {task1.imageUrl && (
+                                  <div className="mt-2 border border-violet-100 dark:border-violet-900/40 rounded-xl overflow-hidden max-w-md bg-white dark:bg-gray-900">
+                                    <img
+                                      src={task1.imageUrl}
+                                      alt="Task 1 Chart Preview"
+                                      className="w-full h-auto object-contain max-h-[220px]"
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* TASK 2 Block */}
+                          <div className="border border-blue-200 dark:border-blue-900/60 rounded-2xl overflow-hidden">
+                            <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50 dark:bg-blue-950/20 border-b border-blue-200 dark:border-blue-900/60">
+                              <span className="w-5 h-5 flex items-center justify-center rounded-full bg-blue-500 text-white text-[9px] font-black shrink-0">2</span>
+                              <span className="text-[11px] font-extrabold uppercase tracking-wider text-blue-700 dark:text-blue-300">Task 2 — Essay</span>
+                            </div>
+                            <div className="p-4 flex flex-col gap-3">
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Sub-Type</label>
+                                <select
+                                  value={task2.subType || "opinion"}
+                                  onChange={e => updateTask("TASK_2", "subType", e.target.value)}
+                                  className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
+                                >
+                                  {TASK_2_SUBTYPES.map(s => (
+                                    <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
+                                  ))}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Prompt / Instructions</label>
+                                <textarea
+                                  value={task2.prompt || ""}
+                                  onChange={e => updateTask("TASK_2", "prompt", e.target.value)}
+                                  rows={6}
+                                  className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none leading-relaxed"
+                                />
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      );
+                    })()}
 
                     {/* Question List for Reading/Listening non-intensive or other formats */}
                     {(job.skill === "LISTENING" || job.skill === "READING") && (
