@@ -992,6 +992,47 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
       <main className="flex-1 overflow-hidden flex w-full max-w-[1600px] mx-auto p-6 gap-6">
         {/* Left Column: Provenance Card */}
         <section className="w-[300px] flex flex-col gap-4 shrink-0 overflow-y-auto pr-1">
+          {/* Exam Settings Card */}
+          <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 shadow-sm">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Exam Settings</h3>
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Exam Title *</label>
+                <input
+                  type="text"
+                  value={structuredJson.title || ""}
+                  onChange={e => updateStructuredJson({ ...structuredJson, title: e.target.value })}
+                  className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
+                  required
+                />
+              </div>
+
+              {job.skill !== "SPEAKING" && job.skill !== "WRITING" && (
+                <div>
+                  <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Duration (minutes) *</label>
+                  <input
+                    type="number"
+                    value={structuredJson.duration || (job.skill === "LISTENING" ? 40 : 60)}
+                    onChange={e => updateStructuredJson({ ...structuredJson, duration: Number(e.target.value) })}
+                    className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
+                    required
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Description / Instructions</label>
+                <textarea
+                  value={structuredJson.description || ""}
+                  onChange={e => updateStructuredJson({ ...structuredJson, description: e.target.value })}
+                  rows={2}
+                  className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none resize-none"
+                  placeholder="Optional instructions..."
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-5 shadow-sm">
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Provenance Metadata</h3>
             
@@ -1279,28 +1320,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                 {isListening ? (
                   /* TWO COLUMN LISTENING WORKSPACE */
                   <div className="flex-1 flex flex-col overflow-hidden p-6 gap-4">
-                    {/* Common Metadata for Listening */}
-                    <div className="grid grid-cols-12 gap-4 bg-gray-50 dark:bg-gray-850 p-4 border border-gray-150 dark:border-gray-800 rounded-2xl shrink-0 shadow-sm">
-                      <div className="col-span-8">
-                        <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-500 mb-1">Exam Title *</label>
-                        <input
-                          type="text"
-                          value={structuredJson.title || ""}
-                          onChange={e => updateStructuredJson({ ...structuredJson, title: e.target.value })}
-                          className="w-full text-xs px-3.5 py-2 border border-gray-250 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
-                          required
-                        />
-                      </div>
-                      <div className="col-span-4">
-                        <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-500 mb-1">Duration (minutes)</label>
-                        <input
-                          type="number"
-                          value={structuredJson.duration || 40}
-                          onChange={e => updateStructuredJson({ ...structuredJson, duration: Number(e.target.value) })}
-                          className="w-full text-xs px-3.5 py-2 border border-gray-250 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
-                        />
-                      </div>
-                    </div>
+                    {/* Common Metadata moved to Left Sidebar */}
 
                     <div className="flex-1 flex gap-6 overflow-hidden">
                     {/* LEFT COLUMN: Verbatim Transcript Area */}
@@ -1701,41 +1721,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                 ) : (
                   /* ORIGINAL SINGLE COLUMN WORKSPACE FOR OTHER SKILLS */
                   <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
-                    {/* Common metadata */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Exam Title *</label>
-                        <input
-                          type="text"
-                          value={structuredJson.title || ""}
-                          onChange={e => updateStructuredJson({ ...structuredJson, title: e.target.value })}
-                          className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                          required
-                        />
-                      </div>
-                      {job.skill !== "SPEAKING" && job.skill !== "WRITING" && (
-                        <div>
-                          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Duration (minutes) *</label>
-                          <input
-                            type="number"
-                            value={structuredJson.duration || 60}
-                            onChange={e => updateStructuredJson({ ...structuredJson, duration: Number(e.target.value) })}
-                            className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                            required
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1">Description / Instructions</label>
-                      <textarea
-                        value={structuredJson.description || ""}
-                        onChange={e => updateStructuredJson({ ...structuredJson, description: e.target.value })}
-                        rows={2}
-                        className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none resize-none"
-                      />
-                    </div>
+                    {/* Common Metadata moved to Left Sidebar */}
 
                     {/* Reading Passage content */}
                     {job.skill === "READING" && (
