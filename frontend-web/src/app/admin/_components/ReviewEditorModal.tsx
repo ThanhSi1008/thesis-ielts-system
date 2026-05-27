@@ -507,11 +507,14 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     setIsSaving(true);
     setApiError(null);
     try {
-      await ieltsImportApi.saveDraft(job.id, {
+      const updatedJob = await ieltsImportApi.saveDraft(job.id, {
         structuredJson,
         provenance,
         version: job.version || 0
       });
+      if (updatedJob && typeof updatedJob.version === "number") {
+        job.version = updatedJob.version;
+      }
       toast.success("Draft saved successfully.");
     } catch (e: any) {
       if (e.response?.status === 429 || e.response?.status === 503) {
@@ -544,11 +547,22 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
       if (cleanedProvenance.originalFileName) delete cleanedProvenance.originalFileName;
 
       // Pre-save the clean state back to the database draft
-      await ieltsImportApi.saveDraft(job.id, {
-        structuredJson: cleanedStructuredJson,
-        provenance: cleanedProvenance,
-        version: job.version || 0
-      });
+      try {
+        const updatedJob = await ieltsImportApi.saveDraft(job.id, {
+          structuredJson: cleanedStructuredJson,
+          provenance: cleanedProvenance,
+          version: job.version || 0
+        });
+        if (updatedJob && typeof updatedJob.version === "number") {
+          job.version = updatedJob.version;
+        }
+      } catch (err: any) {
+        if (err.response?.status === 409) {
+          toast.error("Save failed: The job has been modified by another process. Please reload and try again.", 6000);
+          return;
+        }
+        throw err;
+      }
 
       // Execute the live commit transition
       await ieltsImportApi.commitJob(job.id, {
