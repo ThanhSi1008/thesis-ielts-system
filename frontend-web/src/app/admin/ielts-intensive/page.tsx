@@ -321,11 +321,7 @@ export default function IELTSIntensiveAdminPage() {
   const handleCreateImportJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sourceRef.trim()) {
-      if (sourceType === "PDF_UPLOAD") {
-        toast.error("Please upload a PDF file.");
-      } else {
-        toast.error("Please enter the raw text content.");
-      }
+      toast.error("Please upload a PDF file.");
       return;
     }
 
@@ -787,80 +783,50 @@ export default function IELTSIntensiveAdminPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Source Type</label>
-                  <select
-                    value={sourceType}
-                    onChange={e => {
-                      setSourceType(e.target.value);
-                      setSourceRef("");
-                    }}
-                    className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                  >
-                    <option value="PDF_UPLOAD">PDF File Drop</option>
-                    <option value="RAW_TEXT_PASTE">Paste Raw Text</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Source Publisher</label>
-                  <select
-                    value={provSource}
-                    onChange={e => setProvSource(e.target.value)}
-                    className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                  >
-                    <option value="cambridge">Cambridge IELTS</option>
-                    <option value="forecast">Forecast / Actual Test</option>
-                    <option value="other">Other / Custom</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Source Publisher</label>
+                <select
+                  value={provSource}
+                  onChange={e => setProvSource(e.target.value)}
+                  className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
+                >
+                  <option value="cambridge">Cambridge IELTS</option>
+                  <option value="forecast">Forecast / Actual Test</option>
+                  <option value="other">Other / Custom</option>
+                </select>
               </div>
 
-              {/* PDF Upload or Raw Text Paste Input */}
-              {sourceType === "RAW_TEXT_PASTE" ? (
-                <div>
-                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Raw Text Content *</label>
-                  <textarea
-                    value={sourceRef}
-                    onChange={e => setSourceRef(e.target.value)}
-                    placeholder="Paste the reading/listening content and questions here..."
-                    rows={8}
-                    className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-y font-mono"
-                    required
-                  />
-                </div>
-              ) : (
-                <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-primary/50 rounded-2xl p-5 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-gray-800/10 transition-colors">
-                  <svg viewBox="0 0 24 24" className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
-                  <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Drag or drop PDF file here</span>
-                  <span className="text-[10px] text-gray-400 mb-3">File size should not exceed 10MB</span>
-                  
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handlePdfUpload}
-                    className="hidden"
-                    id="pdf-file-picker"
-                  />
-                  <label
-                    htmlFor="pdf-file-picker"
-                    className="px-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-200 cursor-pointer shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-1.5"
-                  >
-                    {isUploading && <span className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin" />}
-                    Select PDF
-                  </label>
+              {/* PDF Upload Input */}
+              <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-primary/50 rounded-2xl p-5 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-gray-800/10 transition-colors">
+                <svg viewBox="0 0 24 24" className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Drag or drop PDF file here</span>
+                <span className="text-[10px] text-gray-400 mb-3">File size should not exceed 10MB</span>
+                
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handlePdfUpload}
+                  className="hidden"
+                  id="pdf-file-picker"
+                />
+                <label
+                  htmlFor="pdf-file-picker"
+                  className="px-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-200 cursor-pointer shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-1.5"
+                >
+                  {isUploading && <span className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin" />}
+                  Select PDF
+                </label>
 
-                  {sourceRef && (
-                    <div className="mt-4 text-center">
-                      <span className="text-[10px] text-green-500 font-bold block">✓ File uploaded successfully</span>
-                      <span className="text-[9px] text-gray-400 block truncate max-w-[240px] select-all mt-1">{sourceRef}</span>
-                    </div>
-                  )}
-                </div>
-              )}
+                {sourceRef && (
+                  <div className="mt-4 text-center">
+                    <span className="text-[10px] text-green-500 font-bold block">✓ File uploaded successfully</span>
+                    <span className="text-[9px] text-gray-400 block truncate max-w-[240px] select-all mt-1">{sourceRef}</span>
+                  </div>
+                )}
+              </div>
 
               {/* Audioscripts PDF Upload — LISTENING only */}
-              {skill === "LISTENING" && sourceType !== "RAW_TEXT_PASTE" && (
+              {skill === "LISTENING" && (
                 <div className="border-2 border-dashed border-blue-200 dark:border-blue-900 hover:border-blue-400/60 rounded-2xl p-5 flex flex-col items-center justify-center bg-blue-50/30 dark:bg-blue-950/10 transition-colors">
                   <svg viewBox="0 0 24 24" className="w-7 h-7 text-blue-400 mb-1.5" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
                   <span className="text-xs text-blue-700 dark:text-blue-300 font-semibold mb-0.5">Audioscripts PDF</span>
