@@ -195,19 +195,20 @@ export class ContentImportService {
       if (lowerErr.includes("503") || lowerErr.includes("service unavailable") || lowerErr.includes("overloaded")) {
         friendlyError = "Google's AI server is temporarily overloaded. Please wait a moment and click 'Extract' again!";
       } else if (lowerErr.includes("429") || lowerErr.includes("resource_exhausted") || lowerErr.includes("quota") || lowerErr.includes("rate limit") || lowerErr.includes("quota drained")) {
-        friendlyError = "The daily free-tier quota for Gemini Pro has been exhausted. The system will automatically reset and resume normal operation tomorrow.";
+        friendlyError = "The daily free-tier quota for Gemini Flash has been exhausted. The system will automatically reset and resume normal operation tomorrow.";
       }
       
       data.error = friendlyError;
     } else {
       data.status = ContentImportStatus.AWAITING_REVIEW;
       data.structuredJson = callbackDto.structuredJson || null;
-      // Defensive fallback: the text-only AI worker never sends mediaAssets, so
-      // callbackDto.mediaAssets is typically undefined. Use ?? (not ||) so an
-      // explicit empty-array from a future media-aware worker is still honoured,
-      // while undefined/null falls back to whatever the admin uploaded at job
-      // creation time. Default to [] rather than null to avoid downstream nulls.
-      data.mediaAssets = callbackDto.mediaAssets ?? (job.mediaAssets as any[]) ?? [];
+      // Preserve user-uploaded assets: only use the worker's mediaAssets if it
+      // returned a non-empty list. An empty array (e.g. text-only extraction or
+      // a worker bug that lost the assets) must NOT silently overwrite the chart
+      // image / audio assets the admin attached at job-creation time.
+      data.mediaAssets = callbackDto.mediaAssets?.length
+        ? callbackDto.mediaAssets
+        : ((job.mediaAssets as any[]) ?? []);
       data.geminiModel = callbackDto.geminiModel || null;
       data.tokensUsed = callbackDto.tokensUsed || null;
       data.error = null;
@@ -352,7 +353,7 @@ export class ContentImportService {
       audioscriptRef: job.audioscriptRef || undefined,
       provenance: updated.provenance,
       rawText: job.rawText || undefined,
-      mediaAssets: job.mediaAssets || undefined,
+      mediaAssets: (job.mediaAssets as any[])?.length ? (job.mediaAssets as any[]) : undefined,
     });
 
     await this.auditLogService.log(

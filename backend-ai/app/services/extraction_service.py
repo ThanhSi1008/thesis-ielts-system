@@ -39,9 +39,12 @@ class ExtractionService:
         else:
             logger.warning("⚠️ GEMINI_API_KEY is empty — structured extraction calls will fail!")
 
-    def _get_cache_key(self, raw_text: str, skill: str) -> str:
-        """Generates a stable SHA-256 hash representing rawText and target skill"""
-        data = f"{raw_text.strip()}:{skill.strip().upper()}"
+    def _get_cache_key(self, raw_text: str, skill: str, media_assets: list | None = None) -> str:
+        """Generates a stable SHA-256 hash representing rawText, skill, and media asset URLs."""
+        asset_key = ":".join(
+            sorted(a.get("storedUrl", "") for a in (media_assets or []) if isinstance(a, dict))
+        )
+        data = f"{raw_text.strip()}:{skill.strip().upper()}:{asset_key}"
         return hashlib.sha256(data.encode("utf-8")).hexdigest()
 
     def _get_schema_and_prompt(self, skill: str) -> tuple:
@@ -156,7 +159,7 @@ class ExtractionService:
         if not self.client:
             raise RuntimeError("Gemini client is not initialized")
             
-        cache_key = self._get_cache_key(raw_text, skill)
+        cache_key = self._get_cache_key(raw_text, skill, media_assets)
         
         # 1. Context Cache Check (Save 100% of API tokens if matched)
         if cache_key in _extraction_cache:
@@ -166,8 +169,8 @@ class ExtractionService:
         schema_model, system_prompt = self._get_schema_and_prompt(skill)
         
         # Models configuration for tiering
-        flash_model = "gemini-3.5-flash"
-        pro_model = "gemini-3.1-pro"
+        flash_model = "gemini-2.5-flash"
+        pro_model = "gemini-3.5-flash"
         
         selected_model = flash_model
         result_dict = {}
@@ -309,7 +312,7 @@ class ExtractionService:
                 logger.warning(f"⚠️ [Tier 1] {flash_model} failed execution or parsing: {flash_err}")
                 is_valid = False
 
-            # Tier 2 Fallback: If Flash failed validation, retry with gemini-2.5-pro
+            # Tier 2 Fallback: If Flash failed validation, retry with gemini-3.5-flash
             if not is_valid:
                 logger.warning(f"⚠️ [Tier 1] Flash structuring validation failed! Falling back to {pro_model}...")
                 selected_model = pro_model
