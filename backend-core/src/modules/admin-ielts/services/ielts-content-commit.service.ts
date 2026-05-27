@@ -286,7 +286,7 @@ export class IeltsContentCommitService {
           difficulty: (structuredJson.difficulty?.toUpperCase() as Difficulty) || Difficulty.ADVANCED,
           isPublished: false, // Default isPublished to false during admin commit
           questions: (type === IeltsIntensiveExamType.READING || type === IeltsIntensiveExamType.LISTENING)
-            ? this.transformToPartsFormat(structuredJson, job.skill, title)
+            ? this.transformToPartsFormat(structuredJson, job.skill, title, job.audioUrls)
             : structuredJson,
           source,
           bookNumber,
@@ -581,7 +581,7 @@ export class IeltsContentCommitService {
 
       const mergedQuestions = {
         type: "full_test",
-        listening: this.transformToPartsFormat(listeningJob.structuredJson, ContentImportSkill.LISTENING, `${title} - Listening`),
+        listening: this.transformToPartsFormat(listeningJob.structuredJson, ContentImportSkill.LISTENING, `${title} - Listening`, listeningJob.audioUrls),
         reading: this.transformToPartsFormat(readingJob.structuredJson, ContentImportSkill.READING, `${title} - Reading`),
         writing: writingJob.structuredJson,
         speaking: speakingJob.structuredJson,
@@ -645,7 +645,7 @@ export class IeltsContentCommitService {
     return { examIds };
   }
 
-  transformToPartsFormat(flatJson: any, skill: ContentImportSkill, title: string): any {
+  transformToPartsFormat(flatJson: any, skill: ContentImportSkill, title: string, audioUrls?: string[]): any {
     if (!flatJson) return flatJson;
     
     // If it already has parts, check if they are in the AI format or player format
@@ -656,7 +656,7 @@ export class IeltsContentCommitService {
       }
 
       // Otherwise, transform each AI part into the player format
-      const transformedParts = flatJson.parts.map((p: any) => {
+      const transformedParts = flatJson.parts.map((p: any, idx: number) => {
         const content = p.content || [];
         const questionGroups: any[] = [];
         let currentGroup: any = null;
@@ -770,7 +770,7 @@ export class IeltsContentCommitService {
           transformedPart.transcript = p.transcript || [];
           // Preserve audio URL so the mobile player can load the track.
           // AI pipeline produces camelCase (audioUrl); seed data uses snake_case (audio_url).
-          transformedPart.audio_url = p.audioUrl || p.audio_url || null;
+          transformedPart.audio_url = p.audioUrl || p.audio_url || (audioUrls && audioUrls[idx]) || null;
         }
 
         return transformedPart;
@@ -900,7 +900,7 @@ export class IeltsContentCommitService {
     } else {
       part.transcript = flatJson.transcript || [];
       // Preserve audio URL so the mobile player can load the track.
-      part.audio_url = flatJson.audioUrl || flatJson.audio_url || null;
+      part.audio_url = flatJson.audioUrl || flatJson.audio_url || (audioUrls && audioUrls[0]) || null;
     }
 
     return {
