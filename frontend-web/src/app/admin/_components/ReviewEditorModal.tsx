@@ -132,8 +132,16 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
   useEffect(() => {
     if (job) {
       const parsedJson = { ...(job.structuredJson || { title: "", content: [] }) };
+      // Scanning fallback: map the first image-type media asset onto imageUrl so
+      // the review grid never shows "Pending" when the AI callback preserved the
+      // admin-uploaded answer key image in the job's mediaAssets column.
+      // Matches on explicit kind field first, then mimeType/type for older records.
       const imageAsset = Array.isArray(job.mediaAssets)
-        ? job.mediaAssets.find((a: any) => a.kind === "image")
+        ? job.mediaAssets.find((a: any) =>
+            a.kind === "image" ||
+            (typeof a.mimeType === "string" && a.mimeType.startsWith("image/")) ||
+            (typeof a.type === "string" && a.type.startsWith("image/"))
+          )
         : null;
       if (imageAsset && !parsedJson.imageUrl) {
         parsedJson.imageUrl = imageAsset.storedUrl;
@@ -484,13 +492,40 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     }
   };
 
-  const audioAssets: any[] = Array.isArray(job.mediaAssets) ? job.mediaAssets : [];
+  const allMediaAssets: any[] = Array.isArray(job.mediaAssets) ? job.mediaAssets : [];
+
+  // Filter to audio-only assets so the image asset is never counted or selected
+  // as a track. Sort by partIndex when present so positional fallback is stable.
+  const audioOnlyAssets = allMediaAssets
+    .filter((a: any) =>
+      a.kind === "audio" ||
+      (typeof a.mimeType === "string" && a.mimeType.startsWith("audio/")) ||
+      (typeof a.originalUrl === "string" && /\.(mp3|m4a|ogg|wav|aac|flac)$/i.test(a.originalUrl)) ||
+      (typeof a.storedUrl === "string" && /\.(mp3|m4a|ogg|wav|aac|flac)$/i.test(a.storedUrl))
+    )
+    .sort((a: any, b: any) => (a.partIndex ?? 0) - (b.partIndex ?? 0));
+
+  // Render-time image resolver: reads structuredJson.imageUrl first (set by the
+  // init hook or manual upload), then falls back to scanning allMediaAssets so
+  // the card is never stuck in "Pending" even when structuredJson lacks imageUrl.
+  const resolvedImageUrl: string | null =
+    structuredJson.imageUrl ||
+    allMediaAssets.find((a: any) =>
+      a.kind === "image" ||
+      (typeof a.mimeType === "string" && a.mimeType.startsWith("image/")) ||
+      (typeof a.type === "string" && a.type.startsWith("image/"))
+    )?.storedUrl ||
+    null;
+
   const isListening = job.skill === "LISTENING";
   const activePartNumber = activeReviewPartIdx + 1;
-  const isMultiAudio = audioAssets.length > 1;
-  const activeAudioAsset = isMultiAudio
-    ? (audioAssets.find((a: any) => a.partIndex === activePartNumber) ?? audioAssets[activeReviewPartIdx] ?? audioAssets[0])
-    : audioAssets[0];
+  const isMultiAudio = audioOnlyAssets.length > 1;
+  // Primary: find by partIndex (uploads from updated form); fallback: positional
+  // so Part N always maps to the N-th audio file regardless of partIndex presence.
+  const activeAudioAsset =
+    audioOnlyAssets.find((a: any) => a.partIndex === activePartNumber) ??
+    audioOnlyAssets[activeReviewPartIdx] ??
+    null;
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-gray-50 dark:bg-gray-950/95 backdrop-blur-md">
@@ -762,7 +797,10 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                           <h4 className="text-[11px] font-bold text-gray-800 dark:text-gray-200 mb-2">Audio Tracks (Part 1-4)</h4>
                           <div className="grid grid-cols-4 gap-1.5">
                             {[1, 2, 3, 4].map(partNum => {
-                              const hasAudio = audioAssets.some((a: any) => (a.partIndex ?? 0) === partNum || (!a.partIndex && partNum === 1));
+                              // partIndex lookup first; fall back to positional slot
+                              const hasAudio =
+                                audioOnlyAssets.some((a: any) => a.partIndex === partNum) ||
+                                audioOnlyAssets[partNum - 1] !== undefined;
                               const isActive = activeReviewPartIdx + 1 === partNum;
                               return (
                                 <button
@@ -853,9 +891,9 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                         ].join(" ")}
                       >
                         <div className="flex items-start gap-2.5">
-                          {structuredJson.imageUrl ? (
+                          {resolvedImageUrl ? (
                             <div className="w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden shrink-0">
-                              <img src={structuredJson.imageUrl} alt="Answer Key" className="w-full h-full object-cover" />
+                              <img src={resolvedImageUrl} alt="Answer Key" className="w-full h-full object-cover" />
                             </div>
                           ) : (
                             <div className="p-2 bg-amber-50 dark:bg-amber-950/20 text-amber-600 rounded-xl shrink-0">
@@ -865,20 +903,20 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                           <div className="overflow-hidden">
                             <h4 className="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate">Official Answer Key</h4>
                             <p className="text-[9px] text-gray-400 truncate mt-0.5">
-                              {structuredJson.imageUrl ? "AnswerKeyImage.png" : "Drag/drop or paste here"}
+                              {resolvedImageUrl ? "AnswerKeyImage.png" : "Drag/drop or paste here"}
                             </p>
                           </div>
                         </div>
                         <div className="mt-2.5 flex items-center justify-between">
                           <span className={[
                             "inline-flex items-center gap-1 text-[9px] font-bold",
-                            structuredJson.imageUrl ? "text-green-600" : "text-amber-500"
+                            resolvedImageUrl ? "text-green-600" : "text-amber-500"
                           ].join(" ")}>
                             <span className={[
                               "w-1.5 h-1.5 rounded-full",
-                              structuredJson.imageUrl ? "bg-green-500" : "bg-amber-500 animate-pulse"
+                              resolvedImageUrl ? "bg-green-500" : "bg-amber-500 animate-pulse"
                             ].join(" ")} />
-                            {structuredJson.imageUrl ? "Uploaded" : "Pending"}
+                            {resolvedImageUrl ? "Uploaded" : "Pending"}
                           </span>
                           <input
                             type="file"
@@ -893,7 +931,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                             className="text-[9px] font-bold text-primary hover:opacity-85 cursor-pointer flex items-center gap-1"
                           >
                             {isUploadingImage && <span className="w-2.5 h-2.5 border border-primary border-t-transparent rounded-full animate-spin" />}
-                            {structuredJson.imageUrl ? "Replace" : "Upload"}
+                            {resolvedImageUrl ? "Replace" : "Upload"}
                           </label>
                         </div>
                       </div>

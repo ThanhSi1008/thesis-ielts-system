@@ -79,6 +79,8 @@ export class CallbackExtractedDto {
     storedUrl: string;
     kind: string;
     bytes?: number;
+    partIndex?: number;
+    mimeType?: string;
   }>;
 
   @IsString()

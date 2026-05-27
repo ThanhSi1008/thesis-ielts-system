@@ -133,6 +133,9 @@ export class ContentImportService {
         provenance: created.provenance,
         // Signal the worker to skip Stage 1 and go directly to Gemini structuring
         rawText: isRawTextPaste ? dto.sourceRef : undefined,
+        // Forward admin-uploaded assets so the AI worker can inject exact URLs
+        // into the generated JSON (audio per part, answer key image at root).
+        mediaAssets: dto.mediaAssets?.length ? dto.mediaAssets : undefined,
       });
 
       await this.auditLogService.log(
@@ -197,7 +200,12 @@ export class ContentImportService {
     } else {
       data.status = ContentImportStatus.AWAITING_REVIEW;
       data.structuredJson = callbackDto.structuredJson || null;
-      data.mediaAssets = callbackDto.mediaAssets || job.mediaAssets || null;
+      // Defensive fallback: the text-only AI worker never sends mediaAssets, so
+      // callbackDto.mediaAssets is typically undefined. Use ?? (not ||) so an
+      // explicit empty-array from a future media-aware worker is still honoured,
+      // while undefined/null falls back to whatever the admin uploaded at job
+      // creation time. Default to [] rather than null to avoid downstream nulls.
+      data.mediaAssets = callbackDto.mediaAssets ?? (job.mediaAssets as any[]) ?? [];
       data.geminiModel = callbackDto.geminiModel || null;
       data.tokensUsed = callbackDto.tokensUsed || null;
       data.error = null;
