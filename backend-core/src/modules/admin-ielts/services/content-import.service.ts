@@ -183,7 +183,16 @@ export class ContentImportService {
     const data: any = {};
     if (callbackDto.error) {
       data.status = ContentImportStatus.FAILED;
-      data.error = callbackDto.error;
+      
+      let friendlyError = callbackDto.error;
+      const lowerErr = callbackDto.error.toLowerCase();
+      if (lowerErr.includes("503") || lowerErr.includes("service unavailable") || lowerErr.includes("overloaded")) {
+        friendlyError = "Google's AI server is temporarily overloaded. Please wait a moment and click 'Extract' again!";
+      } else if (lowerErr.includes("429") || lowerErr.includes("resource_exhausted") || lowerErr.includes("quota") || lowerErr.includes("rate limit") || lowerErr.includes("quota drained")) {
+        friendlyError = "The daily free-tier quota for Gemini Pro has been exhausted. The system will automatically reset and resume normal operation tomorrow.";
+      }
+      
+      data.error = friendlyError;
     } else {
       data.status = ContentImportStatus.AWAITING_REVIEW;
       data.structuredJson = callbackDto.structuredJson || null;

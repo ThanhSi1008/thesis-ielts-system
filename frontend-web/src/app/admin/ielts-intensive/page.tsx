@@ -160,8 +160,10 @@ export default function IELTSIntensiveAdminPage() {
       await ieltsImportApi.retryJob(id);
       toast.success("Job re-queued successfully.");
       fetchStagingQueue(true);
-    } catch {
-      toast.error("Failed to retry job.");
+    } catch (e: any) {
+      const errMsg = e.response?.data?.message;
+      const formattedMsg = Array.isArray(errMsg) ? errMsg.join(", ") : (errMsg || "Failed to retry job.");
+      toast.error(formattedMsg, 6000);
     }
   };
 
@@ -194,7 +196,9 @@ export default function IELTSIntensiveAdminPage() {
       fetchLiveExams();
       fetchStagingQueue();
     } catch (e: any) {
-      toast.error(e.response?.data?.message || "Failed to commit group.");
+      const errMsg = e.response?.data?.message;
+      const formattedMsg = Array.isArray(errMsg) ? errMsg.join(", ") : (errMsg || "Failed to commit group.");
+      toast.error(formattedMsg, 6000);
     }
   };
 
@@ -261,7 +265,9 @@ export default function IELTSIntensiveAdminPage() {
 
       fetchStagingQueue();
     } catch (e: any) {
-      toast.error(e.response?.data?.message || "Failed to create import job.");
+      const errMsg = e.response?.data?.message;
+      const formattedMsg = Array.isArray(errMsg) ? errMsg.join(", ") : (errMsg || "Failed to create import job.");
+      toast.error(formattedMsg, 6000);
     } finally {
       setIsSubmittingJob(false);
     }

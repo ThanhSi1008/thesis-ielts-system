@@ -322,7 +322,9 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
       });
       toast.success("Draft saved successfully.");
     } catch (e: any) {
-      toast.error(e.response?.data?.message || "Failed to save draft.");
+      const errMsg = e.response?.data?.message;
+      const formattedMsg = Array.isArray(errMsg) ? errMsg.join(", ") : (errMsg || "Failed to save draft.");
+      toast.error(formattedMsg, 6000);
     } finally {
       setIsSaving(false);
     }
@@ -348,7 +350,9 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
       if (e.response?.status === 409) {
         setShowOverwriteConfirm(true);
       } else {
-        toast.error(e.response?.data?.message || "Failed to commit job.");
+        const errMsg = e.response?.data?.message;
+        const formattedMsg = Array.isArray(errMsg) ? errMsg.join(", ") : (errMsg || "Failed to commit job.");
+        toast.error(formattedMsg, 6000);
       }
     } finally {
       setIsCommitting(false);

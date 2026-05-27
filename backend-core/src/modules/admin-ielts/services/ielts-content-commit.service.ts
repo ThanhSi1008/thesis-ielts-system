@@ -3,6 +3,7 @@ import {
   UnprocessableEntityException,
   ConflictException,
   NotFoundException,
+  BadRequestException,
 } from "@nestjs/common";
 import { PrismaService } from "../../../common/prisma/prisma.service";
 import { AdminAuditLogService } from "./admin-audit-log.service";
@@ -220,10 +221,11 @@ export class IeltsContentCommitService {
       );
     }
 
-    if (
-      job.status !== ContentImportStatus.AWAITING_REVIEW &&
-      job.status !== ContentImportStatus.FAILED
-    ) {
+    if (job.status === ContentImportStatus.FAILED) {
+      throw new BadRequestException(job.error || "Job has failed extraction. Please retry.");
+    }
+
+    if (job.status !== ContentImportStatus.AWAITING_REVIEW) {
       throw new ConflictException(
         `Job cannot be committed. Current status is: ${job.status}`
       );
@@ -531,6 +533,12 @@ export class IeltsContentCommitService {
     ];
     const unfinishedJobs = jobs.filter((j) => activeStates.includes(j.status));
     if (unfinishedJobs.length > 0) {
+      const failedJob = unfinishedJobs.find((j) => j.status === ContentImportStatus.FAILED);
+      if (failedJob && failedJob.error) {
+        throw new BadRequestException(
+          `Cannot commit the exam group because the (${failedJob.skill}) part failed: ${failedJob.error}`
+        );
+      }
       throw new ConflictException(
         "Cannot commit group. Some parts of the test are still in progress or failed (retry or discard them first)."
       );
