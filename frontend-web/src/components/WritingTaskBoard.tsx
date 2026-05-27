@@ -113,19 +113,29 @@ export default function WritingTaskBoard({
           >
             <div className="text-[#1a1a1a] leading-[1.7] text-[15px]">
               {activeTask === 2 && currentTask.instruction && (
-                <p className="mb-6">{currentTask.instruction}</p>
-              )}
-              {currentTask.prompt.split("\n\n").map((para, i) => (
                 <p
-                  key={i}
-                  className={`mb-5 ${(activeTask === 2 && i < 2) || (activeTask === 1 && i === 0)
-                    ? "font-bold text-[16px]"
-                    : ""
-                    }`}
-                >
-                  {para}
-                </p>
-              ))}
+                  className="mb-6"
+                  dangerouslySetInnerHTML={{
+                    __html: currentTask.instruction
+                      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+                  }}
+                />
+              )}
+              {currentTask.prompt.split("\n\n").map((para, i) => {
+                let htmlContent = para.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                htmlContent = htmlContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                return (
+                  <p
+                    key={i}
+                    className={`mb-5 ${(activeTask === 2 && i < 2) || (activeTask === 1 && i === 0)
+                      ? "font-bold text-[16px]"
+                      : ""
+                      }`}
+                    dangerouslySetInnerHTML={{ __html: htmlContent }}
+                  />
+                );
+              })}
               {currentTask.image_url && (
                 <div className="mt-8">
                   <img
