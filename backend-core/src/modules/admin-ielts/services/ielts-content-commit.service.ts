@@ -225,7 +225,7 @@ export class IeltsContentCommitService {
       throw new BadRequestException(job.error || "Job has failed extraction. Please retry.");
     }
 
-    if (job.status !== ContentImportStatus.AWAITING_REVIEW) {
+    if (job.status !== ContentImportStatus.AWAITING_REVIEW && job.status !== ContentImportStatus.COMMITTED) {
       throw new ConflictException(
         `Job cannot be committed. Current status is: ${job.status}`
       );

@@ -457,12 +457,16 @@ export default function IELTSIntensiveAdminPage() {
                         
                         <div className="mt-2 flex items-center justify-between">
                           <span className="text-[10px] text-gray-400">Tokens: {job.tokensUsed || 0}</span>
-                          {job.status === "AWAITING_REVIEW" ? (
+                          {job.status === "AWAITING_REVIEW" || job.status === "COMMITTED" ? (
                             <button
                               onClick={() => setEditingJob(job)}
-                              className="px-2.5 py-1 bg-primary text-white text-[11px] font-bold rounded-lg hover:opacity-90"
+                              className={`px-2.5 py-1 text-[11px] font-bold rounded-lg hover:opacity-90 ${
+                                job.status === "COMMITTED" 
+                                  ? "bg-green-600 hover:bg-green-700 text-white" 
+                                  : "bg-primary text-white"
+                              }`}
                             >
-                              Review & Commit
+                              {job.status === "COMMITTED" ? "Review & Re-commit" : "Review & Commit"}
                             </button>
                           ) : job.status === "FAILED" ? (
                             <div className="flex gap-1.5">
@@ -513,12 +517,16 @@ export default function IELTSIntensiveAdminPage() {
                       <td className="px-5 py-3.5"><JobStatusBadge status={job.status} /></td>
                       <td className="px-5 py-3.5 text-right">
                         <div className="flex justify-end gap-2">
-                          {job.status === "AWAITING_REVIEW" && (
+                          {(job.status === "AWAITING_REVIEW" || job.status === "COMMITTED") && (
                             <button
                               onClick={() => setEditingJob(job)}
-                              className="px-3 py-1 bg-primary text-white text-xs font-semibold rounded-lg hover:opacity-90"
+                              className={`px-3 py-1 text-xs font-semibold rounded-lg hover:opacity-90 ${
+                                job.status === "COMMITTED"
+                                  ? "bg-green-600 hover:bg-green-700 text-white"
+                                  : "bg-primary text-white"
+                              }`}
                             >
-                              Review
+                              {job.status === "COMMITTED" ? "Review & Re-commit" : "Review"}
                             </button>
                           )}
                           {(job.status === "FAILED" || job.status === "AWAITING_REVIEW") && (

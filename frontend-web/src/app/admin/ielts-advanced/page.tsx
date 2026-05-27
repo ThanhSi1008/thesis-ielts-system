@@ -430,12 +430,16 @@ export default function IELTSAdvancedAdminPage() {
                     <td className="px-5 py-3.5"><JobStatusBadge status={job.status} /></td>
                     <td className="px-5 py-3.5 text-right">
                       <div className="flex justify-end gap-2">
-                        {job.status === "AWAITING_REVIEW" && (
+                        {(job.status === "AWAITING_REVIEW" || job.status === "COMMITTED") && (
                           <button
                             onClick={() => setEditingJob(job)}
-                            className="px-3 py-1 bg-primary text-white text-xs font-semibold rounded-lg hover:opacity-90"
+                            className={`px-3 py-1 text-xs font-semibold rounded-lg hover:opacity-90 ${
+                              job.status === "COMMITTED"
+                                ? "bg-green-600 hover:bg-green-700 text-white"
+                                : "bg-primary text-white"
+                            }`}
                           >
-                            Review
+                            {job.status === "COMMITTED" ? "Review & Re-commit" : "Review"}
                           </button>
                         )}
                         {(job.status === "FAILED" || job.status === "AWAITING_REVIEW") && (

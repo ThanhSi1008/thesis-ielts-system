@@ -427,7 +427,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
             className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-primary rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60"
           >
             {isCommitting && <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-            Commit & Publish Draft
+            {job.status === "COMMITTED" ? "Re-commit to Live" : "Commit & Publish Draft"}
           </button>
         </div>
       </header>
