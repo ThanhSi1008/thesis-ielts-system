@@ -536,7 +536,11 @@ export function GlobalAIChatFab() {
     }
   };
 
-  const isTakePage = pathname.includes("/take/") || pathname.includes("/practice/") || pathname.endsWith("/start") || pathname === "/ielts/basic/onboarding";
+  const isTakePage = pathname.includes("/take/") || 
+                     pathname.includes("/practice/") || 
+                     pathname.endsWith("/start") || 
+                     pathname === "/ielts/basic/onboarding" ||
+                     pathname.includes("/admin");
 
   if (!user || isTakePage) return null;
 
