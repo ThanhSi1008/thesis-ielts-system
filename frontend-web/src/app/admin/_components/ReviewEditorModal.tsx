@@ -129,6 +129,17 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
   useEffect(() => {
     if (job) {
       const parsedJson = { ...(job.structuredJson || { title: "", content: [] }) };
+
+      // For WRITING jobs: auto-inject chart image URL from mediaAssets if TASK_1.imageUrl is absent
+      if (job.skill === "WRITING" && Array.isArray(job.mediaAssets)) {
+        const chartAsset = (job.mediaAssets as any[]).find(a => a.kind === "chart_image");
+        if (chartAsset?.storedUrl && Array.isArray(parsedJson.tasks)) {
+          parsedJson.tasks = parsedJson.tasks.map((t: any) =>
+            t.taskType === "TASK_1" && !t.imageUrl ? { ...t, imageUrl: chartAsset.storedUrl } : t
+          );
+        }
+      }
+
       setStructuredJson(parsedJson);
       setJsonText(JSON.stringify(parsedJson, null, 2));
       setProvenance(job.provenance || { source: "cambridge" });
@@ -438,6 +449,25 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
   };
 
   const isListening = job.skill === "LISTENING";
+  const isWriting = job.skill === "WRITING";
+
+  // Re-extract: trigger a fresh Gemini extraction for this job (discards current draft)
+  const [isRetrying, setIsRetrying] = useState(false);
+  const handleReExtract = async () => {
+    if (!confirm("Re-extract will discard the current AI output and re-run Gemini on the original PDF. Continue?")) return;
+    setIsRetrying(true);
+    try {
+      await ieltsImportApi.retryJob(job.id);
+      toast.success("Re-extraction queued. Close this editor and re-open the job once it reaches AWAITING_REVIEW.");
+      onSuccess();
+    } catch (e: any) {
+      const errMsg = (e as any).response?.data?.message;
+      const formattedMsg = Array.isArray(errMsg) ? errMsg.join(", ") : (errMsg || "Failed to queue re-extraction.");
+      toast.error(formattedMsg, 6000);
+    } finally {
+      setIsRetrying(false);
+    }
+  };
 
   // Audio URLs come exclusively from job.audioUrls[] — a static Cloudinary array
   // stored at job creation time, bypassing AI processing entirely.
@@ -498,6 +528,20 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
 
         {/* Buttons */}
         <div className="flex items-center gap-2">
+          {isWriting && (
+            <button
+              onClick={handleReExtract}
+              disabled={isRetrying}
+              title="Discard current AI output and re-run Gemini extraction on the original PDF"
+              className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 rounded-xl hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-colors disabled:opacity-60"
+            >
+              {isRetrying
+                ? <span className="w-3.5 h-3.5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                : <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+              }
+              Re-extract from PDF
+            </button>
+          )}
           <button
             onClick={handleSaveDraft}
             disabled={isSaving}
@@ -1325,26 +1369,27 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                                   className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none leading-relaxed"
                                 />
                               </div>
-                              {/* Chart image — read directly from task1.imageUrl, no dynamic scan */}
-                              <div>
-                                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Chart / Graph Image URL</label>
-                                <input
-                                  type="text"
-                                  value={task1.imageUrl || ""}
-                                  onChange={e => updateTask("TASK_1", "imageUrl", e.target.value || null)}
-                                  placeholder="https://res.cloudinary.com/..."
-                                  className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none font-mono"
-                                />
-                                {task1.imageUrl && (
-                                  <div className="mt-2 border border-violet-100 dark:border-violet-900/40 rounded-xl overflow-hidden max-w-md bg-white dark:bg-gray-900">
+                              {/* Chart image — read-only preview, URL injected automatically by pipeline */}
+                              {task1.imageUrl ? (
+                                <div>
+                                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+                                    Chart Image
+                                    <span className="ml-1.5 text-[8px] font-semibold normal-case text-violet-500 bg-violet-500/10 px-1.5 py-0.5 rounded-full">Auto-injected by pipeline</span>
+                                  </label>
+                                  <div className="border border-violet-100 dark:border-violet-900/40 rounded-xl overflow-hidden max-w-md bg-white dark:bg-gray-900">
                                     <img
                                       src={task1.imageUrl}
                                       alt="Task 1 Chart Preview"
                                       className="w-full h-auto object-contain max-h-[220px]"
                                     />
                                   </div>
-                                )}
-                              </div>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700">
+                                  <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                  <span className="text-[10px] text-gray-400 italic">No chart image — upload one when creating the import job.</span>
+                                </div>
+                              )}
                             </div>
                           </div>
 

@@ -111,16 +111,19 @@ Please follow these strict guidelines:
 
 """
 
-WRITING_EXTRACTION_PROMPT = """You are an expert IELTS Writing parser. Your job is to extract IELTS Writing tasks and prompts from the provided RAW TEXT.
+WRITING_EXTRACTION_PROMPT = """You are an expert IELTS Writing parser. Your job is to extract IELTS Writing tasks and prompts from the provided PDF document or raw text.
+
+⚠️ ANTI-HALLUCINATION RULE — CRITICAL:
+You MUST read and copy the exact text from the provided document. Do NOT generate, invent, fabricate, or paraphrase any question text, topic statements, or instructions. If the document says "The most important aim of science should be to improve people's lives", output that exact sentence — do not substitute it with a different topic. Every word in the 'prompt' field must appear verbatim in the source document.
 
 Please follow these strict guidelines:
-1. **BOTH TASKS**: Always extract BOTH writing tasks into the 'tasks' array — one TASK_1 entry and one TASK_2 entry, in that order. Never return only a single task.
-2. **Task Type**: Identify whether each task is 'TASK_1' (data reports, graphs, maps, charts) or 'TASK_2' (opinion/discussion essays).
-3. **Sub-Type**: Deduce the exact IELTS task sub-type (e.g. line_graph, bar_chart, pie_chart, table, diagram, map, opinion, discussion, double_question, advantages_disadvantages).
-4. **Prompt & Instructions**: Extract the complete prompt and instructions verbatim for each task.
-5. **Telemetry**: Populate standard defaults: minimumWords=150 and suggestedTime=20 for TASK_1, or minimumWords=250 and suggestedTime=40 for TASK_2.
-6. **No Placeholders**: If a task references an image or chart, set `imageUrl` to null (populated dynamically by the pipeline). Do NOT use fake URLs.
-7. **Title**: Add a descriptive title for the overall writing test (e.g. 'Cambridge IELTS 18 - Writing Test 1').
+1. **VERBATIM EXTRACTION**: Copy the task prompts WORD-FOR-WORD from the document, including all instructions ("You should spend about X minutes", "Write at least X words", task descriptions, and the boxed question statement). Do NOT rephrase or summarise.
+2. **BOTH TASKS**: Always extract BOTH writing tasks into the 'tasks' array — one TASK_1 entry and one TASK_2 entry, in that order. Never return only a single task.
+3. **Task Type**: TASK_1 = data/visual report (line_graph, bar_chart, pie_chart, table, diagram, map, process). TASK_2 = essay (opinion, discussion, double_question, advantages_disadvantages, problem_solution).
+4. **Sub-Type**: Identify the exact sub-type from the document content, not from assumption.
+5. **Title**: Extract the actual test title visible in the document (e.g. 'Cambridge IELTS 18 Test 1 - Writing'). Do NOT generate a UUID or placeholder title.
+6. **Telemetry**: Populate standard defaults — minimumWords=150 and suggestedTime=20 for TASK_1; minimumWords=250 and suggestedTime=40 for TASK_2.
+7. **No Image Placeholders**: Set `imageUrl` to null for all tasks — the chart/graph image URL is injected separately by the pipeline.
 """
 
 SPEAKING_EXTRACTION_PROMPT = """You are an expert IELTS Speaking parser. Your job is to extract IELTS Speaking parts, topics, and examiner questions from the provided RAW TEXT.
