@@ -121,7 +121,7 @@ Please follow these strict guidelines:
 2. **BOTH TASKS**: Always extract BOTH writing tasks into the 'tasks' array — one TASK_1 entry and one TASK_2 entry, in that order. Never return only a single task.
 3. **Task Type**: TASK_1 = data/visual report (line_graph, bar_chart, pie_chart, table, diagram, map, process). TASK_2 = essay (opinion, discussion, double_question, advantages_disadvantages, problem_solution).
 4. **Sub-Type**: Identify the exact sub-type from the document content, not from assumption.
-5. **Title**: Extract the actual test title visible in the document (e.g. 'Cambridge IELTS 18 Test 1 - Writing'). Do NOT generate a UUID or placeholder title.
+5. **Title**: Set `title` to the placeholder string `"__PROVENANCE_TITLE__"`. The pipeline overwrites this value with the canonical title derived from provenance metadata (e.g. "Cambridge IELTS 17 - Writing Test 1"), so you do not need to extract it from the document.
 6. **Telemetry**: Populate standard defaults — minimumWords=150 and suggestedTime=20 for TASK_1; minimumWords=250 and suggestedTime=40 for TASK_2.
 7. **No Image Placeholders**: Set `imageUrl` to null for all tasks — the chart/graph image URL is injected separately by the pipeline.
 """

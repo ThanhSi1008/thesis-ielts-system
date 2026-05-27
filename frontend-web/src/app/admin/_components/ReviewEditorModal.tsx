@@ -374,6 +374,51 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     return true;
   };
 
+  // ─── Chart image upload (recover missing image for WRITING jobs) ───
+  const handleChartImageUpload = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
+      return;
+    }
+    setIsUploadingChartImage(true);
+    try {
+      const storedUrl = await ieltsImportApi.uploadFile(file);
+      const newAsset = { kind: "chart_image", storedUrl, originalUrl: file.name };
+
+      // Merge into mediaAssets (replace any existing chart_image)
+      const existingAssets: any[] = Array.isArray(job.mediaAssets) ? (job.mediaAssets as any[]) : [];
+      const merged = [
+        ...existingAssets.filter((a: any) => a.kind !== "chart_image"),
+        newAsset,
+      ];
+
+      // Inject imageUrl into TASK_1
+      const updatedTasks = Array.isArray(structuredJson.tasks)
+        ? structuredJson.tasks.map((t: any) =>
+            t.taskType === "TASK_1" ? { ...t, imageUrl: storedUrl } : t
+          )
+        : structuredJson.tasks;
+      const updatedJson = { ...structuredJson, tasks: updatedTasks };
+
+      await ieltsImportApi.saveDraft(job.id, {
+        structuredJson: updatedJson,
+        mediaAssets: merged,
+        version: job.version || 0,
+      });
+
+      // Update local state so the preview appears immediately
+      setStructuredJson(updatedJson);
+      setJsonText(JSON.stringify(updatedJson, null, 2));
+      job.mediaAssets = merged;
+      toast.success("Chart image saved successfully.");
+    } catch (e: any) {
+      const msg = e.response?.data?.message || "Failed to upload chart image.";
+      toast.error(Array.isArray(msg) ? msg.join(", ") : msg, 6000);
+    } finally {
+      setIsUploadingChartImage(false);
+    }
+  };
+
   // ─── Actions ───
   const handleSaveDraft = async () => {
     if (jsonError) {
@@ -453,6 +498,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
 
   // Re-extract: trigger a fresh Gemini extraction for this job (discards current draft)
   const [isRetrying, setIsRetrying] = useState(false);
+  const [isUploadingChartImage, setIsUploadingChartImage] = useState(false);
   const handleReExtract = async () => {
     if (!confirm("Re-extract will discard the current AI output and re-run Gemini on the original PDF. Continue?")) return;
     setIsRetrying(true);
@@ -1369,27 +1415,43 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                                   className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none leading-relaxed"
                                 />
                               </div>
-                              {/* Chart image — read-only preview, URL injected automatically by pipeline */}
-                              {task1.imageUrl ? (
-                                <div>
-                                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
-                                    Chart Image
+                              {/* Chart image — preview + upload/replace */}
+                              <div>
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+                                  Chart Image
+                                  {task1.imageUrl && (
                                     <span className="ml-1.5 text-[8px] font-semibold normal-case text-violet-500 bg-violet-500/10 px-1.5 py-0.5 rounded-full">Auto-injected by pipeline</span>
-                                  </label>
-                                  <div className="border border-violet-100 dark:border-violet-900/40 rounded-xl overflow-hidden max-w-md bg-white dark:bg-gray-900">
-                                    <img
-                                      src={task1.imageUrl}
-                                      alt="Task 1 Chart Preview"
-                                      className="w-full h-auto object-contain max-h-[220px]"
-                                    />
+                                  )}
+                                </label>
+                                {task1.imageUrl ? (
+                                  <div className="flex flex-col gap-2">
+                                    <div className="border border-violet-100 dark:border-violet-900/40 rounded-xl overflow-hidden max-w-md bg-white dark:bg-gray-900">
+                                      <img
+                                        src={task1.imageUrl}
+                                        alt="Task 1 Chart Preview"
+                                        className="w-full h-auto object-contain max-h-[220px]"
+                                      />
+                                    </div>
+                                    <label className={`inline-flex items-center gap-1.5 self-start cursor-pointer text-[10px] font-semibold text-violet-600 dark:text-violet-400 hover:underline ${isUploadingChartImage ? "opacity-50 pointer-events-none" : ""}`}>
+                                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                      {isUploadingChartImage ? "Uploading…" : "Replace image"}
+                                      <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleChartImageUpload(f); e.target.value = ""; }} />
+                                    </label>
                                   </div>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-200 dark:border-gray-700">
-                                  <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                  <span className="text-[10px] text-gray-400 italic">No chart image — upload one when creating the import job.</span>
-                                </div>
-                              )}
+                                ) : (
+                                  <label className={`flex items-center gap-2 px-3 py-2.5 rounded-xl bg-gray-50 dark:bg-gray-800 border border-dashed border-gray-300 dark:border-gray-600 hover:border-violet-400 hover:bg-violet-50 dark:hover:bg-violet-950/20 cursor-pointer transition-colors ${isUploadingChartImage ? "opacity-60 pointer-events-none" : ""}`}>
+                                    {isUploadingChartImage ? (
+                                      <span className="w-4 h-4 border-2 border-violet-400 border-t-transparent rounded-full animate-spin shrink-0" />
+                                    ) : (
+                                      <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                    )}
+                                    <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                                      {isUploadingChartImage ? "Uploading chart image…" : "Click to upload chart image"}
+                                    </span>
+                                    <input type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleChartImageUpload(f); e.target.value = ""; }} />
+                                  </label>
+                                )}
+                              </div>
                             </div>
                           </div>
 

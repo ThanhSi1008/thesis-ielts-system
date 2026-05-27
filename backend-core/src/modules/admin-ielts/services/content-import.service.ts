@@ -201,17 +201,56 @@ export class ContentImportService {
       data.error = friendlyError;
     } else {
       data.status = ContentImportStatus.AWAITING_REVIEW;
-      data.structuredJson = callbackDto.structuredJson || null;
-      // Preserve user-uploaded assets: only use the worker's mediaAssets if it
-      // returned a non-empty list. An empty array (e.g. text-only extraction or
-      // a worker bug that lost the assets) must NOT silently overwrite the chart
-      // image / audio assets the admin attached at job-creation time.
-      data.mediaAssets = callbackDto.mediaAssets?.length
-        ? callbackDto.mediaAssets
-        : ((job.mediaAssets as any[]) ?? []);
       data.geminiModel = callbackDto.geminiModel || null;
       data.tokensUsed = callbackDto.tokensUsed || null;
       data.error = null;
+
+      // Merge mediaAssets: start from the user-uploaded assets stored at job-creation
+      // time (e.g. chart_image for WRITING), then add any NEW assets the Python worker
+      // extracted (e.g. audio/image assets from the PDF). Never overwrite by storedUrl.
+      const existingAssets: any[] = Array.isArray(job.mediaAssets) ? (job.mediaAssets as any[]) : [];
+      const callbackAssets: any[] = Array.isArray(callbackDto.mediaAssets) ? callbackDto.mediaAssets : [];
+      const existingUrls = new Set(existingAssets.map((a: any) => a.storedUrl).filter(Boolean));
+      const newAssets = callbackAssets.filter((a: any) => !existingUrls.has(a.storedUrl));
+      data.mediaAssets = [...existingAssets, ...newAssets];
+
+      // Post-process structuredJson server-side — NestJS has both provenance and
+      // mediaAssets, making it a more reliable injection point than the Python worker.
+      let structuredJson = callbackDto.structuredJson || null;
+      if (structuredJson) {
+        const prov = job.provenance as any;
+
+        // 1. Override title with a canonical format derived from provenance so the
+        //    admin never sees a Gemini-hallucinated or differently-formatted title.
+        //    Format: "Cambridge IELTS <N> - <Skill> Test <T>"
+        if (prov?.bookNumber && prov?.testNumber) {
+          const skillLabel = ({
+            WRITING: "Writing", LISTENING: "Listening",
+            READING: "Reading", SPEAKING: "Speaking",
+          } as Record<string, string>)[job.skill] ?? job.skill;
+          structuredJson = {
+            ...structuredJson,
+            title: `Cambridge IELTS ${prov.bookNumber} - ${skillLabel} Test ${prov.testNumber}`,
+          };
+        }
+
+        // 2. Inject chart imageUrl into TASK_1 using the merged mediaAssets so the
+        //    image uploaded at job-creation is always present in the review editor.
+        if (job.skill === ContentImportSkill.WRITING) {
+          const chartAsset = (data.mediaAssets as any[]).find((a: any) => a.kind === "chart_image");
+          if (chartAsset?.storedUrl && Array.isArray(structuredJson.tasks)) {
+            structuredJson = {
+              ...structuredJson,
+              tasks: (structuredJson.tasks as any[]).map((t: any) =>
+                t.taskType === "TASK_1" && !t.imageUrl
+                  ? { ...t, imageUrl: chartAsset.storedUrl }
+                  : t
+              ),
+            };
+          }
+        }
+      }
+      data.structuredJson = structuredJson;
     }
 
     return this.prisma.contentImportJob.update({
