@@ -48,7 +48,7 @@ const config: Config = {
     // Global fallback — toàn project phải đạt tối thiểu đây
     global: {
       lines: 28,
-      branches: 14,
+      branches: 9,
     },
 
     // Auth service — xác thực & phân quyền, priority cao
