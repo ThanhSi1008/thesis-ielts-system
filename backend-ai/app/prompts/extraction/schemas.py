@@ -20,7 +20,6 @@ class QuestionItem(BaseModel):
         description="The question text or prompt. For gap-filling, use underscores to indicate blank slots (e.g., 'The speaker's name is ___.')"
     )
     options: Optional[List[str]] = Field(
-        default=None,
         description=(
             "List of selectable answer choices. REQUIRED (non-null) for selection-based types: "
             "multiple_choice and multiple_choice_multiple (e.g. ['A. increased efficiency', 'B. reduced costs', 'C. greater accuracy']); "
@@ -35,7 +34,6 @@ class QuestionItem(BaseModel):
                     "a Boolean/Evaluation status (e.g., 'TRUE', 'YES', 'NOT GIVEN'), or plain text answer words for completion."
     )
     explanation: Optional[str] = Field(
-        default=None,
         description=(
             "Highly detailed, comprehensive explanation written entirely in English using this STRICT literal prefix format:\n"
             "Locating: [state the exact speaker turn / paragraph / section label where the answer evidence appears, with a short verbatim quote]\n"
@@ -57,7 +55,6 @@ class ListeningSectionSchema(BaseModel):
     partNumber: int = Field(description="The Part number, integer from 1 to 4.")
     title: str = Field(description="Title of this specific Listening part (e.g. 'Part 1: Travel Inquiry').")
     audioUrl: Optional[str] = Field(
-        default=None,
         description=(
             "Cloud storage URL of this part's audio file. "
             "When an AVAILABLE MEDIA ASSETS block is provided in the prompt, you MUST copy the exact "
@@ -71,7 +68,6 @@ class ListeningSectionSchema(BaseModel):
 class ListeningPartSchema(BaseModel):
     title: str = Field(description="Title of this Listening Test (e.g. 'Cambridge IELTS 18 - Listening Test 1').")
     imageUrl: Optional[str] = Field(
-        default=None,
         description=(
             "Cloud storage URL of the official answer key image. "
             "When an AVAILABLE MEDIA ASSETS block is provided in the prompt, you MUST copy the exact "
@@ -107,11 +103,11 @@ class WritingPromptSchema(BaseModel):
     )
     title: str = Field(description="Title describing this writing task.")
     prompt: str = Field(description="The complete prompt, task instructions, and question text.")
-    imageUrl: Optional[str] = Field(default=None, description="Set as null. Populated dynamically by pipeline.")
-    minimumWords: int = Field(default=150, description="Minimum word requirement: 150 for TASK_1, 250 for TASK_2.")
-    suggestedTime: int = Field(default=20, description="Suggested time limit in minutes: 20 for TASK_1, 40 for TASK_2.")
-    difficulty: str = Field(default="medium", description="Difficulty classification: easy, medium, or hard.")
-    engnovateSlug: Optional[str] = Field(default=None, description="Set as null.")
+    imageUrl: Optional[str] = Field(description="Set as null. Populated dynamically by pipeline.")
+    minimumWords: int = Field(description="Minimum word requirement: 150 for TASK_1, 250 for TASK_2.")
+    suggestedTime: int = Field(description="Suggested time limit in minutes: 20 for TASK_1, 40 for TASK_2.")
+    difficulty: str = Field(description="Difficulty classification: easy, medium, or hard.")
+    engnovateSlug: Optional[str] = Field(description="Set as null.")
 
 class WritingExamSchema(BaseModel):
     title: str = Field(description="Title of the Writing test (e.g. 'Cambridge IELTS 18 - Writing Test 1').")
@@ -132,4 +128,4 @@ class SpeakingPartSchema(BaseModel):
     topic: str = Field(description="The general topic or subject of this speaking section (e.g. 'Hometown', 'A book you read').")
     title: str = Field(description="Descriptive title of this speaking section.")
     questions: List[SpeakingQuestion] = Field(description="The list of examiner questions. For Part 2 cue_card, provide 1 item representing the cue card text prompt.")
-    engnovateSlug: Optional[str] = Field(default=None, description="Set as null.")
+    engnovateSlug: Optional[str] = Field(description="Set as null.")
