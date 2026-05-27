@@ -145,11 +145,12 @@ export const ieltsImportApi = {
     sourceType: string;
     sourceRef: string;
     provenance: Record<string, any>;
+    mediaAssets?: any[];
   }) => api.post<any>('/admin/ielts/import', dto).then(r => r.data),
 
   getAllJobs: () => api.get<any[]>('/admin/ielts/import').then(r => r.data),
   getJobById: (id: string) => api.get<any>(`/admin/ielts/import/${id}`).then(r => r.data),
-  saveDraft: (id: string, dto: { structuredJson: any; provenance?: any; version: number }) =>
+  saveDraft: (id: string, dto: { structuredJson: any; provenance?: any; mediaAssets?: any[]; version: number }) =>
     api.patch<any>(`/admin/ielts/import/${id}/draft`, dto).then(r => r.data),
   commitJob: (id: string, dto?: { overwrite?: boolean; isPublished?: boolean }) =>
     api.post<string>(`/admin/ielts/import/${id}/commit`, dto).then(r => r.data),

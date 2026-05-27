@@ -67,6 +67,8 @@ export default function IELTSAdvancedAdminPage() {
 
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmittingJob, setIsSubmittingJob] = useState(false);
+  const [audioAssets, setAudioAssets] = useState<{ originalUrl: string; storedUrl: string; kind: "audio"; partIndex: number }[]>([]);
+  const [uploadingAudioPart, setUploadingAudioPart] = useState<number | null>(null);
 
   // ─── Data Fetching ───
   const fetchAdvancedLists = useCallback(async () => {
@@ -220,14 +222,45 @@ export default function IELTSAdvancedAdminPage() {
     }
   };
 
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>, partNum: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingAudioPart(partNum);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await api.post("/admin/ielts/import/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      const storedUrl = (res.data as any).url;
+      const newAsset = {
+        originalUrl: file.name,
+        storedUrl,
+        kind: "audio" as const,
+        partIndex: partNum
+      };
+      setAudioAssets(prev => {
+        const clean = prev.filter(a => a.partIndex !== partNum);
+        return [...clean, newAsset].sort((a, b) => a.partIndex - b.partIndex);
+      });
+      toast.success(`Audio for Part ${partNum} uploaded successfully.`);
+    } catch {
+      toast.error(`Failed to upload Audio for Part ${partNum}.`);
+    } finally {
+      setUploadingAudioPart(null);
+    }
+  };
+
   // ─── Submit Import Job ───
   const handleCreateImportJob = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sourceRef.trim()) {
       if (sourceType === "PDF_UPLOAD") {
-        toast.error("Vui lòng tải lên file PDF.");
+        toast.error("Please upload a PDF file.");
       } else {
-        toast.error("Vui lòng nhập nội dung văn bản thô.");
+        toast.error("Please enter the raw text content.");
       }
       return;
     }
@@ -250,14 +283,16 @@ export default function IELTSAdvancedAdminPage() {
         skill,
         sourceType,
         sourceRef: sourceRef.trim(),
-        provenance
-      });
+        provenance,
+        mediaAssets: skill === "LISTENING" ? audioAssets : undefined
+      } as any);
 
       toast.success("Advanced import job successfully queued!");
       setShowImportDrawer(false);
       
       setSourceRef("");
       setProvTitle("");
+      setAudioAssets([]);
 
       fetchStagingQueue();
     } catch (e: any) {
@@ -510,10 +545,10 @@ export default function IELTSAdvancedAdminPage() {
                   onChange={e => setSkill(e.target.value)}
                   className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
                 >
-                  <option value="LISTENING">Listening (Nghe)</option>
-                  <option value="READING">Reading (Đọc)</option>
-                  <option value="WRITING">Writing (Viết)</option>
-                  <option value="SPEAKING">Speaking (Nói)</option>
+                  <option value="LISTENING">Listening</option>
+                  <option value="READING">Reading</option>
+                  <option value="WRITING">Writing</option>
+                  <option value="SPEAKING">Speaking</option>
                 </select>
               </div>
 
@@ -529,7 +564,7 @@ export default function IELTSAdvancedAdminPage() {
                     className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
                   >
                     <option value="PDF_UPLOAD">PDF File Drop</option>
-                    <option value="RAW_TEXT_PASTE">Dán văn bản thô (Raw Text)</option>
+                    <option value="RAW_TEXT_PASTE">Paste Raw Text</option>
                   </select>
                 </div>
                 <div>
@@ -549,11 +584,11 @@ export default function IELTSAdvancedAdminPage() {
               {/* PDF Upload or Raw Text Paste Input */}
               {sourceType === "RAW_TEXT_PASTE" ? (
                 <div>
-                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Nội dung văn bản thô *</label>
+                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Raw Text Content *</label>
                   <textarea
                     value={sourceRef}
                     onChange={e => setSourceRef(e.target.value)}
-                    placeholder="Dán nội dung bài đọc/bài nghe và câu hỏi tại đây..."
+                    placeholder="Paste the reading/listening content and questions here..."
                     rows={8}
                     className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-y font-mono"
                     required
@@ -586,6 +621,65 @@ export default function IELTSAdvancedAdminPage() {
                       <span className="text-[9px] text-gray-400 block truncate max-w-[240px] select-all mt-1">{sourceRef}</span>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Audio Tracks for Listening Skill */}
+              {skill === "LISTENING" && (
+                <div className="border border-gray-150 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/30 rounded-2xl p-4 flex flex-col gap-3">
+                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400">Audio Tracks (Part 1-4)</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[1, 2, 3, 4].map(partNum => {
+                      const asset = audioAssets.find(a => a.partIndex === partNum);
+                      const isUploadingPart = uploadingAudioPart === partNum;
+                      return (
+                        <div key={partNum} className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-850 p-2.5 rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-extrabold text-primary uppercase">Part {partNum}</span>
+                            {asset ? (
+                              <span className="text-[9px] font-bold text-green-600 flex items-center gap-0.5">
+                                <span className="w-1 h-1 rounded-full bg-green-500" />
+                                Uploaded
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-medium text-gray-400">Pending</span>
+                            )}
+                          </div>
+                          {asset ? (
+                            <div className="mt-1.5 flex items-center justify-between gap-1">
+                              <span className="text-[9px] text-gray-500 dark:text-gray-450 truncate max-w-[100px]" title={asset.originalUrl}>
+                                {asset.originalUrl}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setAudioAssets(prev => prev.filter(a => a.partIndex !== partNum))}
+                                className="text-[8px] font-bold text-red-500 hover:text-red-650"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="mt-2.5">
+                              <input
+                                type="file"
+                                accept="audio/*"
+                                id={`audio-part-${partNum}`}
+                                className="hidden"
+                                disabled={isUploadingPart}
+                                onChange={e => handleAudioUpload(e, partNum)}
+                              />
+                              <label
+                                htmlFor={`audio-part-${partNum}`}
+                                className="block w-full text-center py-1 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 border border-gray-200 dark:border-gray-700 rounded-lg text-[9px] font-bold text-gray-650 dark:text-gray-300 cursor-pointer transition-colors"
+                              >
+                                {isUploadingPart ? "Uploading..." : "Upload Audio"}
+                              </label>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 

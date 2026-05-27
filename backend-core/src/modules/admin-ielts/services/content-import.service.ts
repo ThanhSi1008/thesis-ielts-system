@@ -116,6 +116,7 @@ export class ContentImportService {
           sourceType: dto.sourceType,
           sourceRef: dto.sourceRef,
           provenance: dto.provenance,
+          mediaAssets: dto.mediaAssets || null,
           // Pre-populate rawText for RAW_TEXT_PASTE so Stage 1 is bypassed in the worker
           rawText: isRawTextPaste ? dto.sourceRef : null,
           status: ContentImportStatus.PENDING,
@@ -231,6 +232,7 @@ export class ContentImportService {
       data: {
         structuredJson: saveDraftDto.structuredJson,
         provenance: saveDraftDto.provenance !== undefined ? saveDraftDto.provenance : job.provenance,
+        mediaAssets: saveDraftDto.mediaAssets !== undefined ? saveDraftDto.mediaAssets : job.mediaAssets,
         version: job.version + 1,
       },
     });

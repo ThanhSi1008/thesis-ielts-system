@@ -43,6 +43,10 @@ export class CreateImportJobDto {
     title?: string;
     [key: string]: any;
   };
+
+  @IsArray()
+  @IsOptional()
+  mediaAssets?: Array<any>;
 }
 
 export class SaveDraftDto {
@@ -53,6 +57,10 @@ export class SaveDraftDto {
   @IsObject()
   @IsOptional()
   provenance?: Record<string, any>;
+
+  @IsArray()
+  @IsOptional()
+  mediaAssets?: Array<any>;
 
   @IsInt()
   @Min(0)
