@@ -494,8 +494,8 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
 
   const allMediaAssets: any[] = Array.isArray(job.mediaAssets) ? job.mediaAssets : [];
 
-  // Filter to audio-only assets so the image asset is never counted or selected
-  // as a track. Sort by partIndex when present so positional fallback is stable.
+  // Fallback audio pool: used only when structuredJson.parts[].audioUrl is absent
+  // (jobs processed before the pipeline upgrade). Sort by partIndex for stable position.
   const audioOnlyAssets = allMediaAssets
     .filter((a: any) =>
       a.kind === "audio" ||
@@ -505,11 +505,10 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     )
     .sort((a: any, b: any) => (a.partIndex ?? 0) - (b.partIndex ?? 0));
 
-  // Render-time image resolver: reads structuredJson.imageUrl first (set by the
-  // init hook or manual upload), then falls back to scanning allMediaAssets so
-  // the card is never stuck in "Pending" even when structuredJson lacks imageUrl.
+  // ── Image: structuredJson.imageUrl is the canonical truth (populated by the AI
+  // pipeline). Scan allMediaAssets only as a last-resort fallback.
   const resolvedImageUrl: string | null =
-    structuredJson.imageUrl ||
+    (structuredJson.imageUrl as string | null | undefined) ||
     allMediaAssets.find((a: any) =>
       a.kind === "image" ||
       (typeof a.mimeType === "string" && a.mimeType.startsWith("image/")) ||
@@ -519,13 +518,19 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
 
   const isListening = job.skill === "LISTENING";
   const activePartNumber = activeReviewPartIdx + 1;
-  const isMultiAudio = audioOnlyAssets.length > 1;
-  // Primary: find by partIndex (uploads from updated form); fallback: positional
-  // so Part N always maps to the N-th audio file regardless of partIndex presence.
-  const activeAudioAsset =
-    audioOnlyAssets.find((a: any) => a.partIndex === activePartNumber) ??
-    audioOnlyAssets[activeReviewPartIdx] ??
+
+  // ── Audio: primary source is activePart.audioUrl (written directly by the AI
+  // pipeline into structuredJson.parts[N].audioUrl). Only fall back to the
+  // job.mediaAssets pool for jobs that pre-date the pipeline upgrade.
+  const activeAudioUrl: string | null =
+    (activePart?.audioUrl as string | null | undefined) ||
+    audioOnlyAssets.find((a: any) => a.partIndex === activePartNumber)?.storedUrl ||
+    audioOnlyAssets[activeReviewPartIdx]?.storedUrl ||
     null;
+
+  const isMultiAudio =
+    (structuredJson.parts as any[] | undefined)?.some((p: any) => !!p?.audioUrl) ||
+    audioOnlyAssets.length > 1;
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-gray-50 dark:bg-gray-950/95 backdrop-blur-md">
@@ -797,8 +802,10 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                           <h4 className="text-[11px] font-bold text-gray-800 dark:text-gray-200 mb-2">Audio Tracks (Part 1-4)</h4>
                           <div className="grid grid-cols-4 gap-1.5">
                             {[1, 2, 3, 4].map(partNum => {
-                              // partIndex lookup first; fall back to positional slot
+                              // Primary: structuredJson.parts[N-1].audioUrl (AI pipeline output)
+                              // Fallback: job.mediaAssets pool for pre-upgrade jobs
                               const hasAudio =
+                                !!((structuredJson.parts as any[])?.[partNum - 1]?.audioUrl) ||
                                 audioOnlyAssets.some((a: any) => a.partIndex === partNum) ||
                                 audioOnlyAssets[partNum - 1] !== undefined;
                               const isActive = activeReviewPartIdx + 1 === partNum;
@@ -828,11 +835,11 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
 
                         {/* Master Audio Dashboard */}
                         <div className="mt-2.5 pt-2 border-t border-gray-150 dark:border-gray-800 flex flex-col">
-                          {activeAudioAsset ? (
+                          {activeAudioUrl ? (
                             <div className="flex items-center gap-2">
                               <audio
-                                key={`${activeReviewPartIdx}-${activeAudioAsset.storedUrl}`}
-                                src={activeAudioAsset.storedUrl}
+                                key={`${activeReviewPartIdx}-${activeAudioUrl}`}
+                                src={activeAudioUrl}
                                 controls
                                 className="flex-1 h-7 text-xs focus:outline-none"
                               />
