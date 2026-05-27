@@ -6,6 +6,7 @@ export interface NoteQuestion {
   answer: string;
   acceptable_answers?: string[];
   explanation?: any;
+  question_text?: string;
 }
 
 // notes can be flat strings OR grouped objects with subheadings
@@ -161,8 +162,79 @@ export function NoteCompletionGroup({
           {group.instruction || 'Complete the notes below.'}
         </p>
 
-        {/* Note Title Box */}
-        {group.note_title && (
+        {/* Notes block or plain questions fallback */}
+        {!group.note_title || !group.notes || group.notes.length === 0 ? (
+          <div className="space-y-4">
+            {group.questions.map((q) => {
+              const userAnswer = String(answers[q.question_number] || '');
+              const isCorrect = checkAnswer(q, userAnswer);
+              const text = q.question_text || '';
+              const blankRegex = /_+|\[blank\]/gi;
+              const hasBlank = blankRegex.test(text);
+
+              const renderBlankInput = () => (
+                <span
+                  id={`question-${q.question_number}`}
+                  className={`inline-flex items-center border rounded px-2 py-0.5 mx-1 min-w-[120px] transition-colors ${
+                    submitted
+                      ? isCorrect
+                        ? 'border-green-400 bg-green-50'
+                        : 'border-red-300 bg-red-50'
+                      : 'border-gray-400 bg-white focus-within:border-[#FFC107]'
+                  }`}
+                >
+                  <span className={`text-[11px] font-bold mr-1.5 shrink-0 ${
+                    submitted ? (isCorrect ? 'text-green-600' : 'text-red-400') : 'text-gray-400'
+                  }`}>
+                    {q.question_number}
+                  </span>
+                  {submitted ? (
+                    <>
+                      <span className={`text-[13px] font-semibold ${isCorrect ? 'text-green-700' : 'text-red-500 line-through'}`}>
+                        {userAnswer || '—'}
+                      </span>
+                      {!isCorrect && showAnswers && (
+                        <span className="ml-1.5 text-[12px] text-green-600 font-bold">({q.answer})</span>
+                      )}
+                    </>
+                  ) : (
+                    <input
+                      type="text"
+                      value={userAnswer}
+                      onChange={e => onAnswer(q.question_number, e.target.value)}
+                      autoComplete="off"
+                      spellCheck={false}
+                      className="outline-none bg-transparent text-[13px] text-gray-800 min-w-[80px] w-full font-medium caret-yellow-500"
+                    />
+                  )}
+                </span>
+              );
+
+              if (hasBlank) {
+                const parts = text.split(blankRegex);
+                return (
+                  <div key={q.question_number} className="text-[14px] text-gray-800 leading-relaxed pl-1 py-1.5 flex items-baseline flex-wrap">
+                    <span className="mr-2 font-bold text-gray-500">{q.question_number}.</span>
+                    {parts.map((part: string, pi: number) => (
+                      <React.Fragment key={pi}>
+                        <span>{part}</span>
+                        {pi < parts.length - 1 && renderBlankInput()}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                );
+              }
+
+              return (
+                <div key={q.question_number} className="text-[14px] text-gray-800 leading-relaxed pl-1 py-1.5 flex items-center flex-wrap gap-2">
+                  <span className="font-bold text-gray-500">{q.question_number}.</span>
+                  <span>{text}</span>
+                  {renderBlankInput()}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
           <div className="border border-gray-300 rounded-lg overflow-hidden">
             <div className="bg-gray-100 border-b border-gray-300 px-4 py-2 text-center">
               <span className="text-[13px] font-bold text-gray-800">{group.note_title}</span>
@@ -170,7 +242,6 @@ export function NoteCompletionGroup({
 
             <div className="px-5 py-3 space-y-4">
               {group.notes.map((entry, ni) => {
-                // --- Grouped format: { subheading, points[] } ---
                 if (typeof entry === 'object' && 'points' in entry) {
                   return (
                     <div key={ni}>
@@ -193,7 +264,6 @@ export function NoteCompletionGroup({
                   );
                 }
 
-                // --- Flat format: plain string ---
                 return (
                   <ul key={ni} className="space-y-2">
                     <NoteLine

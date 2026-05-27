@@ -29,9 +29,32 @@ export function ListeningQuestionsPanel({
 }) {
   return (
     <>
-      {exercise.content.map((group, gi) => {
+      {exercise.content.map((rawGroup, gi) => {
+        const group = { ...rawGroup } as any;
+        if (!Array.isArray(group.questions) && Array.isArray(group.items)) {
+          group.questions = group.items;
+        }
+
+        if (!group.type && group.question_type) {
+          let resolvedType = String(group.question_type).toLowerCase().replace(/[\s/]/g, "_");
+          if (resolvedType === "matching") {
+            const firstItem = group.items?.[0];
+            const qType = String(firstItem?.type || "").toLowerCase().trim();
+            resolvedType = qType.startsWith("matching") ? qType : "matching";
+          } else if (resolvedType === "multiple_choice" && group.items?.[0]?.question_numbers) {
+            resolvedType = "multiple_choice_multiple";
+          } else if (resolvedType === "sentence_completion") {
+            resolvedType = "note_completion";
+          } else if (resolvedType === "table_completion") {
+            resolvedType = "table";
+          } else if (resolvedType === "flowchart_completion") {
+            resolvedType = "flow_chart";
+          }
+          group.type = resolvedType;
+        }
+
         // --- form completion ---
-        if (!group.type && Array.isArray((group as any).points)) {
+        if ((!group.type || group.type === "form_completion") && Array.isArray((group as any).points)) {
           const pts = (group as any).points as FormPoint[];
           const heading = (group as any).heading as string ?? "";
           return (

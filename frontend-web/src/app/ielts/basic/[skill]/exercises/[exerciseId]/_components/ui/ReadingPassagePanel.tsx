@@ -14,7 +14,7 @@ export function ReadingPassagePanel({
   const segments = passageWithLocations;
 
   // Before submitting: render passage as plain text (no Q markers)
-  const plainText = Array.isArray(segments)
+  const plainText = Array.isArray(segments) && segments.length > 0
     ? segments.map((seg) => (typeof seg === "string" ? seg : seg.text)).join("")
     : passage ?? "";
 

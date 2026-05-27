@@ -103,7 +103,7 @@ export async function seedIeltsAdvanced(prisma: PrismaClient) {
         title: jsonData.title,
         partNumber: p.partNumber,
         passage: jsonData.passage,
-        passageWithLocations: jsonData.passage_with_locations,
+        passageWithLocations: jsonData.passage_with_locations || [],
         content: jsonData.content,
         questionTypes: uniqueTypes,
       },

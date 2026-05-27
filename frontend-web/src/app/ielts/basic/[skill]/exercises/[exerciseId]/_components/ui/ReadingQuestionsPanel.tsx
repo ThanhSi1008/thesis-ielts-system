@@ -10,6 +10,7 @@ import { MatchingInformationGroup, MatchingInformationGroup as MatchingInformati
 import { MatchingHeadingsGroup, MatchingHeadingsGroup as MatchingHeadingsGroupType } from "../../../../../components/reading-renders/MatchingHeadingsGroup";
 import { SummaryCompletionGroup, SummaryCompletionGroup as SummaryGroupType } from "../../../../../components/reading-renders/SummaryCompletionGroup";
 import { ShortAnswerGroup, ShortAnswerGroup as ShortAnswerGroupType } from "../../../../../components/reading-renders/ShortAnswerGroup";
+import { TableCompletionGroup, TableGroup as TableGroupType } from "../../../../../components/reading-renders/TableCompletionGroup";
 
 export function ReadingQuestionsPanel({
   exercise,
@@ -28,7 +29,30 @@ export function ReadingQuestionsPanel({
 }) {
   return (
     <>
-      {exercise.content.map((group, gi) => {
+      {exercise.content.map((rawGroup, gi) => {
+        const group = { ...rawGroup } as any;
+        if (!Array.isArray(group.questions) && Array.isArray(group.items)) {
+          group.questions = group.items;
+        }
+
+        if (!group.type && group.question_type) {
+          let resolvedType = String(group.question_type).toLowerCase().replace(/[\s/]/g, "_");
+          if (resolvedType === "matching") {
+            const firstItem = group.items?.[0];
+            const qType = String(firstItem?.type || "").toLowerCase().trim();
+            resolvedType = qType.startsWith("matching") ? qType : "matching";
+          } else if (resolvedType === "multiple_choice" && group.items?.[0]?.question_numbers) {
+            resolvedType = "multiple_choice_multiple";
+          } else if (resolvedType === "sentence_completion") {
+            resolvedType = "note_completion";
+          } else if (resolvedType === "table_completion") {
+            resolvedType = "table";
+          } else if (resolvedType === "flowchart_completion") {
+            resolvedType = "flowchart_completion";
+          }
+          group.type = resolvedType;
+        }
+
         // --- short answer ---
         if (group.type === "short_answer") {
           return (
@@ -140,6 +164,21 @@ export function ReadingQuestionsPanel({
             <div key={gi}>
               <FlowchartCompletionGroup
                 group={group as unknown as FlowchartGroupType}
+                answers={answers}
+                onAnswer={(qNum, val) => !submitted && onAnswer(qNum, val)}
+                submitted={submitted}
+                showAnswers={showAnswers}
+                onLocate={onLocate}
+              />
+            </div>
+          );
+        }
+        // --- table ---
+        if (group.type === "table") {
+          return (
+            <div key={gi}>
+              <TableCompletionGroup
+                group={group as unknown as TableGroupType}
                 answers={answers}
                 onAnswer={(qNum, val) => !submitted && onAnswer(qNum, val)}
                 submitted={submitted}
