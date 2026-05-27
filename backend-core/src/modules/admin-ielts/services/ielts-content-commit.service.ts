@@ -810,6 +810,12 @@ export class IeltsContentCommitService {
           } else if (qType.includes("form_completion")) {
             mappedType = "Form Completion";
             instructions = "Complete the form below. Choose ONE WORD ONLY from the passage.";
+          } else if (qType.includes("map_label")) {
+            mappedType = "Map Labelling";
+            instructions = "Label the map / plan below.";
+          } else if (qType.includes("diagram") || qType.includes("flow_chart") || qType.includes("flowchart")) {
+            mappedType = "Diagram Completion";
+            instructions = "Label the diagram below.";
           }
 
           let formattedOptions: any = null;
@@ -841,9 +847,24 @@ export class IeltsContentCommitService {
           if (isBankCompletion && formattedOptions && Object.keys(formattedOptions).length > 0) {
             instructions = "Complete the summary using the list of phrases below. Write the correct letter for each blank.";
           }
+          // Visual groups (map / plan / diagram) carry a shared image. Promote the
+          // admin-uploaded URL to the group level so the player's DiagramMapBlock can
+          // render it. The "PENDING_ADMIN_UPLOAD" placeholder is treated as "no image"
+          // so a never-uploaded group never ships a broken image src to the live exam.
+          const visualSnakeType = mappedType === "Map Labelling"
+            ? "map_labelling"
+            : mappedType === "Diagram Completion"
+            ? "diagram_completion"
+            : null;
+          const itemImageUrl =
+            typeof q.image_url === "string" && q.image_url.trim() && q.image_url.trim() !== "PENDING_ADMIN_UPLOAD"
+              ? q.image_url.trim()
+              : null;
           const isMultiSelect = qType === "multiple_choice_multiple";
           const groupKey = isMatchingGroup
             ? `${mappedType}::${JSON.stringify(formattedOptions)}`
+            : visualSnakeType
+            ? `${mappedType}::${itemImageUrl ?? "pending"}`
             : mappedType;
 
           if (!currentGroup || (currentGroup as any)._groupKey !== groupKey) {
@@ -856,12 +877,20 @@ export class IeltsContentCommitService {
             if ((isMatchingGroup || isBankCompletion) && formattedOptions && Object.keys(formattedOptions).length > 0) {
               (currentGroup as any).options_box = { options: formattedOptions };
             }
+            if (visualSnakeType) {
+              (currentGroup as any).type = visualSnakeType;
+              if (itemImageUrl) (currentGroup as any).image_url = itemImageUrl;
+            }
             (currentGroup as any)._groupKey = groupKey;
             questionGroups.push(currentGroup);
           }
           // Backfill the phrase bank if it only appears on a later item of the same set.
           if (isBankCompletion && !(currentGroup as any).options_box && formattedOptions && Object.keys(formattedOptions).length > 0) {
             (currentGroup as any).options_box = { options: formattedOptions };
+          }
+          // Backfill the group image if it only appears on a later item of the visual set.
+          if (visualSnakeType && !(currentGroup as any).image_url && itemImageUrl) {
+            (currentGroup as any).image_url = itemImageUrl;
           }
 
           if (isMultiSelect) {
@@ -981,6 +1010,12 @@ export class IeltsContentCommitService {
       } else if (qType.includes("form_completion")) {
         mappedType = "Form Completion";
         instructions = "Complete the form below. Choose ONE WORD ONLY from the passage.";
+      } else if (qType.includes("map_label")) {
+        mappedType = "Map Labelling";
+        instructions = "Label the map / plan below.";
+      } else if (qType.includes("diagram") || qType.includes("flow_chart") || qType.includes("flowchart")) {
+        mappedType = "Diagram Completion";
+        instructions = "Label the diagram below.";
       }
 
       // Format options from array ["A. Text", "B. Text"] into record {"A": "Text", "B": "Text"} if multiple_choice
@@ -1011,9 +1046,23 @@ export class IeltsContentCommitService {
       if (isBankCompletion && formattedOptions && Object.keys(formattedOptions).length > 0) {
         instructions = "Complete the summary using the list of phrases below. Write the correct letter for each blank.";
       }
+      // Visual groups (map / plan / diagram) carry a shared image — promote the
+      // admin-uploaded URL to the group level for the player. The unresolved
+      // "PENDING_ADMIN_UPLOAD" placeholder is treated as "no image".
+      const visualSnakeType = mappedType === "Map Labelling"
+        ? "map_labelling"
+        : mappedType === "Diagram Completion"
+        ? "diagram_completion"
+        : null;
+      const itemImageUrl =
+        typeof q.image_url === "string" && q.image_url.trim() && q.image_url.trim() !== "PENDING_ADMIN_UPLOAD"
+          ? q.image_url.trim()
+          : null;
       const isMultiSelect = qType === "multiple_choice_multiple";
       const groupKey = isMatchingGroup
         ? `${mappedType}::${JSON.stringify(formattedOptions)}`
+        : visualSnakeType
+        ? `${mappedType}::${itemImageUrl ?? "pending"}`
         : mappedType;
 
       if (!currentGroup || (currentGroup as any)._groupKey !== groupKey) {
@@ -1026,12 +1075,20 @@ export class IeltsContentCommitService {
         if ((isMatchingGroup || isBankCompletion) && formattedOptions && Object.keys(formattedOptions).length > 0) {
           (currentGroup as any).options_box = { options: formattedOptions };
         }
+        if (visualSnakeType) {
+          (currentGroup as any).type = visualSnakeType;
+          if (itemImageUrl) (currentGroup as any).image_url = itemImageUrl;
+        }
         (currentGroup as any)._groupKey = groupKey;
         questionGroups.push(currentGroup);
       }
       // Backfill the phrase bank if it only appears on a later item of the same set.
       if (isBankCompletion && !(currentGroup as any).options_box && formattedOptions && Object.keys(formattedOptions).length > 0) {
         (currentGroup as any).options_box = { options: formattedOptions };
+      }
+      // Backfill the group image if it only appears on a later item of the visual set.
+      if (visualSnakeType && !(currentGroup as any).image_url && itemImageUrl) {
+        (currentGroup as any).image_url = itemImageUrl;
       }
 
       if (isMultiSelect) {

@@ -14,7 +14,11 @@ class QuestionItem(BaseModel):
                     "multiple_choice, multiple_choice_multiple, short_answer, fill_blank, "
                     "form_completion, note_completion, sentence_completion, summary_completion, table_completion, "
                     "matching, matching_features, matching_information, matching_headings, "
-                    "true_false_not_given, yes_no_not_given."
+                    "true_false_not_given, yes_no_not_given, "
+                    "map_labeling (LISTENING ONLY — questions are answered against a map / building plan / "
+                    "area layout printed on the page), "
+                    "diagram_completion (READING ONLY — questions label a technical drawing, a biological / "
+                    "scientific process diagram, or a mechanical chart printed within the passage)."
     )
     question_text: str = Field(
         description="The question text or prompt. For gap-filling, use underscores to indicate blank slots (e.g., 'The speaker's name is ___.')"
@@ -50,6 +54,24 @@ class QuestionItem(BaseModel):
             "Distractor Analysis: [for multiple_choice, multiple_choice_multiple, matching, matching_features, matching_information, matching_headings — briefly explain why each wrong option is incorrect or misleading]\n"
             "Must NOT be a simple re-statement of the answer."
         )
+    )
+    image_url: Optional[str] = Field(
+        default=None,
+        description=(
+            "Visual-asset pointer for question groups that depend on an image the test-taker must read. "
+            "POPULATE this field ONLY when you have visually DETECTED such an asset on the page using your "
+            "multimodal capabilities:\n"
+            "  • LISTENING — a map, building plan, or area layout (type `map_labeling`).\n"
+            "  • READING — a technical drawing, biological/scientific process diagram, or mechanical chart "
+            "(type `diagram_completion`).\n"
+            "When detected, set this to the EXACT literal string \"PENDING_ADMIN_UPLOAD\" on EVERY question item "
+            "that belongs to that visual group (the same placeholder repeated across the whole group, mirroring "
+            "how a shared `options` bank is repeated). An admin crops the image from the source PDF during review "
+            "and overwrites this placeholder with the real secure image URL. "
+            "NEVER fabricate or guess a real URL. "
+            "For every other question type — and whenever NO map/plan/diagram is present — OMIT this field or set "
+            "it to null, so no uploader is rendered during review."
+        ),
     )
 
 # =====================================================================

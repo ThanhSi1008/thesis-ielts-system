@@ -21,8 +21,15 @@ const WHITELISTED_TYPES = [
   "table_completion",
   "true_false_not_given",
   "yes_no_not_given",
-  "fill_blank"
+  "fill_blank",
+  "map_labeling",
+  "diagram_completion"
 ];
+
+// Sentinel emitted by Gemini for map/plan/diagram groups awaiting a real image.
+// The admin uploads the cropped asset during review; uploading overwrites this
+// placeholder with the secure Cloudinary URL.
+const VISUAL_PLACEHOLDER = "PENDING_ADMIN_UPLOAD";
 
 // ─── Question-type taxonomy helpers ───
 const CHOICE_TYPES = new Set([
@@ -65,7 +72,8 @@ const questionSchema = z.object({
   correct_answer: z.string().nullish(),
   correct_answers: z.array(z.string()).nullish(),
   options: z.array(z.string()).nullish(),
-  question_timestamp: z.string().nullish()
+  question_timestamp: z.string().nullish(),
+  image_url: z.string().nullish()
 });
 
 const partSchema = z.object({
@@ -423,6 +431,12 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
         errors.push(`[Question ${qNum}] "${q.type}" requires an "options" array to be populated.`);
       }
 
+      // A map/plan/diagram group must have its image uploaded before commit —
+      // the placeholder must never reach the live exam.
+      if (q.image_url === VISUAL_PLACEHOLDER) {
+        errors.push(`[Question ${qNum}] A map/diagram image is still awaiting upload. Upload the cropped visual or clear the image field before committing.`);
+      }
+
       if (!CHOICE_TYPES.has(q.type) && !TOGGLE_TYPES[q.type]) {
         let parenCount = 0;
         for (let i = 0; i < ansStr.length; i++) {
@@ -496,6 +510,146 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     } finally {
       setIsUploadingChartImage(false);
     }
+  };
+
+  // ─── Visual asset upload (map / plan / diagram groups flagged by Gemini) ───
+  // Tracks which group (by its start index in the active part's content) is
+  // currently uploading, so only that dropzone shows a spinner.
+  const [uploadingVisualGroupIdx, setUploadingVisualGroupIdx] = useState<number | null>(null);
+
+  // Apply a resolved image URL (or null to clear) to every question item that
+  // belongs to the contiguous group starting at startIdx. Group membership
+  // mirrors the renderer: same `type` + same `options` fingerprint. The image
+  // is a property of the whole group, so the value is written onto each item.
+  const applyGroupImageUrl = (startIdx: number, url: string | null) => {
+    const mutate = (content: any[]): any[] => {
+      const ref = content[startIdx];
+      if (!ref) return content;
+      const next = [...content];
+      for (let i = startIdx; i < next.length; i++) {
+        const sameGroup =
+          next[i].type === ref.type &&
+          JSON.stringify(next[i].options ?? []) === JSON.stringify(ref.options ?? []);
+        if (!sameGroup) break;
+        if (url === null) {
+          const { image_url, ...rest } = next[i];
+          next[i] = rest;
+        } else {
+          next[i] = { ...next[i], image_url: url };
+        }
+      }
+      return next;
+    };
+
+    if (isMultiPart) {
+      const newParts = [...(structuredJson.parts || [])];
+      const part = { ...newParts[activeReviewPartIdx] };
+      part.content = mutate(part.content || []);
+      newParts[activeReviewPartIdx] = part;
+      updateStructuredJson({ ...structuredJson, parts: newParts });
+    } else {
+      updateStructuredJson({ ...structuredJson, content: mutate(structuredJson.content || []) });
+    }
+  };
+
+  const handleGroupImageUpload = async (startIdx: number, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
+      return;
+    }
+    setUploadingVisualGroupIdx(startIdx);
+    try {
+      const storedUrl = await ieltsImportApi.uploadFile(file);
+      applyGroupImageUrl(startIdx, storedUrl);
+      toast.success("Visual uploaded. Save Draft or Commit to persist it.");
+    } catch (e: any) {
+      const msg = e.response?.data?.message || "Failed to upload image.";
+      toast.error(Array.isArray(msg) ? msg.join(", ") : msg, 6000);
+    } finally {
+      setUploadingVisualGroupIdx(null);
+    }
+  };
+
+  // Renders the drag-and-drop / preview zone for a visual question group.
+  // Returns null unless the group carries an `image_url` (the placeholder set by
+  // Gemini, or an already-uploaded Cloudinary URL) — so non-visual groups never
+  // show an uploader.
+  const renderGroupVisualZone = (
+    groupStartIdx: number,
+    imageUrl: string | null | undefined,
+  ): React.ReactNode => {
+    if (imageUrl === undefined || imageUrl === null) return null;
+    const isPending = imageUrl === VISUAL_PLACEHOLDER;
+    const isUploading = uploadingVisualGroupIdx === groupStartIdx;
+    const inputId = `group-visual-${activeReviewPartIdx}-${groupStartIdx}`;
+    const onPick = (file?: File | null) => { if (file) handleGroupImageUpload(groupStartIdx, file); };
+
+    return (
+      <div
+        key={`gv-${groupStartIdx}`}
+        className="shrink-0 rounded-xl border border-amber-300 dark:border-amber-800/70 bg-amber-50/60 dark:bg-amber-950/20 p-3"
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16v12H4z" /></svg>
+          <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+            Visual Asset {isPending ? "(awaiting upload)" : "(uploaded)"}
+          </span>
+        </div>
+
+        {isPending ? (
+          <div
+            onDragOver={e => e.preventDefault()}
+            onDrop={e => { e.preventDefault(); onPick(e.dataTransfer.files?.[0]); }}
+            className="flex flex-col items-center justify-center gap-1.5 px-4 py-6 border-2 border-dashed border-amber-300 dark:border-amber-800 rounded-lg bg-white/60 dark:bg-gray-900/40 text-center"
+          >
+            <input id={inputId} type="file" accept="image/*" className="hidden" onChange={e => onPick(e.target.files?.[0])} />
+            <p className="text-[11px] font-bold text-gray-700 dark:text-gray-200">
+              Gemini detected a map / plan / diagram for this group.
+            </p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+              Crop it from the source PDF, then drag &amp; drop here or
+            </p>
+            <label
+              htmlFor={inputId}
+              className={[
+                "mt-1 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider cursor-pointer transition-colors",
+                isUploading
+                  ? "bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-wait"
+                  : "bg-amber-500 hover:bg-amber-600 text-white",
+              ].join(" ")}
+            >
+              {isUploading ? "Uploading…" : "Upload image"}
+            </label>
+          </div>
+        ) : (
+          <div className="flex items-start gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={imageUrl} alt="Question group visual" className="h-28 w-auto max-w-[55%] rounded-lg border border-gray-200 dark:border-gray-700 object-contain bg-white" />
+            <div className="flex flex-col gap-1.5">
+              <input id={inputId} type="file" accept="image/*" className="hidden" onChange={e => onPick(e.target.files?.[0])} />
+              <label
+                htmlFor={inputId}
+                className={[
+                  "inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider cursor-pointer transition-colors",
+                  isUploading
+                    ? "bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-wait"
+                    : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-primary",
+                ].join(" ")}
+              >
+                {isUploading ? "Uploading…" : "Replace image"}
+              </label>
+              <button
+                type="button"
+                onClick={() => applyGroupImageUrl(groupStartIdx, VISUAL_PLACEHOLDER)}
+                className="inline-flex items-center justify-center px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   // ─── Actions ───
@@ -1140,6 +1294,8 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                                 </span>
                               </div>
                             );
+                            const visualZone = renderGroupVisualZone(idx, q.image_url);
+                            if (visualZone) nodes.push(visualZone);
                           }
 
                           const parsedExplanation = parseExplanation(q.explanation || "");
@@ -1896,6 +2052,8 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                                   )}
                                 </div>
                               );
+                              const visualZone = renderGroupVisualZone(idx, q.image_url);
+                              if (visualZone) nodes.push(visualZone);
                             }
 
                             nodes.push(
