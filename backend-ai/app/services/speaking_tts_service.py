@@ -150,6 +150,11 @@ class SpeakingTtsService:
         synthesis_jobs: List[Tuple[str, Callable[[str], None]]] = []
 
         examiner_name = settings.speaking_examiner_name
+        # Part 3's transition script references the Part 2 topic, so resolve a
+        # part_number -> topic lookup up-front (order-independent).
+        topics_by_part: Dict[int, str] = {
+            int(p.get("part_number", 0)): (p.get("topic") or "").strip() for p in raw_parts
+        }
 
         for raw in raw_parts:
             part_number = int(raw.get("part_number", 0))
@@ -201,7 +206,8 @@ class SpeakingTtsService:
                         if part_number == 1:
                             spoken_text = f"{self._build_part1_intro(examiner_name, topic)} {spoken_text}"
                         elif part_number == 3:
-                            spoken_text = f"{self._build_part3_intro(topic)} {spoken_text}"
+                            part2_topic = topics_by_part.get(2, "")
+                            spoken_text = f"{self._build_part3_intro(part2_topic, topic)} {spoken_text}"
 
                     q_obj = {"text": raw_text, "video": ""}  # NOTE: raw_text, never spoken_text
                     synthesis_jobs.append(
@@ -237,29 +243,28 @@ class SpeakingTtsService:
     # Synthesis helpers
     # ------------------------------------------------------------------ #
     def _build_part1_intro(self, examiner_name: str, topic: str) -> str:
-        """Welcoming examiner intro prepended to Part 1's FIRST question (TTS only)."""
+        """Official, time-neutral IELTS opening prepended to Part 1's FIRST question (TTS only)."""
         return (
-            "Good afternoon. Welcome to the IELTS Speaking Mock Test. "
-            f"My name is {examiner_name}, and I will be your examiner today. "
-            "Now, in this first part, I'd like to ask you some questions about yourself. "
+            f"Hello. My name is {examiner_name}. "
+            "In this first part of the test, I'd like to ask you some questions about yourself. "
             f"Let's talk about {topic}."
         )
 
     def _build_part2_intro(self, topic: str) -> str:
-        """Examiner's Part 2 intro (the `video` clip), dynamically naming the topic."""
+        """Examiner's Part 2 intro (the `video` clip) — exact standard Cambridge wording."""
         return (
-            "Now, I'm going to give you a topic and I'd like you to talk about it "
+            "Now, I'm going to give you a topic, and I'd like you to talk about it "
             "for one to two minutes. Before you talk, you'll have one minute to think "
             "about what you're going to say. You can make some notes if you wish. "
             f"Here is your topic: {topic}."
         )
 
-    def _build_part3_intro(self, topic: str) -> str:
-        """Transitional examiner script prepended to Part 3's FIRST question (TTS only)."""
+    def _build_part3_intro(self, part2_topic: str, part3_topic: str) -> str:
+        """Conversational Part 2 -> Part 3 bridge prepended to Part 3's FIRST question (TTS only)."""
         return (
-            "All right. Now, in this third part of the test, I'm going to ask you "
-            "some more general questions related to the topic we just discussed. "
-            f"Let's look at {topic}."
+            f"All right. We've been talking about {part2_topic}, "
+            "and I'd like to discuss with you one or two more general questions related to this. "
+            f"Let's consider, first of all, {part3_topic}."
         )
 
     async def _run_synthesis_jobs(
