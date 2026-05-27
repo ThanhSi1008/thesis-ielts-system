@@ -19,11 +19,17 @@ const WHITELISTED_TYPES = [
   "matching_information",
   "matching_headings",
   "table_completion",
+  "flowchart_completion",
   "true_false_not_given",
   "yes_no_not_given",
   "fill_blank",
-  "map_labeling",
-  "diagram_completion"
+  "matching_sentence_endings",
+  "map_labelling",
+  "plan_labelling",
+  "diagram_labelling",
+  "diagram_completion",
+  // Tolerated US-spelling alias
+  "map_labeling"
 ];
 
 // Sentinel emitted by Gemini for map/plan/diagram groups awaiting a real image.
@@ -35,6 +41,10 @@ const VISUAL_PLACEHOLDER = "PENDING_ADMIN_UPLOAD";
 const CHOICE_TYPES = new Set([
   "multiple_choice", "multiple_choice_multiple",
   "matching", "matching_features", "matching_information", "matching_headings",
+  "matching_sentence_endings",
+  // Visual labelling types answer from a lettered bank → options editor + answer
+  // dropdown (the diagram/map image itself is rendered by the visual-asset zone).
+  "map_labelling", "plan_labelling", "diagram_labelling", "map_labeling",
 ]);
 
 const TOGGLE_TYPES: Record<string, string[]> = {

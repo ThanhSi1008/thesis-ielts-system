@@ -30,7 +30,7 @@ Please follow these strict guidelines:
 
 9. **Content & Question Fields**: For every single question block in each part:
    - Identify the precise `question_number` (1 to 40).
-   - Choose the correct whitelisted `type` from: multiple_choice, multiple_choice_multiple, short_answer, fill_blank, form_completion, note_completion, sentence_completion, summary_completion, table_completion, matching, matching_features, matching_information, matching_headings, true_false_not_given, yes_no_not_given, map_labeling.
+   - Choose the correct whitelisted `type` from: multiple_choice, multiple_choice_multiple, short_answer, fill_blank, form_completion, note_completion, sentence_completion, summary_completion, table_completion, flowchart_completion, diagram_completion, matching, map_labelling, plan_labelling, diagram_labelling. (Use the British '-labelling' spelling. `flowchart_completion` is a TEXT gap-fill of a flow-chart's boxes — it gets NO image.)
    - Extract the question text. Use underscores like '___' to indicate gap-filling slots.
    - Supply the exact correct `answer` key taken from the Answer Key Image. Must NOT be empty.
    - Write a highly detailed, comprehensive explanation for the `explanation` field written **entirely in English** using this STRICT literal prefix format:
@@ -46,11 +46,15 @@ Please follow these strict guidelines:
 
 10. **NO Verbatim Echoing**: Keep question texts clean and concise. Do NOT echo large chunks of the transcript inside the question text.
 
-11. **VISUAL ELEMENT DETECTION — Maps & Plans (MULTIMODAL, CRITICAL)**: This booklet is a scanned PDF. Use your multimodal vision to inspect EACH page for images and spatial diagrams. If a Part contains a **MAP, BUILDING PLAN, or AREA LAYOUT** that the questions are answered against (typically a labelling task — e.g. "Label the map below", "Write the correct letter, A–H, next to Questions 11–15"), you MUST:
-   - Set the `type` of every question item in that group to `"map_labeling"`.
-   - Add an `image_url` field to EVERY question item in that group and set its value to the EXACT literal string `"PENDING_ADMIN_UPLOAD"` — repeat the same placeholder across the whole group. An admin uploads the cropped map during review; NEVER fabricate a real URL and never solve the spatial layout yourself.
-   - Still populate `options` with the printed label bank when one exists (e.g. `["A", "B", "C", "D", "E", "F", "G", "H"]`), and set each item's `answer` to the correct letter taken from the Answer Key Image.
-   If a Part has NO map / plan / layout, do NOT add `image_url` (omit it or leave it null) and do NOT use the `map_labeling` type — a normal completion/choice type applies and no uploader will be rendered during review.
+11. **VISUAL ELEMENT DETECTION — Maps, Plans & Diagrams (MULTIMODAL, CRITICAL)**: This booklet is a scanned PDF. Use your multimodal vision to inspect EACH page for images and spatial diagrams. If a Part is answered against a printed visual (typically a labelling task — e.g. "Label the map below", "Write the correct letter, A–H, next to Questions 11–15"), set the group `type` to the matching visual type and attach an image:
+   - A MAP or AREA LAYOUT → `"map_labelling"`.
+   - A BUILDING / FLOOR PLAN → `"plan_labelling"`.
+   - A labelled DIAGRAM answered from a lettered bank → `"diagram_labelling"`.
+   - A DIAGRAM / technical drawing / process chart whose labels are written in → `"diagram_completion"`.
+   For ANY of these visual groups you MUST:
+   - Add an `image_url` field to EVERY question item in that group and set its value to the EXACT literal string `"PENDING_ADMIN_UPLOAD"` — repeat the same placeholder across the whole group. An admin uploads the cropped visual during review; NEVER fabricate a real URL and never solve the spatial layout yourself.
+   - For the labelling variants, populate `options` with the printed label bank when one exists (e.g. `["A", "B", "C", "D", "E", "F", "G", "H"]`) and set each item's `answer` to the correct letter from the Answer Key Image. For `diagram_completion`, leave `options` null and set `answer` to the word(s) written into each label.
+   A FLOW-CHART of text boxes is `"flowchart_completion"`, NOT a visual type — treat it as a normal text gap-fill and do NOT attach an `image_url`. If a Part has no printed visual at all, do NOT add `image_url` and use a normal completion/choice/matching type.
 
 Output schema (root level + one part example):
 ```json
@@ -90,7 +94,7 @@ Please follow these strict guidelines:
 4. **Answer Key & Answers**: The raw document contains an 'Answer Key' section at the end. You MUST scan the end of the document, locate the exact answer keys for this reading test, and inline them perfectly into the `answer` field of each question item.
 5. **Content & Question Fields**: For every single question in each passage:
    - Identify the precise `question_number` (1 to 40).
-   - Choose the correct whitelisted `type` from: multiple_choice, multiple_choice_multiple, short_answer, fill_blank, form_completion, note_completion, sentence_completion, summary_completion, table_completion, matching, matching_features, matching_information, matching_headings, true_false_not_given, yes_no_not_given, diagram_completion.
+   - Choose the correct whitelisted `type` from: multiple_choice, multiple_choice_multiple, short_answer, fill_blank, form_completion, note_completion, sentence_completion, summary_completion, table_completion, flowchart_completion, diagram_completion, matching, matching_features, matching_information, matching_headings, matching_sentence_endings, true_false_not_given, yes_no_not_given, diagram_labelling. (Use the British '-labelling' spelling. `flowchart_completion` is a TEXT gap-fill of a flow-chart's boxes — it gets NO image.)
    - Extract the question text. Use underscores like '___' for gap-filling.
    - For `true_false_not_given` or `yes_no_not_given`, the `answer` MUST be strictly `'TRUE'`, `'FALSE'`, or `'NOT GIVEN'` (or `'YES'`, `'NO'`, `'NOT GIVEN'`) — all uppercase, no abbreviations.
    - Supply the exact correct `answer` key (e.g., 'A', 'TRUE', 'NOT GIVEN', or the text words for gap-filling). Must NOT be empty.
@@ -101,7 +105,7 @@ Please follow these strict guidelines:
    - **`options` field rules (CRITICAL — MUST apply for every question)**:
      * `multiple_choice`: Populate `options` with ALL available choices exactly as printed (e.g., `["A. increased efficiency", "B. reduced costs", "C. greater accuracy", "D. better communication"]`). The `answer` MUST be a single uppercase letter (e.g., `"A"`).
      * `multiple_choice_multiple` (Choose TWO/THREE): Create one SEPARATE question item per required answer. EACH item MUST carry the SAME complete `options` array. Each item's `answer` MUST be a single uppercase letter. NEVER combine multiple letters into one `answer` string.
-     * `matching`, `matching_features`, `matching_information`: Populate `options` with the COMPLETE choice bank (e.g., `["A. a TSI Cut", "B. a Salvage Cut", "C. A nurse", "D. A teacher"]`). The `answer` MUST be the corresponding single uppercase letter.
+     * `matching`, `matching_features`, `matching_information`, `matching_sentence_endings`: Populate `options` with the COMPLETE choice bank (e.g., `["A. a TSI Cut", "B. a Salvage Cut", "C. A nurse", "D. A teacher"]`; for `matching_sentence_endings` the bank is the list of sentence endings, e.g. `["A. before the rainy season.", "B. to reduce soil erosion."]`). The `answer` MUST be the corresponding single uppercase letter. For `matching_sentence_endings` the `question_text` is the sentence stem to be completed (no `___` needed).
      * `matching_headings`: Populate `options` with ALL available headings using their Roman numeral prefix exactly as printed (e.g., `["i. The role of technology", "ii. A new approach to education", "iii. Early challenges faced"]`). The `answer` MUST be the exact Roman numeral string (e.g., `"i"` or `"ii"`).
      * Gap-filling types (`sentence_completion`, `note_completion`, `form_completion`, `table_completion`, `summary_completion`, `fill_blank`, `short_answer`): Set `options` to `null`. **HARD RULE — 1 question_number = 1 blank = 1 answer. Each `question_text` MUST contain EXACTLY ONE `___`.** If two consecutive questions (e.g. Q33 and Q34) share the exact same long sentence or summary cloze passage, you MUST split/fragment that sentence so each item's `question_text` contains only its own single blank. Split at the nearest natural boundary: a conjunction ("or", "and"), a punctuation mark (comma, semicolon), or a clause/phrase boundary. Example: source "The ___ or ___ lasted ten days" → Q33 `question_text`: `"The ___ or ..."` (stop after Q33's blank); Q34 `question_text`: `"... or ___ lasted ten days"` (begin before Q34's blank). NEVER copy the entire multi-blank sentence to multiple question items. The `answer` MUST be the exact text from the answer key (e.g., `"fuel"`).
        ⚠️ **EXCEPTION — summary/sentence/note completion WITH A PROVIDED PHRASE BANK** (the instruction reads "Complete the summary using the list of phrases, A–F, below" / "Write the correct letter, A–F, in boxes …" and a lettered box of phrases A–F is printed): do NOT treat these as free-text gaps. Instead:
@@ -119,11 +123,11 @@ Please follow these strict guidelines:
    - **`matching_features`** with an explicit labeled box (e.g. "Match each description with the correct type of timber cut. A. a TSI Cut  B. a Salvage Cut  C. a Shelterwood Cut"): Extract ONLY the items inside THAT specific box into `options` (e.g. `["A. a TSI Cut", "B. a Salvage Cut", "C. a Shelterwood Cut"]`). Do NOT mix in paragraph letters or any choices from other question sets.
    - ✅ CORRECT example: Q14–18 as `matching_information` each with `options: ["A","B","C","D","E","F","G"]`; Q19–21 as `matching_features` each with `options: ["A. a TSI Cut","B. a Salvage Cut","C. a Shelterwood Cut"]`.
    - ❌ WRONG (NEVER do this): merging Q14–21 into a single group with one combined or cross-contaminated `options` array that blends paragraph letters and box items.
-8. **VISUAL ELEMENT DETECTION — Diagrams (MULTIMODAL, CRITICAL)**: The passage is supplied as a scanned/multimodal PDF. Use your vision to inspect each passage for embedded images and spatial diagrams. If a passage includes a **TECHNICAL DRAWING, a BIOLOGICAL / SCIENTIFIC PROCESS DIAGRAM, or a MECHANICAL CHART** that a labelling or completion task refers to (e.g. "Label the diagram below", "Complete the flow-chart", "Write the correct letter / words for each part of the diagram"), you MUST:
-   - Set the `type` of every question item in that group to `"diagram_completion"`.
-   - Add an `image_url` field to EVERY question item in that group and set its value to the EXACT literal string `"PENDING_ADMIN_UPLOAD"` — repeat the same placeholder across the whole group. An admin crops and uploads the diagram during review; NEVER fabricate a real URL.
-   - Keep applying the 1 question_number = 1 blank rule for each diagram label, and set each `answer` from the answer key (a label letter when a bank is printed, otherwise the exact word(s)).
-   If the passage contains NO diagram / drawing / chart, do NOT add `image_url` (omit it or leave it null) and do NOT use the `diagram_completion` type — a normal completion/choice type applies and no uploader will be rendered during review.
+8. **VISUAL ELEMENT DETECTION — Diagrams (MULTIMODAL, CRITICAL)**: The passage is supplied as a scanned/multimodal PDF. Use your vision to inspect each passage for embedded images and spatial diagrams. If a passage includes a **TECHNICAL DRAWING, a BIOLOGICAL / SCIENTIFIC PROCESS DIAGRAM, or a MECHANICAL CHART** that a labelling/completion task refers to (e.g. "Label the diagram below", "Write the correct letter / words for each part of the diagram"), set the group `type` and attach an image:
+   - Labels written in as free text (from the passage) → `"diagram_completion"` (leave `options` null; `answer` = the exact word(s)).
+   - Labels chosen from a printed lettered bank → `"diagram_labelling"` (populate `options` with the complete bank; `answer` = the correct letter).
+   For either, you MUST add an `image_url` field to EVERY question item in that group and set it to the EXACT literal string `"PENDING_ADMIN_UPLOAD"` — repeat the same placeholder across the whole group. An admin crops and uploads the diagram during review; NEVER fabricate a real URL. Keep applying the 1 question_number = 1 blank rule for each `diagram_completion` label.
+   A FLOW-CHART made of text boxes is `"flowchart_completion"`, NOT a visual type — treat it as a normal text gap-fill and do NOT attach an `image_url`. If the passage contains no printed diagram/drawing/chart, do NOT add `image_url` and use a normal completion/choice/matching type.
 
 """
 

@@ -34,6 +34,9 @@ export class IeltsContentCommitService {
       const ansMap = new Map<string, any>();
       const typeMap = new Map<string, string>();
 
+      // Full-spectrum IELTS Listening + Reading question types taught in the
+      // IELTS Basic curriculum. British "-labelling" spellings are canonical;
+      // the US "map_labeling" alias is tolerated for backward compatibility.
       const whitelistedTypes = new Set([
         "multiple_choice",
         "multiple_choice_multiple",
@@ -42,14 +45,24 @@ export class IeltsContentCommitService {
         "note_completion",
         "sentence_completion",
         "summary_completion",
+        "table_completion",
+        "flowchart_completion",
+        "diagram_completion",
         "matching",
         "matching_features",
         "matching_information",
         "matching_headings",
-        "table_completion",
+        "matching_sentence_endings",
+        "map_labelling",
+        "plan_labelling",
+        "diagram_labelling",
         "true_false_not_given",
         "yes_no_not_given",
-        "fill_blank"
+        "fill_blank",
+        // Tolerated aliases (US spelling / flow-chart variants)
+        "map_labeling",
+        "flow_chart",
+        "flow_chart_completion",
       ]);
 
       // Recursive answer and type extractor identical to the grader's logic
@@ -147,6 +160,10 @@ export class IeltsContentCommitService {
                     `Invalid evaluation answer "${ansStr}" for type "${obj.type}". Must be TRUE, FALSE, YES, NO or NOT GIVEN.`
                   );
                 }
+              } else if (qType.includes("label") && /^[a-z]$/i.test(ansStr)) {
+                // Map / plan / diagram labelling answers are single letters keyed to a
+                // lettered bank — keep them uppercase so they match the options keys.
+                ansStr = ansStr.toUpperCase();
               }
 
               // Update the mutable object so that the committed DB questions payload is clean and fully normalized!
@@ -810,12 +827,23 @@ export class IeltsContentCommitService {
           } else if (qType.includes("form_completion")) {
             mappedType = "Form Completion";
             instructions = "Complete the form below. Choose ONE WORD ONLY from the passage.";
+          } else if (qType.includes("flow")) {
+            // Flow-chart completion is a TEXT gap-fill (boxes + arrows), not a visual
+            // image task — route it to the form-completion family, never to diagram.
+            mappedType = "Flowchart Completion";
+            instructions = "Complete the flow-chart below.";
+          } else if (qType.includes("plan_label")) {
+            mappedType = "Plan Labelling";
+            instructions = "Label the plan below.";
+          } else if (qType.includes("diagram_label")) {
+            mappedType = "Diagram Labelling";
+            instructions = "Label the diagram below.";
           } else if (qType.includes("map_label")) {
             mappedType = "Map Labelling";
-            instructions = "Label the map / plan below.";
-          } else if (qType.includes("diagram") || qType.includes("flow_chart") || qType.includes("flowchart")) {
+            instructions = "Label the map below.";
+          } else if (qType.includes("diagram")) {
             mappedType = "Diagram Completion";
-            instructions = "Label the diagram below.";
+            instructions = "Complete the labels on the diagram below.";
           }
 
           let formattedOptions: any = null;
@@ -853,6 +881,10 @@ export class IeltsContentCommitService {
           // so a never-uploaded group never ships a broken image src to the live exam.
           const visualSnakeType = mappedType === "Map Labelling"
             ? "map_labelling"
+            : mappedType === "Plan Labelling"
+            ? "plan_labelling"
+            : mappedType === "Diagram Labelling"
+            ? "diagram_labelling"
             : mappedType === "Diagram Completion"
             ? "diagram_completion"
             : null;
@@ -1010,12 +1042,23 @@ export class IeltsContentCommitService {
       } else if (qType.includes("form_completion")) {
         mappedType = "Form Completion";
         instructions = "Complete the form below. Choose ONE WORD ONLY from the passage.";
+      } else if (qType.includes("flow")) {
+        // Flow-chart completion is a TEXT gap-fill, not a visual image task — route it
+        // to the form-completion family, never to diagram.
+        mappedType = "Flowchart Completion";
+        instructions = "Complete the flow-chart below.";
+      } else if (qType.includes("plan_label")) {
+        mappedType = "Plan Labelling";
+        instructions = "Label the plan below.";
+      } else if (qType.includes("diagram_label")) {
+        mappedType = "Diagram Labelling";
+        instructions = "Label the diagram below.";
       } else if (qType.includes("map_label")) {
         mappedType = "Map Labelling";
-        instructions = "Label the map / plan below.";
-      } else if (qType.includes("diagram") || qType.includes("flow_chart") || qType.includes("flowchart")) {
+        instructions = "Label the map below.";
+      } else if (qType.includes("diagram")) {
         mappedType = "Diagram Completion";
-        instructions = "Label the diagram below.";
+        instructions = "Complete the labels on the diagram below.";
       }
 
       // Format options from array ["A. Text", "B. Text"] into record {"A": "Text", "B": "Text"} if multiple_choice

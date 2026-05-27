@@ -613,6 +613,22 @@ function adaptVisualGroup(group: Group): Group {
     return { ...group, instruction, labels, questions } as Group;
   }
 
+  if (group.type === 'diagram_labelling') {
+    // Options bank + radio grid: build OptionItem[] from the lettered bank.
+    const options: OptionItem[] = bankLetters.map((letter) => ({
+      letter,
+      text: String(optionRecord?.[letter] ?? '').trim(),
+    }));
+    const items: LabelItem[] = rawItems
+      .filter((it) => Number.isFinite(Number(it.question_number)))
+      .map((it) => ({
+        question_number: Number(it.question_number),
+        answer: String(it.answer ?? ''),
+        text: String(it.question_text ?? '').trim() || undefined,
+      }));
+    return { ...group, instruction, options, items } as Group;
+  }
+
   // map_labelling / plan_labelling
   if (bankLetters.length > 0) {
     // Radio grid: each row is located against the lettered bank; answer is a letter.
