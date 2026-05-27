@@ -145,17 +145,26 @@ class ExtractionService:
                         logger.warning(f"[Extractor Validation] Question number {q_num} has empty or missing answer key")
                         return False
                         
-                    # Full whitelist — must match NestJS grading engine exactly
+                    # Full-spectrum whitelist — MUST stay in sync with the NestJS commit
+                    # gate (ielts-content-commit.service `whitelistedTypes`), the prompt
+                    # whitelists, and refine_service._VALID_QUESTION_TYPES.
                     valid_types = {
                         # Basic types
                         "multiple_choice", "multiple_choice_multiple",
                         "short_answer", "fill_blank",
+                        # Completion family (text gap-fill)
                         "form_completion", "note_completion", "sentence_completion",
-                        "summary_completion", "table_completion",
+                        "summary_completion", "table_completion", "flowchart_completion",
+                        "diagram_completion",
                         # Matching family
-                        "matching", "matching_features", "matching_information", "matching_headings",
+                        "matching", "matching_features", "matching_information",
+                        "matching_headings", "matching_sentence_endings",
+                        # Visual labelling family
+                        "map_labelling", "plan_labelling", "diagram_labelling",
                         # Evaluation types
                         "true_false_not_given", "yes_no_not_given",
+                        # Tolerated aliases (US spelling / flow-chart variants)
+                        "map_labeling", "flow_chart", "flow_chart_completion",
                     }
                     if q_type not in valid_types:
                         logger.warning(f"[Extractor Validation] Question number {q_num} has invalid type: {q_type}")
