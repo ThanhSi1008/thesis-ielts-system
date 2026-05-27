@@ -961,14 +961,21 @@ export function renderGroup(
                         />
                       );
                     }
-                    if (optionsBox) {
+                    if (optionsBox?.options) {
+                      const currentVal = answers[num] || '';
+                      const displayLabel = optionsBox.options[currentVal]
+                        ? `${currentVal} — ${optionsBox.options[currentVal]}`
+                        : '';
                       return (
-                        <MCQQuestion
+                        <SummaryBlankSelector
                           key={qKey}
-                          q={{ ...q, options: optionsBox.options }}
+                          qNum={Number(num)}
+                          value={currentVal}
+                          displayLabel={displayLabel}
+                          options={optionsBox.options}
                           answers={answers}
-                          onAnswer={setAnswer}
-                          onLocate={onLocate}
+                          onSelect={(letter) => setAnswer(num, letter)}
+                          onClear={() => setAnswer(num, '')}
                           mode={mode}
                           correctAnswers={correctAnswers}
                         />
@@ -1002,6 +1009,26 @@ export function renderGroup(
                   answers={answers}
                   onAnswer={setAnswer}
                   onLocate={onLocate}
+                  mode={mode}
+                  correctAnswers={correctAnswers}
+                />
+              );
+            }
+            if (optionsBox?.options) {
+              const currentVal = answers[num] || '';
+              const displayLabel = optionsBox.options[currentVal]
+                ? `${currentVal} — ${optionsBox.options[currentVal]}`
+                : '';
+              return (
+                <SummaryBlankSelector
+                  key={qKey}
+                  qNum={Number(num)}
+                  value={currentVal}
+                  displayLabel={displayLabel}
+                  options={optionsBox.options}
+                  answers={answers}
+                  onSelect={(letter) => setAnswer(num, letter)}
+                  onClear={() => setAnswer(num, '')}
                   mode={mode}
                   correctAnswers={correctAnswers}
                 />

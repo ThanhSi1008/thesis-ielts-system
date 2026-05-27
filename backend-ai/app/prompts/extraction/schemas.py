@@ -25,13 +25,22 @@ class QuestionItem(BaseModel):
             "multiple_choice and multiple_choice_multiple (e.g. ['A. increased efficiency', 'B. reduced costs', 'C. greater accuracy']); "
             "matching / matching_features / matching_information — complete choice bank (e.g. ['A. a TSI Cut', 'B. a Salvage Cut']); "
             "matching_headings — all headings with Roman numeral prefix (e.g. ['i. The role of technology', 'ii. A new approach']). "
-            "MUST be null for: sentence_completion, note_completion, form_completion, table_completion, "
-            "summary_completion, fill_blank, short_answer, true_false_not_given, yes_no_not_given."
+            "SPECIAL CASE — summary_completion / note_completion / sentence_completion WITH A PROVIDED WORD/PHRASE BANK "
+            "(instruction says 'Complete the summary using the list of phrases, A-F, below' / 'Write the correct letter, A-F'): "
+            "in this variant `options` is REQUIRED (non-null) — populate it with the COMPLETE labelled bank EXACTLY as printed "
+            "(e.g. ['A. medical practitioners', 'B. specialised tasks', 'C. available resources', 'D. reduced illness', "
+            "'E. professional authority', 'F. technology experts']), and the same full bank MUST be repeated on EVERY item of "
+            "that question set. "
+            "MUST be null for the from-passage gap-fill variant of these completion types ('Choose ONE WORD ONLY from the passage', "
+            "no labelled bank) and ALWAYS for: form_completion, table_completion, fill_blank, short_answer, "
+            "true_false_not_given, yes_no_not_given."
         )
     )
     answer: str = Field(
-        description="The correct answer key. Must NOT be empty. Can be a letter choice (e.g., 'A'), "
-                    "a Boolean/Evaluation status (e.g., 'TRUE', 'YES', 'NOT GIVEN'), or plain text answer words for completion."
+        description="The correct answer key. Must NOT be empty. Can be a letter choice (e.g., 'A') — including "
+                    "summary/note/sentence completion that uses a provided A-F phrase bank, where the answer is the LETTER, not the phrase; "
+                    "a Boolean/Evaluation status (e.g., 'TRUE', 'YES', 'NOT GIVEN'); "
+                    "or the plain text word(s) for from-passage completion (no bank)."
     )
     explanation: Optional[str] = Field(
         description=(

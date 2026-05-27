@@ -124,7 +124,19 @@ export class IeltsContentCommitService {
                 qType.includes("yes_no_not_given");
 
               if (isCompletion) {
-                ansStr = ansStr.toLowerCase();
+                // A completion that ships a phrase bank (A–F) is answered by a LETTER,
+                // not free text — keep it uppercase so it matches the options_box keys
+                // and the word-bank selector. Otherwise lowercase as usual.
+                const hasBank =
+                  obj.options &&
+                  (Array.isArray(obj.options)
+                    ? obj.options.length > 0
+                    : Object.keys(obj.options).length > 0);
+                if (hasBank && /^[a-z]$/i.test(ansStr)) {
+                  ansStr = ansStr.toUpperCase();
+                } else {
+                  ansStr = ansStr.toLowerCase();
+                }
               } else if (isTrueFalse) {
                 ansStr = ansStr.toUpperCase();
                 if (
@@ -821,6 +833,14 @@ export class IeltsContentCommitService {
           // Matching groups split on options fingerprint so matching_information (A-G)
           // and matching_features (A. TSI Cut…) are never merged into one group.
           const isMatchingGroup = mappedType === "Matching";
+          // Completion sets can also ship a labelled phrase bank A–F (e.g. "Complete the
+          // summary using the list of phrases, A–F, below"). These render a word-bank
+          // selector, so the bank must be promoted to the group-level options_box.
+          const isBankCompletion = ["Summary Completion", "Sentence Completion", "Note Completion"].includes(mappedType);
+          // Phrase-bank variant: correct the instruction away from the from-passage default.
+          if (isBankCompletion && formattedOptions && Object.keys(formattedOptions).length > 0) {
+            instructions = "Complete the summary using the list of phrases below. Write the correct letter for each blank.";
+          }
           const isMultiSelect = qType === "multiple_choice_multiple";
           const groupKey = isMatchingGroup
             ? `${mappedType}::${JSON.stringify(formattedOptions)}`
@@ -833,11 +853,15 @@ export class IeltsContentCommitService {
               questions: "",
               items: [],
             } as any;
-            if (isMatchingGroup && formattedOptions && Object.keys(formattedOptions).length > 0) {
+            if ((isMatchingGroup || isBankCompletion) && formattedOptions && Object.keys(formattedOptions).length > 0) {
               (currentGroup as any).options_box = { options: formattedOptions };
             }
             (currentGroup as any)._groupKey = groupKey;
             questionGroups.push(currentGroup);
+          }
+          // Backfill the phrase bank if it only appears on a later item of the same set.
+          if (isBankCompletion && !(currentGroup as any).options_box && formattedOptions && Object.keys(formattedOptions).length > 0) {
+            (currentGroup as any).options_box = { options: formattedOptions };
           }
 
           if (isMultiSelect) {
@@ -979,6 +1003,14 @@ export class IeltsContentCommitService {
       }
 
       const isMatchingGroup = mappedType === "Matching";
+      // Completion sets can also ship a labelled phrase bank A–F (e.g. "Complete the
+      // summary using the list of phrases, A–F, below"). These render a word-bank
+      // selector, so the bank must be promoted to the group-level options_box.
+      const isBankCompletion = ["Summary Completion", "Sentence Completion", "Note Completion"].includes(mappedType);
+      // Phrase-bank variant: correct the instruction away from the from-passage default.
+      if (isBankCompletion && formattedOptions && Object.keys(formattedOptions).length > 0) {
+        instructions = "Complete the summary using the list of phrases below. Write the correct letter for each blank.";
+      }
       const isMultiSelect = qType === "multiple_choice_multiple";
       const groupKey = isMatchingGroup
         ? `${mappedType}::${JSON.stringify(formattedOptions)}`
@@ -991,11 +1023,15 @@ export class IeltsContentCommitService {
           questions: "",
           items: [],
         } as any;
-        if (isMatchingGroup && formattedOptions && Object.keys(formattedOptions).length > 0) {
+        if ((isMatchingGroup || isBankCompletion) && formattedOptions && Object.keys(formattedOptions).length > 0) {
           (currentGroup as any).options_box = { options: formattedOptions };
         }
         (currentGroup as any)._groupKey = groupKey;
         questionGroups.push(currentGroup);
+      }
+      // Backfill the phrase bank if it only appears on a later item of the same set.
+      if (isBankCompletion && !(currentGroup as any).options_box && formattedOptions && Object.keys(formattedOptions).length > 0) {
+        (currentGroup as any).options_box = { options: formattedOptions };
       }
 
       if (isMultiSelect) {
