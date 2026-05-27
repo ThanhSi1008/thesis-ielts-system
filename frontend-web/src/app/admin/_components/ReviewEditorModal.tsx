@@ -206,6 +206,48 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     });
   };
 
+  // ─── Speaking Handlers ───
+  const handleSpeakingTopicChange = (val: string) => {
+    const newParts = [...(structuredJson.parts || [])];
+    newParts[activeReviewPartIdx] = {
+      ...newParts[activeReviewPartIdx],
+      topic: val
+    };
+    updateStructuredJson({ ...structuredJson, parts: newParts });
+  };
+
+  const handleSpeakingQuestionTextChange = (qIdx: number, val: string) => {
+    const newParts = [...(structuredJson.parts || [])];
+    const part = { ...newParts[activeReviewPartIdx] };
+    const newQuestions = [...(part.questions || [])];
+    newQuestions[qIdx] = {
+      ...newQuestions[qIdx],
+      text: val
+    };
+    part.questions = newQuestions;
+    newParts[activeReviewPartIdx] = part;
+    updateStructuredJson({ ...structuredJson, parts: newParts });
+  };
+
+  const handleAddSpeakingQuestion = () => {
+    const newParts = [...(structuredJson.parts || [])];
+    const part = { ...newParts[activeReviewPartIdx] };
+    const newQuestions = [...(part.questions || [])];
+    newQuestions.push({ text: "New question...", video: "" });
+    part.questions = newQuestions;
+    newParts[activeReviewPartIdx] = part;
+    updateStructuredJson({ ...structuredJson, parts: newParts });
+  };
+
+  const handleRemoveSpeakingQuestion = (qIdx: number) => {
+    const newParts = [...(structuredJson.parts || [])];
+    const part = { ...newParts[activeReviewPartIdx] };
+    const newQuestions = (part.questions || []).filter((_: any, i: number) => i !== qIdx);
+    part.questions = newQuestions;
+    newParts[activeReviewPartIdx] = part;
+    updateStructuredJson({ ...structuredJson, parts: newParts });
+  };
+
   // ─── Form Handlers ───
   const handleContentFieldChange = (index: number, field: string, value: any) => {
     if (isMultiPart) {
@@ -299,6 +341,43 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
   const validateClientSide = (): boolean => {
     const errors: string[] = [];
     setValidationErrors([]);
+
+    if (job.skill === "SPEAKING") {
+      if (!structuredJson.title || String(structuredJson.title).trim() === "") {
+        errors.push("Exam Title is required.");
+      }
+      if (!Array.isArray(structuredJson.parts) || structuredJson.parts.length !== 3) {
+        errors.push("Speaking exam must contain exactly 3 parts.");
+      } else {
+        structuredJson.parts.forEach((p: any, idx: number) => {
+          const partNum = p.part_number || (idx + 1);
+          if (!p.topic || String(p.topic).trim() === "") {
+            errors.push(`[Part ${partNum}] Topic is required.`);
+          }
+          if (partNum === 2) {
+            if (!p.cue_card || String(p.cue_card).trim() === "") {
+              errors.push(`[Part ${partNum}] Cue card text is required.`);
+            }
+          } else {
+            if (!Array.isArray(p.questions) || p.questions.length === 0) {
+              errors.push(`[Part ${partNum}] At least one question is required.`);
+            } else {
+              p.questions.forEach((q: any, qIdx: number) => {
+                if (!q.text || String(q.text).trim() === "") {
+                  errors.push(`[Part ${partNum} Question ${qIdx + 1}] Question text cannot be empty.`);
+                }
+              });
+            }
+          }
+        });
+      }
+      if (errors.length > 0) {
+        setValidationErrors(errors);
+        toast.error("Validation failed. Please correct errors before committing.", 5000);
+        return false;
+      }
+      return true;
+    }
 
     const schemaResult = structuredJsonSchema.safeParse(structuredJson);
     if (!schemaResult.success) {
@@ -877,7 +956,9 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
               {!isListening && isMultiPart && (
                 <div className="p-6 pb-2 shrink-0 border-b border-gray-100 dark:border-gray-800">
                   <div className="bg-gray-50 dark:bg-gray-955 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-2">Select Passage:</span>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-2">
+                      {job.skill === "SPEAKING" ? "Select Part:" : "Select Passage:"}
+                    </span>
                     {(structuredJson.parts || []).map((p: any, idx: number) => {
                       const isActive = idx === activeReviewPartIdx;
                       return (
@@ -891,7 +972,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                               : "bg-white hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-800"
                           }`}
                         >
-                          Passage {idx + 1}
+                          {job.skill === "SPEAKING" ? `Part ${idx + 1}` : `Passage ${idx + 1}`}
                         </button>
                       );
                     })}
@@ -1361,6 +1442,197 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                           rows={8}
                           className="w-full text-xs font-mono px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none leading-relaxed"
                         />
+                      </div>
+                    )}
+
+                    {/* Speaking Content — Part 1 & 3 questions or Part 2 cue card */}
+                    {job.skill === "SPEAKING" && (
+                      <div className="flex flex-col gap-6">
+                        {/* Topic Input */}
+                        <div className="bg-gray-50 dark:bg-gray-850 p-5 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm">
+                          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5 uppercase tracking-wider">
+                            Topic of Part {activeReviewPartIdx + 1}
+                          </label>
+                          <input
+                            type="text"
+                            value={activePart.topic || ""}
+                            onChange={e => handleSpeakingTopicChange(e.target.value)}
+                            placeholder="e.g. Hometown, A beautiful place..."
+                            className="w-full text-xs px-3.5 py-2.5 border border-gray-250 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+                          />
+                        </div>
+
+                        {/* Part 1 & 3: Render Questions List */}
+                        {(activeReviewPartIdx === 0 || activeReviewPartIdx === 2) && (
+                          <div className="flex flex-col gap-4">
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-gray-400">
+                                Part {activeReviewPartIdx + 1} Examiner Questions
+                              </h4>
+                              <button
+                                type="button"
+                                onClick={handleAddSpeakingQuestion}
+                                className="flex items-center gap-1 px-3 py-1.5 bg-gray-50 hover:bg-gray-150 dark:bg-gray-800 dark:hover:bg-gray-750 text-gray-700 dark:text-gray-200 rounded-xl text-[10px] font-extrabold uppercase tracking-wider transition-colors"
+                              >
+                                <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Add Question
+                              </button>
+                            </div>
+
+                            <div className="flex flex-col gap-4">
+                              {((activePart.questions || []) as any[]).map((q: any, qIdx: number) => (
+                                <div
+                                  key={qIdx}
+                                  className="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-150 dark:border-gray-800 shadow-sm relative group/card flex flex-col gap-3.5"
+                                >
+                                  {/* Remove Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveSpeakingQuestion(qIdx)}
+                                    className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-955/20 transition-colors opacity-0 group-hover/card:opacity-100"
+                                    aria-label="Remove Question"
+                                  >
+                                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                  </button>
+
+                                  {/* Header */}
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-black text-[#001f3f] dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
+                                      Q{qIdx + 1}
+                                    </span>
+                                  </div>
+
+                                  {/* Main Input + Audio Group */}
+                                  <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
+                                    {/* Question Text Input */}
+                                    <div className="flex-1">
+                                      <label className="block text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                        Question Text
+                                      </label>
+                                      <input
+                                        type="text"
+                                        value={q.text || ""}
+                                        onChange={e => handleSpeakingQuestionTextChange(qIdx, e.target.value)}
+                                        className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-705 rounded-xl bg-gray-50 dark:bg-gray-850 text-gray-900 dark:text-gray-100 focus:outline-none"
+                                        placeholder="Enter examiner question..."
+                                      />
+                                    </div>
+
+                                    {/* Audio Controller */}
+                                    <div className="flex flex-col shrink-0 min-w-[280px]">
+                                      <label className="block text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                        AI Voice Preview (Edge-TTS)
+                                      </label>
+                                      {q.video ? (
+                                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-850 p-1 px-2 border border-gray-200 dark:border-gray-750 rounded-lg shadow-inner h-9">
+                                          <audio
+                                            src={q.video}
+                                            controls
+                                            className="w-full h-6 text-xs focus:outline-none"
+                                          />
+                                        </div>
+                                      ) : (
+                                        <div className="text-[10px] text-amber-500 italic p-2 border border-dashed border-amber-250 dark:border-amber-900 bg-amber-500/5 rounded-lg flex items-center justify-center h-9">
+                                          No examiner audio synthesised
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+
+                              {(activePart.questions || []).length === 0 && (
+                                <div className="text-center py-8 text-xs text-gray-400 italic bg-gray-50 dark:bg-gray-955 border border-dashed border-gray-200 dark:border-gray-800 rounded-2xl">
+                                  No questions defined for Part {activeReviewPartIdx + 1}. Click 'Add Question' above to start.
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Part 2: Render Cue Card text & double audio streams */}
+                        {activeReviewPartIdx === 1 && (
+                          <div className="flex flex-col gap-5">
+                            <div className="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-150 dark:border-gray-800 shadow-sm flex flex-col gap-4">
+                              <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-gray-400">
+                                Part 2 Long Turn (Cue Card Prompt)
+                              </h4>
+
+                              <div>
+                                <label className="block text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                  Cue Card Text (separate lines with Enter)
+                                </label>
+                                <textarea
+                                  value={activePart.cue_card || ""}
+                                  onChange={e => {
+                                    const newParts = [...(structuredJson.parts || [])];
+                                    newParts[1] = {
+                                      ...newParts[1],
+                                      cue_card: e.target.value
+                                    };
+                                    updateStructuredJson({ ...structuredJson, parts: newParts });
+                                  }}
+                                  rows={8}
+                                  className="w-full text-xs font-mono px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none leading-relaxed"
+                                  placeholder={`Describe a book that you enjoyed reading.\nYou should say:\n- what the book is\n- when you read it\n- what it is about\nand explain why you enjoyed reading this book.`}
+                                />
+                              </div>
+
+                              {/* Part 2 Voice Previews */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                {/* Video Player 1 */}
+                                <div className="flex flex-col gap-1.5 p-3.5 border border-gray-150 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-900/60 shadow-sm">
+                                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                                    Cue Card Spoken Intro (video)
+                                  </label>
+                                  <p className="text-[9px] text-gray-400 leading-normal mb-1.5">
+                                    The spoken instructions introducing this cue card topic to the candidate.
+                                  </p>
+                                  {activePart.video ? (
+                                    <div className="flex items-center gap-2 bg-white dark:bg-gray-850 p-1.5 border border-gray-200 dark:border-gray-700 rounded-lg shadow-inner">
+                                      <audio
+                                        src={activePart.video}
+                                        controls
+                                        className="w-full h-7 text-xs focus:outline-none"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="text-[10px] text-amber-500 italic p-3 border border-dashed border-amber-250 dark:border-amber-900 bg-amber-500/5 rounded-lg flex items-center justify-center">
+                                      No intro audio synthesised
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Video Player 2 */}
+                                <div className="flex flex-col gap-1.5 p-3.5 border border-gray-150 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-900/60 shadow-sm">
+                                  <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                                    Start Speaking Transition (video2)
+                                  </label>
+                                  <p className="text-[9px] text-gray-400 leading-normal mb-1.5">
+                                    The spoken prompt after 1 min preparation time (e.g. "Can you start speaking now?").
+                                  </p>
+                                  {activePart.video2 ? (
+                                    <div className="flex items-center gap-2 bg-white dark:bg-gray-850 p-1.5 border border-gray-200 dark:border-gray-700 rounded-lg shadow-inner">
+                                      <audio
+                                        src={activePart.video2}
+                                        controls
+                                        className="w-full h-7 text-xs focus:outline-none"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="text-[10px] text-amber-500 italic p-3 border border-dashed border-amber-250 dark:border-amber-900 bg-amber-500/5 rounded-lg flex items-center justify-center">
+                                      No transition audio synthesised
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 
