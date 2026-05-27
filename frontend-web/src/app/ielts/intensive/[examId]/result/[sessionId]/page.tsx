@@ -10,6 +10,7 @@ import { extractAllItemsFromPart, type NormalizedItem } from "@/lib/exam-parser"
 import WritingResultView from "@/components/WritingResultView";
 import SpeakingResultView from "@/components/SpeakingResultView";
 import FloatingSelectionManager from "@/components/FloatingSelectionManager";
+import { parseTextAndBlanks } from "@/components/AnswerField";
 // Auth helpers
 // ─────────────────────────────────────────────────────────────
 
@@ -500,7 +501,7 @@ function ReviewItemField({
     const userAns = normalizeAnswer(userAnswers[key]);
     const correctAns = normalizeAnswer(correctMap.get(key));
     const isCorr = correctMap.has(key) ? isCorrect(userAns, correctAns) : null;
-    const parts = (item.text || "").split(/_+|\.{3,}|\[blank\]/i);
+    const parts = parseTextAndBlanks(item.text || "");
 
     const renderInputBox = () => {
       if (isCorr === true) {
@@ -592,7 +593,7 @@ function ReviewItemField({
                     const userAns = normalizeAnswer(userAnswers[key]);
                     const correctAns = normalizeAnswer(correctMap.get(key));
                     const isCorr = correctMap.has(key) ? isCorrect(userAns, correctAns) : null;
-                    const parts = (cell.text || "").split(/_+|\.{3,}|\[blank\]/i);
+                    const parts = parseTextAndBlanks(cell.text || "");
 
                     const renderInputBox = () => {
                       if (isCorr === true) {
