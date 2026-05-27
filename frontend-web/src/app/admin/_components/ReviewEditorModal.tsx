@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { z } from "zod";
 import { ieltsImportApi } from "@/services/admin.api";
+import api from "@/lib/api";
 import { toast } from "@/components/Toaster";
 
 // ─── Whitelisted IELTS Question Types ───
@@ -105,6 +106,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
   const [isCommitting, setIsCommitting] = useState(false);
   const [showOverwriteConfirm, setShowOverwriteConfirm] = useState(false);
   const [apiError, setApiError] = useState<{ status: number; message: string } | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Staged data
   const [structuredJson, setStructuredJson] = useState<any>({
@@ -363,6 +365,28 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     return true;
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await api.post("/admin/ielts/import/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      const url = (res.data as any).url;
+      updateStructuredJson({ ...structuredJson, imageUrl: url });
+      toast.success("Answer Key Image uploaded successfully.");
+    } catch {
+      toast.error("Failed to upload Answer Key Image.");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   // ─── Actions ───
   const handleSaveDraft = async () => {
     if (jsonError) {
@@ -402,11 +426,38 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     setIsCommitting(true);
     setApiError(null);
     try {
+      // ─── Post-Processing Directive / Storage Decoupling Cleanup State ───
+      // If structuredJson has a temporary imageUrl or booklet reference, we decouple it here
+      // while keeping the 4 audio tracks bound to their persistent URLs in the database record.
+      const cleanedStructuredJson = { ...structuredJson };
+      const cleanedProvenance = { ...provenance };
+
+      // Flag or clean temporary source ref properties for security/space
+      if (cleanedProvenance.sourceRef) {
+        delete cleanedProvenance.sourceRef;
+      }
+      // Clean or strip raw original file strings from draft provenance
+      if (cleanedProvenance.originalFileName) {
+        delete cleanedProvenance.originalFileName;
+      }
+      // Decouple the temporary Answer Key Image URL
+      if (cleanedStructuredJson.imageUrl) {
+        delete cleanedStructuredJson.imageUrl;
+      }
+
+      // Pre-save the clean, decoupled state back to the database draft
+      await ieltsImportApi.saveDraft(job.id, {
+        structuredJson: cleanedStructuredJson,
+        provenance: cleanedProvenance,
+        version: job.version || 0
+      });
+
+      // Execute the live commit transition
       await ieltsImportApi.commitJob(job.id, {
         overwrite,
         isPublished: false
       });
-      toast.success("Committed to live bank successfully!");
+      toast.success("Committed to live bank successfully! Cleanup state triggered.");
       onSuccess();
     } catch (e: any) {
       if (e.response?.status === 409) {
@@ -777,17 +828,21 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                             ].join(" ")} />
                             {structuredJson.imageUrl ? "Uploaded" : "Pending"}
                           </span>
-                          <button
-                            onClick={() => {
-                              const url = prompt("Enter Official Answer Key Image URL:", structuredJson.imageUrl || "");
-                              if (url !== null) {
-                                updateStructuredJson({ ...structuredJson, imageUrl: url });
-                              }
-                            }}
-                            className="text-[9px] font-bold text-primary hover:opacity-85"
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            id="answer-key-uploader"
+                            disabled={isUploadingImage}
+                          />
+                          <label
+                            htmlFor="answer-key-uploader"
+                            className="text-[9px] font-bold text-primary hover:opacity-85 cursor-pointer flex items-center gap-1"
                           >
-                            {structuredJson.imageUrl ? "Edit Link" : "Upload"}
-                          </button>
+                            {isUploadingImage && <span className="w-2.5 h-2.5 border border-primary border-t-transparent rounded-full animate-spin" />}
+                            {structuredJson.imageUrl ? "Replace" : "Upload"}
+                          </label>
                         </div>
                       </div>
                     </div>
