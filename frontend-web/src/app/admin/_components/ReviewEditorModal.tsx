@@ -707,10 +707,54 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                   </div>
 
                   <div className="flex flex-col gap-4">
-                    {(activePart.content || []).map((q: any, idx: number) => {
+                    {((activePart.content || []) as any[]).flatMap((q: any, idx: number) => {
                       const ans = q.correct_answer !== undefined ? q.correct_answer : q.answer !== undefined ? q.answer : q.correct_answers;
-                      
-                      return (
+
+                      // ── Group-boundary detection: renders a section-separator before each distinct question set ──
+                      const allContent: any[] = activePart.content || [];
+                      const isGroupStart = idx === 0 || allContent[idx - 1].type !== q.type;
+                      let groupRangeLabel = "";
+                      if (isGroupStart) {
+                        let groupEndIdx = idx;
+                        while (groupEndIdx + 1 < allContent.length && allContent[groupEndIdx + 1].type === q.type) groupEndIdx++;
+                        const startNum: number = q.question_number ?? idx + 1;
+                        const endNum: number = allContent[groupEndIdx].question_number ?? groupEndIdx + 1;
+                        groupRangeLabel = startNum === endNum ? `Question ${startNum}` : `Questions ${startNum}–${endNum}`;
+                      }
+                      const isChoiceGroup = CHOICE_TYPES.has(q.type);
+                      const typeLabel = (q.type as string)
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (c: string) => c.toUpperCase());
+
+                      const nodes: React.ReactNode[] = [];
+                      if (isGroupStart) {
+                        nodes.push(
+                          <div
+                            key={`gh-${idx}`}
+                            className={[
+                              "flex items-center gap-3 px-4 py-2.5 rounded-xl border",
+                              isChoiceGroup
+                                ? "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800/60"
+                                : "bg-gray-50 dark:bg-gray-800/60 border-gray-200 dark:border-gray-700",
+                              idx > 0 ? "mt-2" : "",
+                            ].join(" ")}
+                          >
+                            <div className={`w-2 h-2 rounded-full shrink-0 ${isChoiceGroup ? "bg-blue-500" : "bg-gray-400"}`} />
+                            <span className={`text-[11px] font-bold uppercase tracking-wider ${
+                              isChoiceGroup ? "text-blue-600 dark:text-blue-400" : "text-gray-500 dark:text-gray-400"
+                            }`}>{typeLabel}</span>
+                            <span className="text-[10px] font-semibold text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full">
+                              {groupRangeLabel}
+                            </span>
+                            {isChoiceGroup && (q.options || []).length > 0 && (
+                              <span className="text-[10px] text-blue-500 dark:text-blue-400 ml-auto font-medium">
+                                {(q.options as string[]).length} options
+                              </span>
+                            )}
+                          </div>
+                        );
+                      }
+                      nodes.push(
                         <div
                           key={idx}
                           className="p-5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm relative group"
@@ -896,6 +940,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                           )}
                         </div>
                       );
+                      return nodes;
                     })}
                   </div>
                 </div>

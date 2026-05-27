@@ -53,6 +53,13 @@ Please follow these strict guidelines:
      * `true_false_not_given`: Set `options` to `null`. The `answer` MUST be EXACTLY one of: `"TRUE"`, `"FALSE"`, or `"NOT GIVEN"` — all uppercase, no abbreviations.
      * `yes_no_not_given`: Set `options` to `null`. The `answer` MUST be EXACTLY one of: `"YES"`, `"NO"`, or `"NOT GIVEN"` — all uppercase, no abbreviations.
 6. **NO Verbatim Echoing (Questions Only)**: Keep question texts and option labels concise. Do NOT copy the passage text into the question or option fields. This rule applies only to question/option/explanation fields — the `passage` field is exempt and MUST contain the full text.
+7. **STRICT QUESTION-GROUP BOUNDARIES — NEVER merge distinct question sets**:
+   - A "question set" is defined as a consecutive block of questions in the PDF that shares ONE instruction block and ONE choice bank. Any change in instruction wording, choice list, or question number range is a hard boundary — it signals a NEW, separate question set.
+   - Every question in each set MUST carry its OWN correct `options` array based solely on the choices listed in ITS instruction block. NEVER assign a merged or shared `options` array across two structurally distinct question sets.
+   - **`matching_information`** (e.g. "Which paragraph contains the following information? Choose the correct letter, A–G"): The choice bank IS the passage paragraph labels. Automatically generate `options` from the paragraph letters present in the passage (e.g. `["A", "B", "C", "D", "E", "F", "G"]`). Every question in this set carries this paragraph-reference array.
+   - **`matching_features`** with an explicit labeled box (e.g. "Match each description with the correct type of timber cut. A. a TSI Cut  B. a Salvage Cut  C. a Shelterwood Cut"): Extract ONLY the items inside THAT specific box into `options` (e.g. `["A. a TSI Cut", "B. a Salvage Cut", "C. a Shelterwood Cut"]`). Do NOT mix in paragraph letters or any choices from other question sets.
+   - ✅ CORRECT example: Q14–18 as `matching_information` each with `options: ["A","B","C","D","E","F","G"]`; Q19–21 as `matching_features` each with `options: ["A. a TSI Cut","B. a Salvage Cut","C. a Shelterwood Cut"]`.
+   - ❌ WRONG (NEVER do this): merging Q14–21 into a single group with one combined or cross-contaminated `options` array that blends paragraph letters and box items.
 
 """
 
