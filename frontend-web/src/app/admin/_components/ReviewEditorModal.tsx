@@ -769,6 +769,32 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                             )}
                           </div>
                         );
+                        // ── Paragraph Bank: horizontal chip row for matching_information with pure letter options ──
+                        if (
+                          q.type === "matching_information" &&
+                          Array.isArray(q.options) &&
+                          (q.options as string[]).length > 0 &&
+                          (q.options as string[]).every((o: string) => /^[A-Z]$/i.test(o.trim()))
+                        ) {
+                          nodes.push(
+                            <div
+                              key={`pb-${idx}`}
+                              className="flex flex-wrap items-center gap-2 px-4 py-2.5 bg-blue-50/60 dark:bg-blue-950/10 border border-blue-100 dark:border-blue-900/40 rounded-xl -mt-1"
+                            >
+                              <span className="text-[10px] font-bold text-blue-500 dark:text-blue-400 uppercase tracking-wider shrink-0 mr-1">
+                                Paragraph Bank:
+                              </span>
+                              {(q.options as string[]).map((letter: string) => (
+                                <span
+                                  key={letter}
+                                  className="inline-flex items-center px-2.5 py-1 bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-800 rounded-lg text-[11px] font-bold text-blue-700 dark:text-blue-300 shadow-sm"
+                                >
+                                  Paragraph {letter.toUpperCase()}
+                                </span>
+                              ))}
+                            </div>
+                          );
+                        }
                       }
                       nodes.push(
                         <div
@@ -982,18 +1008,33 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                               )}
                             </div>
                           ) : (
-                            /* Branch 3: Gap-filling / text types — plain text input */
+                            /* Branch 3: Gap-filling — inline blank preview, exactly 1 answer input per card */
                             <div className="mt-3">
                               <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                                Correct Answer (slashes for alternate, parentheses for optional spelling)
+                                Answer (slashes for alternate answers, parentheses for optional spelling)
                               </label>
-                              <input
-                                type="text"
-                                value={ans || ""}
-                                onChange={e => handleContentFieldChange(idx, "answer", e.target.value)}
-                                placeholder="e.g. colo(u)r or car/taxi"
-                                className="w-full text-xs px-2.5 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none font-semibold text-primary"
-                              />
+                              <div className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-xs flex flex-wrap items-center gap-y-1.5 min-h-[36px]">
+                                {((q.question_text || "") as string).split("___").map((seg: string, segIdx: number, segs: string[]) => (
+                                  <React.Fragment key={segIdx}>
+                                    {seg && (
+                                      <span className="text-gray-700 dark:text-gray-300 font-medium leading-relaxed whitespace-pre-wrap">{seg}</span>
+                                    )}
+                                    {segIdx < segs.length - 1 && (
+                                      segIdx === 0 ? (
+                                        <input
+                                          type="text"
+                                          value={ans || ""}
+                                          onChange={e => handleContentFieldChange(idx, "answer", e.target.value)}
+                                          placeholder="answer"
+                                          className="inline-block text-xs px-2 py-0.5 mx-1 border-b-2 border-primary bg-primary/5 dark:bg-primary/10 text-primary font-semibold focus:outline-none rounded-sm text-center min-w-[64px] max-w-[160px]"
+                                        />
+                                      ) : (
+                                        <span className="inline text-[10px] font-mono text-gray-400 dark:text-gray-500 mx-0.5">___</span>
+                                      )
+                                    )}
+                                  </React.Fragment>
+                                ))}
+                              </div>
                             </div>
                           )}
                         </div>
