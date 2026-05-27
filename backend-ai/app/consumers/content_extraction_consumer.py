@@ -81,6 +81,18 @@ class ContentExtractionConsumer(threading.Thread):
         raw_text = task.get("rawText")
         media_assets = task.get("mediaAssets")
 
+        # Flatten media_assets defensively if nested as [[{...}]] or containing nested lists
+        flat_media_assets = []
+        if isinstance(media_assets, list):
+            for item in media_assets:
+                if isinstance(item, list):
+                    for subitem in item:
+                        if isinstance(subitem, dict):
+                            flat_media_assets.append(subitem)
+                elif isinstance(item, dict):
+                    flat_media_assets.append(item)
+        media_assets = flat_media_assets
+
         logger.info(f"🚀 Starting background extraction job: {job_id} [{skill}]")
 
         structurer = get_extraction_service()
