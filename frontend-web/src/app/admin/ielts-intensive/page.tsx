@@ -33,11 +33,48 @@ function JobStatusBadge({ status }: { status: string }) {
   );
 }
 
+// ─── Delete Confirm Dialog ───
+function DeleteDialog({
+  exam,
+  onConfirm,
+  onCancel,
+}: {
+  exam: any;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-2xl p-6 max-w-sm w-full animate-in fade-in zoom-in-95 duration-200">
+        <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-1">Delete Live Mock Exam?</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+          This will permanently delete <span className="font-semibold text-gray-800 dark:text-gray-200">&ldquo;{exam.title}&rdquo;</span>, erasing all student progress, sessions, and histories. This action cannot be undone.
+        </p>
+        <div className="flex gap-3 justify-end">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-650 rounded-xl transition-colors"
+          >
+            Delete Exam
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function IELTSIntensiveAdminPage() {
   const [activeTab, setActiveTab] = useState<"live" | "staging">("live");
   
   // Live Data
   const [exams, setExams] = useState<any[]>([]);
+  const [deleteExamTarget, setDeleteExamTarget] = useState<any | null>(null);
   const [isLiveLoading, setIsLiveLoading] = useState(true);
 
   // Staging Queue
@@ -144,14 +181,17 @@ export default function IELTSIntensiveAdminPage() {
     }
   };
 
-  const handleDeleteExam = async (id: string) => {
-    if (!confirm("Are you sure you want to permanently delete this live exam? This will erase all history and sessions!")) return;
+  const handleDeleteExam = async () => {
+    if (!deleteExamTarget) return;
+    const id = deleteExamTarget.id;
     try {
       await adminIeltsIntensiveApi.delete(id);
       setExams(prev => prev.filter(e => e.id !== id));
       toast.success("Exam deleted successfully.");
     } catch {
       toast.error("Failed to delete exam.");
+    } finally {
+      setDeleteExamTarget(null);
     }
   };
 
@@ -376,7 +416,7 @@ export default function IELTSIntensiveAdminPage() {
                     </td>
                     <td className="px-5 py-4.5 text-right">
                       <button
-                        onClick={() => handleDeleteExam(exam.id)}
+                        onClick={() => setDeleteExamTarget(exam)}
                         className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-colors"
                         aria-label="Delete"
                       >
@@ -740,6 +780,14 @@ export default function IELTSIntensiveAdminPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {deleteExamTarget && (
+        <DeleteDialog
+          exam={deleteExamTarget}
+          onConfirm={handleDeleteExam}
+          onCancel={() => setDeleteExamTarget(null)}
+        />
       )}
     </div>
   );
