@@ -166,8 +166,8 @@ class ExtractionService:
         schema_model, system_prompt = self._get_schema_and_prompt(skill)
         
         # Models configuration for tiering
-        flash_model = "gemini-2.5-flash"
-        pro_model = "gemini-2.5-pro"
+        flash_model = "gemini-3.5-flash"
+        pro_model = "gemini-3.1-pro"
         
         selected_model = flash_model
         result_dict = {}

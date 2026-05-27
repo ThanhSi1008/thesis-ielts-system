@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 _GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 _client = genai.Client(api_key=_GEMINI_API_KEY) if _GEMINI_API_KEY else None
 
-MODEL = "gemini-2.5-flash"
+MODEL = "gemini-3.5-flash"
 
 
 class ChatMessage(BaseModel):

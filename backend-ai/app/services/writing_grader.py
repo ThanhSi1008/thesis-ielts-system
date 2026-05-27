@@ -19,7 +19,7 @@ if not _GEMINI_API_KEY:
 
 _client = genai.Client(api_key=_GEMINI_API_KEY) if _GEMINI_API_KEY else None
 
-MODEL = "gemini-2.5-flash"
+MODEL = "gemini-3.5-flash"
 
 SYSTEM_PROMPT = """You are an expert IELTS examiner. Grade the two writing tasks strictly according to the official IELTS band descriptors.
 
