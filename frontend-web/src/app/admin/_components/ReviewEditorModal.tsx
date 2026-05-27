@@ -1177,88 +1177,6 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
               {/* IF LISTENING: Show Modern Media Management Hub */}
               {isListening && (
                 <div className="p-6 pb-2 shrink-0 border-b border-gray-100 dark:border-gray-800">
-                  {/* Media Assets Hub Section */}
-                  <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 shadow-sm shrink-0 mb-4 bg-gradient-to-r from-gray-50/50 to-white dark:from-gray-900 dark:to-gray-950">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-1.5 h-3.5 bg-primary rounded-full" />
-                      <h3 className="text-[11px] font-extrabold uppercase tracking-wider text-[#001f3f] dark:text-gray-100">Media Assets Hub</h3>
-                    </div>
-
-                    <div className="grid grid-cols-12 gap-4">
-                      {/* PDF Question Booklet Slot */}
-                      <div className="col-span-4 bg-white dark:bg-gray-900 p-3.5 border border-gray-100 dark:border-gray-800 rounded-xl flex flex-col justify-between shadow-sm">
-                        <div className="flex items-start gap-3">
-                          <div className="p-2 bg-red-50 dark:bg-red-950/20 text-red-650 rounded-xl shrink-0">
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                          </div>
-                          <div className="overflow-hidden">
-                            <h4 className="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate">PDF Question Booklet</h4>
-                            <p className="text-[9px] text-gray-400 truncate mt-0.5">Cambridge IELTS Booklet.pdf</p>
-                          </div>
-                        </div>
-                        <div className="mt-2.5 flex items-center justify-between">
-                          <span className="inline-flex items-center gap-1 text-[9px] font-bold text-green-600">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                            Uploaded
-                          </span>
-                          <button className="text-[9px] font-bold text-primary hover:opacity-85">Replace</button>
-                        </div>
-                      </div>
-
-                      {/* 4 Audio Tracks Slot */}
-                      <div className="col-span-8 bg-white dark:bg-gray-900 p-3.5 border border-gray-100 dark:border-gray-800 rounded-xl flex flex-col justify-between shadow-sm">
-                        <div>
-                          <h4 className="text-[11px] font-bold text-gray-800 dark:text-gray-200 mb-2">Audio Tracks (Part 1–4)</h4>
-                          <div className="grid grid-cols-4 gap-1.5">
-                            {[1, 2, 3, 4].map(partNum => {
-                              const hasAudio = !!jobAudioUrls[partNum - 1];
-                              const isActive = activeReviewPartIdx + 1 === partNum;
-                              return (
-                                <button
-                                  key={partNum}
-                                  type="button"
-                                  onClick={() => setActiveReviewPartIdx(partNum - 1)}
-                                  className={[
-                                    "py-1.5 rounded-lg text-[9px] font-bold border transition-all text-center flex flex-col items-center gap-0.5",
-                                    isActive
-                                      ? "bg-primary border-primary text-white shadow-sm"
-                                      : hasAudio
-                                        ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-250 dark:border-emerald-900 text-emerald-600 dark:text-emerald-400"
-                                        : "bg-gray-50 dark:bg-gray-850 border-gray-200 dark:border-gray-800 text-gray-400"
-                                  ].join(" ")}
-                                >
-                                  <span>P{partNum}</span>
-                                  <span className="text-[7px] font-normal uppercase select-none">
-                                    {hasAudio ? "Live" : "–"}
-                                  </span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-
-                        {/* Master Audio Dashboard */}
-                        <div className="mt-2.5 pt-2 border-t border-gray-150 dark:border-gray-800 flex flex-col">
-                          {activeTrackUrl ? (
-                            <div className="flex items-center gap-2">
-                              <audio
-                                key={`${activeReviewPartIdx}-${activeTrackUrl}`}
-                                src={activeTrackUrl}
-                                controls
-                                className="flex-1 h-7 text-xs focus:outline-none"
-                              />
-                              <span className="text-[9px] font-bold text-gray-400 shrink-0 select-all truncate max-w-[90px]">
-                                Part {activeReviewPartIdx + 1}
-                              </span>
-                            </div>
-                          ) : (
-                            <div className="text-[10px] text-gray-400 italic">No audio uploaded for Part {activeReviewPartIdx + 1}.</div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* McKinsey-style tabbed navigation for Parts 1, 2, 3, 4 */}
                   <div className="bg-gray-50 dark:bg-gray-955 p-2.5 rounded-2xl border border-gray-150 dark:border-gray-800 flex items-center gap-2">
                     <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-wider mr-2">IELTS Parts:</span>
@@ -1280,6 +1198,31 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                         </button>
                       );
                     })}
+                  </div>
+
+                  {/* Relocated Audio Playback Controller below IELTS Parts */}
+                  <div className="mt-3 bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-3 shadow-sm flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="p-1.5 bg-primary/10 text-primary rounded-lg shrink-0">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>
+                      </div>
+                      <span className="text-[10px] font-extrabold text-gray-700 dark:text-gray-200 uppercase tracking-wider">
+                        Part {activeReviewPartIdx + 1} Audio Track
+                      </span>
+                    </div>
+
+                    {activeTrackUrl ? (
+                      <div className="flex-1 flex items-center gap-4">
+                        <audio
+                          key={`${activeReviewPartIdx}-${activeTrackUrl}`}
+                          src={activeTrackUrl}
+                          controls
+                          className="flex-1 h-7 text-xs focus:outline-none"
+                        />
+                      </div>
+                    ) : (
+                      <div className="text-[10px] text-gray-400 italic">No audio track uploaded for Part {activeReviewPartIdx + 1}.</div>
+                    )}
                   </div>
                 </div>
               )}
