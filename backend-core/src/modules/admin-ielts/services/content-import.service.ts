@@ -192,7 +192,11 @@ export class ContentImportService {
       
       let friendlyError = callbackDto.error;
       const lowerErr = callbackDto.error.toLowerCase();
-      if (lowerErr.includes("503") || lowerErr.includes("service unavailable") || lowerErr.includes("overloaded")) {
+      if (lowerErr.includes("skill mismatch")) {
+        // Strip the "Extraction failed: " prefix added by the Python consumer so the
+        // descriptive mismatch message reaches the admin UI directly.
+        friendlyError = callbackDto.error.replace(/^extraction failed:\s*/i, "");
+      } else if (lowerErr.includes("503") || lowerErr.includes("service unavailable") || lowerErr.includes("overloaded")) {
         friendlyError = "Google's AI server is temporarily overloaded. Please wait a moment and click 'Extract' again!";
       } else if (lowerErr.includes("429") || lowerErr.includes("resource_exhausted") || lowerErr.includes("quota") || lowerErr.includes("rate limit") || lowerErr.includes("quota drained")) {
         friendlyError = "The daily free-tier quota for Gemini Flash has been exhausted. The system will automatically reset and resume normal operation tomorrow.";

@@ -47,6 +47,36 @@ class ExtractionService:
         data = f"{raw_text.strip()}:{skill.strip().upper()}:{asset_key}"
         return hashlib.sha256(data.encode("utf-8")).hexdigest()
 
+    async def _detect_pdf_skill(self, file_parts: list) -> str | None:
+        """
+        Lightweight Gemini classification to detect the IELTS test type from uploaded PDF(s).
+        Returns 'LISTENING', 'READING', 'WRITING', 'SPEAKING', 'FULL_TEST', or None.
+        'FULL_TEST' means the PDF contains more than one skill section (e.g. a full Cambridge book).
+        None means detection failed — caller should not block on this result.
+        """
+        try:
+            response = await self.client.aio.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=file_parts + [
+                    "What type of IELTS test content does this document contain? "
+                    "Reply with EXACTLY one word from this list: LISTENING, READING, WRITING, SPEAKING, FULL_TEST. "
+                    "Use FULL_TEST if the document contains more than one skill section (e.g. a complete Cambridge IELTS book with Listening + Reading + Writing + Speaking). "
+                    "No explanation, no punctuation — one word only."
+                ],
+                config=types.GenerateContentConfig(
+                    temperature=0.0,
+                    max_output_tokens=10,
+                ),
+            )
+            if not response.text:
+                return None
+            detected = response.text.strip().upper().split()[0]
+            valid = {"LISTENING", "READING", "WRITING", "SPEAKING", "FULL_TEST"}
+            return detected if detected in valid else None
+        except Exception as e:
+            logger.warning(f"⚠️ Skill type detection call failed (mismatch guard skipped): {e}")
+            return None
+
     def _get_schema_and_prompt(self, skill: str) -> tuple:
         """Selects the whitelisted system prompt and response schema based on skill"""
         skill_upper = skill.upper()
@@ -270,6 +300,23 @@ class ExtractionService:
                     contents_input.append(asset_block)
 
         try:
+            # 1. SKILL MISMATCH GUARD: reject PDFs whose content type doesn't match the requested skill.
+            # Only runs for PDF uploads (not RAW_TEXT_PASTE — no API cost needed there).
+            # FULL_TEST PDFs always pass because they legitimately contain all skill sections.
+            if raw_text.startswith(gemini_file_prefix):
+                pdf_parts = [p for p in contents_input if not isinstance(p, str)]
+                detected_skill = await self._detect_pdf_skill(pdf_parts)
+                if detected_skill and detected_skill not in ("FULL_TEST", skill.upper()):
+                    raise ValueError(
+                        f"Skill mismatch: The uploaded PDF appears to be an IELTS {detected_skill} test, "
+                        f"but this import job is configured for {skill.upper()}. "
+                        f"Please upload the correct {skill.upper()} PDF file, "
+                        f"or create a new import job with the skill set to {detected_skill}."
+                    )
+                logger.info(
+                    f"✅ Skill detection: PDF={detected_skill or 'undetermined (guard skipped)'}, Job={skill.upper()}"
+                )
+
             # 2. COST GUARD: Verify token limit before invoking generation
             try:
                 token_count_resp = self.client.models.count_tokens(
