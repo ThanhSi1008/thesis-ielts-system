@@ -95,7 +95,14 @@ class ContentExtractionConsumer(threading.Thread):
             logger.info(f"📥 [Stage 1] PDF upload for job {job_id}...")
             raw_result = await extractor.extract_raw(source_type, source_ref, skill, audioscript_ref=audioscript_ref)
             raw_text = raw_result["rawText"]
-            media_assets = raw_result["mediaAssets"]
+            extracted_assets = raw_result.get("mediaAssets") or []
+            if media_assets:
+                existing_urls = {a.get("storedUrl") for a in media_assets if a.get("storedUrl")}
+                for asset in extracted_assets:
+                    if asset.get("storedUrl") not in existing_urls:
+                        media_assets.append(asset)
+            else:
+                media_assets = extracted_assets
         
         # Step 2: Gemini Structuring
         logger.info(f"🧠 [Stage 2] Gemini structuring for job {job_id}...")
