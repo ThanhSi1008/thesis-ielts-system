@@ -72,9 +72,6 @@ export default function IELTSAdvancedAdminPage() {
   const [answerKeyImage, setAnswerKeyImage] = useState<{ originalUrl: string; storedUrl: string; kind: "image" } | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isDragActiveImage, setIsDragActiveImage] = useState(false);
-  const [writingChartImage, setWritingChartImage] = useState<{ originalUrl: string; storedUrl: string; kind: "chart_image" } | null>(null);
-  const [isUploadingChartImage, setIsUploadingChartImage] = useState(false);
-  const [isDragActiveChartImage, setIsDragActiveChartImage] = useState(false);
 
   // ─── Data Fetching ───
   const fetchAdvancedLists = useCallback(async () => {
@@ -288,35 +285,6 @@ export default function IELTSAdvancedAdminPage() {
     await uploadImageFile(file);
   };
 
-  const uploadChartImageFile = async (file: File) => {
-    setIsUploadingChartImage(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await api.post("/admin/ielts/import/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
-      const storedUrl = (res.data as any).url;
-      setWritingChartImage({
-        originalUrl: file.name,
-        storedUrl,
-        kind: "chart_image"
-      });
-      toast.success("Chart Image uploaded successfully.");
-    } catch {
-      toast.error("Failed to upload Chart Image.");
-    } finally {
-      setIsUploadingChartImage(false);
-    }
-  };
-
-  const handleChartImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    await uploadChartImageFile(file);
-  };
-
   // ─── Submit Import Job ───
   const handleCreateImportJob = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -346,9 +314,6 @@ export default function IELTSAdvancedAdminPage() {
       if (answerKeyImage) {
         finalAssets.push(answerKeyImage);
       }
-      if (writingChartImage) {
-        finalAssets.push(writingChartImage);
-      }
 
       await ieltsImportApi.createJob({
         targetSystem: "ADVANCED",
@@ -356,7 +321,7 @@ export default function IELTSAdvancedAdminPage() {
         sourceType,
         sourceRef: sourceRef.trim(),
         provenance,
-        mediaAssets: (skill === "LISTENING" || skill === "WRITING") ? finalAssets : undefined
+        mediaAssets: skill === "LISTENING" ? finalAssets : undefined
       } as any);
 
       toast.success("Advanced import job successfully queued!");
@@ -366,7 +331,6 @@ export default function IELTSAdvancedAdminPage() {
       setProvTitle("");
       setAudioAssets([]);
       setAnswerKeyImage(null);
-      setWritingChartImage(null);
 
       fetchStagingQueue();
     } catch (e: any) {
@@ -861,110 +825,6 @@ export default function IELTSAdvancedAdminPage() {
                 </div>
               )}
 
-              {/* Task 1 Chart/Graph Image — WRITING only */}
-              {skill === "WRITING" && (
-                <div className="border border-violet-150 dark:border-violet-800 bg-violet-50/10 dark:bg-violet-950/10 rounded-2xl p-4 flex flex-col gap-3">
-                  <label className="block text-xs font-bold text-violet-700 dark:text-violet-300">Task 1 Chart / Graph Image</label>
-                  {writingChartImage ? (
-                    <div className="bg-white dark:bg-gray-900 border border-violet-100 dark:border-violet-850 p-3 rounded-xl flex items-center justify-between shadow-sm relative overflow-hidden">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-lg border border-violet-100 overflow-hidden shrink-0 bg-white">
-                          <img src={writingChartImage.storedUrl} alt="Chart Preview" className="w-full h-full object-contain" />
-                        </div>
-                        <div className="overflow-hidden">
-                          <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 block truncate max-w-[180px]">
-                            {writingChartImage.originalUrl}
-                          </span>
-                          <span className="text-[9px] font-bold text-green-600 flex items-center gap-0.5 mt-0.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                            Uploaded
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setWritingChartImage(null)}
-                        className="text-[10px] font-bold text-red-500 hover:text-red-650 shrink-0"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        setIsDragActiveChartImage(true);
-                      }}
-                      onDragLeave={() => {
-                        setIsDragActiveChartImage(false);
-                      }}
-                      onDrop={async (e) => {
-                        e.preventDefault();
-                        setIsDragActiveChartImage(false);
-                        const file = e.dataTransfer.files?.[0];
-                        if (file && file.type.startsWith("image/")) {
-                          await uploadChartImageFile(file);
-                        }
-                      }}
-                      onPaste={async (e) => {
-                        const items = e.clipboardData?.items;
-                        if (!items) return;
-                        for (let i = 0; i < items.length; i++) {
-                          if (items[i].type.indexOf("image") !== -1) {
-                            const file = items[i].getAsFile();
-                            if (file) {
-                              await uploadChartImageFile(file);
-                              break;
-                            }
-                          }
-                        }
-                      }}
-                      onClick={(e) => {
-                        const target = e.target as HTMLElement;
-                        if (target.tagName !== "LABEL" && target.tagName !== "INPUT" && target.tagName !== "A" && target.tagName !== "BUTTON") {
-                          e.currentTarget.focus();
-                        }
-                      }}
-                      tabIndex={0}
-                      className={[
-                        "rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-violet-500/40",
-                        isDragActiveChartImage ? "ring-2 ring-violet-500/30" : ""
-                      ].join(" ")}
-                    >
-                      <input
-                        type="file"
-                        accept="image/*"
-                        id="import-chart-image"
-                        className="hidden"
-                        disabled={isUploadingChartImage}
-                        onChange={handleChartImageUpload}
-                      />
-                      <label
-                        htmlFor="import-chart-image"
-                        className={[
-                          "block w-full text-center py-4 bg-white dark:bg-gray-800 hover:bg-violet-50/30 dark:hover:bg-violet-900/10 border border-dashed rounded-xl text-xs font-bold cursor-pointer shadow-sm hover:border-violet-500/50 transition-colors flex flex-col items-center justify-center gap-2",
-                          isDragActiveChartImage 
-                            ? "border-violet-500 bg-violet-50/10 dark:bg-violet-950/20 text-violet-700 dark:text-violet-300" 
-                            : "border-violet-200 dark:border-violet-800 text-violet-600 dark:text-violet-300"
-                        ].join(" ")}
-                      >
-                        {isUploadingChartImage ? (
-                          <span className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <svg className="w-6 h-6 text-violet-400 dark:text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        )}
-                        <span className="font-bold">Select Chart Image</span>
-                        <span className="text-[10px] font-normal text-violet-400/80 dark:text-violet-500">
-                          or Drag & Drop / Paste (Ctrl+V) screenshot here
-                        </span>
-                      </label>
-                    </div>
-                  )}
-                </div>
-              )}
-
               {/* Provenance Fields */}
               {provSource === "cambridge" ? (
                 <div className="flex flex-col gap-4">
@@ -1023,7 +883,7 @@ export default function IELTSAdvancedAdminPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmittingJob || isUploading || isUploadingImage || isUploadingChartImage || uploadingAudioPart !== null}
+                  disabled={isSubmittingJob || isUploading || isUploadingImage || uploadingAudioPart !== null}
                   className="px-5 py-2 text-xs font-semibold text-white bg-primary rounded-xl hover:opacity-90 disabled:opacity-60 transition-opacity flex items-center gap-1.5"
                 >
                   {isSubmittingJob && <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
