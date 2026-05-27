@@ -505,27 +505,31 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     )
     .sort((a: any, b: any) => (a.partIndex ?? 0) - (b.partIndex ?? 0));
 
-  // ── Image: structuredJson.imageUrl is the canonical truth (populated by the AI
-  // pipeline). Scan allMediaAssets only as a last-resort fallback.
+  // ── Image: aggressive multi-field scan. structuredJson.imageUrl is primary (AI
+  // pipeline output). Fall back to allMediaAssets using every known field that
+  // can identify an image asset: kind, mimeType, type, fileType, or URL extension.
+  const imageAssetFallback = allMediaAssets.find((a: any) =>
+    a.kind === "image" ||
+    (typeof a.mimeType === "string" && a.mimeType.startsWith("image/")) ||
+    (typeof a.type === "string" && a.type.startsWith("image/")) ||
+    (typeof a.fileType === "string" && a.fileType.startsWith("image/")) ||
+    /\.(png|jpe?g|webp)$/i.test(a.storedUrl || a.url || "")
+  );
   const resolvedImageUrl: string | null =
     (structuredJson.imageUrl as string | null | undefined) ||
-    allMediaAssets.find((a: any) =>
-      a.kind === "image" ||
-      (typeof a.mimeType === "string" && a.mimeType.startsWith("image/")) ||
-      (typeof a.type === "string" && a.type.startsWith("image/"))
-    )?.storedUrl ||
+    imageAssetFallback?.storedUrl ||
+    imageAssetFallback?.url ||
     null;
 
   const isListening = job.skill === "LISTENING";
-  const activePartNumber = activeReviewPartIdx + 1;
 
-  // ── Audio: primary source is activePart.audioUrl (written directly by the AI
-  // pipeline into structuredJson.parts[N].audioUrl). Only fall back to the
-  // job.mediaAssets pool for jobs that pre-date the pipeline upgrade.
+  // ── Audio: positional-only resolution. Primary: structuredJson.parts[N].audioUrl
+  // (written by the AI pipeline). Never match by partIndex — rely on array position
+  // so Part N always maps to the N-th audio slot regardless of index field presence.
   const activeAudioUrl: string | null =
-    (activePart?.audioUrl as string | null | undefined) ||
-    audioOnlyAssets.find((a: any) => a.partIndex === activePartNumber)?.storedUrl ||
+    (structuredJson.parts as any[] | undefined)?.[activeReviewPartIdx]?.audioUrl ||
     audioOnlyAssets[activeReviewPartIdx]?.storedUrl ||
+    audioOnlyAssets[activeReviewPartIdx]?.url ||
     null;
 
   const isMultiAudio =
@@ -806,7 +810,6 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                               // Fallback: job.mediaAssets pool for pre-upgrade jobs
                               const hasAudio =
                                 !!((structuredJson.parts as any[])?.[partNum - 1]?.audioUrl) ||
-                                audioOnlyAssets.some((a: any) => a.partIndex === partNum) ||
                                 audioOnlyAssets[partNum - 1] !== undefined;
                               const isActive = activeReviewPartIdx + 1 === partNum;
                               return (
