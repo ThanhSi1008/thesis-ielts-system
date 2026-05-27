@@ -23,17 +23,26 @@ class TranscriptionConsumer(threading.Thread):
         self.backend_core_url = settings.backend_core_url
 
     def run(self):
-        try:
-            params = pika.URLParameters(settings.rabbitmq_url)
-            self.connection = pika.BlockingConnection(params)
-            self.channel = self.connection.channel()
-            self.channel.queue_declare(queue=self.queue_name, durable=True)
-            self.channel.basic_qos(prefetch_count=1)
-            self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.process_message)
-            logger.info("✅ TranscriptionConsumer listening...")
-            self.channel.start_consuming()
-        except Exception as e:
-            logger.error(f"❌ TranscriptionConsumer error: {e}")
+        import time
+        retry_delay = 5
+        max_delay = 60
+        while not self.should_stop:
+            try:
+                params = pika.URLParameters(settings.rabbitmq_url)
+                self.connection = pika.BlockingConnection(params)
+                self.channel = self.connection.channel()
+                self.channel.queue_declare(queue=self.queue_name, durable=True)
+                self.channel.basic_qos(prefetch_count=1)
+                self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.process_message)
+                logger.info("✅ TranscriptionConsumer listening...")
+                retry_delay = 5
+                self.channel.start_consuming()
+            except Exception as e:
+                if self.should_stop:
+                    break
+                logger.error(f"❌ TranscriptionConsumer error: {e} — reconnecting in {retry_delay}s")
+                time.sleep(retry_delay)
+                retry_delay = min(retry_delay * 2, max_delay)
 
     def stop(self):
         self.should_stop = True

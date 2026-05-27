@@ -7,6 +7,8 @@ import hmac
 import hashlib
 import requests
 
+import time
+
 from app.config import get_settings
 from app.services.raw_extractor import get_raw_extractor
 from app.services.extraction_service import get_extraction_service
@@ -32,28 +34,36 @@ class ContentExtractionConsumer(threading.Thread):
         self.callback_secret = callback_secret
 
     def run(self):
-        try:
-            params = pika.URLParameters(settings.rabbitmq_url)
-            self.connection = pika.BlockingConnection(params)
-            self.channel = self.connection.channel()
-            
-            # Assert queue matching NestJS durable definition
-            self.channel.queue_declare(
-                queue=self.queue_name, 
-                durable=True,
-                arguments={
-                    'x-message-ttl': 600000,
-                    'x-dead-letter-exchange': '',
-                    'x-dead-letter-routing-key': 'content-extraction-dlq'
-                }
-            )
-            self.channel.basic_qos(prefetch_count=1)
-            self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.process_message)
-            
-            logger.info("✅ ContentExtractionConsumer listening on content-extraction-queue...")
-            self.channel.start_consuming()
-        except Exception as e:
-            logger.error(f"❌ ContentExtractionConsumer error: {e}")
+        retry_delay = 5
+        max_delay = 60
+        while not self.should_stop:
+            try:
+                params = pika.URLParameters(settings.rabbitmq_url)
+                self.connection = pika.BlockingConnection(params)
+                self.channel = self.connection.channel()
+                
+                # Assert queue matching NestJS durable definition
+                self.channel.queue_declare(
+                    queue=self.queue_name, 
+                    durable=True,
+                    arguments={
+                        'x-message-ttl': 600000,
+                        'x-dead-letter-exchange': '',
+                        'x-dead-letter-routing-key': 'content-extraction-dlq'
+                    }
+                )
+                self.channel.basic_qos(prefetch_count=1)
+                self.channel.basic_consume(queue=self.queue_name, on_message_callback=self.process_message)
+                
+                logger.info("✅ ContentExtractionConsumer listening on content-extraction-queue...")
+                retry_delay = 5
+                self.channel.start_consuming()
+            except Exception as e:
+                if self.should_stop:
+                    break
+                logger.error(f"❌ ContentExtractionConsumer error: {e} — reconnecting in {retry_delay}s")
+                time.sleep(retry_delay)
+                retry_delay = min(retry_delay * 2, max_delay)
 
     def stop(self):
         self.should_stop = True

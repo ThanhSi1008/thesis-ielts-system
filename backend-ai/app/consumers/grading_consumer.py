@@ -403,18 +403,26 @@ class GradingConsumer:
 
     def start_consuming(self):
         """Start consuming messages"""
-        try:
-            self.connect()
-            self.channel.basic_consume(
-                queue=settings.rabbitmq_queue_grading,
-                on_message_callback=self.callback
-            )
-            
-            logger.info("🎧 Started consuming grading tasks...")
-            self.channel.start_consuming()
-            
-        except Exception as e:
-            logger.error(f"❌ Consumer error: {e}")
+        retry_delay = 5
+        max_delay = 60
+        while self.is_running:
+            try:
+                self.connect()
+                self.channel.basic_consume(
+                    queue=settings.rabbitmq_queue_grading,
+                    on_message_callback=self.callback
+                )
+                
+                logger.info("🎧 Started consuming grading tasks...")
+                retry_delay = 5  # reset on successful connect
+                self.channel.start_consuming()
+                
+            except Exception as e:
+                if not self.is_running:
+                    break
+                logger.error(f"❌ Consumer error: {e} — reconnecting in {retry_delay}s")
+                time.sleep(retry_delay)
+                retry_delay = min(retry_delay * 2, max_delay)
 
     def start(self):
         """Start consumer in a separate thread"""
