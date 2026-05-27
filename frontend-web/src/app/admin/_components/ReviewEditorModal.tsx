@@ -604,7 +604,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
           <button
             onClick={() => handleCommit(false)}
             disabled={isCommitting || isUploadingChartImage || isWritingWithoutChart}
-            title={isWritingWithoutChart ? "Vui lòng tải lên ảnh biểu đồ cho Task 1 trước khi Commit!" : isUploadingChartImage ? "Đang tải ảnh biểu đồ..." : undefined}
+            title={isWritingWithoutChart ? "Please upload the chart image for Task 1 before committing!" : isUploadingChartImage ? "Uploading chart image..." : undefined}
             className="flex items-center gap-1.5 px-5 py-2 text-xs font-semibold text-white bg-primary rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isCommitting ? (
