@@ -24,6 +24,17 @@ const WHITELISTED_TYPES = [
   "fill_blank"
 ];
 
+// ─── Question-type taxonomy helpers ───
+const CHOICE_TYPES = new Set([
+  "multiple_choice", "multiple_choice_multiple",
+  "matching", "matching_features", "matching_information", "matching_headings",
+]);
+
+const TOGGLE_TYPES: Record<string, string[]> = {
+  "true_false_not_given": ["TRUE", "FALSE", "NOT GIVEN"],
+  "yes_no_not_given":     ["YES",  "NO",  "NOT GIVEN"],
+};
+
 // ─── Zod Schema for Client-Side Validation ───
 const questionSchema = z.object({
   question_number: z.number().nullish(),
@@ -248,25 +259,43 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
 
       const ansStr = String(answer);
 
-      // Check parentheses balance
-      let parenCount = 0;
-      for (let i = 0; i < ansStr.length; i++) {
-        if (ansStr[i] === '(') parenCount++;
-        else if (ansStr[i] === ')') {
-          parenCount--;
-          if (parenCount < 0) {
-            errors.push(`[Question ${qNum}] Unbalanced parentheses in answer "${ansStr}".`);
-            break;
-          }
-        }
+      // ── T/F/NG strict uppercase validation ──
+      if (q.type === "true_false_not_given" && !["TRUE", "FALSE", "NOT GIVEN"].includes(ansStr)) {
+        errors.push(`[Question ${qNum}] T/F/NG answer must be exactly "TRUE", "FALSE", or "NOT GIVEN" (found: "${ansStr}").`);
+        return;
       }
-      if (parenCount !== 0) {
-        errors.push(`[Question ${qNum}] Unbalanced parentheses in answer "${ansStr}".`);
+      if (q.type === "yes_no_not_given" && !["YES", "NO", "NOT GIVEN"].includes(ansStr)) {
+        errors.push(`[Question ${qNum}] Y/N/NG answer must be exactly "YES", "NO", or "NOT GIVEN" (found: "${ansStr}").`);
+        return;
       }
 
-      // Check slash formatting
-      if (ansStr.includes("//") || ansStr.startsWith("/") || ansStr.endsWith("/")) {
-        errors.push(`[Question ${qNum}] Invalid slash formatting in answer "${ansStr}". Alternate answers must use single slash without hanging slashes (e.g. answer1/answer2).`);
+      // ── Choice types must have options populated ──
+      if (CHOICE_TYPES.has(q.type) && (!q.options || q.options.length === 0)) {
+        errors.push(`[Question ${qNum}] "${q.type}" requires an "options" array to be populated.`);
+      }
+
+      // ── Paren/slash checks apply only to gap-filling text types ──
+      if (!CHOICE_TYPES.has(q.type) && !TOGGLE_TYPES[q.type]) {
+        // Check parentheses balance
+        let parenCount = 0;
+        for (let i = 0; i < ansStr.length; i++) {
+          if (ansStr[i] === "(") parenCount++;
+          else if (ansStr[i] === ")") {
+            parenCount--;
+            if (parenCount < 0) {
+              errors.push(`[Question ${qNum}] Unbalanced parentheses in answer "${ansStr}".`);
+              break;
+            }
+          }
+        }
+        if (parenCount !== 0) {
+          errors.push(`[Question ${qNum}] Unbalanced parentheses in answer "${ansStr}".`);
+        }
+
+        // Check slash formatting
+        if (ansStr.includes("//") || ansStr.startsWith("/") || ansStr.endsWith("/")) {
+          errors.push(`[Question ${qNum}] Invalid slash formatting in answer "${ansStr}". Alternate answers must use single slash without hanging slashes (e.g. answer1/answer2).`);
+        }
       }
     });
 
@@ -751,18 +780,120 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                             />
                           </div>
 
-                          <div className="mt-3">
-                            <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                              Correct Answer (slashes for alternate, parentheses for optional spelling)
-                            </label>
-                            <input
-                              type="text"
-                              value={ans || ""}
-                              onChange={e => handleContentFieldChange(idx, "answer", e.target.value)}
-                              placeholder="e.g. colo(u)r or car/taxi"
-                              className="w-full text-xs px-2.5 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none font-semibold text-primary"
-                            />
-                          </div>
+                          {/* ─── Options editor — only for selection-type questions ─── */}
+                          {CHOICE_TYPES.has(q.type) && (
+                            <div className="mt-3">
+                              <div className="flex items-center justify-between mb-1.5">
+                                <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                  Options
+                                  <span className="ml-1.5 text-[9px] font-normal normal-case text-gray-400">(format: "A. description" or "i. heading")</span>
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const opts: string[] = q.options || [];
+                                    const nextKey = "ABCDEFGHIJ"[opts.length] ?? String.fromCharCode(65 + opts.length);
+                                    handleContentFieldChange(idx, "options", [...opts, `${nextKey}. `]);
+                                  }}
+                                  className="flex items-center gap-1 text-[10px] font-semibold text-primary hover:opacity-80 transition-opacity"
+                                >
+                                  <svg viewBox="0 0 24 24" className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                  Add
+                                </button>
+                              </div>
+                              <div className="flex flex-col gap-1.5">
+                                {((q.options || []) as string[]).map((opt: string, optIdx: number) => (
+                                  <div key={optIdx} className="flex items-center gap-2">
+                                    <input
+                                      type="text"
+                                      value={opt}
+                                      onChange={e => {
+                                        const newOpts = [...(q.options as string[])];
+                                        newOpts[optIdx] = e.target.value;
+                                        handleContentFieldChange(idx, "options", newOpts);
+                                      }}
+                                      className="flex-1 text-xs px-2.5 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none font-mono"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => handleContentFieldChange(idx, "options", (q.options as string[]).filter((_: string, i: number) => i !== optIdx))}
+                                      className="p-1 text-gray-400 hover:text-red-500 rounded transition-colors"
+                                    >
+                                      <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                  </div>
+                                ))}
+                                {(!q.options || q.options.length === 0) && (
+                                  <p className="text-[10px] italic text-amber-500">⚠ No options defined — required for {q.type}.</p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* ─── Correct Answer — three conditional branches by taxonomy ─── */}
+                          {TOGGLE_TYPES[q.type] ? (
+                            /* Branch 1: TRUE/FALSE/NOT GIVEN or YES/NO/NOT GIVEN toggle buttons */
+                            <div className="mt-3">
+                              <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Correct Answer</label>
+                              <div className="flex gap-2 flex-wrap">
+                                {TOGGLE_TYPES[q.type].map(btn => (
+                                  <button
+                                    key={btn}
+                                    type="button"
+                                    onClick={() => handleContentFieldChange(idx, "answer", btn)}
+                                    className={`px-3 py-1.5 text-[11px] font-bold rounded-lg border transition-all ${
+                                      ans === btn
+                                        ? "bg-primary text-white border-primary shadow-sm"
+                                        : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-primary hover:text-primary"
+                                    }`}
+                                  >
+                                    {btn}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          ) : CHOICE_TYPES.has(q.type) ? (
+                            /* Branch 2: Matching / Multiple-choice — select from options */
+                            <div className="mt-3">
+                              <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">Correct Answer (Key)</label>
+                              {(q.options || []).length > 0 ? (
+                                <select
+                                  value={ans || ""}
+                                  onChange={e => handleContentFieldChange(idx, "answer", e.target.value)}
+                                  className="w-full text-xs px-2.5 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none font-semibold text-primary"
+                                >
+                                  <option value="">— Select correct answer —</option>
+                                  {((q.options || []) as string[]).map((opt: string) => {
+                                    const dotIdx = opt.indexOf(".");
+                                    const key = dotIdx > 0 ? opt.substring(0, dotIdx).trim() : opt.charAt(0);
+                                    return <option key={key} value={key}>{opt}</option>;
+                                  })}
+                                </select>
+                              ) : (
+                                <input
+                                  type="text"
+                                  value={ans || ""}
+                                  onChange={e => handleContentFieldChange(idx, "answer", e.target.value)}
+                                  placeholder="e.g. A, B, i, ii  (add options above first)"
+                                  className="w-full text-xs px-2.5 py-2 border border-amber-300 dark:border-amber-600 rounded-lg bg-amber-50 dark:bg-amber-950/20 text-gray-900 dark:text-gray-100 focus:outline-none font-semibold text-primary"
+                                />
+                              )}
+                            </div>
+                          ) : (
+                            /* Branch 3: Gap-filling / text types — plain text input */
+                            <div className="mt-3">
+                              <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                                Correct Answer (slashes for alternate, parentheses for optional spelling)
+                              </label>
+                              <input
+                                type="text"
+                                value={ans || ""}
+                                onChange={e => handleContentFieldChange(idx, "answer", e.target.value)}
+                                placeholder="e.g. colo(u)r or car/taxi"
+                                className="w-full text-xs px-2.5 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none font-semibold text-primary"
+                              />
+                            </div>
+                          )}
                         </div>
                       );
                     })}
