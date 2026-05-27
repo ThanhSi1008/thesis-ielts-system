@@ -769,7 +769,23 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                     <input
                       type="number"
                       value={provenance.bookNumber || ""}
-                      onChange={e => setProvenance({ ...provenance, bookNumber: Number(e.target.value) })}
+                      onChange={e => {
+                        const newBook = Number(e.target.value);
+                        const nextProvenance = { ...provenance, bookNumber: newBook };
+                        setProvenance(nextProvenance);
+                        
+                        // Automatically update title if from Cambridge source
+                        const skillLabel = ({
+                          WRITING: "Writing", LISTENING: "Listening",
+                          READING: "Reading", SPEAKING: "Speaking"
+                        } as Record<string, string>)[job.skill] ?? job.skill;
+                        if (provenance.source === "cambridge" && nextProvenance.testNumber) {
+                          updateStructuredJson({
+                            ...structuredJson,
+                            title: `Cambridge IELTS ${newBook} - ${skillLabel} Test ${nextProvenance.testNumber}`
+                          });
+                        }
+                      }}
                       className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
                     />
                   </div>
@@ -778,7 +794,23 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                     <input
                       type="number"
                       value={provenance.testNumber || ""}
-                      onChange={e => setProvenance({ ...provenance, testNumber: Number(e.target.value) })}
+                      onChange={e => {
+                        const newTest = Number(e.target.value);
+                        const nextProvenance = { ...provenance, testNumber: newTest };
+                        setProvenance(nextProvenance);
+                        
+                        // Automatically update title if from Cambridge source
+                        const skillLabel = ({
+                          WRITING: "Writing", LISTENING: "Listening",
+                          READING: "Reading", SPEAKING: "Speaking"
+                        } as Record<string, string>)[job.skill] ?? job.skill;
+                        if (provenance.source === "cambridge" && nextProvenance.bookNumber) {
+                          updateStructuredJson({
+                            ...structuredJson,
+                            title: `Cambridge IELTS ${nextProvenance.bookNumber} - ${skillLabel} Test ${newTest}`
+                          });
+                        }
+                      }}
                       className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
                     />
                   </div>
@@ -1001,7 +1033,31 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
               >
                 {isListening ? (
                   /* TWO COLUMN LISTENING WORKSPACE */
-                  <div className="flex-1 flex gap-6 overflow-hidden p-6">
+                  <div className="flex-1 flex flex-col overflow-hidden p-6 gap-4">
+                    {/* Common Metadata for Listening */}
+                    <div className="grid grid-cols-12 gap-4 bg-gray-50 dark:bg-gray-850 p-4 border border-gray-150 dark:border-gray-800 rounded-2xl shrink-0 shadow-sm">
+                      <div className="col-span-8">
+                        <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-500 mb-1">Exam Title *</label>
+                        <input
+                          type="text"
+                          value={structuredJson.title || ""}
+                          onChange={e => updateStructuredJson({ ...structuredJson, title: e.target.value })}
+                          className="w-full text-xs px-3.5 py-2 border border-gray-250 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+                          required
+                        />
+                      </div>
+                      <div className="col-span-4">
+                        <label className="block text-[10px] font-extrabold uppercase tracking-wider text-gray-500 mb-1">Duration (minutes)</label>
+                        <input
+                          type="number"
+                          value={structuredJson.duration || 40}
+                          onChange={e => updateStructuredJson({ ...structuredJson, duration: Number(e.target.value) })}
+                          className="w-full text-xs px-3.5 py-2 border border-gray-250 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary shadow-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex-1 flex gap-6 overflow-hidden">
                     {/* LEFT COLUMN: Verbatim Transcript Area */}
                     <div className="w-5/12 flex flex-col bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-2xl p-5 shadow-sm overflow-hidden">
                       <div className="flex items-center justify-between mb-3.5 shrink-0">
@@ -1393,6 +1449,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                         })}
                       </div>
                     </div>
+                  </div>
                   </div>
                 ) : (
                   /* ORIGINAL SINGLE COLUMN WORKSPACE FOR OTHER SKILLS */
