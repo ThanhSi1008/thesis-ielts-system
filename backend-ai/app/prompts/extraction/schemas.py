@@ -107,7 +107,7 @@ class WritingPromptSchema(BaseModel):
             "The complete prompt in Markdown. "
             "Bold (**…**): timing instruction line and core action instruction line. "
             "Italic (*…*): the quoted opinion/statement box in TASK_2. "
-            "Separate every logical block with a blank line (\\n\\n): "
+            "Separate every logical block with a SINGLE newline (\\n) — no blank lines (\\n\\n): "
             "timing → description → action instruction → supporting note → word-count reminder. "
             "All text must be verbatim from the source document."
         )

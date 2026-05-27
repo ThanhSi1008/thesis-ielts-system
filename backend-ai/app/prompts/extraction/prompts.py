@@ -135,39 +135,36 @@ Please follow these strict guidelines:
    ITALIC (wrap with *…*):
    - The quoted opinion/statement box in TASK_2, i.e. the indented or boxed passage that students must write about, e.g. `*Some people believe that it is best to accept a bad situation...*`
 
-   LINE BREAKS — separate every distinct block with a blank line (\\n\\n):
-   - Between the timing instruction and the chart/data description (TASK_1) or the topic lead-in (TASK_2)
-   - Between the chart/data description and the core action instruction (TASK_1)
-   - Between "Write about the following topic:" and the quoted statement (TASK_2)
-   - Between the quoted statement and the core action instruction (TASK_2)
-   - Between the core action instruction and any supporting sentence (e.g. "Give reasons for your answer…")
-   - Between the supporting sentence and the word-count reminder ("Write at least X words.")
+   LINE BREAKS — separate every distinct block with a SINGLE newline (\\n). Each logical block must be on its own line. Do NOT insert blank lines (\\n\\n) between blocks:
+   - Timing instruction line → single newline → chart/data description (TASK_1) or topic lead-in (TASK_2)
+   - Chart/data description → single newline → core action instruction (TASK_1)
+   - "Write about the following topic:" → single newline → quoted statement (TASK_2)
+   - Quoted statement → single newline → core action instruction (TASK_2)
+   - Core action instruction → single newline → supporting sentence (e.g. "Give reasons for your answer…")
+   - Supporting sentence → single newline → word-count reminder ("Write at least X words.")
 
-   DO NOT add blank lines WITHIN a single continuous sentence or list item.
+   DO NOT add blank lines (\\n\\n) anywhere in the prompt output. Every line break must be exactly one \\n.
+
+   ASTERISK SAFETY — CRITICAL for italic rendering:
+   - The `*` character is ONLY permitted as an italic delimiter wrapping the TASK_2 opinion/statement box.
+   - Do NOT use `*` as a bullet point character anywhere in the prompt output. If the source document uses bullet points, convert them to plain lines of text (prefix with a dash `-` or just write them as prose on separate lines).
+   - Do NOT nest `*` inside `**...**` or vice versa. The opinion box in TASK_2 must be plain text inside `*...*` with no asterisks appearing inside it.
 
    Example — TASK_1 prompt:
    ```
    **You should spend about 20 minutes on this task.**
-
    The graph below gives information about the percentage of the population in four Asian countries living in cities from 1970 to 2020, with predictions for 2030 and 2040.
-
    **Summarise the information by selecting and reporting the main features, and make comparisons where relevant.**
-
    Write at least 150 words.
    ```
 
    Example — TASK_2 prompt:
    ```
    **You should spend about 40 minutes on this task.**
-
    **Write about the following topic:**
-
    *Some people believe that it is best to accept a bad situation, such as an unsatisfactory job or shortage of money. Others argue that it is better to try and improve such situations.*
-
    **Discuss both these views and give your own opinion.**
-
    Give reasons for your answer and include any relevant examples from your own knowledge or experience.
-
    Write at least 250 words.
    ```
 """
