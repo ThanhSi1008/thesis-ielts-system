@@ -71,6 +71,7 @@ export default function IELTSAdvancedAdminPage() {
   const [uploadingAudioPart, setUploadingAudioPart] = useState<number | null>(null);
   const [answerKeyImage, setAnswerKeyImage] = useState<{ originalUrl: string; storedUrl: string; kind: "image" } | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isDragActiveImage, setIsDragActiveImage] = useState(false);
 
   // ─── Data Fetching ───
   const fetchAdvancedLists = useCallback(async () => {
@@ -255,10 +256,7 @@ export default function IELTSAdvancedAdminPage() {
     }
   };
 
-  const handleAnswerKeyUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const uploadImageFile = async (file: File) => {
     setIsUploadingImage(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -279,6 +277,12 @@ export default function IELTSAdvancedAdminPage() {
     } finally {
       setIsUploadingImage(false);
     }
+  };
+
+  const handleAnswerKeyUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadImageFile(file);
   };
 
   // ─── Submit Import Job ───
@@ -746,7 +750,47 @@ export default function IELTSAdvancedAdminPage() {
                       </button>
                     </div>
                   ) : (
-                    <div>
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragActiveImage(true);
+                      }}
+                      onDragLeave={() => {
+                        setIsDragActiveImage(false);
+                      }}
+                      onDrop={async (e) => {
+                        e.preventDefault();
+                        setIsDragActiveImage(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file && file.type.startsWith("image/")) {
+                          await uploadImageFile(file);
+                        }
+                      }}
+                      onPaste={async (e) => {
+                        const items = e.clipboardData?.items;
+                        if (!items) return;
+                        for (let i = 0; i < items.length; i++) {
+                          if (items[i].type.indexOf("image") !== -1) {
+                            const file = items[i].getAsFile();
+                            if (file) {
+                              await uploadImageFile(file);
+                              break;
+                            }
+                          }
+                        }
+                      }}
+                      onClick={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.tagName !== "LABEL" && target.tagName !== "INPUT" && target.tagName !== "A" && target.tagName !== "BUTTON") {
+                          e.currentTarget.focus();
+                        }
+                      }}
+                      tabIndex={0}
+                      className={[
+                        "rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-primary/40",
+                        isDragActiveImage ? "ring-2 ring-primary/30" : ""
+                      ].join(" ")}
+                    >
                       <input
                         type="file"
                         accept="image/*"
@@ -757,10 +801,24 @@ export default function IELTSAdvancedAdminPage() {
                       />
                       <label
                         htmlFor="import-answer-key"
-                        className="block w-full text-center py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-250 cursor-pointer shadow-sm hover:border-primary/50 transition-colors flex items-center justify-center gap-2"
+                        className={[
+                          "block w-full text-center py-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 border border-dashed rounded-xl text-xs font-bold cursor-pointer shadow-sm hover:border-primary/50 transition-colors flex flex-col items-center justify-center gap-2",
+                          isDragActiveImage 
+                            ? "border-primary bg-primary/5 dark:bg-primary/5 text-primary" 
+                            : "border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-250"
+                        ].join(" ")}
                       >
-                        {isUploadingImage && <span className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />}
-                        Select Answer Key Image
+                        {isUploadingImage ? (
+                          <span className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <svg className="w-6 h-6 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        )}
+                        <span className="font-bold">Select Answer Key Image</span>
+                        <span className="text-[10px] font-normal text-gray-450 dark:text-gray-500">
+                          or Drag & Drop / Paste (Ctrl+V) screenshot here
+                        </span>
                       </label>
                     </div>
                   )}

@@ -107,6 +107,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
   const [showOverwriteConfirm, setShowOverwriteConfirm] = useState(false);
   const [apiError, setApiError] = useState<{ status: number; message: string } | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isDragActiveImage, setIsDragActiveImage] = useState(false);
 
   // Staged data
   const [structuredJson, setStructuredJson] = useState<any>({
@@ -365,10 +366,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     return true;
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const uploadImageFile = async (file: File) => {
     setIsUploadingImage(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -385,6 +383,12 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     } finally {
       setIsUploadingImage(false);
     }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadImageFile(file);
   };
 
   // ─── Actions ───
@@ -799,7 +803,49 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                       </div>
 
                       {/* Official Answer Key Image Slot */}
-                      <div className="col-span-3 bg-white dark:bg-gray-900 p-3.5 border border-gray-100 dark:border-gray-800 rounded-xl flex flex-col justify-between shadow-sm">
+                      <div 
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                          setIsDragActiveImage(true);
+                        }}
+                        onDragLeave={() => {
+                          setIsDragActiveImage(false);
+                        }}
+                        onDrop={async (e) => {
+                          e.preventDefault();
+                          setIsDragActiveImage(false);
+                          const file = e.dataTransfer.files?.[0];
+                          if (file && file.type.startsWith("image/")) {
+                            await uploadImageFile(file);
+                          }
+                        }}
+                        onPaste={async (e) => {
+                          const items = e.clipboardData?.items;
+                          if (!items) return;
+                          for (let i = 0; i < items.length; i++) {
+                            if (items[i].type.indexOf("image") !== -1) {
+                              const file = items[i].getAsFile();
+                              if (file) {
+                                await uploadImageFile(file);
+                                break;
+                              }
+                            }
+                          }
+                        }}
+                        onClick={(e) => {
+                          const target = e.target as HTMLElement;
+                          if (target.tagName !== "LABEL" && target.tagName !== "INPUT" && target.tagName !== "A" && target.tagName !== "BUTTON") {
+                            e.currentTarget.focus();
+                          }
+                        }}
+                        tabIndex={0}
+                        className={[
+                          "col-span-3 bg-white dark:bg-gray-900 p-3.5 border rounded-xl flex flex-col justify-between shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/40",
+                          isDragActiveImage 
+                            ? "border-primary bg-primary/5 dark:bg-primary/5 ring-2 ring-primary/30" 
+                            : "border-gray-100 dark:border-gray-800"
+                        ].join(" ")}
+                      >
                         <div className="flex items-start gap-2.5">
                           {structuredJson.imageUrl ? (
                             <div className="w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden shrink-0">
@@ -813,7 +859,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                           <div className="overflow-hidden">
                             <h4 className="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate">Official Answer Key</h4>
                             <p className="text-[9px] text-gray-400 truncate mt-0.5">
-                              {structuredJson.imageUrl ? "AnswerKeyImage.png" : "No file linked"}
+                              {structuredJson.imageUrl ? "AnswerKeyImage.png" : "Drag/drop or paste here"}
                             </p>
                           </div>
                         </div>
