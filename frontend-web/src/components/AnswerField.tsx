@@ -112,11 +112,11 @@ export function AnswerField({
 
         <div className="flex items-start gap-[8px]">
           <span className="mt-[10px] w-1.5 h-1.5 rounded-full bg-[#1a1a1a] flex-shrink-0"></span>
-          <div className="flex items-center gap-[6px] flex-wrap flex-1">
+          <div className="text-[17px] leading-[2.1] flex-1">
             {parts.length > 1 ? (
               parts.map((p, idx) => (
-                <span key={idx} className="flex items-center gap-[6px]">
-                  <span className="text-[17px] leading-relaxed">{p}</span>
+                <React.Fragment key={idx}>
+                  <span>{p}</span>
                   {idx < parts.length - 1 && (
                     // Only the FIRST blank is the active input for this question.
                     // Any subsequent blanks belong to adjacent questions — render as static text.
@@ -126,31 +126,31 @@ export function AnswerField({
                         onFocus={() => setFocusedQn(item.qn)}
                         onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
                         placeholder={String(item.qn)}
-                        className={`w-24 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === item.qn
+                        className={`inline-block mx-1.5 w-24 h-[30px] align-middle rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === item.qn
                           ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
                           : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
                           }`}
                       />
                     ) : (
-                      <span className="text-[15px] font-mono text-[#b5b5b5] mx-0.5">___</span>
+                      <span className="text-[15px] font-mono text-[#b5b5b5] mx-1 align-middle">___</span>
                     )
                   )}
-                </span>
+                </React.Fragment>
               ))
             ) : (
-              <div className="flex items-center gap-[6px] flex-wrap">
-                <div className="text-[17px] font-medium leading-relaxed">{item.text}</div>
+              <span className="inline">
+                <span className="font-medium">{item.text}</span>
                 <input
                   value={value}
                   onFocus={() => setFocusedQn(item.qn)}
                   onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
                   placeholder={String(item.qn)}
-                  className={`w-36 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === item.qn
+                  className={`inline-block mx-1.5 w-36 h-[30px] align-middle rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === item.qn
                     ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
                     : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
                     }`}
                 />
-              </div>
+              </span>
             )}
           </div>
         </div>
@@ -185,10 +185,10 @@ export function AnswerField({
                     const parts = parseTextAndBlanks(cell.text || "");
                     return (
                       <td key={cIdx} className="border border-[#e2e1df] px-3 py-4 align-middle">
-                        <div id={`question-${cell.question_number}`} className="flex items-center gap-[6px] flex-wrap">
+                        <div id={`question-${cell.question_number}`} className="text-[15px] leading-[1.8]">
                           {parts.length > 1 ? (
                             parts.map((p, idx) => (
-                              <span key={idx} className="flex items-center gap-[6px]">
+                              <React.Fragment key={idx}>
                                 {p && <span className="leading-relaxed">{p}</span>}
                                 {idx < parts.length - 1 && (
                                   <input
@@ -196,28 +196,28 @@ export function AnswerField({
                                     onFocus={() => setFocusedQn(cell.question_number!)}
                                     onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
                                     placeholder={String(cell.question_number)}
-                                    className={`w-28 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === cell.question_number
+                                    className={`inline-block mx-1 w-28 h-[30px] align-middle rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === cell.question_number
                                       ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
                                       : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
                                       }`}
                                   />
                                 )}
-                              </span>
+                              </React.Fragment>
                             ))
                           ) : (
-                            <>
+                            <span className="inline">
                               {cell.text && <span className="leading-relaxed">{cell.text}</span>}
                               <input
                                 value={value}
                                 onFocus={() => setFocusedQn(cell.question_number!)}
                                 onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
                                 placeholder={String(cell.question_number)}
-                                className={`w-32 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === cell.question_number
+                                className={`inline-block mx-1 w-32 h-[30px] align-middle rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === cell.question_number
                                   ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
                                   : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
                                   }`}
                               />
-                            </>
+                            </span>
                           )}
                         </div>
                       </td>
