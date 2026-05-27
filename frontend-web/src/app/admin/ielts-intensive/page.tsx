@@ -291,9 +291,9 @@ export default function IELTSIntensiveAdminPage() {
     }
   };
 
-  const handleChartImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const [isDraggingChart, setIsDraggingChart] = useState(false);
+
+  const uploadChartImageFile = async (file: File) => {
     setIsUploadingChartImage(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -307,6 +307,32 @@ export default function IELTSIntensiveAdminPage() {
       toast.error("Failed to upload chart image.");
     } finally {
       setIsUploadingChartImage(false);
+    }
+  };
+
+  const handleChartImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    await uploadChartImageFile(file);
+  };
+
+  const handleChartDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingChart(true);
+  };
+
+  const handleChartDragLeave = () => {
+    setIsDraggingChart(false);
+  };
+
+  const handleChartDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingChart(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      await uploadChartImageFile(file);
+    } else if (file) {
+      toast.error("Please drop an image file.");
     }
   };
 
@@ -800,10 +826,19 @@ export default function IELTSIntensiveAdminPage() {
 
               {/* Task 1 Chart/Graph Image — WRITING only */}
               {skill === "WRITING" && (
-                <div className="border-2 border-dashed border-violet-200 dark:border-violet-900 hover:border-violet-400/60 rounded-2xl p-5 flex flex-col items-center justify-center bg-violet-50/30 dark:bg-violet-950/10 transition-colors">
+                <div
+                  onDragOver={handleChartDragOver}
+                  onDragLeave={handleChartDragLeave}
+                  onDrop={handleChartDrop}
+                  className={`border-2 border-dashed rounded-2xl p-5 flex flex-col items-center justify-center transition-all ${
+                    isDraggingChart
+                      ? "border-violet-500 bg-violet-100/50 dark:bg-violet-900/30 scale-[1.02]"
+                      : "border-violet-200 dark:border-violet-900 hover:border-violet-400/60 bg-violet-50/30 dark:bg-violet-950/10"
+                  }`}
+                >
                   <svg viewBox="0 0 24 24" className="w-7 h-7 text-violet-400 mb-1.5" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 21h18M6.75 3h10.5A2.25 2.25 0 0119.5 5.25v13.5A2.25 2.25 0 0117.25 21H6.75A2.25 2.25 0 014.5 18.75V5.25A2.25 2.25 0 016.75 3z" /></svg>
                   <span className="text-xs text-violet-700 dark:text-violet-300 font-semibold mb-0.5">Task 1 Chart / Graph Image</span>
-                  <span className="text-[10px] text-violet-400/80 dark:text-violet-500 mb-3">Upload the chart, graph, map, or diagram for IELTS Writing Task 1</span>
+                  <span className="text-[10px] text-violet-400/80 dark:text-violet-500 mb-3">Drag &amp; drop or click Select to upload Task 1 diagram</span>
 
                   <input
                     type="file"
