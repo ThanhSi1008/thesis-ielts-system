@@ -833,6 +833,48 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                             />
                           </div>
 
+                          {/* ─── Multi-blank safeguard: annotates when a gap-fill question_text has > 1 blank ─── */}
+                          {!CHOICE_TYPES.has(q.type) && !TOGGLE_TYPES[q.type] && (() => {
+                            const rawText: string = q.question_text || "";
+                            const blankCount = rawText.split("___").length - 1;
+                            if (blankCount <= 1) return null;
+                            // Find all questions in this part that share the identical sentence
+                            const siblings: any[] = allContent
+                              .filter((other: any) => other.question_text === rawText)
+                              .sort((a: any, b: any) => (a.question_number ?? 0) - (b.question_number ?? 0));
+                            const parts = rawText.split("___");
+                            return (
+                              <div className="mt-2 px-3 py-2.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 rounded-lg">
+                                <div className="flex items-center gap-1.5 mb-1.5">
+                                  <svg className="w-3 h-3 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                                    Multi-blank detected ({blankCount} blanks) — each question must own exactly 1 ___
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-gray-600 dark:text-gray-300 leading-relaxed font-mono break-words">
+                                  {parts.map((part: string, pIdx: number) => {
+                                    const sib = siblings[pIdx];
+                                    const isOwn = sib?.question_number === q.question_number;
+                                    return (
+                                      <React.Fragment key={pIdx}>
+                                        {part}
+                                        {pIdx < parts.length - 1 && (
+                                          isOwn ? (
+                                            <mark className="bg-primary/20 text-primary font-bold px-1 rounded">___</mark>
+                                          ) : (
+                                            <span className="inline-flex items-center px-1 py-0.5 rounded text-[9px] font-bold bg-red-100 dark:bg-red-950/40 text-red-500 dark:text-red-400 mx-0.5 align-middle">
+                                              [Q{sib?.question_number ?? `?${pIdx + 1}`}]
+                                            </span>
+                                          )
+                                        )}
+                                      </React.Fragment>
+                                    );
+                                  })}
+                                </p>
+                              </div>
+                            );
+                          })()}
+
                           {/* ─── Options editor — only for selection-type questions ─── */}
                           {CHOICE_TYPES.has(q.type) && (
                             <div className="mt-3">
