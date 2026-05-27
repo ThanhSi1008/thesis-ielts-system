@@ -745,7 +745,21 @@ export class IeltsContentCommitService {
             : mappedType;
 
           if (!currentGroup || (currentGroup as any)._groupKey !== groupKey) {
+            let groupSnakeType = String(mappedType).toLowerCase().replace(/[\s/]/g, "_");
+            if (groupSnakeType === "matching") {
+              groupSnakeType = qType;
+            } else if (groupSnakeType === "multiple_choice" && isMultiSelect) {
+              groupSnakeType = "multiple_choice_multiple";
+            } else if (groupSnakeType === "sentence_completion") {
+              groupSnakeType = "note_completion";
+            } else if (groupSnakeType === "table_completion") {
+              groupSnakeType = "table";
+            } else if (groupSnakeType === "flowchart_completion") {
+              groupSnakeType = skill === ContentImportSkill.READING ? "flowchart_completion" : "flow_chart";
+            }
+
             currentGroup = {
+              type: visualSnakeType || groupSnakeType,
               question_type: mappedType,
               instructions: instructions,
               questions: "",
@@ -754,9 +768,8 @@ export class IeltsContentCommitService {
             if ((isMatchingGroup || isBankCompletion) && formattedOptions && Object.keys(formattedOptions).length > 0) {
               (currentGroup as any).options_box = { options: formattedOptions };
             }
-            if (visualSnakeType) {
-              (currentGroup as any).type = visualSnakeType;
-              if (itemImageUrl) (currentGroup as any).image_url = itemImageUrl;
+            if (visualSnakeType && itemImageUrl) {
+              (currentGroup as any).image_url = itemImageUrl;
             }
             (currentGroup as any)._groupKey = groupKey;
             questionGroups.push(currentGroup);
@@ -954,7 +967,21 @@ export class IeltsContentCommitService {
         : mappedType;
 
       if (!currentGroup || (currentGroup as any)._groupKey !== groupKey) {
+        let groupSnakeType = String(mappedType).toLowerCase().replace(/[\s/]/g, "_");
+        if (groupSnakeType === "matching") {
+          groupSnakeType = qType;
+        } else if (groupSnakeType === "multiple_choice" && isMultiSelect) {
+          groupSnakeType = "multiple_choice_multiple";
+        } else if (groupSnakeType === "sentence_completion") {
+          groupSnakeType = "note_completion";
+        } else if (groupSnakeType === "table_completion") {
+          groupSnakeType = "table";
+        } else if (groupSnakeType === "flowchart_completion") {
+          groupSnakeType = skill === ContentImportSkill.READING ? "flowchart_completion" : "flow_chart";
+        }
+
         currentGroup = {
+          type: visualSnakeType || groupSnakeType,
           question_type: mappedType,
           instructions: instructions,
           questions: "",
@@ -963,9 +990,8 @@ export class IeltsContentCommitService {
         if ((isMatchingGroup || isBankCompletion) && formattedOptions && Object.keys(formattedOptions).length > 0) {
           (currentGroup as any).options_box = { options: formattedOptions };
         }
-        if (visualSnakeType) {
-          (currentGroup as any).type = visualSnakeType;
-          if (itemImageUrl) (currentGroup as any).image_url = itemImageUrl;
+        if (visualSnakeType && itemImageUrl) {
+          (currentGroup as any).image_url = itemImageUrl;
         }
         (currentGroup as any)._groupKey = groupKey;
         questionGroups.push(currentGroup);
@@ -1109,7 +1135,7 @@ export class IeltsContentCommitService {
           title: partTitle,
           partNumber,
           passage: p.passage_text || "",
-          passageWithLocations: {},
+          passageWithLocations: [],
           content: p.question_groups || [],
           questionTypes: this.extractQuestionTypesFromGroups(p.question_groups),
           source,

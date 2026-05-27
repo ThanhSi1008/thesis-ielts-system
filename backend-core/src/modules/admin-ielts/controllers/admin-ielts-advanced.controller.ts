@@ -185,7 +185,7 @@ export class AdminIeltsAdvancedController {
         title: body.title,
         partNumber: Number(body.partNumber),
         passage: body.passage || "",
-        passageWithLocations: body.passageWithLocations || {},
+        passageWithLocations: body.passageWithLocations || [],
         content: body.content || {},
         questionTypes: body.questionTypes || [],
         source: body.source || "manual",
