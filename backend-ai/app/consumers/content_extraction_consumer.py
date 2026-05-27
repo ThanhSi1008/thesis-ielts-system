@@ -112,13 +112,14 @@ class ContentExtractionConsumer(threading.Thread):
             try:
                 payload = loop.run_until_complete(self._async_process(task))
                 logger.info(f"✨ Extraction completed successfully for job {job_id}")
-            except Exception as e:
-                logger.error(f"❌ Extraction pipeline failed for job {job_id}: {e}", exc_info=True)
-                payload = {
-                    "error": f"Extraction failed: {str(e)}"
-                }
             finally:
                 loop.close()
+                
+        except Exception as e:
+            logger.error(f"❌ Extraction pipeline failed for job {job_id}: {e}", exc_info=True)
+            payload = {
+                "error": f"Extraction failed: {str(e)}"
+            }
 
         # Send Callback Webhook to backend-core
         try:
