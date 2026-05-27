@@ -102,7 +102,16 @@ class WritingPromptSchema(BaseModel):
                     "opinion, discussion, double_question, advantages_disadvantages)."
     )
     title: str = Field(description="Title describing this writing task.")
-    prompt: str = Field(description="The complete prompt, task instructions, and question text.")
+    prompt: str = Field(
+        description=(
+            "The complete prompt in Markdown. "
+            "Bold (**…**): timing instruction line and core action instruction line. "
+            "Italic (*…*): the quoted opinion/statement box in TASK_2. "
+            "Separate every logical block with a blank line (\\n\\n): "
+            "timing → description → action instruction → supporting note → word-count reminder. "
+            "All text must be verbatim from the source document."
+        )
+    )
     imageUrl: Optional[str] = Field(description="Set as null. Populated dynamically by pipeline.")
     minimumWords: int = Field(description="Minimum word requirement: 150 for TASK_1, 250 for TASK_2.")
     suggestedTime: int = Field(description="Suggested time limit in minutes: 20 for TASK_1, 40 for TASK_2.")

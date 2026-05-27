@@ -117,13 +117,59 @@ WRITING_EXTRACTION_PROMPT = """You are an expert IELTS Writing parser. Your job 
 You MUST read and copy the exact text from the provided document. Do NOT generate, invent, fabricate, or paraphrase any question text, topic statements, or instructions. If the document says "The most important aim of science should be to improve people's lives", output that exact sentence — do not substitute it with a different topic. Every word in the 'prompt' field must appear verbatim in the source document.
 
 Please follow these strict guidelines:
-1. **VERBATIM EXTRACTION**: Copy the task prompts WORD-FOR-WORD from the document, including all instructions ("You should spend about X minutes", "Write at least X words", task descriptions, and the boxed question statement). Do NOT rephrase or summarise.
+1. **VERBATIM EXTRACTION**: Copy the task prompts WORD-FOR-WORD from the document. Do NOT rephrase or summarise.
 2. **BOTH TASKS**: Always extract BOTH writing tasks into the 'tasks' array — one TASK_1 entry and one TASK_2 entry, in that order. Never return only a single task.
 3. **Task Type**: TASK_1 = data/visual report (line_graph, bar_chart, pie_chart, table, diagram, map, process). TASK_2 = essay (opinion, discussion, double_question, advantages_disadvantages, problem_solution).
 4. **Sub-Type**: Identify the exact sub-type from the document content, not from assumption.
 5. **Title**: Set `title` to the placeholder string `"__PROVENANCE_TITLE__"`. The pipeline overwrites this value with the canonical title derived from provenance metadata (e.g. "Cambridge IELTS 17 - Writing Test 1"), so you do not need to extract it from the document.
 6. **Telemetry**: Populate standard defaults — minimumWords=150 and suggestedTime=20 for TASK_1; minimumWords=250 and suggestedTime=40 for TASK_2.
 7. **No Image Placeholders**: Set `imageUrl` to null for all tasks — the chart/graph image URL is injected separately by the pipeline.
+
+8. **Markdown Formatting for `prompt`** — apply these rules consistently to every task:
+
+   BOLD (wrap with **…**):
+   - The timing instruction line, e.g. `**You should spend about 20 minutes on this task.**`
+   - The core action instruction line, e.g. `**Summarise the information by selecting and reporting the main features, and make comparisons where relevant.**` (TASK_1) or `**Discuss both these views and give your own opinion.**` (TASK_2)
+   - "Write about the following topic:" when it appears as a standalone line in TASK_2
+
+   ITALIC (wrap with *…*):
+   - The quoted opinion/statement box in TASK_2, i.e. the indented or boxed passage that students must write about, e.g. `*Some people believe that it is best to accept a bad situation...*`
+
+   LINE BREAKS — separate every distinct block with a blank line (\\n\\n):
+   - Between the timing instruction and the chart/data description (TASK_1) or the topic lead-in (TASK_2)
+   - Between the chart/data description and the core action instruction (TASK_1)
+   - Between "Write about the following topic:" and the quoted statement (TASK_2)
+   - Between the quoted statement and the core action instruction (TASK_2)
+   - Between the core action instruction and any supporting sentence (e.g. "Give reasons for your answer…")
+   - Between the supporting sentence and the word-count reminder ("Write at least X words.")
+
+   DO NOT add blank lines WITHIN a single continuous sentence or list item.
+
+   Example — TASK_1 prompt:
+   ```
+   **You should spend about 20 minutes on this task.**
+
+   The graph below gives information about the percentage of the population in four Asian countries living in cities from 1970 to 2020, with predictions for 2030 and 2040.
+
+   **Summarise the information by selecting and reporting the main features, and make comparisons where relevant.**
+
+   Write at least 150 words.
+   ```
+
+   Example — TASK_2 prompt:
+   ```
+   **You should spend about 40 minutes on this task.**
+
+   **Write about the following topic:**
+
+   *Some people believe that it is best to accept a bad situation, such as an unsatisfactory job or shortage of money. Others argue that it is better to try and improve such situations.*
+
+   **Discuss both these views and give your own opinion.**
+
+   Give reasons for your answer and include any relevant examples from your own knowledge or experience.
+
+   Write at least 250 words.
+   ```
 """
 
 SPEAKING_EXTRACTION_PROMPT = """You are an expert IELTS Speaking parser. Your job is to extract IELTS Speaking parts, topics, and examiner questions from the provided RAW TEXT.
