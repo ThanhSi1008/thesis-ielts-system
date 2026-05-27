@@ -69,6 +69,8 @@ export default function IELTSAdvancedAdminPage() {
   const [isSubmittingJob, setIsSubmittingJob] = useState(false);
   const [audioAssets, setAudioAssets] = useState<{ originalUrl: string; storedUrl: string; kind: "audio"; partIndex: number }[]>([]);
   const [uploadingAudioPart, setUploadingAudioPart] = useState<number | null>(null);
+  const [answerKeyImage, setAnswerKeyImage] = useState<{ originalUrl: string; storedUrl: string; kind: "image" } | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // ─── Data Fetching ───
   const fetchAdvancedLists = useCallback(async () => {
@@ -253,6 +255,32 @@ export default function IELTSAdvancedAdminPage() {
     }
   };
 
+  const handleAnswerKeyUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await api.post("/admin/ielts/import/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      const storedUrl = (res.data as any).url;
+      setAnswerKeyImage({
+        originalUrl: file.name,
+        storedUrl,
+        kind: "image"
+      });
+      toast.success("Answer Key Image uploaded successfully.");
+    } catch {
+      toast.error("Failed to upload Answer Key Image.");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   // ─── Submit Import Job ───
   const handleCreateImportJob = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -278,13 +306,18 @@ export default function IELTSAdvancedAdminPage() {
         provenance.partNumber = provPart;
       }
 
+      const finalAssets: any[] = [...audioAssets];
+      if (answerKeyImage) {
+        finalAssets.push(answerKeyImage);
+      }
+
       await ieltsImportApi.createJob({
         targetSystem: "ADVANCED",
         skill,
         sourceType,
         sourceRef: sourceRef.trim(),
         provenance,
-        mediaAssets: skill === "LISTENING" ? audioAssets : undefined
+        mediaAssets: skill === "LISTENING" ? finalAssets : undefined
       } as any);
 
       toast.success("Advanced import job successfully queued!");
@@ -293,6 +326,7 @@ export default function IELTSAdvancedAdminPage() {
       setSourceRef("");
       setProvTitle("");
       setAudioAssets([]);
+      setAnswerKeyImage(null);
 
       fetchStagingQueue();
     } catch (e: any) {
@@ -680,6 +714,56 @@ export default function IELTSAdvancedAdminPage() {
                       );
                     })}
                   </div>
+                </div>
+              )}
+
+              {/* Official Answer Key Image */}
+              {skill === "LISTENING" && (
+                <div className="border border-gray-150 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/30 rounded-2xl p-4 flex flex-col gap-3">
+                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400">Official Answer Key Image</label>
+                  {answerKeyImage ? (
+                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-855 p-3 rounded-xl flex items-center justify-between shadow-sm relative overflow-hidden">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg border border-gray-100 overflow-hidden shrink-0">
+                          <img src={answerKeyImage.storedUrl} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="overflow-hidden">
+                          <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 block truncate max-w-[180px]">
+                            {answerKeyImage.originalUrl}
+                          </span>
+                          <span className="text-[9px] font-bold text-green-600 flex items-center gap-0.5 mt-0.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                            Uploaded
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setAnswerKeyImage(null)}
+                        className="text-[10px] font-bold text-red-500 hover:text-red-650 shrink-0"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="import-answer-key"
+                        className="hidden"
+                        disabled={isUploadingImage}
+                        onChange={handleAnswerKeyUpload}
+                      />
+                      <label
+                        htmlFor="import-answer-key"
+                        className="block w-full text-center py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-250 cursor-pointer shadow-sm hover:border-primary/50 transition-colors flex items-center justify-center gap-2"
+                      >
+                        {isUploadingImage && <span className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />}
+                        Select Answer Key Image
+                      </label>
+                    </div>
+                  )}
                 </div>
               )}
 
