@@ -719,13 +719,20 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                     {((activePart.content || []) as any[]).flatMap((q: any, idx: number) => {
                       const ans = q.correct_answer !== undefined ? q.correct_answer : q.answer !== undefined ? q.answer : q.correct_answers;
 
-                      // ── Group-boundary detection: renders a section-separator before each distinct question set ──
+                      // ── Group-boundary detection: separate on type OR options-bank change ──
                       const allContent: any[] = activePart.content || [];
-                      const isGroupStart = idx === 0 || allContent[idx - 1].type !== q.type;
+                      const prevQ = idx > 0 ? allContent[idx - 1] : null;
+                      const isGroupStart = !prevQ ||
+                        prevQ.type !== q.type ||
+                        JSON.stringify(prevQ.options ?? []) !== JSON.stringify(q.options ?? []);
                       let groupRangeLabel = "";
                       if (isGroupStart) {
                         let groupEndIdx = idx;
-                        while (groupEndIdx + 1 < allContent.length && allContent[groupEndIdx + 1].type === q.type) groupEndIdx++;
+                        while (
+                          groupEndIdx + 1 < allContent.length &&
+                          allContent[groupEndIdx + 1].type === q.type &&
+                          JSON.stringify(allContent[groupEndIdx + 1].options ?? []) === JSON.stringify(q.options ?? [])
+                        ) groupEndIdx++;
                         const startNum: number = q.question_number ?? idx + 1;
                         const endNum: number = allContent[groupEndIdx].question_number ?? groupEndIdx + 1;
                         groupRangeLabel = startNum === endNum ? `Question ${startNum}` : `Questions ${startNum}–${endNum}`;
