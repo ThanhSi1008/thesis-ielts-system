@@ -329,7 +329,11 @@ export class IeltsContentCommitService {
           title,
           description: structuredJson.description || null,
           imageUrl: structuredJson.imageUrl || null,
-          duration: structuredJson.duration ? Number(structuredJson.duration) : 60,
+          // Duration is derived strictly from the skill (L=40, R/W=60, S=15). An explicit
+          // admin-provided structuredJson.duration still wins so custom exams stay editable.
+          duration: structuredJson.duration
+            ? Number(structuredJson.duration)
+            : this.getIntensiveDurationForSkill(job.skill),
           type,
           difficulty: (structuredJson.difficulty?.toUpperCase() as Difficulty) || Difficulty.ADVANCED,
           isPublished: false, // Default isPublished to false during admin commit
@@ -693,6 +697,25 @@ export class IeltsContentCommitService {
     }
 
     return { examIds };
+  }
+
+  /**
+   * Returns the official IELTS time limit (minutes) for an intensive exam by skill:
+   * Listening = 40, Reading = 60, Writing = 60, Speaking = 15. FULL_TEST has its own
+   * aggregate duration set in commitGroup, so it falls back to 60 here defensively.
+   */
+  private getIntensiveDurationForSkill(skill: ContentImportSkill): number {
+    switch (skill) {
+      case ContentImportSkill.LISTENING:
+        return 40;
+      case ContentImportSkill.SPEAKING:
+        return 15;
+      case ContentImportSkill.READING:
+      case ContentImportSkill.WRITING:
+        return 60;
+      default:
+        return 60;
+    }
   }
 
   /**
