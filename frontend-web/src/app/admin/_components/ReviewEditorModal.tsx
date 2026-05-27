@@ -560,29 +560,34 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
             </div>
           ) : (
             /* VISUAL FORMS EDITOR TAB */
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+            <div className="flex-1 flex flex-col overflow-hidden">
               {/* Part Selector Tabs for Multi-Part Exams */}
               {isMultiPart && (
-                <div className="bg-gray-50 dark:bg-gray-955 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-2 shrink-0">
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-2">Select Part:</span>
-                  {(structuredJson.parts || []).map((p: any, idx: number) => {
-                    const isActive = idx === activeReviewPartIdx;
-                    return (
-                      <button
-                        key={idx}
-                        onClick={() => setActiveReviewPartIdx(idx)}
-                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
-                          isActive
-                            ? "bg-primary text-white shadow-md scale-105"
-                            : "bg-white hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-800"
-                        }`}
-                      >
-                        {job.skill === "READING" ? `Passage ${idx + 1}` : `Part ${idx + 1}`}
-                      </button>
-                    );
-                  })}
+                <div className="p-6 pb-2 shrink-0 border-b border-gray-100 dark:border-gray-800">
+                  <div className="bg-gray-50 dark:bg-gray-955 p-3 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-2">Select Part:</span>
+                    {(structuredJson.parts || []).map((p: any, idx: number) => {
+                      const isActive = idx === activeReviewPartIdx;
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => setActiveReviewPartIdx(idx)}
+                          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+                            isActive
+                              ? "bg-primary text-white shadow-md scale-105"
+                              : "bg-white hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-100 dark:border-gray-800"
+                          }`}
+                        >
+                          {job.skill === "READING" ? `Passage ${idx + 1}` : `Part ${idx + 1}`}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
+
+              {/* Scrollable Form Content */}
+              <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
 
               {/* Common metadata */}
               <div className="grid grid-cols-2 gap-4">
@@ -950,6 +955,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                 </div>
               )}
             </div>
+          </div>
           )}
         </section>
       </main>
