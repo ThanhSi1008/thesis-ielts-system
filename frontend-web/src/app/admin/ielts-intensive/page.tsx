@@ -1018,7 +1018,7 @@ export default function IELTSIntensiveAdminPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmittingJob || isUploading}
+                  disabled={isSubmittingJob || isUploading || isUploadingChartImage || isUploadingAudioscript || uploadingAudioPart !== null}
                   className="px-5 py-2 text-xs font-semibold text-white bg-primary rounded-xl hover:opacity-90 disabled:opacity-60 transition-opacity flex items-center gap-1.5"
                 >
                   {isSubmittingJob && <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
