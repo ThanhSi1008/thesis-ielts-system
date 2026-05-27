@@ -168,18 +168,20 @@ class ExtractionService:
         result_dict = {}
         tokens_used = 0
         
-        # Parse Multimodal Cloud File URI if uploaded during Stage 1
+        # Parse Multimodal Cloud File URI(s) uploaded during Stage 1
         gemini_file_prefix = "gemini_file_uri:"
+        audioscript_prefix = "audioscript_uri:"
         gemini_file = None
         file_name = None
+        audioscript_file_name = None
         contents_input = []
-        
+
         if raw_text.startswith(gemini_file_prefix):
-            # Format: gemini_file_uri:files/xxxx (header line only; no offline text cache)
-            newline_idx = raw_text.find("\n")
-            header_line = raw_text[:newline_idx] if newline_idx != -1 else raw_text
-            file_name = header_line[len(gemini_file_prefix):].strip()
-            logger.info(f"📁 Identified Gemini uploaded file: {file_name}")
+            # Line 1: gemini_file_uri:files/xxxx  (Question Booklet)
+            # Line 2 (optional): audioscript_uri:files/yyyy  (Audioscripts PDF, LISTENING only)
+            lines = raw_text.strip().splitlines()
+            file_name = lines[0][len(gemini_file_prefix):].strip()
+            logger.info(f"📁 Identified Question Booklet Gemini file: {file_name}")
             try:
                 gemini_file = self.client.files.get(name=file_name)
                 contents_input.append(gemini_file)
@@ -187,12 +189,35 @@ class ExtractionService:
                 logger.error(f"❌ Failed to retrieve Gemini file reference {file_name}: {get_err}")
                 raise RuntimeError(f"Could not load physical PDF from Gemini Files API: {get_err}")
 
-            prompt_instruction = (
-                "Please extract the complete structured JSON from this PDF file according to instructions. "
-                "For Reading passages, you MUST read the passage text directly from the PDF and return the "
-                "COMPLETE, FULL content verbatim in clean Markdown format in the 'passage' field. "
-                "Do NOT truncate, do NOT summarize, and do NOT return a seed text."
-            )
+            # Check for optional second PDF (Audioscripts)
+            for line in lines[1:]:
+                line = line.strip()
+                if line.startswith(audioscript_prefix):
+                    audioscript_file_name = line[len(audioscript_prefix):].strip()
+                    logger.info(f"📄 Identified Audioscripts Gemini file: {audioscript_file_name}")
+                    try:
+                        audioscript_file = self.client.files.get(name=audioscript_file_name)
+                        contents_input.append(audioscript_file)
+                    except Exception as get_err:
+                        logger.error(f"❌ Failed to retrieve audioscript file {audioscript_file_name}: {get_err}")
+                        raise RuntimeError(f"Could not load Audioscripts PDF from Gemini Files API: {get_err}")
+
+            if audioscript_file_name:
+                prompt_instruction = (
+                    "You have been provided TWO PDF files: "
+                    "(1) the Question Booklet — extract question numbers, question text, answer choices, and question types from it; "
+                    "(2) the Audioscripts — extract the full transcript for each part and the correct answers from it. "
+                    "Merge both into a single structured JSON output. "
+                    "Populate the 'transcript' field for each part from the Audioscripts PDF. "
+                    "For Reading passages, return the COMPLETE, FULL passage verbatim in clean Markdown — do NOT truncate."
+                )
+            else:
+                prompt_instruction = (
+                    "Please extract the complete structured JSON from this PDF file according to instructions. "
+                    "For Reading passages, you MUST read the passage text directly from the PDF and return the "
+                    "COMPLETE, FULL content verbatim in clean Markdown format in the 'passage' field. "
+                    "Do NOT truncate, do NOT summarize, and do NOT return a seed text."
+                )
             contents_input.append(prompt_instruction)
         else:
             # RAW_TEXT_PASTE path: raw text supplied directly, no PDF upload needed
@@ -350,14 +375,14 @@ class ExtractionService:
             logger.error(f"❌ Gemini structuring pipeline failed: {e}")
             raise
         finally:
-            # 5. SAFE GEMINI FILE CLEANUP: Delete the uploaded file from Google Cloud server immediately
-            if file_name:
+            # 5. SAFE GEMINI FILE CLEANUP: Delete uploaded files from Google Cloud storage immediately
+            for name_to_delete in filter(None, [file_name, audioscript_file_name]):
                 try:
-                    logger.info(f"🗑️ Deleting Gemini cloud file to keep storage clean: {file_name}")
-                    self.client.files.delete(name=file_name)
-                    logger.info(f"✅ Gemini cloud file deleted successfully.")
+                    logger.info(f"🗑️ Deleting Gemini cloud file to keep storage clean: {name_to_delete}")
+                    self.client.files.delete(name=name_to_delete)
+                    logger.info(f"✅ Gemini cloud file deleted successfully: {name_to_delete}")
                 except Exception as del_err:
-                    logger.warning(f"⚠️ Failed to clean up Gemini file {file_name}: {del_err}")
+                    logger.warning(f"⚠️ Failed to clean up Gemini file {name_to_delete}: {del_err}")
 
 # Singleton instance
 _extraction_service = None

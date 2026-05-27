@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { z } from "zod";
 import { ieltsImportApi } from "@/services/admin.api";
-import api from "@/lib/api";
 import { toast } from "@/components/Toaster";
 
 // ─── Whitelisted IELTS Question Types ───
@@ -106,8 +105,6 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
   const [isCommitting, setIsCommitting] = useState(false);
   const [showOverwriteConfirm, setShowOverwriteConfirm] = useState(false);
   const [apiError, setApiError] = useState<{ status: number; message: string } | null>(null);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [isDragActiveImage, setIsDragActiveImage] = useState(false);
 
   // Staged data
   const [structuredJson, setStructuredJson] = useState<any>({
@@ -132,20 +129,6 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
   useEffect(() => {
     if (job) {
       const parsedJson = { ...(job.structuredJson || { title: "", content: [] }) };
-      // Scanning fallback: map the first image-type media asset onto imageUrl so
-      // the review grid never shows "Pending" when the AI callback preserved the
-      // admin-uploaded answer key image in the job's mediaAssets column.
-      // Matches on explicit kind field first, then mimeType/type for older records.
-      const imageAsset = Array.isArray(job.mediaAssets)
-        ? job.mediaAssets.find((a: any) =>
-            a.kind === "image" ||
-            (typeof a.mimeType === "string" && a.mimeType.startsWith("image/")) ||
-            (typeof a.type === "string" && a.type.startsWith("image/"))
-          )
-        : null;
-      if (imageAsset && !parsedJson.imageUrl) {
-        parsedJson.imageUrl = imageAsset.storedUrl;
-      }
       setStructuredJson(parsedJson);
       setJsonText(JSON.stringify(parsedJson, null, 2));
       setProvenance(job.provenance || { source: "cambridge" });
@@ -380,31 +363,6 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     return true;
   };
 
-  const uploadImageFile = async (file: File) => {
-    setIsUploadingImage(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await api.post("/admin/ielts/import/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
-      const url = (res.data as any).url;
-      updateStructuredJson({ ...structuredJson, imageUrl: url });
-      toast.success("Answer Key Image uploaded successfully.");
-    } catch {
-      toast.error("Failed to upload Answer Key Image.");
-    } finally {
-      setIsUploadingImage(false);
-    }
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    await uploadImageFile(file);
-  };
-
   // ─── Actions ───
   const handleSaveDraft = async () => {
     if (jsonError) {
@@ -444,26 +402,13 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     setIsCommitting(true);
     setApiError(null);
     try {
-      // ─── Post-Processing Directive / Storage Decoupling Cleanup State ───
-      // If structuredJson has a temporary imageUrl or booklet reference, we decouple it here
-      // while keeping the 4 audio tracks bound to their persistent URLs in the database record.
       const cleanedStructuredJson = { ...structuredJson };
       const cleanedProvenance = { ...provenance };
 
-      // Flag or clean temporary source ref properties for security/space
-      if (cleanedProvenance.sourceRef) {
-        delete cleanedProvenance.sourceRef;
-      }
-      // Clean or strip raw original file strings from draft provenance
-      if (cleanedProvenance.originalFileName) {
-        delete cleanedProvenance.originalFileName;
-      }
-      // Decouple the temporary Answer Key Image URL
-      if (cleanedStructuredJson.imageUrl) {
-        delete cleanedStructuredJson.imageUrl;
-      }
+      if (cleanedProvenance.sourceRef) delete cleanedProvenance.sourceRef;
+      if (cleanedProvenance.originalFileName) delete cleanedProvenance.originalFileName;
 
-      // Pre-save the clean, decoupled state back to the database draft
+      // Pre-save the clean state back to the database draft
       await ieltsImportApi.saveDraft(job.id, {
         structuredJson: cleanedStructuredJson,
         provenance: cleanedProvenance,
@@ -492,49 +437,12 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     }
   };
 
-  const allMediaAssets: any[] = Array.isArray(job.mediaAssets) ? job.mediaAssets : [];
-
-  // Fallback audio pool: used only when structuredJson.parts[].audioUrl is absent
-  // (jobs processed before the pipeline upgrade). Sort by partIndex for stable position.
-  const audioOnlyAssets = allMediaAssets
-    .filter((a: any) =>
-      a.kind === "audio" ||
-      (typeof a.mimeType === "string" && a.mimeType.startsWith("audio/")) ||
-      (typeof a.originalUrl === "string" && /\.(mp3|m4a|ogg|wav|aac|flac)$/i.test(a.originalUrl)) ||
-      (typeof a.storedUrl === "string" && /\.(mp3|m4a|ogg|wav|aac|flac)$/i.test(a.storedUrl))
-    )
-    .sort((a: any, b: any) => (a.partIndex ?? 0) - (b.partIndex ?? 0));
-
-  // ── Image: aggressive multi-field scan. structuredJson.imageUrl is primary (AI
-  // pipeline output). Fall back to allMediaAssets using every known field that
-  // can identify an image asset: kind, mimeType, type, fileType, or URL extension.
-  const imageAssetFallback = allMediaAssets.find((a: any) =>
-    a.kind === "image" ||
-    (typeof a.mimeType === "string" && a.mimeType.startsWith("image/")) ||
-    (typeof a.type === "string" && a.type.startsWith("image/")) ||
-    (typeof a.fileType === "string" && a.fileType.startsWith("image/")) ||
-    /\.(png|jpe?g|webp)$/i.test(a.storedUrl || a.url || "")
-  );
-  const resolvedImageUrl: string | null =
-    (structuredJson.imageUrl as string | null | undefined) ||
-    imageAssetFallback?.storedUrl ||
-    imageAssetFallback?.url ||
-    null;
-
   const isListening = job.skill === "LISTENING";
 
-  // ── Audio: positional-only resolution. Primary: structuredJson.parts[N].audioUrl
-  // (written by the AI pipeline). Never match by partIndex — rely on array position
-  // so Part N always maps to the N-th audio slot regardless of index field presence.
-  const activeAudioUrl: string | null =
-    (structuredJson.parts as any[] | undefined)?.[activeReviewPartIdx]?.audioUrl ||
-    audioOnlyAssets[activeReviewPartIdx]?.storedUrl ||
-    audioOnlyAssets[activeReviewPartIdx]?.url ||
-    null;
-
-  const isMultiAudio =
-    (structuredJson.parts as any[] | undefined)?.some((p: any) => !!p?.audioUrl) ||
-    audioOnlyAssets.length > 1;
+  // Audio URLs come exclusively from job.audioUrls[] — a static Cloudinary array
+  // stored at job creation time, bypassing AI processing entirely.
+  const jobAudioUrls: string[] = Array.isArray(job.audioUrls) ? job.audioUrls : [];
+  const activeTrackUrl: string = jobAudioUrls[activeReviewPartIdx] ?? "";
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col bg-gray-50 dark:bg-gray-950/95 backdrop-blur-md">
@@ -801,16 +709,12 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                       </div>
 
                       {/* 4 Audio Tracks Slot */}
-                      <div className="col-span-5 bg-white dark:bg-gray-900 p-3.5 border border-gray-100 dark:border-gray-800 rounded-xl flex flex-col justify-between shadow-sm">
+                      <div className="col-span-8 bg-white dark:bg-gray-900 p-3.5 border border-gray-100 dark:border-gray-800 rounded-xl flex flex-col justify-between shadow-sm">
                         <div>
-                          <h4 className="text-[11px] font-bold text-gray-800 dark:text-gray-200 mb-2">Audio Tracks (Part 1-4)</h4>
+                          <h4 className="text-[11px] font-bold text-gray-800 dark:text-gray-200 mb-2">Audio Tracks (Part 1–4)</h4>
                           <div className="grid grid-cols-4 gap-1.5">
                             {[1, 2, 3, 4].map(partNum => {
-                              // Primary: structuredJson.parts[N-1].audioUrl (AI pipeline output)
-                              // Fallback: job.mediaAssets pool for pre-upgrade jobs
-                              const hasAudio =
-                                !!((structuredJson.parts as any[])?.[partNum - 1]?.audioUrl) ||
-                                audioOnlyAssets[partNum - 1] !== undefined;
+                              const hasAudio = !!jobAudioUrls[partNum - 1];
                               const isActive = activeReviewPartIdx + 1 === partNum;
                               return (
                                 <button
@@ -828,7 +732,7 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                                 >
                                   <span>P{partNum}</span>
                                   <span className="text-[7px] font-normal uppercase select-none">
-                                    {hasAudio ? "Live" : "Pend"}
+                                    {hasAudio ? "Live" : "–"}
                                   </span>
                                 </button>
                               );
@@ -838,11 +742,11 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
 
                         {/* Master Audio Dashboard */}
                         <div className="mt-2.5 pt-2 border-t border-gray-150 dark:border-gray-800 flex flex-col">
-                          {activeAudioUrl ? (
+                          {activeTrackUrl ? (
                             <div className="flex items-center gap-2">
                               <audio
-                                key={`${activeReviewPartIdx}-${activeAudioUrl}`}
-                                src={activeAudioUrl}
+                                key={`${activeReviewPartIdx}-${activeTrackUrl}`}
+                                src={activeTrackUrl}
                                 controls
                                 className="flex-1 h-7 text-xs focus:outline-none"
                               />
@@ -851,98 +755,8 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
                               </span>
                             </div>
                           ) : (
-                            <div className="text-[10px] text-amber-500 italic">No audio file for Part {activeReviewPartIdx + 1}.</div>
+                            <div className="text-[10px] text-gray-400 italic">No audio uploaded for Part {activeReviewPartIdx + 1}.</div>
                           )}
-                        </div>
-                      </div>
-
-                      {/* Official Answer Key Image Slot */}
-                      <div 
-                        onDragOver={(e) => {
-                          e.preventDefault();
-                          setIsDragActiveImage(true);
-                        }}
-                        onDragLeave={() => {
-                          setIsDragActiveImage(false);
-                        }}
-                        onDrop={async (e) => {
-                          e.preventDefault();
-                          setIsDragActiveImage(false);
-                          const file = e.dataTransfer.files?.[0];
-                          if (file && file.type.startsWith("image/")) {
-                            await uploadImageFile(file);
-                          }
-                        }}
-                        onPaste={async (e) => {
-                          const items = e.clipboardData?.items;
-                          if (!items) return;
-                          for (let i = 0; i < items.length; i++) {
-                            if (items[i].type.indexOf("image") !== -1) {
-                              const file = items[i].getAsFile();
-                              if (file) {
-                                await uploadImageFile(file);
-                                break;
-                              }
-                            }
-                          }
-                        }}
-                        onClick={(e) => {
-                          const target = e.target as HTMLElement;
-                          if (target.tagName !== "LABEL" && target.tagName !== "INPUT" && target.tagName !== "A" && target.tagName !== "BUTTON") {
-                            e.currentTarget.focus();
-                          }
-                        }}
-                        tabIndex={0}
-                        className={[
-                          "col-span-3 bg-white dark:bg-gray-900 p-3.5 border rounded-xl flex flex-col justify-between shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/40",
-                          isDragActiveImage 
-                            ? "border-primary bg-primary/5 dark:bg-primary/5 ring-2 ring-primary/30" 
-                            : "border-gray-100 dark:border-gray-800"
-                        ].join(" ")}
-                      >
-                        <div className="flex items-start gap-2.5">
-                          {resolvedImageUrl ? (
-                            <div className="w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden shrink-0">
-                              <img src={resolvedImageUrl} alt="Answer Key" className="w-full h-full object-cover" />
-                            </div>
-                          ) : (
-                            <div className="p-2 bg-amber-50 dark:bg-amber-950/20 text-amber-600 rounded-xl shrink-0">
-                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            </div>
-                          )}
-                          <div className="overflow-hidden">
-                            <h4 className="text-[11px] font-bold text-gray-800 dark:text-gray-200 truncate">Official Answer Key</h4>
-                            <p className="text-[9px] text-gray-400 truncate mt-0.5">
-                              {resolvedImageUrl ? "AnswerKeyImage.png" : "Drag/drop or paste here"}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="mt-2.5 flex items-center justify-between">
-                          <span className={[
-                            "inline-flex items-center gap-1 text-[9px] font-bold",
-                            resolvedImageUrl ? "text-green-600" : "text-amber-500"
-                          ].join(" ")}>
-                            <span className={[
-                              "w-1.5 h-1.5 rounded-full",
-                              resolvedImageUrl ? "bg-green-500" : "bg-amber-500 animate-pulse"
-                            ].join(" ")} />
-                            {resolvedImageUrl ? "Uploaded" : "Pending"}
-                          </span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            className="hidden"
-                            id="answer-key-uploader"
-                            disabled={isUploadingImage}
-                          />
-                          <label
-                            htmlFor="answer-key-uploader"
-                            className="text-[9px] font-bold text-primary hover:opacity-85 cursor-pointer flex items-center gap-1"
-                          >
-                            {isUploadingImage && <span className="w-2.5 h-2.5 border border-primary border-t-transparent rounded-full animate-spin" />}
-                            {resolvedImageUrl ? "Replace" : "Upload"}
-                          </label>
                         </div>
                       </div>
                     </div>

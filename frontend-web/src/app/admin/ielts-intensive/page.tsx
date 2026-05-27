@@ -98,12 +98,11 @@ export default function IELTSIntensiveAdminPage() {
   const [provTitle, setProvTitle] = useState<string>("");
   
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingAudioscript, setIsUploadingAudioscript] = useState(false);
+  const [audioscriptRef, setAudioscriptRef] = useState<string>("");
   const [isSubmittingJob, setIsSubmittingJob] = useState(false);
-  const [audioAssets, setAudioAssets] = useState<{ originalUrl: string; storedUrl: string; kind: "audio"; partIndex: number }[]>([]);
+  const [audioUrls, setAudioUrls] = useState<(string | null)[]>([null, null, null, null]);
   const [uploadingAudioPart, setUploadingAudioPart] = useState<number | null>(null);
-  const [answerKeyImage, setAnswerKeyImage] = useState<{ originalUrl: string; storedUrl: string; kind: "image" } | null>(null);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [isDragActiveImage, setIsDragActiveImage] = useState(false);
 
   // Grouped Jobs Map (groupId -> array of jobs)
   const [groups, setGroups] = useState<Record<string, any[]>>({});
@@ -269,6 +268,27 @@ export default function IELTSIntensiveAdminPage() {
     }
   };
 
+  const handleAudioscriptUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingAudioscript(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await api.post("/admin/ielts/import/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      setAudioscriptRef((res.data as any).url);
+      toast.success("Audioscripts PDF uploaded successfully.");
+    } catch {
+      toast.error("Failed to upload Audioscripts PDF.");
+    } finally {
+      setIsUploadingAudioscript(false);
+    }
+  };
+
   const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>, partNum: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -282,15 +302,10 @@ export default function IELTSIntensiveAdminPage() {
         headers: { "Content-Type": "multipart/form-data" }
       });
       const storedUrl = (res.data as any).url;
-      const newAsset = {
-        originalUrl: file.name,
-        storedUrl,
-        kind: "audio" as const,
-        partIndex: partNum
-      };
-      setAudioAssets(prev => {
-        const clean = prev.filter(a => a.partIndex !== partNum);
-        return [...clean, newAsset].sort((a, b) => a.partIndex - b.partIndex);
+      setAudioUrls(prev => {
+        const next = [...prev];
+        next[partNum - 1] = storedUrl;
+        return next;
       });
       toast.success(`Audio for Part ${partNum} uploaded successfully.`);
     } catch {
@@ -298,35 +313,6 @@ export default function IELTSIntensiveAdminPage() {
     } finally {
       setUploadingAudioPart(null);
     }
-  };
-
-  const uploadImageFile = async (file: File) => {
-    setIsUploadingImage(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await api.post("/admin/ielts/import/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
-      const storedUrl = (res.data as any).url;
-      setAnswerKeyImage({
-        originalUrl: file.name,
-        storedUrl,
-        kind: "image"
-      });
-      toast.success("Answer Key Image uploaded successfully.");
-    } catch {
-      toast.error("Failed to upload Answer Key Image.");
-    } finally {
-      setIsUploadingImage(false);
-    }
-  };
-
-  const handleAnswerKeyUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    await uploadImageFile(file);
   };
 
   // ─── Submit Import Job ───
@@ -353,28 +339,24 @@ export default function IELTSIntensiveAdminPage() {
         provenance.testNumber = provTest;
       }
 
-      const finalAssets: any[] = [...audioAssets];
-      if (answerKeyImage) {
-        finalAssets.push(answerKeyImage);
-      }
-
       await ieltsImportApi.createJob({
         targetSystem: "INTENSIVE",
         skill,
         sourceType,
         sourceRef: sourceRef.trim(),
+        audioscriptRef: skill === "LISTENING" && audioscriptRef.trim() ? audioscriptRef.trim() : undefined,
         provenance,
-        mediaAssets: skill === "LISTENING" ? finalAssets : undefined
-      } as any);
+        audioUrls: skill === "LISTENING" ? (audioUrls.filter(Boolean) as string[]) : undefined
+      });
 
       toast.success("Import job created successfully. Scraper & structuring is running.");
       setShowImportDrawer(false);
-      
+
       // Reset form
       setSourceRef("");
+      setAudioscriptRef("");
       setProvTitle("");
-      setAudioAssets([]);
-      setAnswerKeyImage(null);
+      setAudioUrls([null, null, null, null]);
 
       fetchStagingQueue();
     } catch (e: any) {
@@ -791,19 +773,59 @@ export default function IELTSIntensiveAdminPage() {
                 </div>
               )}
 
+              {/* Audioscripts PDF Upload — LISTENING only */}
+              {skill === "LISTENING" && sourceType !== "RAW_TEXT_PASTE" && (
+                <div className="border-2 border-dashed border-blue-200 dark:border-blue-900 hover:border-blue-400/60 rounded-2xl p-5 flex flex-col items-center justify-center bg-blue-50/30 dark:bg-blue-950/10 transition-colors">
+                  <svg viewBox="0 0 24 24" className="w-7 h-7 text-blue-400 mb-1.5" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                  <span className="text-xs text-blue-700 dark:text-blue-300 font-semibold mb-0.5">Audioscripts PDF</span>
+                  <span className="text-[10px] text-blue-400/80 dark:text-blue-500 mb-3">Contains transcripts &amp; answer keys for all 4 parts</span>
+
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handleAudioscriptUpload}
+                    className="hidden"
+                    id="audioscript-file-picker"
+                  />
+                  <label
+                    htmlFor="audioscript-file-picker"
+                    className="px-4 py-1.5 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 rounded-xl text-xs font-bold text-blue-700 dark:text-blue-300 cursor-pointer shadow-sm hover:bg-blue-50 transition-colors flex items-center gap-1.5"
+                  >
+                    {isUploadingAudioscript && <span className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin" />}
+                    Select Audioscripts PDF
+                  </label>
+
+                  {audioscriptRef && (
+                    <div className="mt-3 text-center flex items-center gap-2">
+                      <span className="text-[10px] text-green-500 font-bold">✓ Audioscripts uploaded</span>
+                      <button
+                        type="button"
+                        onClick={() => setAudioscriptRef("")}
+                        className="text-[9px] text-red-400 hover:text-red-600 font-semibold"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                  {audioscriptRef && (
+                    <span className="text-[9px] text-gray-400 block truncate max-w-[240px] select-all mt-0.5">{audioscriptRef}</span>
+                  )}
+                </div>
+              )}
+
               {/* Audio Tracks for Listening Skill */}
               {skill === "LISTENING" && (
                 <div className="border border-gray-150 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/30 rounded-2xl p-4 flex flex-col gap-3">
                   <label className="block text-xs font-bold text-gray-600 dark:text-gray-400">Audio Tracks (Part 1-4)</label>
                   <div className="grid grid-cols-2 gap-3">
                     {[1, 2, 3, 4].map(partNum => {
-                      const asset = audioAssets.find(a => a.partIndex === partNum);
+                      const uploadedUrl = audioUrls[partNum - 1];
                       const isUploadingPart = uploadingAudioPart === partNum;
                       return (
                         <div key={partNum} className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-850 p-2.5 rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden">
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] font-extrabold text-primary uppercase">Part {partNum}</span>
-                            {asset ? (
+                            {uploadedUrl ? (
                               <span className="text-[9px] font-bold text-green-600 flex items-center gap-0.5">
                                 <span className="w-1 h-1 rounded-full bg-green-500" />
                                 Uploaded
@@ -812,14 +834,14 @@ export default function IELTSIntensiveAdminPage() {
                               <span className="text-[9px] font-medium text-gray-400">Pending</span>
                             )}
                           </div>
-                          {asset ? (
+                          {uploadedUrl ? (
                             <div className="mt-1.5 flex items-center justify-between gap-1">
-                              <span className="text-[9px] text-gray-500 dark:text-gray-450 truncate max-w-[100px]" title={asset.originalUrl}>
-                                {asset.originalUrl}
+                              <span className="text-[9px] text-gray-500 dark:text-gray-450 truncate max-w-[120px]" title={uploadedUrl}>
+                                {uploadedUrl.split("/").pop()}
                               </span>
                               <button
                                 type="button"
-                                onClick={() => setAudioAssets(prev => prev.filter(a => a.partIndex !== partNum))}
+                                onClick={() => setAudioUrls(prev => { const next = [...prev]; next[partNum - 1] = null; return next; })}
                                 className="text-[8px] font-bold text-red-500 hover:text-red-650"
                               >
                                 Remove
@@ -847,110 +869,6 @@ export default function IELTSIntensiveAdminPage() {
                       );
                     })}
                   </div>
-                </div>
-              )}
-
-              {/* Official Answer Key Image */}
-              {skill === "LISTENING" && (
-                <div className="border border-gray-150 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/30 rounded-2xl p-4 flex flex-col gap-3">
-                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400">Official Answer Key Image</label>
-                  {answerKeyImage ? (
-                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-855 p-3 rounded-xl flex items-center justify-between shadow-sm relative overflow-hidden">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg border border-gray-100 overflow-hidden shrink-0">
-                          <img src={answerKeyImage.storedUrl} alt="Preview" className="w-full h-full object-cover" />
-                        </div>
-                        <div className="overflow-hidden">
-                          <span className="text-[10px] font-bold text-gray-800 dark:text-gray-200 block truncate max-w-[180px]">
-                            {answerKeyImage.originalUrl}
-                          </span>
-                          <span className="text-[9px] font-bold text-green-600 flex items-center gap-0.5 mt-0.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                            Uploaded
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setAnswerKeyImage(null)}
-                        className="text-[10px] font-bold text-red-500 hover:text-red-650 shrink-0"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        setIsDragActiveImage(true);
-                      }}
-                      onDragLeave={() => {
-                        setIsDragActiveImage(false);
-                      }}
-                      onDrop={async (e) => {
-                        e.preventDefault();
-                        setIsDragActiveImage(false);
-                        const file = e.dataTransfer.files?.[0];
-                        if (file && file.type.startsWith("image/")) {
-                          await uploadImageFile(file);
-                        }
-                      }}
-                      onPaste={async (e) => {
-                        const items = e.clipboardData?.items;
-                        if (!items) return;
-                        for (let i = 0; i < items.length; i++) {
-                          if (items[i].type.indexOf("image") !== -1) {
-                            const file = items[i].getAsFile();
-                            if (file) {
-                              await uploadImageFile(file);
-                              break;
-                            }
-                          }
-                        }
-                      }}
-                      onClick={(e) => {
-                        const target = e.target as HTMLElement;
-                        if (target.tagName !== "LABEL" && target.tagName !== "INPUT" && target.tagName !== "A" && target.tagName !== "BUTTON") {
-                          e.currentTarget.focus();
-                        }
-                      }}
-                      tabIndex={0}
-                      className={[
-                        "rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-primary/40",
-                        isDragActiveImage ? "ring-2 ring-primary/30" : ""
-                      ].join(" ")}
-                    >
-                      <input
-                        type="file"
-                        accept="image/*"
-                        id="import-answer-key"
-                        className="hidden"
-                        disabled={isUploadingImage}
-                        onChange={handleAnswerKeyUpload}
-                      />
-                      <label
-                        htmlFor="import-answer-key"
-                        className={[
-                          "block w-full text-center py-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 border border-dashed rounded-xl text-xs font-bold cursor-pointer shadow-sm hover:border-primary/50 transition-colors flex flex-col items-center justify-center gap-2",
-                          isDragActiveImage 
-                            ? "border-primary bg-primary/5 dark:bg-primary/5 text-primary" 
-                            : "border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-250"
-                        ].join(" ")}
-                      >
-                        {isUploadingImage ? (
-                          <span className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                        ) : (
-                          <svg className="w-6 h-6 text-gray-400 dark:text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        )}
-                        <span className="font-bold">Select Answer Key Image</span>
-                        <span className="text-[10px] font-normal text-gray-450 dark:text-gray-500">
-                          or Drag & Drop / Paste (Ctrl+V) screenshot here
-                        </span>
-                      </label>
-                    </div>
-                  )}
                 </div>
               )}
 

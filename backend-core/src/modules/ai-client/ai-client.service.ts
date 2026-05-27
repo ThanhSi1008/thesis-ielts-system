@@ -98,6 +98,7 @@ export class AiClientService implements OnModuleInit, OnModuleDestroy {
     skill: string;
     sourceType: string;
     sourceRef: string;
+    audioscriptRef?: string;
     provenance: any;
     rawText?: string;
     mediaAssets?: any;

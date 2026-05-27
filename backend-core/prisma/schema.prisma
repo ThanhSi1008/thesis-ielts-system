@@ -1430,15 +1430,17 @@ model ContentImportJob {
   status         ContentImportStatus       @default(PENDING)
 
   // --- Nguồn ---
-  sourceType      ContentImportSourceType
-  sourceRef       String                  @db.Text // URL hoặc GCS path của PDF đã upload
-  contractVersion String                  @default("v1") // phiên bản JSON Contract — tăng khi schema Gemini thay đổi
-  provenance      Json // { source, bookNumber?, testNumber?, quarter?, year?, title? }
+  sourceType       ContentImportSourceType
+  sourceRef        String                  @db.Text // URL của Question Booklet PDF đã upload
+  audioscriptRef   String?                 @db.Text // URL của Audioscripts PDF (LISTENING only)
+  contractVersion  String                  @default("v1") // phiên bản JSON Contract — tăng khi schema Gemini thay đổi
+  provenance       Json // { source, bookNumber?, testNumber?, quarter?, year?, title? }
 
   // --- Dữ liệu pipeline ---
   rawText        String? @db.Text // Stage 1 output (innerText / PDF text)
   structuredJson Json? // Stage 2 output (Gemini) = bản nháp admin sửa
-  mediaAssets    Json? // [{ originalUrl, storedUrl, kind, bytes? }]
+  mediaAssets    Json? // [{ originalUrl, storedUrl, kind, bytes? }] — kept for non-audio assets
+  audioUrls      String[] // direct Cloudinary URLs for the 4 audio tracks (LISTENING only); bypass AI pipeline
 
   // --- Telemetry & kết quả ---
   geminiModel       String?

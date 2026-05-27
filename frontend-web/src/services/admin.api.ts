@@ -144,8 +144,10 @@ export const ieltsImportApi = {
     skill: string;
     sourceType: string;
     sourceRef: string;
+    audioscriptRef?: string;
     provenance: Record<string, any>;
     mediaAssets?: any[];
+    audioUrls?: string[];
   }) => api.post<any>('/admin/ielts/import', dto).then(r => r.data),
 
   getAllJobs: () => api.get<any[]>('/admin/ielts/import').then(r => r.data),

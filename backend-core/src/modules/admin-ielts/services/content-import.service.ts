@@ -81,9 +81,11 @@ export class ContentImportService {
             groupExpiresAt,
             sourceType: dto.sourceType,
             sourceRef: dto.sourceRef,
+            audioscriptRef: s === ContentImportSkill.LISTENING ? (dto.audioscriptRef ?? null) : null,
             provenance: dto.provenance,
             status: ContentImportStatus.PENDING,
             processingStartedAt: new Date(),
+            audioUrls: s === ContentImportSkill.LISTENING ? (dto.audioUrls ?? []) : [],
           },
         });
         createdJobs.push(created);
@@ -94,6 +96,7 @@ export class ContentImportService {
           skill: created.skill,
           sourceType: created.sourceType,
           sourceRef: created.sourceRef,
+          audioscriptRef: created.audioscriptRef ?? undefined,
           provenance: created.provenance,
         });
       }
@@ -115,9 +118,10 @@ export class ContentImportService {
           skill: dto.skill,
           sourceType: dto.sourceType,
           sourceRef: dto.sourceRef,
+          audioscriptRef: dto.audioscriptRef ?? null,
           provenance: dto.provenance,
           mediaAssets: dto.mediaAssets || null,
-          // Pre-populate rawText for RAW_TEXT_PASTE so Stage 1 is bypassed in the worker
+          audioUrls: dto.audioUrls ?? [],
           rawText: isRawTextPaste ? dto.sourceRef : null,
           status: ContentImportStatus.PENDING,
           processingStartedAt: new Date(),
@@ -130,11 +134,9 @@ export class ContentImportService {
         skill: created.skill,
         sourceType: created.sourceType,
         sourceRef: created.sourceRef,
+        audioscriptRef: created.audioscriptRef ?? undefined,
         provenance: created.provenance,
-        // Signal the worker to skip Stage 1 and go directly to Gemini structuring
         rawText: isRawTextPaste ? dto.sourceRef : undefined,
-        // Forward admin-uploaded assets so the AI worker can inject exact URLs
-        // into the generated JSON (audio per part, answer key image at root).
         mediaAssets: dto.mediaAssets?.length ? dto.mediaAssets : undefined,
       });
 
@@ -347,6 +349,7 @@ export class ContentImportService {
       skill: updated.skill,
       sourceType: updated.sourceType,
       sourceRef: updated.sourceRef,
+      audioscriptRef: job.audioscriptRef || undefined,
       provenance: updated.provenance,
       rawText: job.rawText || undefined,
       mediaAssets: job.mediaAssets || undefined,

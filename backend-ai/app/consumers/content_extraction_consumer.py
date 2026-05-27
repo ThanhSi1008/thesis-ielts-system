@@ -67,22 +67,23 @@ class ContentExtractionConsumer(threading.Thread):
         skill = task.get("skill")
         source_type = task.get("sourceType")
         source_ref = task.get("sourceRef")
+        audioscript_ref = task.get("audioscriptRef")
         raw_text = task.get("rawText")
         media_assets = task.get("mediaAssets")
-        
+
         logger.info(f"🚀 Starting background extraction job: {job_id} [{skill}]")
-        
+
         structurer = get_extraction_service()
-        
+
         if raw_text:
             logger.info(f"⏭️ [Stage 1] Skipping PDF upload — rawText already supplied for job {job_id}")
             if not media_assets:
                 media_assets = []
         else:
             extractor = get_raw_extractor()
-            # Step 1: Upload PDF to Gemini Files API
+            # Step 1: Upload PDF(s) to Gemini Files API
             logger.info(f"📥 [Stage 1] PDF upload for job {job_id}...")
-            raw_result = await extractor.extract_raw(source_type, source_ref, skill)
+            raw_result = await extractor.extract_raw(source_type, source_ref, skill, audioscript_ref=audioscript_ref)
             raw_text = raw_result["rawText"]
             media_assets = raw_result["mediaAssets"]
         

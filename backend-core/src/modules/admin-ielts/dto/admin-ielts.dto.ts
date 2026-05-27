@@ -7,6 +7,7 @@ import {
   IsBoolean,
   IsArray,
   IsInt,
+  IsUrl,
   Min,
 } from "class-validator";
 import {
@@ -32,6 +33,10 @@ export class CreateImportJobDto {
   @IsNotEmpty()
   sourceRef: string;
 
+  @IsString()
+  @IsOptional()
+  audioscriptRef?: string;
+
   @IsObject()
   @IsNotEmpty()
   provenance: {
@@ -47,6 +52,11 @@ export class CreateImportJobDto {
   @IsArray()
   @IsOptional()
   mediaAssets?: Array<any>;
+
+  @IsArray()
+  @IsOptional()
+  @IsUrl({}, { each: true })
+  audioUrls?: string[];
 }
 
 export class SaveDraftDto {
