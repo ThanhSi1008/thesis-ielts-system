@@ -6,6 +6,8 @@ export interface SummaryQuestion {
   answer: string;
   acceptable_answers?: string[];
   explanation?: any;
+  text?: string;
+  question_text?: string;
 }
 
 export interface SummaryCompletionGroup {
@@ -38,7 +40,8 @@ export function SummaryCompletionGroup({
 }) {
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
 
-  const qMap = Object.fromEntries(group.questions.map(q => [q.question_number, q]));
+  const questions = Array.isArray(group.questions) ? group.questions : [];
+  const qMap = Object.fromEntries(questions.map(q => [q.question_number, q]));
 
   const checkAnswer = (q: SummaryQuestion, userAns: string) => {
     const acceptable = q.acceptable_answers
@@ -47,7 +50,8 @@ export function SummaryCompletionGroup({
     return acceptable.includes(userAns.toLowerCase().trim());
   };
 
-  const renderSummaryText = (text: string) => {
+  const renderSummaryText = (text: string | undefined) => {
+    if (!text) return null;
     const blankRegex = /\{\{(\d+)\}\}/g;
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
@@ -64,7 +68,7 @@ export function SummaryCompletionGroup({
       }
 
       parts.push(
-        <span key={`box-${qNum}`} className={`inline-flex items-center border rounded px-1.5 py-0.5 mx-0.5 min-w-[100px] transition-colors ${
+        <span key={`box-${qNum}`} className={`inline-flex items-center border rounded px-1.5 py-0.5 mx-0.5 w-24 transition-colors ${
           submitted
             ? isCorrect ? "border-green-400 bg-green-50" : "border-red-300 bg-red-50"
             : "border-gray-400 bg-white focus-within:border-[#FFC107]"
@@ -102,7 +106,7 @@ export function SummaryCompletionGroup({
     return parts;
   };
 
-  const qNums = group.questions.map(q => q.question_number);
+  const qNums = questions.map(q => q.question_number);
 
   return (
     <div className="mb-8">
@@ -117,14 +121,90 @@ export function SummaryCompletionGroup({
       </p>
 
       {/* Summary Box */}
-      <div className="bg-gray-50 border border-gray-200 p-6 rounded-xl text-[14.5px] leading-[1.8] text-gray-800 shadow-sm">
-        {renderSummaryText(group.summary)}
-      </div>
+      {!group.summary ? (
+        <div className="bg-gray-50 border border-gray-200 p-6 rounded-xl text-[14.5px] leading-[1.8] text-gray-800 shadow-sm whitespace-normal">
+          {questions.map((q, qidx) => {
+            const userAnswer = String(answers[q.question_number] || '');
+            const isCorrect = checkAnswer(q, userAnswer);
+            
+            const rawText = q.text || q.question_text || '';
+            // Strip leading/trailing dots/ellipses so sentences flow beautifully without duplicate dots
+            const text = rawText
+              .replace(/^[\s.…]*(?:\.\.\.|\.\.|\.|…)\s*/i, '')
+              .replace(/\s*(?:\.\.\.|\.\.|\.|…)+[\s.…]*$/i, '')
+              .trim();
+            
+            const blankRegex = /_+|\[blank\]/gi;
+            const hasBlank = blankRegex.test(text);
+
+            const renderBlankInput = () => (
+              <span
+                id={`question-${q.question_number}`}
+                className={`inline-flex items-center border rounded px-1.5 py-0.5 mx-1 w-24 transition-colors ${
+                  submitted
+                    ? isCorrect
+                      ? 'border-green-400 bg-green-50'
+                      : 'border-red-300 bg-red-50'
+                    : 'border-gray-400 bg-white focus-within:border-[#FFC107]'
+                }`}
+              >
+                <span className={`text-[10px] font-bold mr-1 shrink-0 ${
+                  submitted ? (isCorrect ? 'text-green-600' : 'text-red-400') : 'text-gray-400'
+                }`}>{q.question_number}</span>
+                {submitted ? (
+                  <>
+                    <span className={`text-[13px] font-semibold ${isCorrect ? 'text-green-700' : 'text-red-500 line-through'}`}>
+                      {userAnswer || '—'}
+                    </span>
+                    {!isCorrect && showAnswers && (
+                      <span className="ml-1 text-[11px] text-green-600 font-bold">({q.answer})</span>
+                    )}
+                  </>
+                ) : (
+                  <input
+                    type="text"
+                    value={userAnswer}
+                    onChange={e => onAnswer(q.question_number, e.target.value)}
+                    autoComplete="off"
+                    spellCheck={false}
+                    className="outline-none bg-transparent text-[13px] text-gray-800 min-w-[60px] w-full font-medium caret-yellow-500"
+                  />
+                )}
+              </span>
+            );
+
+            if (hasBlank) {
+              const parts = text.split(blankRegex);
+              return (
+                <span key={q.question_number} className="inline mr-2">
+                  {parts.map((part: string, pi: number) => (
+                    <React.Fragment key={pi}>
+                      <span>{part}</span>
+                      {pi < parts.length - 1 && renderBlankInput()}
+                    </React.Fragment>
+                  ))}
+                </span>
+              );
+            }
+
+            return (
+              <span key={q.question_number} className="inline mr-2">
+                <span>{text}</span>
+                {renderBlankInput()}
+              </span>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="bg-gray-50 border border-gray-200 p-6 rounded-xl text-[14.5px] leading-[1.8] text-gray-800 shadow-sm">
+          {renderSummaryText(group.summary)}
+        </div>
+      )}
 
       {/* Post-submit action buttons */}
       {showAnswers && (
         <div className="mt-4 space-y-2">
-          {group.questions.map(q => (
+          {questions.map(q => (
             <div key={q.question_number} className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-bold text-gray-400 w-6 shrink-0">Q{q.question_number}</span>
               <button onClick={() => onLocate(q.question_number)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-500 bg-white hover:bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-md transition-colors shadow-sm">

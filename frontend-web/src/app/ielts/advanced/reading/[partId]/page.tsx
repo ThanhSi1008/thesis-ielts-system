@@ -30,6 +30,27 @@ export default function IeltsAdvancedReadingPractice({ params }: { params: { par
     });
   }, [params.partId]);
 
+  // Lock parent <main> scrollbars to enable independent column scrolls inside layout
+  useEffect(() => {
+    const mainElements = document.querySelectorAll("main");
+    const originalStyles = new Map<Element, string>();
+    mainElements.forEach((main) => {
+      const htmlMain = main as HTMLElement;
+      originalStyles.set(htmlMain, htmlMain.style.overflow);
+      htmlMain.style.overflow = "hidden";
+    });
+
+    return () => {
+      mainElements.forEach((main) => {
+        const htmlMain = main as HTMLElement;
+        const orig = originalStyles.get(htmlMain);
+        if (orig !== undefined) {
+          htmlMain.style.overflow = orig;
+        }
+      });
+    };
+  }, []);
+
   const handleAnswer = (key: string | number, currentVal: string) => {
     if (submitted) return;
     setAnswers(prev => ({ ...prev, [key]: currentVal }));
@@ -60,7 +81,7 @@ export default function IeltsAdvancedReadingPractice({ params }: { params: { par
   if (!part) return <div className="p-10 font-bold text-red-500 flex justify-center mt-20">Reading part not found</div>;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)]">
+    <div className="flex flex-col h-full min-h-0 flex-1 overflow-hidden">
        <div className="mb-4 flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-4 shrink-0 px-4">
          <div className="flex items-center gap-3">
             <Link href="/ielts/advanced" className="p-2 border border-gray-200 dark:border-slate-700 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800">
@@ -83,7 +104,7 @@ export default function IeltsAdvancedReadingPractice({ params }: { params: { par
 
        <div className="flex-1 min-h-0 container mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-white dark:bg-slate-900 rounded-2xl shadow-sm dark:shadow-[0_8px_40px_rgba(0,0,0,0.3)] border border-gray-100 dark:border-slate-800 overflow-hidden">
           {/* Left: Reading Passage */}
-          <div className="h-full border-r border-gray-100 dark:border-slate-800 pl-6 lg:pl-10 pt-6 relative">
+          <div className="h-full overflow-hidden border-r border-gray-100 dark:border-slate-800 pl-6 lg:pl-10 pt-6 relative">
             <ReadingPassagePanel
               passageWithLocations={part.passageWithLocations}
               passage={part.passage}

@@ -71,7 +71,7 @@ export function TableCompletionGroup({
     return (
       <span
         id={`question-${qNum}`}
-        className={`inline-flex items-center border rounded px-2 py-0.5 mx-1 min-w-[120px] transition-colors ${
+        className={`inline-flex items-center border rounded px-2 py-0.5 mx-1 w-24 transition-colors ${
           submitted
             ? isCorrect
               ? 'border-green-400 bg-green-50'
@@ -121,7 +121,7 @@ export function TableCompletionGroup({
       const parts = text.split(/(\d+)\s*(?:_+|\[blank\])/gi);
       // Ensure we replace correctly
       return (
-        <span className="flex items-baseline flex-wrap">
+        <span className="whitespace-normal">
           {parts.map((part, pi) => {
             if (part === String(qNum)) {
               return <React.Fragment key={pi}>{renderBlankInput(qNum)}</React.Fragment>;
@@ -154,10 +154,10 @@ export function TableCompletionGroup({
               {group.rows.map((row, ri) => (
                 <tr key={ri} className="hover:bg-gray-50/50 align-top">
                   {row.map((cell, ci) => (
-                    <td key={ci} className="border border-gray-300 px-3 py-3 text-gray-700 leading-relaxed">
+                    <td key={ci} className="border border-gray-300 px-3 py-3 text-gray-700 leading-relaxed whitespace-normal">
                       {cell.question_number ? (
-                        <div className="flex items-baseline gap-1 flex-wrap">
-                          <span>{cell.text}</span>
+                        <div className="whitespace-normal">
+                          <span className="mr-1">{cell.text}</span>
                           {renderBlankInput(cell.question_number)}
                         </div>
                       ) : (
@@ -210,8 +210,8 @@ export function TableCompletionGroup({
           if (hasBlank) {
             const parts = text.split(blankRegex);
             return (
-              <div key={q.question_number} className="text-[14px] text-gray-800 leading-relaxed pl-1 py-1.5 flex items-baseline flex-wrap">
-                <span className="mr-2 font-bold text-gray-505">{q.question_number}.</span>
+              <div key={q.question_number} className="text-[14px] text-gray-800 leading-relaxed pl-1 py-1.5 whitespace-normal">
+                <span className="mr-2 font-bold text-gray-500">{q.question_number}.</span>
                 {parts.map((part, pi) => (
                   <React.Fragment key={pi}>
                     <span>{part}</span>
@@ -224,9 +224,9 @@ export function TableCompletionGroup({
 
           // Fallback to "Question Label: [Input Box]"
           return (
-            <div key={q.question_number} className="text-[14px] text-gray-800 leading-relaxed pl-1 py-1.5 flex items-center flex-wrap gap-2">
-              <span className="font-bold text-gray-505">{q.question_number}.</span>
-              <span>{text}</span>
+            <div key={q.question_number} className="text-[14px] text-gray-800 leading-relaxed pl-1 py-1.5 whitespace-normal">
+              <span className="mr-2 font-bold text-gray-500">{q.question_number}.</span>
+              <span className="mr-2">{text}</span>
               {renderBlankInput(q.question_number)}
             </div>
           );

@@ -54,7 +54,7 @@ export function ListeningExerciseLayout({
 
   return (
     <FloatingSelectionManager>
-    <div className="flex flex-col h-[calc(100vh-90px)] min-h-[600px] relative bg-white dark:bg-slate-950 rounded-2xl border border-gray-100/50 dark:border-gray-800 shadow-sm w-full overflow-hidden transition-colors duration-300">
+    <div className="flex flex-col h-[calc(100vh-180px)] relative bg-white dark:bg-slate-950 rounded-2xl border border-gray-100/50 dark:border-gray-800 shadow-sm w-full overflow-hidden transition-colors duration-300">
       {/* ── Header ── */}
       <div className="border-b border-gray-100 dark:border-gray-800 px-6 lg:px-10 pt-6 pb-3">
         <div className="flex items-start justify-between">
@@ -86,9 +86,9 @@ export function ListeningExerciseLayout({
       </div>
 
       {/* ── Body ── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 h-full overflow-hidden">
         {/* Questions column */}
-        <div className={`overflow-y-auto px-6 lg:px-10 pt-3 pb-24 transition-all duration-300 ${submitted && isPerfectScore ? "w-1/2" : "w-full"}`}>
+        <div className={`h-full overflow-y-auto px-6 lg:px-10 pt-3 pb-24 transition-all duration-300 ${submitted && isPerfectScore ? "w-1/2" : "w-full"}`}>
           <ListeningQuestionsPanel
             exercise={exercise as any}
             answers={answers}
@@ -102,7 +102,7 @@ export function ListeningExerciseLayout({
 
         {/* Listening: Transcript on RIGHT after submit - only if perfect score */}
         {submitted && isPerfectScore && exercise.transcript && (
-          <div className="w-1/2 overflow-hidden py-3 pr-6 lg:pr-10 border-l border-gray-100 dark:border-gray-800">
+          <div className="w-1/2 h-full overflow-hidden py-3 pr-6 lg:pr-10 border-l border-gray-100 dark:border-gray-800">
             <TranscriptPanel transcript={exercise.transcript} locatedQuestion={locatedQuestion} />
           </div>
         )}

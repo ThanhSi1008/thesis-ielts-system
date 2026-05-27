@@ -31,6 +31,8 @@ export function TrueFalseNotGivenGroup({
 }) {
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
 
+  const questions = Array.isArray(group.questions) ? group.questions : [];
+
   const options = group.type === "yes_no_not_given" 
     ? ["YES", "NO", "NOT GIVEN"]
     : ["TRUE", "FALSE", "NOT GIVEN"];
@@ -45,9 +47,9 @@ export function TrueFalseNotGivenGroup({
     <div className="mb-8">
       {/* Title / Instruction block */}
       <div className="mb-4">
-        {group.questions && group.questions.length > 0 && (
+        {questions.length > 0 && (
           <p className="text-[13px] font-bold text-gray-900 mb-0.5">
-            Questions {Math.min(...group.questions.map(q => q.question_number))}–{Math.max(...group.questions.map(q => q.question_number))}
+            Questions {Math.min(...questions.map(q => q.question_number))}–{Math.max(...questions.map(q => q.question_number))}
           </p>
         )}
         <p className="text-[13px] text-gray-600 mb-2 leading-relaxed">
@@ -56,7 +58,7 @@ export function TrueFalseNotGivenGroup({
       </div>
 
       <div className="space-y-6">
-        {group.questions?.map((q) => {
+        {questions.map((q) => {
           const selected = answers[q.question_number]?.toUpperCase() || null;
           const isCorrect = selected === q.answer.toUpperCase();
 
@@ -72,7 +74,7 @@ export function TrueFalseNotGivenGroup({
                   {q.question_number}
                 </span>
                 <p className="text-[14px] font-medium text-gray-800 leading-snug pt-1">
-                  {q.text}
+                  {q.text || (q as any).question_text}
                 </p>
               </div>
 

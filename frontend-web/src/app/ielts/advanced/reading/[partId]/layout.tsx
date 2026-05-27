@@ -18,8 +18,8 @@ export default function IeltsAdvancedReadingLayout({
   const isPractice = !isMyAnswers && !isCommunity;
 
   return (
-    <div className="min-h-screen bg-white py-6 font-sans font-medium text-gray-800">
-      <div className="max-w-[1400px] mx-auto px-4 lg:px-8 flex flex-col gap-4 h-full">
+    <div className="h-full max-h-screen bg-white py-4 font-sans font-medium text-gray-800 flex flex-col overflow-hidden">
+      <div className="max-w-[1400px] w-full mx-auto px-4 lg:px-8 flex flex-col gap-4 h-full min-h-0 flex-1 overflow-hidden">
         
         {/* Top Navigation Tabs */}
         <div className="flex items-center gap-6 border-b border-gray-200 mb-2 shrink-0">
@@ -61,7 +61,7 @@ export default function IeltsAdvancedReadingLayout({
         </div>
 
         {/* Main Content Area */}
-        <main className="flex-1 min-h-0">
+        <main className="flex-1 min-h-0 overflow-y-auto">
           {children}
         </main>
       </div>
