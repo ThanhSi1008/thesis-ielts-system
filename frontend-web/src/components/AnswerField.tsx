@@ -88,16 +88,22 @@ export function AnswerField({
                 <span key={idx} className="flex items-center gap-[6px]">
                   <span className="text-[17px] leading-relaxed">{p}</span>
                   {idx < parts.length - 1 && (
-                    <input
-                      value={value}
-                      onFocus={() => setFocusedQn(item.qn)}
-                      onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
-                      placeholder={String(item.qn)}
-                      className={`w-24 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === item.qn
-                        ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
-                        : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
-                        }`}
-                    />
+                    // Only the FIRST blank is the active input for this question.
+                    // Any subsequent blanks belong to adjacent questions — render as static text.
+                    idx === 0 ? (
+                      <input
+                        value={value}
+                        onFocus={() => setFocusedQn(item.qn)}
+                        onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
+                        placeholder={String(item.qn)}
+                        className={`w-24 h-[30px] rounded-[3px] border px-2 text-center text-[15px] font-bold shadow-inner focus:outline-none transition-colors ${focusedQn === item.qn
+                          ? "border-[#2181d8] ring-[1.5px] ring-[#2181d8] bg-[#f0f9ff]"
+                          : "border-[#b5b5b5] bg-white hover:border-[#8e8e8e]"
+                          }`}
+                      />
+                    ) : (
+                      <span className="text-[15px] font-mono text-[#b5b5b5] mx-0.5">___</span>
+                    )
                   )}
                 </span>
               ))

@@ -723,20 +723,32 @@ export class IeltsContentCommitService {
             item.options = formattedOptions;
           }
 
-          if (!currentGroup || currentGroup.question_type !== mappedType) {
+          // Matching groups split on options fingerprint so matching_information (A-G)
+          // and matching_features (A. TSI Cut…) are never merged into one group.
+          const isMatchingGroup = mappedType === "Matching";
+          const groupKey = isMatchingGroup
+            ? `${mappedType}::${JSON.stringify(formattedOptions)}`
+            : mappedType;
+
+          if (!currentGroup || (currentGroup as any)._groupKey !== groupKey) {
             currentGroup = {
               question_type: mappedType,
               instructions: instructions,
               questions: "",
-              items: []
-            };
+              items: [],
+            } as any;
+            if (isMatchingGroup && formattedOptions && Object.keys(formattedOptions).length > 0) {
+              (currentGroup as any).options_box = { options: formattedOptions };
+            }
+            (currentGroup as any)._groupKey = groupKey;
             questionGroups.push(currentGroup);
           }
-          
+
           currentGroup.items.push(item);
         }
 
         for (const g of questionGroups) {
+          delete (g as any)._groupKey;
           const qNums = g.items.map((i: any) => i.question_number).filter((n: any) => typeof n === "number");
           if (qNums.length > 0) {
             const min = Math.min(...qNums);
@@ -840,21 +852,31 @@ export class IeltsContentCommitService {
         item.options = formattedOptions;
       }
 
-      if (!currentGroup || currentGroup.question_type !== mappedType) {
+      const isMatchingGroup = mappedType === "Matching";
+      const groupKey = isMatchingGroup
+        ? `${mappedType}::${JSON.stringify(formattedOptions)}`
+        : mappedType;
+
+      if (!currentGroup || (currentGroup as any)._groupKey !== groupKey) {
         currentGroup = {
           question_type: mappedType,
           instructions: instructions,
           questions: "",
-          items: []
-        };
+          items: [],
+        } as any;
+        if (isMatchingGroup && formattedOptions && Object.keys(formattedOptions).length > 0) {
+          (currentGroup as any).options_box = { options: formattedOptions };
+        }
+        (currentGroup as any)._groupKey = groupKey;
         questionGroups.push(currentGroup);
       }
-      
+
       currentGroup.items.push(item);
     }
 
     // Calculate question range string for each group (e.g. "1-6")
     for (const g of questionGroups) {
+      delete (g as any)._groupKey;
       const qNums = g.items.map((i: any) => i.question_number).filter((n: any) => typeof n === "number");
       if (qNums.length > 0) {
         const min = Math.min(...qNums);

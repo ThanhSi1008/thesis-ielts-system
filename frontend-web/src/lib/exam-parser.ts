@@ -217,7 +217,7 @@ export function extractAllItemsFromPart(part: any): NormalizedItem[] {
         }
       } else if (qt.includes("matching") && Array.isArray(g?.items)) {
         const options: Record<string, string> = g?.options_box?.options || {};
-        
+
         // Auto-generate options grids if they are missing
         if (Object.keys(options).length === 0) {
           const instr = g?.instructions || "";
@@ -229,6 +229,14 @@ export function extractAllItemsFromPart(part: any): NormalizedItem[] {
               for (let c = startChar; c <= endChar; c++) {
                 options[String.fromCharCode(c)] = "";
               }
+            }
+          }
+          // Fallback for data committed before options_box was set:
+          // use shared options from first item if present
+          if (Object.keys(options).length === 0 && g.items.length > 0) {
+            const firstItemOpts = (g.items[0] as any)?.options;
+            if (firstItemOpts && typeof firstItemOpts === "object" && !Array.isArray(firstItemOpts)) {
+              Object.assign(options, firstItemOpts);
             }
           }
         }
