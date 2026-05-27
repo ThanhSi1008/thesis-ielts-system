@@ -662,6 +662,87 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
     );
   };
 
+  // ─── AI-assisted Refinement panel ───
+  const [showRefinePanel, setShowRefinePanel] = useState(false);
+  const [refineInstruction, setRefineInstruction] = useState("");
+  const [refineImage, setRefineImage] = useState<File | null>(null);
+  const [refineImagePreview, setRefineImagePreview] = useState<string | null>(null);
+  const [isRefining, setIsRefining] = useState(false);
+
+  const setRefineImageFromFile = (file: File) => {
+    setRefineImage(file);
+    setRefineImagePreview(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+  };
+
+  const clearRefineImage = () => {
+    setRefineImagePreview(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+    setRefineImage(null);
+  };
+
+  // Revoke the object URL on unmount to avoid leaking blobs.
+  useEffect(() => {
+    return () => {
+      if (refineImagePreview) URL.revokeObjectURL(refineImagePreview);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Ctrl+V inside the panel: grab a screenshot straight from the clipboard.
+  const handleRefinePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const it of Array.from(items)) {
+      if (it.type.startsWith("image/")) {
+        const file = it.getAsFile();
+        if (file) {
+          e.preventDefault();
+          setRefineImageFromFile(file);
+        }
+        return;
+      }
+    }
+  };
+
+  const handleRefine = async () => {
+    if (!refineInstruction.trim() && !refineImage) {
+      toast.error("Type an instruction or paste a screenshot first.");
+      return;
+    }
+    if (jsonError) {
+      toast.error("Please resolve JSON syntax errors first.");
+      return;
+    }
+    setIsRefining(true);
+    try {
+      const form = new FormData();
+      form.append("payload", JSON.stringify(structuredJson));
+      form.append("instruction", refineInstruction);
+      if (job.skill) form.append("skill", job.skill);
+      if (refineImage) form.append("image", refineImage);
+
+      const res = await ieltsImportApi.refine(form);
+      if (res?.structuredJson) {
+        updateStructuredJson(res.structuredJson);
+        toast.success("AI refinement applied. Review the changes, then Save Draft or Commit.");
+        setRefineInstruction("");
+        clearRefineImage();
+      } else {
+        toast.error("Refinement returned no JSON.");
+      }
+    } catch (e: any) {
+      const errMsg = e.response?.data?.message || e.message || "Refinement failed.";
+      toast.error(Array.isArray(errMsg) ? errMsg.join(", ") : errMsg, 6000);
+    } finally {
+      setIsRefining(false);
+    }
+  };
+
   // ─── Actions ───
   const handleSaveDraft = async () => {
     if (jsonError) {
@@ -2190,6 +2271,103 @@ export default function ReviewEditorModal({ job, onClose, onSuccess }: ReviewEdi
           )}
         </section>
       </main>
+
+      {/* ─── AI Refinement Panel ─── */}
+      {!showRefinePanel && (
+        <button
+          type="button"
+          onClick={() => setShowRefinePanel(true)}
+          className="fixed bottom-6 right-6 z-[120] flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary text-white shadow-lg hover:opacity-90 transition-opacity"
+          title="AI-assisted Refinement"
+        >
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5L13 3z" /></svg>
+          <span className="text-xs font-bold uppercase tracking-wider">Refine with AI</span>
+        </button>
+      )}
+      {showRefinePanel && (
+        <div className="fixed bottom-6 right-6 z-[120] w-[24rem] max-w-[calc(100vw-3rem)] bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-2xl flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-150 dark:border-gray-800 bg-gray-50 dark:bg-gray-850">
+            <div className="flex items-center gap-2">
+              <svg viewBox="0 0 24 24" className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5L13 3z" /></svg>
+              <span className="text-xs font-extrabold uppercase tracking-wider text-gray-700 dark:text-gray-200">AI Refinement</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowRefinePanel(false)}
+              className="p-1 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-lg hover:bg-gray-150 dark:hover:bg-gray-800 transition-colors"
+              aria-label="Close refinement panel"
+            >
+              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+
+          <div className="p-4 flex flex-col gap-3">
+            <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed">
+              Describe the fix (e.g. <span className="italic">"Split question 4 into two"</span>, <span className="italic">"Fix the typo in paragraph 2"</span>) and/or paste a screenshot (Ctrl+V). Gemini repairs only the area you point to; review the result before committing.
+            </p>
+
+            <textarea
+              value={refineInstruction}
+              onChange={e => setRefineInstruction(e.target.value)}
+              onPaste={handleRefinePaste}
+              rows={4}
+              placeholder="Type your instruction here… (you can also paste a screenshot)"
+              className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-850 text-gray-900 dark:text-gray-100 focus:outline-none resize-none leading-relaxed"
+            />
+
+            {refineImagePreview ? (
+              <div className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={refineImagePreview} alt="Pasted screenshot" className="w-full max-h-40 object-contain rounded-lg border border-gray-200 dark:border-gray-700 bg-white" />
+                <button
+                  type="button"
+                  onClick={clearRefineImage}
+                  className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+                  aria-label="Remove screenshot"
+                >
+                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            ) : (
+              <label
+                onPaste={handleRefinePaste}
+                tabIndex={0}
+                className="flex flex-col items-center justify-center gap-1 px-3 py-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl text-center cursor-pointer hover:border-primary/60 transition-colors"
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) setRefineImageFromFile(f); }}
+                />
+                <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16v12H4z" /></svg>
+                <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">Paste (Ctrl+V) or click to attach a screenshot</span>
+              </label>
+            )}
+
+            <button
+              type="button"
+              onClick={handleRefine}
+              disabled={isRefining}
+              className={[
+                "flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-colors",
+                isRefining
+                  ? "bg-gray-200 dark:bg-gray-800 text-gray-400 cursor-wait"
+                  : "bg-primary text-white hover:opacity-90",
+              ].join(" ")}
+            >
+              {isRefining ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+                  Refining…
+                </>
+              ) : (
+                "Refine with AI"
+              )}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ─── Overwrite Confirm Dialog ─── */}
       {showOverwriteConfirm && (

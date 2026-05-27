@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   BadRequestException,
+  ServiceUnavailableException,
 } from "@nestjs/common";
 import { PrismaService } from "../../../common/prisma/prisma.service";
 import { AiClientService } from "../../ai-client/ai-client.service";
@@ -29,6 +30,80 @@ export class ContentImportService {
     private readonly auditLogService: AdminAuditLogService,
     private readonly configService: ConfigService
   ) {}
+
+  /**
+   * AI-assisted Refinement proxy. Forwards the current structured JSON, the Admin's
+   * natural-language instruction, and an optional screenshot to the FastAPI
+   * backend-ai `/refine` endpoint (multipart/form-data) and returns the repaired
+   * JSON. This is a stateless pass-through — it never mutates the import job record;
+   * the Admin reviews the returned JSON in the editor and decides whether to commit.
+   */
+  async refineWithAi(params: {
+    payload: string;
+    instruction: string;
+    skill?: string;
+    image?: Express.Multer.File;
+  }): Promise<{ structuredJson: any }> {
+    const { payload, instruction, skill, image } = params;
+
+    if (!instruction || !instruction.trim()) {
+      throw new BadRequestException("A refinement instruction is required.");
+    }
+    try {
+      JSON.parse(payload);
+    } catch {
+      throw new BadRequestException("payload must be a valid JSON string.");
+    }
+    if (image && !(image.mimetype || "").startsWith("image/")) {
+      throw new BadRequestException("The attached file must be an image.");
+    }
+
+    const host = this.configService.get<string>("BACKEND_AI_HOST") || "backend-ai";
+    const port = this.configService.get<string>("BACKEND_AI_PORT") || "8000";
+    const url = `http://${host}:${port}/api/v1/refine`;
+
+    // multipart/form-data via the global fetch/FormData/Blob (Node 18+, undici) —
+    // the same native-fetch approach already used elsewhere in this service tier.
+    const form = new FormData();
+    form.append("payload", payload);
+    form.append("instruction", instruction);
+    if (skill) form.append("skill", skill);
+    if (image) {
+      // Wrap in a fresh Uint8Array so the Blob part is backed by a plain ArrayBuffer
+      // (Node's Buffer is typed as ArrayBufferLike, which BlobPart rejects).
+      const blob = new Blob([new Uint8Array(image.buffer)], {
+        type: image.mimetype || "image/png",
+      });
+      form.append("image", blob, image.originalname || "screenshot.png");
+    }
+
+    const response = await fetch(url, { method: "POST", body: form }).catch((e: any) => {
+      throw new ServiceUnavailableException(
+        `Could not reach the AI refinement service: ${e?.message || e}`
+      );
+    });
+
+    const text = await response.text();
+    if (!response.ok) {
+      // Surface the FastAPI `detail` (422 schema rejection, 502 Gemini error, …).
+      let detail: any = text;
+      try {
+        detail = JSON.parse(text)?.detail ?? text;
+      } catch {
+        /* keep raw text */
+      }
+      if (response.status === 400 || response.status === 422) {
+        throw new BadRequestException(detail || "AI could not apply the requested refinement.");
+      }
+      throw new ServiceUnavailableException(detail || "AI refinement service error.");
+    }
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      throw new ServiceUnavailableException("AI refinement returned malformed JSON.");
+    }
+  }
 
   /**
    * Creates one or multiple import jobs based on target skill and triggers AMQP pipelines.

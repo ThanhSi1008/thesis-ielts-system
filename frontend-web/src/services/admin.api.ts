@@ -165,6 +165,12 @@ export const ieltsImportApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     }).then(r => r.data.url);
   },
+  // AI-assisted Refinement: send the current JSON + instruction + optional screenshot
+  // (multipart/form-data) and receive the repaired structured JSON.
+  refine: (form: FormData) =>
+    api.post<{ structuredJson: any }>('/admin/ielts/import/refine', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data),
   discardSkill: (id: string) => api.delete(`/admin/ielts/import/${id}/discard-skill`).then(r => r.data),
   abandonGroup: (groupId: string) => api.delete(`/admin/ielts/import/group/${groupId}/abandon`).then(r => r.data),
   commitGroup: (groupId: string, dto?: { isPublished?: boolean }) =>
