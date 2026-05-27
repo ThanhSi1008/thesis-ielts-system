@@ -768,6 +768,9 @@ export class IeltsContentCommitService {
           transformedPart.passage_text = p.passage || p.passage_text || "";
         } else {
           transformedPart.transcript = p.transcript || [];
+          // Preserve audio URL so the mobile player can load the track.
+          // AI pipeline produces camelCase (audioUrl); seed data uses snake_case (audio_url).
+          transformedPart.audio_url = p.audioUrl || p.audio_url || null;
         }
 
         return transformedPart;
@@ -896,6 +899,8 @@ export class IeltsContentCommitService {
       part.passage_text = flatJson.passage || "";
     } else {
       part.transcript = flatJson.transcript || [];
+      // Preserve audio URL so the mobile player can load the track.
+      part.audio_url = flatJson.audioUrl || flatJson.audio_url || null;
     }
 
     return {
