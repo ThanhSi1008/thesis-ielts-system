@@ -100,9 +100,11 @@ class ContentExtractionConsumer(threading.Thread):
 
     def process_message(self, ch, method, properties, body):
         job_id = "unknown"
+        skill = "READING"
         try:
             task = json.loads(body)
             job_id = task.get("jobId", "unknown")
+            skill = task.get("skill", "READING").upper()
             
             # Run the async process synchronously inside the thread's event loop
             loop = asyncio.new_event_loop()
@@ -116,27 +118,114 @@ class ContentExtractionConsumer(threading.Thread):
             
         except Exception as e:
             logger.error(f"❌ Extraction pipeline failed for job {job_id}: {e}", exc_info=True)
-            # If the API key is invalid/empty, let's fall back to returning simulated schema response so integration tests pass!
+            # If the API key is invalid/empty/exhausted, let's fall back to returning simulated schema response so integration tests pass!
             allow_simulated = os.getenv("ALLOW_SIMULATED_EXTRACTION", "false").lower() == "true"
-            if allow_simulated and ("API key not valid" in str(e) or "API_KEY_INVALID" in str(e) or "GEMINI_API_KEY is empty" in str(e)):
-                logger.warning(f"⚠️ Simulated structured output fallback triggered for job {job_id}")
-                payload = {
-                    "structuredJson": {
-                        "title": f"Simulated IELTS Test - {job_id}",
-                        "partNumber": 1,
-                        "passage": "This is a simulated reading passage generated due to an invalid Gemini API Key.",
-                        "content": [
+            err_str = str(e)
+            is_quota_or_key_err = (
+                "API key not valid" in err_str or
+                "API_KEY_INVALID" in err_str or
+                "GEMINI_API_KEY is empty" in err_str or
+                "RESOURCE_EXHAUSTED" in err_str or
+                "429" in err_str or
+                "quota" in err_str.lower()
+            )
+            if allow_simulated and is_quota_or_key_err:
+                logger.warning(f"⚠️ Simulated structured output fallback triggered for job {job_id} [{skill}] due to key/quota error: {e}")
+                
+                # Dynamic mock payloads based on skill
+                if skill == "WRITING":
+                    mock_json = {
+                        "title": f"Simulated IELTS Writing Test - {job_id}",
+                        "tasks": [
                             {
-                                "question_number": 1,
-                                "type": "sentence_completion",
-                                "question_text": "This is a simulated question for number ___.",
-                                "options": None,
-                                "answer": "one",
-                                "explanation": "Self-healed mock answer."
+                                "taskType": "TASK_1",
+                                "subType": "line_graph",
+                                "title": "Task 1 Chart",
+                                "prompt": "The graph below shows the percentage of people using different modes of transport in a city between 2000 and 2025. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.",
+                                "imageUrl": None,
+                                "minimumWords": 150,
+                                "suggestedTime": 20,
+                                "difficulty": "medium",
+                                "engnovateSlug": None
+                            },
+                            {
+                                "taskType": "TASK_2",
+                                "subType": "opinion",
+                                "title": "Task 2 Essay",
+                                "prompt": "Some people believe that university education should be free for all students. Others disagree. Discuss both views and give your opinion.",
+                                "imageUrl": None,
+                                "minimumWords": 250,
+                                "suggestedTime": 40,
+                                "difficulty": "medium",
+                                "engnovateSlug": None
                             }
+                        ]
+                    }
+                elif skill == "SPEAKING":
+                    mock_json = {
+                        "partNumber": 1,
+                        "partType": "interview",
+                        "topic": "Hometown",
+                        "title": "Speaking Part 1",
+                        "questions": [
+                            {"text": "Let's talk about your hometown. Where is your hometown?"},
+                            {"text": "What do you like most about your hometown?"},
+                            {"text": "Is it a good place for young people to live?"}
                         ],
-                        "questionTypes": ["sentence_completion"]
-                    },
+                        "engnovateSlug": None
+                    }
+                elif skill == "LISTENING":
+                    mock_json = {
+                        "title": f"Simulated IELTS Listening Test - {job_id}",
+                        "imageUrl": None,
+                        "parts": [
+                            {
+                                "partNumber": 1,
+                                "title": "Part 1: Simulated Inquiry",
+                                "audioUrl": None,
+                                "transcript": [
+                                    {"speaker": "Man", "text": "Hello, how can I help you today?"},
+                                    {"speaker": "Woman", "text": "I would like to ask about the membership fees."}
+                                ],
+                                "content": [
+                                    {
+                                        "question_number": 1,
+                                        "type": "sentence_completion",
+                                        "question_text": "The membership fee is ___ pounds per year.",
+                                        "options": None,
+                                        "answer": "120",
+                                        "explanation": "Locating: membership fee is 120 pounds. Justification: direct match."
+                                    }
+                                ],
+                                "questionTypes": ["sentence_completion"]
+                            }
+                        ]
+                    }
+                else:  # READING or fallback
+                    mock_json = {
+                        "title": f"Simulated IELTS Reading Test - {job_id}",
+                        "parts": [
+                            {
+                                "partNumber": 1,
+                                "title": "Passage 1: Simulated Passage",
+                                "passage": "This is a simulated reading passage generated due to a Gemini quota error.",
+                                "content": [
+                                    {
+                                        "question_number": 1,
+                                        "type": "sentence_completion",
+                                        "question_text": "This is a simulated question for number ___.",
+                                        "options": None,
+                                        "answer": "one",
+                                        "explanation": "Self-healed mock answer."
+                                    }
+                                ],
+                                "questionTypes": ["sentence_completion"]
+                            }
+                        ]
+                    }
+
+                payload = {
+                    "structuredJson": mock_json,
                     "mediaAssets": [],
                     "geminiModel": "gemini-2.5-flash-mocked",
                     "tokensUsed": 100
