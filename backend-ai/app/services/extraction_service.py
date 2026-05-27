@@ -12,13 +12,15 @@ from app.prompts.extraction.schemas import (
     ReadingPartSchema,
     WritingPromptSchema,
     WritingExamSchema,
-    SpeakingPartSchema
+    SpeakingPartSchema,
+    IntensiveSpeakingExamSchema
 )
 from app.prompts.extraction.prompts import (
     LISTENING_EXTRACTION_PROMPT,
     READING_EXTRACTION_PROMPT,
     WRITING_EXTRACTION_PROMPT,
-    SPEAKING_EXTRACTION_PROMPT
+    SPEAKING_EXTRACTION_PROMPT,
+    INTENSIVE_SPEAKING_EXTRACTION_PROMPT
 )
 
 logger = logging.getLogger(__name__)
@@ -39,12 +41,20 @@ class ExtractionService:
         else:
             logger.warning("⚠️ GEMINI_API_KEY is empty — structured extraction calls will fail!")
 
-    def _get_cache_key(self, raw_text: str, skill: str, media_assets: list | None = None) -> str:
-        """Generates a stable SHA-256 hash representing rawText, skill, and media asset URLs."""
+    def _get_cache_key(
+        self,
+        raw_text: str,
+        skill: str,
+        media_assets: list | None = None,
+        target_system: str = "ADVANCED",
+    ) -> str:
+        """Generates a stable SHA-256 hash representing rawText, skill, target system, and media asset URLs."""
         asset_key = ":".join(
             sorted(a.get("storedUrl", "") for a in (media_assets or []) if isinstance(a, dict))
         )
-        data = f"{raw_text.strip()}:{skill.strip().upper()}:{asset_key}"
+        # target_system is part of the key because INTENSIVE vs ADVANCED SPEAKING
+        # use different schemas/prompts and must not share a cached result.
+        data = f"{raw_text.strip()}:{skill.strip().upper()}:{target_system.strip().upper()}:{asset_key}"
         return hashlib.sha256(data.encode("utf-8")).hexdigest()
 
     async def _detect_pdf_skill(self, file_parts: list) -> str | None:
@@ -77,9 +87,10 @@ class ExtractionService:
             logger.warning(f"⚠️ Skill type detection call failed (mismatch guard skipped): {e}")
             return None
 
-    def _get_schema_and_prompt(self, skill: str) -> tuple:
-        """Selects the whitelisted system prompt and response schema based on skill"""
+    def _get_schema_and_prompt(self, skill: str, target_system: str = "ADVANCED") -> tuple:
+        """Selects the whitelisted system prompt and response schema based on skill + target system"""
         skill_upper = skill.upper()
+        target_upper = (target_system or "ADVANCED").upper()
         if skill_upper == "LISTENING":
             return ListeningPartSchema, LISTENING_EXTRACTION_PROMPT
         elif skill_upper == "READING":
@@ -87,18 +98,25 @@ class ExtractionService:
         elif skill_upper == "WRITING":
             return WritingExamSchema, WRITING_EXTRACTION_PROMPT
         elif skill_upper == "SPEAKING":
+            # INTENSIVE mock exams need the full 3-part exam in one extraction;
+            # the ADVANCED bank stores one part per job (legacy SpeakingPartSchema).
+            if target_upper == "INTENSIVE":
+                return IntensiveSpeakingExamSchema, INTENSIVE_SPEAKING_EXTRACTION_PROMPT
             return SpeakingPartSchema, SPEAKING_EXTRACTION_PROMPT
         else:
             raise ValueError(f"Unsupported extraction skill type: {skill}")
 
-    def _validate_extraction_result(self, result: Dict[str, Any], skill: str) -> bool:
+    def _validate_extraction_result(
+        self, result: Dict[str, Any], skill: str, target_system: str = "ADVANCED"
+    ) -> bool:
         """
         Deep-validates Gemini output to guarantee compatibility with graders.
         Returns True if correct, False otherwise.
         """
         try:
             skill_upper = skill.upper()
-            
+            target_upper = (target_system or "ADVANCED").upper()
+
             # For Listening/Reading, ensure every question has a valid answer
             if skill_upper in ["LISTENING", "READING"]:
                 parts = result.get("parts", [])
@@ -158,23 +176,57 @@ class ExtractionService:
                         logger.warning(f"[Extractor Validation] Writing task {t.get('taskType')} has empty prompt text")
                         return False
                     
-            # For Speaking, ensure questions are present
+            # For Speaking, validation depends on the target system.
             elif skill_upper == "SPEAKING":
-                questions = result.get("questions", [])
-                part_num = result.get("partNumber")
-                if part_num not in [1, 2, 3]:
-                    logger.warning(f"[Extractor Validation] Speaking part has invalid partNumber: {part_num}")
-                    return False
-                if not questions:
-                    logger.warning("[Extractor Validation] Speaking part questions list is empty")
-                    return False
+                if target_upper == "INTENSIVE":
+                    # INTENSIVE: full 3-part exam. Validate structure BEFORE TTS so we
+                    # never synthesise audio for a malformed extraction.
+                    parts = result.get("parts", [])
+                    if len(parts) != 3:
+                        logger.warning(f"[Extractor Validation] Intensive Speaking must have exactly 3 parts, got {len(parts)}")
+                        return False
+                    seen = set()
+                    for p in parts:
+                        pn = p.get("part_number")
+                        if pn not in (1, 2, 3):
+                            logger.warning(f"[Extractor Validation] Invalid intensive speaking part_number: {pn}")
+                            return False
+                        seen.add(pn)
+                        if pn == 2:
+                            if not (p.get("cue_card") or "").strip():
+                                logger.warning("[Extractor Validation] Part 2 is missing cue_card text")
+                                return False
+                        else:
+                            qs = p.get("questions") or []
+                            if not qs or any(not (q.get("text") or "").strip() for q in qs):
+                                logger.warning(f"[Extractor Validation] Part {pn} has missing or empty questions")
+                                return False
+                    if seen != {1, 2, 3}:
+                        logger.warning(f"[Extractor Validation] Intensive Speaking parts must be exactly 1,2,3 (got {seen})")
+                        return False
+                else:
+                    # ADVANCED: single part per job (legacy schema).
+                    questions = result.get("questions", [])
+                    part_num = result.get("partNumber")
+                    if part_num not in [1, 2, 3]:
+                        logger.warning(f"[Extractor Validation] Speaking part has invalid partNumber: {part_num}")
+                        return False
+                    if not questions:
+                        logger.warning("[Extractor Validation] Speaking part questions list is empty")
+                        return False
 
             return True
         except Exception as err:
             logger.error(f"[Extractor Validation] Error during verification checks: {err}")
             return False
 
-    async def extract_structured(self, raw_text: str, skill: str, media_assets: list | None = None) -> Dict[str, Any]:
+    async def extract_structured(
+        self,
+        raw_text: str,
+        skill: str,
+        media_assets: list | None = None,
+        target_system: str = "ADVANCED",
+    ) -> Dict[str, Any]:
         """
         Transforms raw text or uploaded PDF reference into a clean structured JSON contract.
         Implements multimodal AI calls, Try-Catch model tiering (Flash -> Pro fallback),
@@ -185,18 +237,23 @@ class ExtractionService:
           LISTENING jobs, the exact URLs are injected into the Gemini prompt so the model
           can populate audioUrl/imageUrl directly, and a post-processing pass guarantees
           hydration even if the model ignores the instruction.
+
+        target_system: "ADVANCED" (single-part bank) or "INTENSIVE" (full mock exam).
+          For SPEAKING this selects between the legacy per-part schema and the full
+          3-part IntensiveSpeakingExamSchema. Examiner audio for INTENSIVE speaking is
+          generated downstream by SpeakingTtsService, not here.
         """
         if not self.client:
             raise RuntimeError("Gemini client is not initialized")
-            
-        cache_key = self._get_cache_key(raw_text, skill, media_assets)
-        
+
+        cache_key = self._get_cache_key(raw_text, skill, media_assets, target_system)
+
         # 1. Context Cache Check (Save 100% of API tokens if matched)
         if cache_key in _extraction_cache:
             logger.info("🎯 Cache Hit! Returning stored JSON extraction results...")
             return _extraction_cache[cache_key]
-            
-        schema_model, system_prompt = self._get_schema_and_prompt(skill)
+
+        schema_model, system_prompt = self._get_schema_and_prompt(skill, target_system)
         
         # Models configuration for tiering
         flash_model = "gemini-2.5-flash"
@@ -354,7 +411,7 @@ class ExtractionService:
                 if response.usage_metadata:
                     tokens_used = response.usage_metadata.total_token_count
                     
-                is_valid = self._validate_extraction_result(result_dict, skill)
+                is_valid = self._validate_extraction_result(result_dict, skill, target_system)
             except Exception as flash_err:
                 logger.warning(f"⚠️ [Tier 1] {flash_model} failed execution or parsing: {flash_err}")
                 is_valid = False
@@ -384,7 +441,7 @@ class ExtractionService:
                     tokens_used = response.usage_metadata.total_token_count
                     
                 # Re-validate Pro output
-                is_valid = self._validate_extraction_result(result_dict, skill)
+                is_valid = self._validate_extraction_result(result_dict, skill, target_system)
                 if not is_valid:
                     logger.error(f"❌ [Tier 2] {pro_model} structured output also failed validation checks!")
                     raise ValueError("Structured extraction failed: Gemini Pro output is also incompatible with IELTS grading engine.")

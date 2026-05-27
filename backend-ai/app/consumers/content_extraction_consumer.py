@@ -118,10 +118,23 @@ class ContentExtractionConsumer(threading.Thread):
         
         # Step 2: Gemini Structuring
         logger.info(f"🧠 [Stage 2] Gemini structuring for job {job_id}...")
-        struct_result = await structurer.extract_structured(raw_text, skill, media_assets=media_assets)
-        
+        struct_result = await structurer.extract_structured(
+            raw_text, skill, media_assets=media_assets, target_system=target_system
+        )
+        structured_json = struct_result["structuredJson"]
+
+        # Step 3 (INTENSIVE SPEAKING only): synthesise examiner audio with edge-tts,
+        # upload each clip to Cloudinary, and assemble the final speaking contract
+        # (type + examiner + video/video2 URLs). Other skills/systems skip this.
+        if skill.upper() == "SPEAKING" and (target_system or "").upper() == "INTENSIVE":
+            from app.services.speaking_tts_service import get_speaking_tts_service
+            logger.info(f"🎧 [Stage 3] Generating examiner TTS audio for intensive speaking job {job_id}...")
+            speaking_tts = get_speaking_tts_service()
+            structured_json = await speaking_tts.build_intensive_speaking_exam(structured_json)
+            logger.info(f"✅ [Stage 3] Examiner audio generated for job {job_id}")
+
         return {
-            "structuredJson": struct_result["structuredJson"],
+            "structuredJson": structured_json,
             "mediaAssets": media_assets,
             "geminiModel": struct_result["geminiModel"],
             "tokensUsed": struct_result["tokensUsed"]

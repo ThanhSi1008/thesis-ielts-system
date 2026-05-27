@@ -138,3 +138,44 @@ class SpeakingPartSchema(BaseModel):
     title: str = Field(description="Descriptive title of this speaking section.")
     questions: List[SpeakingQuestion] = Field(description="The list of examiner questions. For Part 2 cue_card, provide 1 item representing the cue card text prompt.")
     engnovateSlug: Optional[str] = Field(description="Set as null.")
+
+# =====================================================================
+# INTENSIVE SPEAKING SCHEMA (full 3-part mock exam)
+# Used only when targetSystem == INTENSIVE. Gemini extracts the TEXT content
+# of all 3 parts in one shot; the pipeline (speaking_tts_service) then
+# synthesises the examiner audio and rewrites the audio URL fields. The
+# Gemini layer therefore returns NO audio/video URLs — those start empty.
+# =====================================================================
+
+class IntensiveSpeakingQuestionText(BaseModel):
+    text: str = Field(
+        description="The exact examiner question text, copied verbatim from the source (e.g. 'What kinds of bills do you have to pay?')."
+    )
+
+class IntensiveSpeakingPartSchema(BaseModel):
+    part_number: int = Field(description="Speaking part number: exactly 1, 2, or 3.")
+    topic: str = Field(
+        description="The headline topic/theme of this part as printed in the source (e.g. 'Paying bills', 'Young people and cooking')."
+    )
+    questions: Optional[List[IntensiveSpeakingQuestionText]] = Field(
+        default=None,
+        description=(
+            "The list of examiner questions. REQUIRED (non-null) for Part 1 and Part 3 — one entry per question, "
+            "verbatim. For Part 3 that spans multiple discussion sub-topics, flatten every example question across "
+            "all sub-topics into this single list. MUST be null for Part 2."
+        ),
+    )
+    cue_card: Optional[str] = Field(
+        default=None,
+        description=(
+            "REQUIRED (non-null) for Part 2 ONLY. The COMPLETE cue-card prompt as a single string with literal "
+            "newline characters (\\n) separating each line. Preserve the structure exactly: the main task line "
+            "('Describe ...'), then 'You should say:' followed by each bullet on its own line, then the final "
+            "'and explain ...' line. MUST be null for Part 1 and Part 3."
+        ),
+    )
+
+class IntensiveSpeakingExamSchema(BaseModel):
+    parts: List[IntensiveSpeakingPartSchema] = Field(
+        description="EXACTLY 3 parts, ordered Part 1, Part 2, Part 3."
+    )

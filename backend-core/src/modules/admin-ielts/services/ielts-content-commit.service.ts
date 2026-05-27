@@ -201,6 +201,60 @@ export class IeltsContentCommitService {
         }
       }
     }
+
+    // Intensive Speaking mock exams store the assembled examiner JSON verbatim in
+    // IeltsIntensiveExam.questions (no auto-graded answer keys). Validate the shape
+    // produced by the AI pipeline so a malformed extraction or a clip that failed to
+    // synthesise is never committed to a live exam.
+    if (
+      targetSystem === ContentImportTargetSystem.INTENSIVE &&
+      skill === ContentImportSkill.SPEAKING
+    ) {
+      if (json.type !== "speaking") {
+        throw new UnprocessableEntityException(
+          `Invalid intensive speaking exam: 'type' must be 'speaking' (got '${json.type}').`
+        );
+      }
+      if (!Array.isArray(json.parts) || json.parts.length !== 3) {
+        throw new UnprocessableEntityException(
+          `Invalid intensive speaking exam: 'parts' must contain exactly 3 parts (got ${Array.isArray(json.parts) ? json.parts.length : "none"}).`
+        );
+      }
+      for (const part of json.parts) {
+        const pn = Number(part.part_number);
+        if (![1, 2, 3].includes(pn)) {
+          throw new UnprocessableEntityException(
+            `Invalid intensive speaking part_number: ${part.part_number}. Must be 1, 2, or 3.`
+          );
+        }
+        if (pn === 2) {
+          // Part 2: cue card + two examiner audio clips (intro + start-speaking).
+          if (!part.cue_card || String(part.cue_card).trim() === "") {
+            throw new UnprocessableEntityException("Speaking Part 2 is missing the cue_card text.");
+          }
+          if (!part.video || !part.video2) {
+            throw new UnprocessableEntityException(
+              "Speaking Part 2 is missing examiner audio (both 'video' and 'video2' are required)."
+            );
+          }
+        } else {
+          // Part 1 & 3: every question must have text and a synthesised audio URL.
+          if (!Array.isArray(part.questions) || part.questions.length === 0) {
+            throw new UnprocessableEntityException(`Speaking Part ${pn} has no questions.`);
+          }
+          for (const q of part.questions) {
+            if (!q.text || String(q.text).trim() === "") {
+              throw new UnprocessableEntityException(`Speaking Part ${pn} has an empty question text.`);
+            }
+            if (!q.video || String(q.video).trim() === "") {
+              throw new UnprocessableEntityException(
+                `Speaking Part ${pn} question "${q.text}" is missing its examiner audio URL.`
+              );
+            }
+          }
+        }
+      }
+    }
   }
 
   /**

@@ -179,3 +179,35 @@ Please follow these strict guidelines:
    - For Part 2 cue_card, provide a single question block representing the complete cue card text prompt and bullet points (e.g., 'Describe a book you read... You should say: What it is, When you read it...').
    - For Part 1 and Part 3, extract each individual question text segment cleanly.
 """
+
+INTENSIVE_SPEAKING_EXTRACTION_PROMPT = """You are an expert IELTS Speaking examiner and parser. The document is a single page from a Cambridge IELTS book containing the COMPLETE Speaking test (Part 1, Part 2, and Part 3). It may be a scanned image. Extract ALL three parts into one structured JSON object.
+
+⚠️ ANTI-HALLUCINATION RULE — CRITICAL:
+Copy every question and the cue card WORD-FOR-WORD from the document. Do NOT invent, rephrase, summarise, translate, or add questions that are not printed. Preserve bracketed prompts such as "[Why?]" or "[Why/Why not?]" exactly as written.
+
+Return EXACTLY 3 elements in the `parts` array, ordered Part 1, Part 2, Part 3. For each part:
+
+**PART 1 (Interview)** — `part_number: 1`
+- `topic`: the bold topic heading printed for Part 1 (e.g. "Paying bills"). If no explicit heading exists, use a concise label derived from the questions.
+- `questions`: one entry per bullet/question, verbatim. Keep bracketed follow-ups like "[Why?]" inside the same `text`.
+- `cue_card`: MUST be null.
+
+**PART 2 (Long Turn / Cue Card)** — `part_number: 2`
+- `topic`: a short label for the cue card derived from the main task line (e.g. main line "Describe some food or drink that you learned to prepare." → topic "Food or drink you learned to prepare").
+- `questions`: MUST be null.
+- `cue_card`: the FULL cue card as ONE string with literal `\\n` newlines. Reproduce the exact structure:
+    Line 1: the main task line ("Describe ...").
+    Then "You should say:" on its own line.
+    Then EACH bullet on its own line, verbatim.
+    Then the final reflective line ("and explain ...") on its own line.
+  Do NOT include the side-box timing instructions ("You will have to talk about the topic for one to two minutes...") — those are spoken by the examiner, not part of the card text.
+  Example value:
+  "Describe some food or drink that you learned to prepare.\\nYou should say:\\nwhat food or drink you learned to prepare\\nwhen and where you learned to prepare this\\nhow you learned to prepare this\\nand explain how you felt about learning to prepare this food or drink."
+
+**PART 3 (Discussion)** — `part_number: 3`
+- `topic`: a concise label covering the discussion theme(s) (e.g. "Cooking and chefs"). If Part 3 has multiple bold sub-topics (e.g. "Young people and cooking", "Working as a chef"), combine them into one short topic label.
+- `questions`: FLATTEN every example question from ALL sub-topics into this single list, verbatim, preserving their printed order.
+- `cue_card`: MUST be null.
+
+Do NOT output any audio, video, or URL fields — those are generated downstream. Output ONLY the JSON conforming to the provided schema.
+"""
