@@ -330,7 +330,7 @@ export class IeltsContentCommitService {
 
     // Run inside database transaction for safety
     await this.prisma.$transaction(async (tx) => {
-      if (job.targetSystem === ContentImportTargetSystem.INTENSIVE) {
+      if (job.targetSystem === ContentImportTargetSystem.INTENSIVE || job.targetSystem === ContentImportTargetSystem.BOTH) {
         // --- INTENSIVE MOCK EXAM BRANCH ---
         const intensiveSkillMap: Record<ContentImportSkill, IeltsIntensiveExamType> = {
           [ContentImportSkill.LISTENING]: IeltsIntensiveExamType.LISTENING,
@@ -391,185 +391,30 @@ export class IeltsContentCommitService {
           });
           liveId = created.id;
         }
-      } else {
-        // --- ADVANCED BANK BRANCH ---
-        if (job.skill === ContentImportSkill.LISTENING) {
-          const partNumber = Number(structuredJson.partNumber || 1);
-          const existing = await tx.ieltsAdvancedListeningPart.findFirst({
-            where: { source, bookNumber, testNumber, partNumber },
-          });
 
-          if (existing && !overwrite) {
-            throw new ConflictException({
-              message: `An advanced listening part for source ${source} book ${bookNumber} test ${testNumber} part ${partNumber} already exists.`,
-              existingId: existing.id,
-            });
-          }
-
-          const data = {
+        if (job.targetSystem === ContentImportTargetSystem.BOTH) {
+          await this.autoSplitAndCreateAdvancedParts(
+            tx,
+            job,
+            structuredJson,
             title,
-            partNumber,
-            audioUrl: structuredJson.audioUrl || "",
-            transcript: structuredJson.transcript || {},
-            content: structuredJson.content || {},
-            questionTypes: structuredJson.questionTypes || [],
             source,
             bookNumber,
-            testNumber,
-            isPublished: false,
-            importJobId: job.id,
-          };
-
-          if (existing && overwrite) {
-            const updated = await tx.ieltsAdvancedListeningPart.update({
-              where: { id: existing.id },
-              data,
-            });
-            liveId = updated.id;
-          } else {
-            const created = await tx.ieltsAdvancedListeningPart.create({
-              data,
-            });
-            liveId = created.id;
-          }
-        } else if (job.skill === ContentImportSkill.READING) {
-          const partNumber = Number(structuredJson.partNumber || 1);
-          const existing = await tx.ieltsAdvancedReadingPart.findFirst({
-            where: { source, bookNumber, testNumber, partNumber },
-          });
-
-          if (existing && !overwrite) {
-            throw new ConflictException({
-              message: `An advanced reading part for source ${source} book ${bookNumber} test ${testNumber} part ${partNumber} already exists.`,
-              existingId: existing.id,
-            });
-          }
-
-          const data = {
-            title,
-            partNumber,
-            passage: structuredJson.passage || "",
-            passageWithLocations: structuredJson.passageWithLocations || {},
-            content: structuredJson.content || {},
-            questionTypes: structuredJson.questionTypes || [],
-            source,
-            bookNumber,
-            testNumber,
-            isPublished: false,
-            importJobId: job.id,
-          };
-
-          if (existing && overwrite) {
-            const updated = await tx.ieltsAdvancedReadingPart.update({
-              where: { id: existing.id },
-              data,
-            });
-            liveId = updated.id;
-          } else {
-            const created = await tx.ieltsAdvancedReadingPart.create({
-              data,
-            });
-            liveId = created.id;
-          }
-        } else if (job.skill === ContentImportSkill.WRITING) {
-          const engnovateSlug = structuredJson.engnovateSlug || null;
-          let existing = null;
-          if (engnovateSlug) {
-            existing = await tx.ieltsAdvancedWritingPrompt.findUnique({
-              where: { engnovateSlug },
-            });
-          } else {
-            existing = await tx.ieltsAdvancedWritingPrompt.findFirst({
-              where: { source, bookNumber, testNumber, taskType: structuredJson.taskType || "TASK_1" },
-            });
-          }
-
-          if (existing && !overwrite) {
-            throw new ConflictException({
-              message: `An advanced writing prompt with slug "${engnovateSlug}" already exists.`,
-              existingId: existing.id,
-            });
-          }
-
-          const data = {
-            taskType: structuredJson.taskType || "TASK_1",
-            subType: structuredJson.subType || "essay",
-            source: structuredJson.source || source,
-            category: structuredJson.category || "cambridge-academic",
-            bookNumber,
-            testNumber,
-            title,
-            prompt: structuredJson.prompt || "",
-            imageUrl: structuredJson.imageUrl || null,
-            minimumWords: structuredJson.minimumWords ? Number(structuredJson.minimumWords) : 150,
-            suggestedTime: structuredJson.suggestedTime ? Number(structuredJson.suggestedTime) : 20,
-            difficulty: structuredJson.difficulty || "medium",
-            engnovateSlug,
-            isPublished: false,
-            importJobId: job.id,
-          };
-
-          if (existing && overwrite) {
-            const updated = await tx.ieltsAdvancedWritingPrompt.update({
-              where: { id: existing.id },
-              data,
-            });
-            liveId = updated.id;
-          } else {
-            const created = await tx.ieltsAdvancedWritingPrompt.create({
-              data,
-            });
-            liveId = created.id;
-          }
-        } else if (job.skill === ContentImportSkill.SPEAKING) {
-          const partNumber = Number(structuredJson.partNumber || 1);
-          const engnovateSlug = structuredJson.engnovateSlug || null;
-          let existing = null;
-          if (engnovateSlug) {
-            existing = await tx.ieltsAdvancedSpeakingPart.findUnique({
-              where: { engnovateSlug_partNumber: { engnovateSlug, partNumber } },
-            });
-          } else {
-            existing = await tx.ieltsAdvancedSpeakingPart.findFirst({
-              where: { source, bookNumber, testNumber, partNumber },
-            });
-          }
-
-          if (existing && !overwrite) {
-            throw new ConflictException({
-              message: `An advanced speaking part with slug "${engnovateSlug}" and part ${partNumber} already exists.`,
-              existingId: existing.id,
-            });
-          }
-
-          const data = {
-            partNumber,
-            partType: structuredJson.partType || "interview",
-            topic: structuredJson.topic || "",
-            source: structuredJson.source || source,
-            category: structuredJson.category || "cambridge-academic",
-            bookNumber,
-            testNumber,
-            title,
-            questions: structuredJson.questions || [],
-            engnovateSlug,
-            isPublished: false,
-            importJobId: job.id,
-          };
-
-          if (existing && overwrite) {
-            const updated = await tx.ieltsAdvancedSpeakingPart.update({
-              where: { id: existing.id },
-              data,
-            });
-            liveId = updated.id;
-          } else {
-            const created = await tx.ieltsAdvancedSpeakingPart.create({
-              data,
-            });
-            liveId = created.id;
-          }
+            testNumber
+          );
         }
+      } else {
+        // --- ADVANCED BANK BRANCH (Auto split and create all parts) ---
+        await this.autoSplitAndCreateAdvancedParts(
+          tx,
+          job,
+          structuredJson,
+          title,
+          source,
+          bookNumber,
+          testNumber
+        );
+        liveId = job.id;
       }
 
       // 3. Mark the staging job as committed
@@ -1202,5 +1047,191 @@ export class IeltsContentCommitService {
       section: skill === ContentImportSkill.READING ? "Reading" : "Listening",
       parts: [part]
     };
+  }
+
+  private async autoSplitAndCreateAdvancedParts(
+    tx: any,
+    job: any,
+    structuredJson: any,
+    title: string,
+    source: string,
+    bookNumber: number | null,
+    testNumber: number | null
+  ): Promise<void> {
+    if (job.skill === ContentImportSkill.LISTENING) {
+      const partsObj = this.transformToPartsFormat(structuredJson, job.skill, title, job.audioUrls);
+      const parts = Array.isArray(partsObj?.parts) ? partsObj.parts : [];
+
+      for (const p of parts) {
+        const partNumber = Number(p.part_number || 1);
+        const existing = await tx.ieltsAdvancedListeningPart.findFirst({
+          where: { source, bookNumber, testNumber, partNumber },
+        });
+
+        const partTitle = `${title} - Part ${partNumber}`;
+        const data = {
+          title: partTitle,
+          partNumber,
+          audioUrl: p.audio_url || "",
+          transcript: p.transcript || [],
+          content: p.question_groups || [],
+          questionTypes: this.extractQuestionTypesFromGroups(p.question_groups),
+          source,
+          bookNumber,
+          testNumber,
+          isPublished: false,
+          importJobId: job.id,
+        };
+
+        if (existing) {
+          await tx.ieltsAdvancedListeningPart.update({
+            where: { id: existing.id },
+            data,
+          });
+        } else {
+          await tx.ieltsAdvancedListeningPart.create({
+            data,
+          });
+        }
+      }
+    } else if (job.skill === ContentImportSkill.READING) {
+      const partsObj = this.transformToPartsFormat(structuredJson, job.skill, title);
+      const parts = Array.isArray(partsObj?.parts) ? partsObj.parts : [];
+
+      for (const p of parts) {
+        const partNumber = Number(p.part_number || 1);
+        const existing = await tx.ieltsAdvancedReadingPart.findFirst({
+          where: { source, bookNumber, testNumber, partNumber },
+        });
+
+        const partTitle = `${title} - Part ${partNumber}`;
+        const data = {
+          title: partTitle,
+          partNumber,
+          passage: p.passage_text || "",
+          passageWithLocations: {},
+          content: p.question_groups || [],
+          questionTypes: this.extractQuestionTypesFromGroups(p.question_groups),
+          source,
+          bookNumber,
+          testNumber,
+          isPublished: false,
+          importJobId: job.id,
+        };
+
+        if (existing) {
+          await tx.ieltsAdvancedReadingPart.update({
+            where: { id: existing.id },
+            data,
+          });
+        } else {
+          await tx.ieltsAdvancedReadingPart.create({
+            data,
+          });
+        }
+      }
+    } else if (job.skill === ContentImportSkill.WRITING) {
+      const rawTasks = Array.isArray(structuredJson.tasks) ? structuredJson.tasks : [];
+
+      for (const t of rawTasks) {
+        const taskType = t.taskType === "TASK_1" ? "TASK_1" : "TASK_2";
+        const engnovateSlug = t.engnovateSlug || `${source}_b${bookNumber}_t${testNumber}_${taskType.toLowerCase()}`;
+        
+        let existing = await tx.ieltsAdvancedWritingPrompt.findUnique({
+          where: { engnovateSlug },
+        });
+        if (!existing) {
+          existing = await tx.ieltsAdvancedWritingPrompt.findFirst({
+            where: { source, bookNumber, testNumber, taskType },
+          });
+        }
+
+        const taskTitle = `${title} - Task ${taskType === "TASK_1" ? "1" : "2"}`;
+        const data = {
+          taskType,
+          subType: t.subType || (taskType === "TASK_1" ? "academic_chart" : "opinion"),
+          source,
+          category: "cambridge-academic",
+          bookNumber,
+          testNumber,
+          title: taskTitle,
+          prompt: t.prompt || "",
+          imageUrl: t.imageUrl || null,
+          minimumWords: t.minimumWords ? Number(t.minimumWords) : (taskType === "TASK_1" ? 150 : 250),
+          suggestedTime: t.suggestedTime ? Number(t.suggestedTime) : (taskType === "TASK_1" ? 20 : 40),
+          difficulty: "medium",
+          engnovateSlug,
+          isPublished: false,
+          importJobId: job.id,
+        };
+
+        if (existing) {
+          await tx.ieltsAdvancedWritingPrompt.update({
+            where: { id: existing.id },
+            data,
+          });
+        } else {
+          await tx.ieltsAdvancedWritingPrompt.create({
+            data,
+          });
+        }
+      }
+    } else if (job.skill === ContentImportSkill.SPEAKING) {
+      const parts = Array.isArray(structuredJson.parts) ? structuredJson.parts : [];
+
+      for (const p of parts) {
+        const partNumber = Number(p.part_number || p.partNumber || 1);
+        const engnovateSlug = structuredJson.engnovateSlug || `${source}_b${bookNumber}_t${testNumber}_s${partNumber}`;
+        
+        let existing = await tx.ieltsAdvancedSpeakingPart.findUnique({
+          where: { engnovateSlug_partNumber: { engnovateSlug, partNumber } },
+        });
+        if (!existing) {
+          existing = await tx.ieltsAdvancedSpeakingPart.findFirst({
+            where: { source, bookNumber, testNumber, partNumber },
+          });
+        }
+
+        const partType = partNumber === 1 ? "interview" : partNumber === 2 ? "cue_card" : "discussion";
+        const partTitle = `${title} - Speaking Part ${partNumber}`;
+        const data = {
+          partNumber,
+          partType,
+          topic: p.topic || p.title || structuredJson.topic || "",
+          source,
+          category: "cambridge-academic",
+          bookNumber,
+          testNumber,
+          title: partTitle,
+          questions: p.questions || [],
+          engnovateSlug,
+          isPublished: false,
+          importJobId: job.id,
+        };
+
+        if (existing) {
+          await tx.ieltsAdvancedSpeakingPart.update({
+            where: { id: existing.id },
+            data,
+          });
+        } else {
+          await tx.ieltsAdvancedSpeakingPart.create({
+            data,
+          });
+        }
+      }
+    }
+  }
+
+  private extractQuestionTypesFromGroups(questionGroups: any[]): string[] {
+    if (!Array.isArray(questionGroups)) return [];
+    const typesSet = new Set<string>();
+    for (const g of questionGroups) {
+      if (g.question_type) {
+        const t = String(g.question_type).toLowerCase().replace(/[\s/]/g, "_");
+        typesSet.add(t);
+      }
+    }
+    return Array.from(typesSet);
   }
 }

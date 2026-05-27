@@ -62,12 +62,12 @@ export default function IELTSAdvancedAdminPage() {
   const [provSource, setProvSource] = useState<string>("cambridge");
   const [provBook, setProvBook] = useState<number>(18);
   const [provTest, setProvTest] = useState<number>(1);
-  const [provPart, setProvPart] = useState<number>(1);
   const [provTitle, setProvTitle] = useState<string>("");
+  const [targetSystem, setTargetSystem] = useState<string>("BOTH");
 
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmittingJob, setIsSubmittingJob] = useState(false);
-  const [audioAssets, setAudioAssets] = useState<{ originalUrl: string; storedUrl: string; kind: "audio"; partIndex: number }[]>([]);
+  const [audioUrls, setAudioUrls] = useState<(string | null)[]>([null, null, null, null]);
   const [uploadingAudioPart, setUploadingAudioPart] = useState<number | null>(null);
   const [answerKeyImage, setAnswerKeyImage] = useState<{ originalUrl: string; storedUrl: string; kind: "image" } | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -100,7 +100,7 @@ export default function IELTSAdvancedAdminPage() {
     try {
       const data = await ieltsImportApi.getAllJobs();
       // Filter for Advanced target system
-      const advancedJobs = data.filter(j => j.targetSystem === "ADVANCED");
+      const advancedJobs = data.filter(j => j.targetSystem === "ADVANCED" || j.targetSystem === "BOTH");
       setJobs(advancedJobs);
 
       const hasActive = advancedJobs.some(j => j.status === "PENDING" || j.status === "SCRAPING" || j.status === "EXTRACTING");
@@ -238,15 +238,10 @@ export default function IELTSAdvancedAdminPage() {
         headers: { "Content-Type": "multipart/form-data" }
       });
       const storedUrl = (res.data as any).url;
-      const newAsset = {
-        originalUrl: file.name,
-        storedUrl,
-        kind: "audio" as const,
-        partIndex: partNum
-      };
-      setAudioAssets(prev => {
-        const clean = prev.filter(a => a.partIndex !== partNum);
-        return [...clean, newAsset].sort((a, b) => a.partIndex - b.partIndex);
+      setAudioUrls(prev => {
+        const next = [...prev];
+        next[partNum - 1] = storedUrl;
+        return next;
       });
       toast.success(`Audio for Part ${partNum} uploaded successfully.`);
     } catch {
@@ -307,29 +302,30 @@ export default function IELTSAdvancedAdminPage() {
       if (provSource === "cambridge") {
         provenance.bookNumber = provBook;
         provenance.testNumber = provTest;
-        provenance.partNumber = provPart;
-      }
-
-      const finalAssets: any[] = [...audioAssets];
-      if (answerKeyImage) {
-        finalAssets.push(answerKeyImage);
       }
 
       await ieltsImportApi.createJob({
-        targetSystem: "ADVANCED",
+        targetSystem,
         skill,
         sourceType,
         sourceRef: sourceRef.trim(),
         provenance,
-        mediaAssets: skill === "LISTENING" ? finalAssets : undefined
-      } as any);
+        audioUrls: skill === "LISTENING"
+          ? (audioUrls.filter(Boolean) as string[])
+          : undefined,
+        mediaAssets: answerKeyImage ? [answerKeyImage] : undefined
+      });
 
-      toast.success("Advanced import job successfully queued!");
+      toast.success(
+        targetSystem === "BOTH"
+          ? "Universal import job successfully created! Adding to both Intensive Mock & Advanced parts libraries."
+          : `Import job successfully created for ${targetSystem.toLowerCase()} target!`
+      );
       setShowImportDrawer(false);
       
       setSourceRef("");
       setProvTitle("");
-      setAudioAssets([]);
+      setAudioUrls([null, null, null, null]);
       setAnswerKeyImage(null);
 
       fetchStagingQueue();
@@ -562,7 +558,7 @@ export default function IELTSAdvancedAdminPage() {
           <div className="flex-1" onClick={() => setShowImportDrawer(false)} />
           
           <div className="w-[460px] bg-white dark:bg-gray-900 border-l border-gray-150 dark:border-gray-800 shadow-2xl h-full flex flex-col p-6 overflow-y-auto animate-slide-in">
-            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4 mb-6">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4 mb-4">
               <div>
                 <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">Import Advanced Part</h3>
                 <p className="text-xs text-gray-400 mt-0.5">Scrape web text/PDFs to advanced focused database bank</p>
@@ -573,6 +569,14 @@ export default function IELTSAdvancedAdminPage() {
               >
                 <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
+            </div>
+
+            <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-2xl p-4 text-[11px] text-primary-700 dark:text-primary-400 leading-relaxed mb-2 flex items-start gap-2.5">
+              <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0 mt-0.5 stroke-current fill-none stroke-[2.5]"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+              <div>
+                <span className="font-bold block mb-0.5">Universal Full-Booklet Importer</span>
+                Import whole exams at once. The AI pipeline will automatically parse and split all four sections (Listening parts, Reading passages, Writing prompts, Speaking sections) for advanced modules.
+              </div>
             </div>
 
             <form onSubmit={handleCreateImportJob} className="flex flex-col gap-5">
@@ -588,6 +592,84 @@ export default function IELTSAdvancedAdminPage() {
                   <option value="WRITING">Writing</option>
                   <option value="SPEAKING">Speaking</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-2">Target Destinations *</label>
+                <div className="grid grid-cols-1 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setTargetSystem("BOTH")}
+                    className={`flex items-start text-left p-3.5 rounded-2xl border transition-all duration-200 active:scale-[0.985] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] ${
+                      targetSystem === "BOTH"
+                        ? "border-primary bg-primary/[0.03] dark:bg-primary/[0.01] ring-1 ring-primary"
+                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40"
+                    }`}
+                  >
+                    <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 ${
+                      targetSystem === "BOTH" ? "border-primary bg-primary text-white" : "border-gray-300 dark:border-gray-600"
+                    }`}>
+                      {targetSystem === "BOTH" && <svg viewBox="0 0 24 24" className="w-3 h-3 fill-none stroke-current stroke-[3.5]"><polyline points="20 6 9 17 4 12" /></svg>}
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                        Universal Commit (Both)
+                        <span className="text-[9px] bg-emerald-500/10 text-emerald-500 font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Recommended</span>
+                      </p>
+                      <p className="text-[10.5px] text-gray-400 mt-0.5 leading-relaxed">
+                        Add to both **Intensive Mock Exams** and **Advanced modular parts** simultaneously. PDF/Audio split is 100% automated.
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setTargetSystem("INTENSIVE")}
+                    className={`flex items-start text-left p-3.5 rounded-2xl border transition-all duration-200 active:scale-[0.985] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] ${
+                      targetSystem === "INTENSIVE"
+                        ? "border-primary bg-primary/[0.03] dark:bg-primary/[0.01] ring-1 ring-primary"
+                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40"
+                    }`}
+                  >
+                    <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 ${
+                      targetSystem === "INTENSIVE" ? "border-primary bg-primary text-white" : "border-gray-300 dark:border-gray-600"
+                    }`}>
+                      {targetSystem === "INTENSIVE" && <svg viewBox="0 0 24 24" className="w-3 h-3 fill-none stroke-current stroke-[3.5]"><polyline points="20 6 9 17 4 12" /></svg>}
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100">
+                        Intensive Only (Full Mock)
+                      </p>
+                      <p className="text-[10.5px] text-gray-400 mt-0.5 leading-relaxed">
+                        Deploy exclusively into full mock exams.
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setTargetSystem("ADVANCED")}
+                    className={`flex items-start text-left p-3.5 rounded-2xl border transition-all duration-200 active:scale-[0.985] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] ${
+                      targetSystem === "ADVANCED"
+                        ? "border-primary bg-primary/[0.03] dark:bg-primary/[0.01] ring-1 ring-primary"
+                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40"
+                    }`}
+                  >
+                    <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 ${
+                      targetSystem === "ADVANCED" ? "border-primary bg-primary text-white" : "border-gray-300 dark:border-gray-600"
+                    }`}>
+                      {targetSystem === "ADVANCED" && <svg viewBox="0 0 24 24" className="w-3 h-3 fill-none stroke-current stroke-[3.5]"><polyline points="20 6 9 17 4 12" /></svg>}
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100">
+                        Advanced Only (Micro-Practice)
+                      </p>
+                      <p className="text-[10.5px] text-gray-400 mt-0.5 leading-relaxed">
+                        Exclusively import to Advanced micro-practice parts.
+                      </p>
+                    </div>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -668,29 +750,29 @@ export default function IELTSAdvancedAdminPage() {
                   <label className="block text-xs font-bold text-gray-600 dark:text-gray-400">Audio Tracks (Part 1-4)</label>
                   <div className="grid grid-cols-2 gap-3">
                     {[1, 2, 3, 4].map(partNum => {
-                      const asset = audioAssets.find(a => a.partIndex === partNum);
+                      const uploadedUrl = audioUrls[partNum - 1];
                       const isUploadingPart = uploadingAudioPart === partNum;
                       return (
                         <div key={partNum} className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-850 p-2.5 rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden">
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] font-extrabold text-primary uppercase">Part {partNum}</span>
-                            {asset ? (
+                            {uploadedUrl ? (
                               <span className="text-[9px] font-bold text-green-600 flex items-center gap-0.5">
-                                <span className="w-1 h-1 rounded-full bg-green-500" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
                                 Uploaded
                               </span>
                             ) : (
                               <span className="text-[9px] font-medium text-gray-400">Pending</span>
                             )}
                           </div>
-                          {asset ? (
+                          {uploadedUrl ? (
                             <div className="mt-1.5 flex items-center justify-between gap-1">
-                              <span className="text-[9px] text-gray-500 dark:text-gray-450 truncate max-w-[100px]" title={asset.originalUrl}>
-                                {asset.originalUrl}
+                              <span className="text-[9px] text-gray-500 dark:text-gray-450 truncate max-w-[120px] select-all" title={uploadedUrl}>
+                                {uploadedUrl.split("/").pop()}
                               </span>
                               <button
                                 type="button"
-                                onClick={() => setAudioAssets(prev => prev.filter(a => a.partIndex !== partNum))}
+                                onClick={() => setAudioUrls(prev => { const next = [...prev]; next[partNum - 1] = null; return next; })}
                                 className="text-[8px] font-bold text-red-500 hover:text-red-650"
                               >
                                 Remove
@@ -848,17 +930,6 @@ export default function IELTSAdvancedAdminPage() {
                       />
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Part / Section (1 to 4) *</label>
-                    <input
-                      type="number"
-                      value={provPart}
-                      onChange={e => setProvPart(Number(e.target.value))}
-                      placeholder="e.g. 1, 2, 3, 4"
-                      className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                      required
-                    />
-                  </div>
                 </div>
               ) : (
                 <div>
@@ -867,7 +938,7 @@ export default function IELTSAdvancedAdminPage() {
                     type="text"
                     value={provTitle}
                     onChange={e => setProvTitle(e.target.value)}
-                    placeholder="e.g. Cambridge 18 Reading Test 1 Part 3"
+                    placeholder="e.g. Cambridge 18 Reading Test 1"
                     className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
                   />
                 </div>

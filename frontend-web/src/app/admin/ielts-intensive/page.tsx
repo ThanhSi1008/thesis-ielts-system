@@ -90,11 +90,13 @@ export default function IELTSIntensiveAdminPage() {
   
   // New Import State
   const [skill, setSkill] = useState<string>("READING");
+  const [targetSystem, setTargetSystem] = useState<string>("BOTH");
   const [sourceType, setSourceType] = useState<string>("PDF_UPLOAD");
   const [sourceRef, setSourceRef] = useState<string>("");
   const [provSource, setProvSource] = useState<string>("cambridge");
   const [provBook, setProvBook] = useState<number>(18);
   const [provTest, setProvTest] = useState<number>(1);
+  const [provPart, setProvPart] = useState<number>(1);
   const [provTitle, setProvTitle] = useState<string>("");
   
   const [isUploading, setIsUploading] = useState(false);
@@ -125,7 +127,7 @@ export default function IELTSIntensiveAdminPage() {
     try {
       const data = await ieltsImportApi.getAllJobs();
       // Filter for Intensive target system
-      const intensiveJobs = data.filter(j => j.targetSystem === "INTENSIVE");
+      const intensiveJobs = data.filter(j => j.targetSystem === "INTENSIVE" || j.targetSystem === "BOTH");
       setJobs(intensiveJobs);
 
       // Group jobs
@@ -340,16 +342,22 @@ export default function IELTSIntensiveAdminPage() {
       }
 
       await ieltsImportApi.createJob({
-        targetSystem: "INTENSIVE",
+        targetSystem,
         skill,
         sourceType,
         sourceRef: sourceRef.trim(),
         audioscriptRef: skill === "LISTENING" && audioscriptRef.trim() ? audioscriptRef.trim() : undefined,
         provenance,
-        audioUrls: skill === "LISTENING" ? (audioUrls.filter(Boolean) as string[]) : undefined
+        audioUrls: skill === "LISTENING"
+          ? (audioUrls.filter(Boolean) as string[])
+          : undefined
       });
 
-      toast.success("Import job created successfully. Scraper & structuring is running.");
+      toast.success(
+        targetSystem === "BOTH"
+          ? "Universal import job successfully created! Adding to both Intensive Mock & Advanced parts libraries."
+          : `Import job successfully created for ${targetSystem.toLowerCase()} target!`
+      );
       setShowImportDrawer(false);
 
       // Reset form
@@ -694,11 +702,89 @@ export default function IELTSIntensiveAdminPage() {
                   onChange={e => setSkill(e.target.value)}
                   className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
                 >
-                  <option value="LISTENING">Listening</option>
                   <option value="READING">Reading</option>
+                  <option value="LISTENING">Listening</option>
                   <option value="WRITING">Writing</option>
                   <option value="SPEAKING">Speaking</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-2">Target Destinations *</label>
+                <div className="grid grid-cols-1 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setTargetSystem("BOTH")}
+                    className={`flex items-start text-left p-3.5 rounded-2xl border transition-all duration-200 active:scale-[0.985] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] ${
+                      targetSystem === "BOTH"
+                        ? "border-primary bg-primary/[0.03] dark:bg-primary/[0.01] ring-1 ring-primary"
+                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40"
+                    }`}
+                  >
+                    <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 ${
+                      targetSystem === "BOTH" ? "border-primary bg-primary text-white" : "border-gray-300 dark:border-gray-600"
+                    }`}>
+                      {targetSystem === "BOTH" && <svg viewBox="0 0 24 24" className="w-3 h-3 fill-none stroke-current stroke-[3.5]"><polyline points="20 6 9 17 4 12" /></svg>}
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                        Universal Commit (Both)
+                        <span className="text-[9px] bg-emerald-500/10 text-emerald-500 font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Recommended</span>
+                      </p>
+                      <p className="text-[10.5px] text-gray-400 mt-0.5 leading-relaxed">
+                        Add to both **Intensive Mock Exams** and **Advanced modular parts** simultaneously. PDF/Audio split is 100% automated.
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setTargetSystem("INTENSIVE")}
+                    className={`flex items-start text-left p-3.5 rounded-2xl border transition-all duration-200 active:scale-[0.985] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] ${
+                      targetSystem === "INTENSIVE"
+                        ? "border-primary bg-primary/[0.03] dark:bg-primary/[0.01] ring-1 ring-primary"
+                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40"
+                    }`}
+                  >
+                    <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 ${
+                      targetSystem === "INTENSIVE" ? "border-primary bg-primary text-white" : "border-gray-300 dark:border-gray-600"
+                    }`}>
+                      {targetSystem === "INTENSIVE" && <svg viewBox="0 0 24 24" className="w-3 h-3 fill-none stroke-current stroke-[3.5]"><polyline points="20 6 9 17 4 12" /></svg>}
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100">
+                        Intensive Only (Full Mock)
+                      </p>
+                      <p className="text-[10.5px] text-gray-400 mt-0.5 leading-relaxed">
+                        Deploy exclusively into full mock exams.
+                      </p>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setTargetSystem("ADVANCED")}
+                    className={`flex items-start text-left p-3.5 rounded-2xl border transition-all duration-200 active:scale-[0.985] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] ${
+                      targetSystem === "ADVANCED"
+                        ? "border-primary bg-primary/[0.03] dark:bg-primary/[0.01] ring-1 ring-primary"
+                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40"
+                    }`}
+                  >
+                    <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 ${
+                      targetSystem === "ADVANCED" ? "border-primary bg-primary text-white" : "border-gray-300 dark:border-gray-600"
+                    }`}>
+                      {targetSystem === "ADVANCED" && <svg viewBox="0 0 24 24" className="w-3 h-3 fill-none stroke-current stroke-[3.5]"><polyline points="20 6 9 17 4 12" /></svg>}
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100">
+                        Advanced Only (Micro-Practice)
+                      </p>
+                      <p className="text-[10.5px] text-gray-400 mt-0.5 leading-relaxed">
+                        Target a single specific part (e.g. only Part 1 or writing task 1 prompt).
+                      </p>
+                    </div>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -816,94 +902,100 @@ export default function IELTSIntensiveAdminPage() {
               {/* Audio Tracks for Listening Skill */}
               {skill === "LISTENING" && (
                 <div className="border border-gray-150 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/30 rounded-2xl p-4 flex flex-col gap-3">
-                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400">Audio Tracks (Part 1-4)</label>
+                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400">
+                    Audio Tracks (Part 1-4)
+                  </label>
                   <div className="grid grid-cols-2 gap-3">
                     {[1, 2, 3, 4].map(partNum => {
-                      const uploadedUrl = audioUrls[partNum - 1];
-                      const isUploadingPart = uploadingAudioPart === partNum;
-                      return (
-                        <div key={partNum} className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-850 p-2.5 rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-extrabold text-primary uppercase">Part {partNum}</span>
+                        const uploadedUrl = audioUrls[partNum - 1];
+                        const isUploadingPart = uploadingAudioPart === partNum;
+                        return (
+                          <div key={partNum} className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-850 p-2.5 rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-extrabold text-primary uppercase">Part {partNum}</span>
+                              {uploadedUrl ? (
+                                <span className="text-[9px] font-bold text-green-600 flex items-center gap-0.5">
+                                  <span className="w-1 h-1 rounded-full bg-green-500" />
+                                  Uploaded
+                                </span>
+                              ) : (
+                                <span className="text-[9px] font-medium text-gray-400">Pending</span>
+                              )}
+                            </div>
                             {uploadedUrl ? (
-                              <span className="text-[9px] font-bold text-green-600 flex items-center gap-0.5">
-                                <span className="w-1 h-1 rounded-full bg-green-500" />
-                                Uploaded
-                              </span>
+                              <div className="mt-1.5 flex items-center justify-between gap-1">
+                                <span className="text-[9px] text-gray-500 dark:text-gray-450 truncate max-w-[120px] select-all" title={uploadedUrl}>
+                                  {uploadedUrl.split("/").pop()}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => setAudioUrls(prev => { const next = [...prev]; next[partNum - 1] = null; return next; })}
+                                  className="text-[8px] font-bold text-red-500 hover:text-red-650 font-sans"
+                                >
+                                  Remove
+                                </button>
+                              </div>
                             ) : (
-                              <span className="text-[9px] font-medium text-gray-400">Pending</span>
+                              <div className="mt-2.5">
+                                <input
+                                  type="file"
+                                  accept="audio/*"
+                                  id={`audio-part-${partNum}`}
+                                  className="hidden"
+                                  disabled={isUploadingPart}
+                                  onChange={e => handleAudioUpload(e, partNum)}
+                                />
+                                <label
+                                  htmlFor={`audio-part-${partNum}`}
+                                  className="block w-full text-center py-1 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 border border-gray-200 dark:border-gray-700 rounded-lg text-[9px] font-bold text-gray-650 dark:text-gray-300 cursor-pointer transition-colors"
+                                >
+                                  {isUploadingPart ? "Uploading..." : "Upload Audio"}
+                                </label>
+                              </div>
                             )}
                           </div>
-                          {uploadedUrl ? (
-                            <div className="mt-1.5 flex items-center justify-between gap-1">
-                              <span className="text-[9px] text-gray-500 dark:text-gray-450 truncate max-w-[120px]" title={uploadedUrl}>
-                                {uploadedUrl.split("/").pop()}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => setAudioUrls(prev => { const next = [...prev]; next[partNum - 1] = null; return next; })}
-                                className="text-[8px] font-bold text-red-500 hover:text-red-650"
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="mt-2.5">
-                              <input
-                                type="file"
-                                accept="audio/*"
-                                id={`audio-part-${partNum}`}
-                                className="hidden"
-                                disabled={isUploadingPart}
-                                onChange={e => handleAudioUpload(e, partNum)}
-                              />
-                              <label
-                                htmlFor={`audio-part-${partNum}`}
-                                className="block w-full text-center py-1 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 border border-gray-200 dark:border-gray-700 rounded-lg text-[9px] font-bold text-gray-650 dark:text-gray-300 cursor-pointer transition-colors"
-                              >
-                                {isUploadingPart ? "Uploading..." : "Upload Audio"}
-                              </label>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                   </div>
                 </div>
               )}
 
               {/* Provenance Fields */}
               {provSource === "cambridge" ? (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Book Number</label>
-                    <input
-                      type="number"
-                      value={provBook}
-                      onChange={e => setProvBook(Number(e.target.value))}
-                      className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Test Number</label>
-                    <input
-                      type="number"
-                      value={provTest}
-                      onChange={e => setProvTest(Number(e.target.value))}
-                      className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                    />
+                <div className="flex flex-col gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Book Number</label>
+                      <input
+                        type="number"
+                        value={provBook}
+                        onChange={e => setProvBook(Number(e.target.value))}
+                        className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Test Number</label>
+                      <input
+                        type="number"
+                        value={provTest}
+                        onChange={e => setProvTest(Number(e.target.value))}
+                        className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
+                      />
+                    </div>
                   </div>
                 </div>
               ) : (
-                <div>
-                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Source Title / Reference</label>
-                  <input
-                    type="text"
-                    value={provTitle}
-                    onChange={e => setProvTitle(e.target.value)}
-                    placeholder="e.g. Cambridge 18 Reading Test 1"
-                    className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                  />
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Source Title / Reference</label>
+                    <input
+                      type="text"
+                      value={provTitle}
+                      onChange={e => setProvTitle(e.target.value)}
+                      placeholder="e.g. Cambridge 18 Reading Test 1"
+                      className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
+                    />
+                  </div>
                 </div>
               )}
 
