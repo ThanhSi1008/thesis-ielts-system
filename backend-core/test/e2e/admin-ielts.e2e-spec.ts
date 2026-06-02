@@ -302,12 +302,30 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
             sourceType: 'PDF_UPLOAD',
             sourceRef: 'https://example.com',
             provenance: { source: 'cambridge', bookNumber: 18, testNumber: 2 },
-            structuredJson: {
+            structuredJson: s === ContentImportSkill.SPEAKING ? {
+              title: `Cambridge 18 Test 2 - ${s}`,
+              type: 'speaking',
+              parts: [
+                {
+                  part_number: 1,
+                  questions: [{ text: 'Question text', video: 'https://example.com/audio.mp3' }]
+                },
+                {
+                  part_number: 2,
+                  cue_card: 'Describe something',
+                  video: 'https://example.com/audio.mp3',
+                  video2: 'https://example.com/audio.mp3'
+                },
+                {
+                  part_number: 3,
+                  questions: [{ text: 'Question text', video: 'https://example.com/audio.mp3' }]
+                }
+              ]
+            } : {
               title: `Cambridge 18 Test 2 - ${s}`,
               passage: s === ContentImportSkill.READING ? 'Reading passage content' : undefined,
               transcript: s === ContentImportSkill.LISTENING ? [{ speaker: 'Man', text: 'Spoken text' }] : undefined,
               prompt: s === ContentImportSkill.WRITING ? 'Write about something' : undefined,
-              questions: s === ContentImportSkill.SPEAKING ? [{ text: 'Question text' }] : undefined,
               content: (s === ContentImportSkill.LISTENING || s === ContentImportSkill.READING) ? [
                 {
                   question_number: 1,
@@ -334,12 +352,8 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
       const res = await request(app.getHttpServer())
         .post(`${BASE}/admin/ielts/import/group/${groupId}/commit`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ isPublished: false });
-
-      if (res.status !== HttpStatus.CREATED) {
-        console.error('FAILED GROUP COMMIT RESPONSE:', res.body);
-      }
-      expect(res.status).toBe(HttpStatus.CREATED);
+        .send({ isPublished: false })
+        .expect(HttpStatus.CREATED);
 
       expect(res.body.examIds).toBeDefined();
       expect(res.body.examIds.length).toBe(1);
@@ -812,7 +826,26 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
             sourceType: 'PDF_UPLOAD',
             sourceRef: 'https://example.com/fulltest-grading',
             provenance: { source: 'cambridge', bookNumber: 19, testNumber: 1 },
-            structuredJson: {
+            structuredJson: s === ContentImportSkill.SPEAKING ? {
+              title: `Grading Group ${s}`,
+              type: 'speaking',
+              parts: [
+                {
+                  part_number: 1,
+                  questions: [{ text: 'Question 1', video: 'https://example.com/audio.mp3' }]
+                },
+                {
+                  part_number: 2,
+                  cue_card: 'Describe something',
+                  video: 'https://example.com/audio.mp3',
+                  video2: 'https://example.com/audio.mp3'
+                },
+                {
+                  part_number: 3,
+                  questions: [{ text: 'Question 1', video: 'https://example.com/audio.mp3' }]
+                }
+              ]
+            } : {
               title: `Grading Group ${s}`,
               // BUG-07: Testing matching extraction in Listening Part
               answers: s === ContentImportSkill.LISTENING ? { '1': { letter: 'A' }, '2': 'B' } : undefined,
@@ -827,7 +860,6 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
                 }
               ] : undefined,
               prompt: s === ContentImportSkill.WRITING ? 'Write essay' : undefined,
-              questions: s === ContentImportSkill.SPEAKING ? [{ text: 'Question 1' }] : undefined,
             },
           },
         });
