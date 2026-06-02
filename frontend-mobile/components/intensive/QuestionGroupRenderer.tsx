@@ -629,8 +629,8 @@ export function renderGroup(
   mode: 'edit' | 'review' = 'edit',
   correctAnswers?: Record<string, string>,
 ) {
-  const type = group.question_type ?? group.type ?? 'fill';
-  const qStyles = createQStyles(colors ?? {}, isDark ?? false);
+  const type = group.question_type || group.type || 'fill';
+  const qStyles = createQStyles(colors || {}, isDark || false);
   const baseKey = `p${partIdx}-g${groupIdx}-${type}`;
 
   let questions: any[] = [];
@@ -640,7 +640,7 @@ export function renderGroup(
   } else if (Array.isArray(group.content)) {
     const firstItem = group.content[0];
     if (firstItem && Array.isArray(firstItem.points)) {
-      questions = group.content.flatMap((section: any) => section.points ?? []);
+      questions = group.content.flatMap((section: any) => section.points || []);
     } else {
       questions = group.content;
     }
@@ -660,7 +660,7 @@ export function renderGroup(
     ? { YES: 'Yes', NO: 'No', 'NOT GIVEN': 'Not Given' }
     : { TRUE: 'True', FALSE: 'False', 'NOT GIVEN': 'Not Given' };
 
-  const optionsBox = group.options_box ?? null;
+  const optionsBox = group.options_box || null;
 
   if (isDiagramType) {
     return (
@@ -702,13 +702,17 @@ export function renderGroup(
     );
   }
 
+  const hasSections =
+    Array.isArray(group.content) &&
+    group.content.some((section: any) => section && Array.isArray(section.points));
+
   const FORM_TYPES = new Set([
     'form_completion',
     'note_completion',
     'flowchart_completion',
     'flow_chart',
   ]);
-  if (FORM_TYPES.has(type.toLowerCase().replace(/ /g, '_'))) {
+  if (FORM_TYPES.has(type.toLowerCase().replace(/ /g, '_')) && !hasSections) {
     return (
       <FormCompletionBlock
         key={baseKey}
@@ -720,9 +724,6 @@ export function renderGroup(
       />
     );
   }
-
-  const hasSections =
-    Array.isArray(group.content) && group.content[0] && Array.isArray(group.content[0].points);
 
   const renderPassageContext = (rawText: string, cKey: string) => {
     const regex = /(\d+)\s*\[blank\]/g;
