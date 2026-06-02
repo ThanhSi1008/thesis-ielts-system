@@ -6,6 +6,7 @@ import { ChevronLeft, Save, Send, Clock, AlertCircle, PlayCircle } from "lucide-
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "@/components/Toaster";
+import WritingTaskBoard from "@/components/WritingTaskBoard";
 
 export default function WritingPracticeContent({ promptId }: { promptId: string }) {
   const searchParams = useSearchParams();
@@ -90,6 +91,12 @@ export default function WritingPracticeContent({ promptId }: { promptId: string 
     );
   }
 
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+
   useEffect(() => {
     if (session && session.draftEssay && !essay) {
       setEssay(session.draftEssay);
@@ -167,10 +174,25 @@ export default function WritingPracticeContent({ promptId }: { promptId: string 
     return <div className="p-10 font-bold text-red-500">Practice session not found</div>;
   }
 
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, "0")}`;
+  const adaptedTasks = [
+    {
+      task_number: prompt.taskType === "TASK_1" ? 1 : 2,
+      task_type: prompt.subType || (prompt.taskType === "TASK_1" ? "academic_chart" : "essay"),
+      time_advice: `${prompt.suggestedTime} minutes`,
+      prompt: prompt.prompt,
+      image_url: prompt.imageUrl || undefined,
+      min_words: prompt.minimumWords,
+    },
+  ];
+
+  const initialAnswers = {
+    task1: prompt.taskType === "TASK_1" ? session.draftEssay || "" : "",
+    task2: prompt.taskType === "TASK_2" ? session.draftEssay || "" : "",
+  };
+
+  const handleAnswersChange = (ans: { task1: string; task2: string }) => {
+    const currentEssay = prompt.taskType === "TASK_1" ? ans.task1 : ans.task2;
+    setEssay(currentEssay);
   };
 
   const wordCount = essay.trim() === "" ? 0 : essay.trim().split(/\s+/).length;
@@ -227,56 +249,19 @@ export default function WritingPracticeContent({ promptId }: { promptId: string 
         </div>
       </div>
 
-      {/* Split Pane */}
-      <div className="flex flex-1 min-h-0 overflow-hidden">
-        {/* Left: Prompt */}
-        <div className="w-1/2 overflow-y-auto border-r border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 custom-scrollbar">
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-2xl p-4 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
-              <div className="text-sm font-medium text-amber-800 dark:text-amber-400">
-                You should spend about {prompt.suggestedTime} minutes on this task.
-              </div>
-            </div>
-
-            {prompt.imageUrl && (
-              <div className="rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden bg-white p-4">
-                <img src={prompt.imageUrl} alt="Writing Prompt Reference" className="w-full h-auto object-contain max-h-[400px]" />
-              </div>
-            )}
-
-            <div className="prose dark:prose-invert max-w-none">
-              <p className="text-gray-700 dark:text-slate-300 text-lg leading-relaxed whitespace-pre-wrap font-medium">
-                {prompt.prompt}
-              </p>
-            </div>
-
-            <div className="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest pt-4 border-t border-gray-100 dark:border-slate-800">
-              Write at least {prompt.minimumWords} words.
-            </div>
-          </div>
-        </div>
-
-        {/* Right: Editor */}
-        <div className="w-1/2 flex flex-col bg-gray-50 dark:bg-slate-950 p-6 relative min-h-0">
-          <div className="flex items-center justify-between mb-4 px-2">
-            <h2 className="font-bold text-gray-500 dark:text-slate-400 text-sm uppercase tracking-wider">Your Essay</h2>
-            <div className={`text-sm font-bold ${wordCount < prompt.minimumWords ? 'text-amber-500' : 'text-green-500'}`}>
-              {wordCount} words
-            </div>
-          </div>
-
-          <div className="flex-1 min-h-0 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-all">
-            <textarea
-              value={essay}
-              onChange={(e) => setEssay(e.target.value)}
-              placeholder="Start typing your essay here..."
-              className="flex-1 w-full bg-transparent p-6 outline-none resize-none text-gray-800 dark:text-slate-200 leading-relaxed text-base custom-scrollbar"
-              spellCheck="false"
-            />
-          </div>
-        </div>
-      </div>
+      {/* Main split-pane / editor body replaced by WritingTaskBoard */}
+      <main className="flex-1 min-h-0 bg-white shadow-inner relative flex overflow-hidden">
+        <WritingTaskBoard
+          tasks={adaptedTasks}
+          examTitle={prompt.title}
+          secondsLeft={timeRemaining}
+          formatTime={formatTime}
+          submitting={submitWriting.isPending}
+          initialAnswers={initialAnswers}
+          onAnswersChange={handleAnswersChange}
+          onSubmit={handleSubmit}
+        />
+      </main>
     </div>
   );
 }

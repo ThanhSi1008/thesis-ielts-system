@@ -11,7 +11,7 @@ import {
   useSubmitSpeaking,
 } from "@/hooks/useIeltsAdvancedSpeaking";
 
-type StepState = "IDLE" | "READING" | "THINKING" | "RECORDING" | "RECORDED";
+type StepState = "IDLE" | "INTRODUCING" | "READING" | "THINKING" | "RECORDING" | "RECORDED";
 
 const THINK_DURATIONS: Record<number, number> = { 1: 2, 2: 60, 3: 2 };
 const MAX_RECORD_DURATIONS: Record<number, number> = { 1: 60, 2: 120, 3: 60 };
@@ -136,22 +136,71 @@ export default function SpeakingPracticeContent({ partId }: { partId: string }) 
     };
   }, [answers]);
 
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [activeQnIdx]);
+
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
+  const speakQuestion = useCallback((text: string, onEnd: () => void) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      onEnd();
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voices = window.speechSynthesis.getVoices();
+    const enVoice =
+      voices.find((v) => v.lang.startsWith("en-GB")) ||
+      voices.find((v) => v.lang.startsWith("en-US"));
+    if (enVoice) utterance.voice = enVoice;
+
+    utterance.onend = () => {
+      onEnd();
+    };
+    utterance.onerror = () => {
+      onEnd();
+    };
+    window.speechSynthesis.speak(utterance);
+  }, []);
+
   const startFlow = () => {
-    setStep("READING");
-    setTimeout(() => {
-      setStep("THINKING");
-      setThinkTimeLeft(THINK_DURATIONS[partNumber] || 2);
-    }, 2000);
+    if (activeQnIdx === 0) {
+      setStep("INTRODUCING");
+      let introText = "";
+      if (partNumber === 1) {
+        introText = `Welcome to the IELTS Speaking practice test. In this first part, I'd like to ask you some general questions about yourself. Let's talk about ${part?.topic || "various topics"}. First question: ${currentQuestionText}`;
+      } else if (partNumber === 2) {
+        introText = `Now, in this second part, I'd like to give you a topic, and you will have one minute to think about what you want to say, and then speak for up to two minutes. You can make notes in the box on the right if you wish. Describe the topic: ${currentQuestionText}. Please prepare now.`;
+      } else {
+        introText = `We've been talking about ${part?.topic || "the topic"}, and now, in this third part, I'd like to ask you some more general questions related to this. First question: ${currentQuestionText}`;
+      }
+      speakQuestion(introText, () => {
+        setStep("THINKING");
+        setThinkTimeLeft(THINK_DURATIONS[partNumber] || 2);
+      });
+    } else {
+      setStep("READING");
+      speakQuestion(currentQuestionText, () => {
+        setStep("THINKING");
+        setThinkTimeLeft(THINK_DURATIONS[partNumber] || 2);
+      });
+    }
   };
 
 
   const goNext = () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
     if (activeQnIdx < questions.length - 1) {
       setActiveQnIdx((i) => i + 1);
       setStep("IDLE");
@@ -320,7 +369,7 @@ export default function SpeakingPracticeContent({ partId }: { partId: string }) 
           <div className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3">Prompt</div>
           <p className="text-gray-900 dark:text-white text-lg leading-relaxed whitespace-pre-wrap">{currentQuestionText}</p>
           <div className="mt-6 text-sm font-bold text-gray-500">
-            Status: {step === "READING" ? "Reading..." : step === "THINKING" ? `Thinking (${thinkTimeLeft}s)` : step}
+            Status: {step === "INTRODUCING" ? "Introducing..." : step === "READING" ? "Reading..." : step === "THINKING" ? `Thinking (${thinkTimeLeft}s)` : step}
           </div>
           {step === "RECORDED" && answers[questionKey] && (
             <audio src={answers[questionKey].url} controls className="w-full max-w-[420px] mt-4" />
@@ -330,6 +379,9 @@ export default function SpeakingPracticeContent({ partId }: { partId: string }) 
               <button
                 key={idx}
                 onClick={() => {
+                  if (typeof window !== "undefined" && "speechSynthesis" in window) {
+                    window.speechSynthesis.cancel();
+                  }
                   setActiveQnIdx(idx);
                   setStep("IDLE");
                 }}

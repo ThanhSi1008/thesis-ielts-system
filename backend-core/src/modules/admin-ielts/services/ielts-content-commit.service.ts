@@ -1280,7 +1280,9 @@ export class IeltsContentCommitService {
           bookNumber,
           testNumber,
           title: partTitle,
-          questions: p.questions || [],
+          questions: (partNumber === 2 && p.cue_card && (!p.questions || p.questions.length === 0))
+            ? [{ text: p.cue_card }]
+            : (p.questions || []),
           engnovateSlug,
           isPublished: false,
           importJobId: job.id,

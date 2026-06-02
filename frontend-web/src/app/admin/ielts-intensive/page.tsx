@@ -670,313 +670,357 @@ export default function IELTSIntensiveAdminPage() {
         />
       )}
 
-      {/* ─── IMPORT DRAWER MODAL ─── */}
+      {/* ─── IMPORT MODAL ─── */}
       {showImportDrawer && (
-        <div className="fixed inset-0 z-[120] flex justify-end bg-black/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-all duration-300 animate-fade-in">
           {/* Backdrop click closer */}
-          <div className="flex-1" onClick={() => setShowImportDrawer(false)} />
+          <div className="absolute inset-0" onClick={() => setShowImportDrawer(false)} />
           
-          <div className="w-[460px] bg-white dark:bg-gray-900 border-l border-gray-150 dark:border-gray-800 shadow-2xl h-full flex flex-col p-6 overflow-y-auto animate-slide-in">
-            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4 mb-6">
-              <div>
-                <h3 className="text-base font-bold text-gray-900 dark:text-gray-100">Import IELTS Content</h3>
-                <p className="text-xs text-gray-400 mt-0.5">Scrape web text/PDFs and generate structured mock exams</p>
+          <div className="relative w-full max-w-4xl bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 shadow-2xl rounded-3xl flex flex-col max-h-[90vh] overflow-hidden animate-scale-up">
+            {/* Top Premium Gradient Ribbon */}
+            <div className="h-1.5 w-full bg-gradient-to-r from-primary via-amber-400 to-indigo-500 shrink-0" />
+
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-6 py-4 shrink-0 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
+              <div className="flex items-center gap-2.5">
+                <span className="p-2 bg-primary/10 rounded-xl text-primary shrink-0">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                </span>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2 leading-none">
+                    Import IELTS Content
+                    <span className="text-[9px] bg-primary/10 text-primary font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider">AI Pipeline</span>
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-1">Scrape web text/PDFs and generate structured mock exams</p>
+                </div>
               </div>
               <button
                 onClick={() => setShowImportDrawer(false)}
-                className="p-1 text-gray-400 hover:text-gray-700 dark:hover:text-gray-250 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg"
+                className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-250 hover:bg-gray-50 dark:hover:bg-gray-850 rounded-xl transition-all"
               >
                 <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
 
-            <form onSubmit={handleCreateImportJob} className="flex flex-col gap-5">
-              <div>
-                <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Target Skill *</label>
-                <select
-                  value={skill}
-                  onChange={e => setSkill(e.target.value)}
-                  className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                >
-                  <option value="READING">Reading</option>
-                  <option value="LISTENING">Listening</option>
-                  <option value="WRITING">Writing</option>
-                  <option value="SPEAKING">Speaking</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-2">Target Destinations *</label>
-                <div className="grid grid-cols-1 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setTargetSystem("BOTH")}
-                    className={`flex items-start text-left p-3.5 rounded-2xl border transition-all duration-200 active:scale-[0.985] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] ${
-                      targetSystem === "BOTH"
-                        ? "border-primary bg-primary/[0.03] dark:bg-primary/[0.01] ring-1 ring-primary"
-                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40"
-                    }`}
-                  >
-                    <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 ${
-                      targetSystem === "BOTH" ? "border-primary bg-primary text-white" : "border-gray-300 dark:border-gray-600"
-                    }`}>
-                      {targetSystem === "BOTH" && <svg viewBox="0 0 24 24" className="w-3 h-3 fill-none stroke-current stroke-[3.5]"><polyline points="20 6 9 17 4 12" /></svg>}
+            <form onSubmit={handleCreateImportJob} className="flex flex-col flex-1 overflow-hidden">
+              {/* Modal Body - Scrollable content */}
+              <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                  
+                  {/* Left Column: Form Settings & Targets */}
+                  <div className="flex flex-col gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-650 dark:text-gray-400 mb-1.5">Target Skill *</label>
+                      <select
+                        value={skill}
+                        onChange={e => setSkill(e.target.value)}
+                        className="w-full text-xs px-3.5 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all font-semibold"
+                      >
+                        <option value="READING">Reading</option>
+                        <option value="LISTENING">Listening</option>
+                        <option value="WRITING">Writing</option>
+                        <option value="SPEAKING">Speaking</option>
+                      </select>
                     </div>
-                    <div className="ml-3">
-                      <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                        Universal Commit (Both)
-                        <span className="text-[9px] bg-emerald-500/10 text-emerald-500 font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Recommended</span>
-                      </p>
-                      <p className="text-[10.5px] text-gray-400 mt-0.5 leading-relaxed">
-                        Add to both **Intensive Mock Exams** and **Advanced modular parts** simultaneously. PDF/Audio split is 100% automated.
-                      </p>
-                    </div>
-                  </button>
 
-                  <button
-                    type="button"
-                    onClick={() => setTargetSystem("INTENSIVE")}
-                    className={`flex items-start text-left p-3.5 rounded-2xl border transition-all duration-200 active:scale-[0.985] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] ${
-                      targetSystem === "INTENSIVE"
-                        ? "border-primary bg-primary/[0.03] dark:bg-primary/[0.01] ring-1 ring-primary"
-                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40"
-                    }`}
-                  >
-                    <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 ${
-                      targetSystem === "INTENSIVE" ? "border-primary bg-primary text-white" : "border-gray-300 dark:border-gray-600"
-                    }`}>
-                      {targetSystem === "INTENSIVE" && <svg viewBox="0 0 24 24" className="w-3 h-3 fill-none stroke-current stroke-[3.5]"><polyline points="20 6 9 17 4 12" /></svg>}
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100">
-                        Intensive Only (Full Mock)
-                      </p>
-                      <p className="text-[10.5px] text-gray-400 mt-0.5 leading-relaxed">
-                        Deploy exclusively into full mock exams.
-                      </p>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setTargetSystem("ADVANCED")}
-                    className={`flex items-start text-left p-3.5 rounded-2xl border transition-all duration-200 active:scale-[0.985] hover:shadow-[0_4px_16px_rgba(0,0,0,0.04)] ${
-                      targetSystem === "ADVANCED"
-                        ? "border-primary bg-primary/[0.03] dark:bg-primary/[0.01] ring-1 ring-primary"
-                        : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900/40"
-                    }`}
-                  >
-                    <div className={`w-4.5 h-4.5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 ${
-                      targetSystem === "ADVANCED" ? "border-primary bg-primary text-white" : "border-gray-300 dark:border-gray-600"
-                    }`}>
-                      {targetSystem === "ADVANCED" && <svg viewBox="0 0 24 24" className="w-3 h-3 fill-none stroke-current stroke-[3.5]"><polyline points="20 6 9 17 4 12" /></svg>}
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100">
-                        Advanced Only (Micro-Practice)
-                      </p>
-                      <p className="text-[10.5px] text-gray-400 mt-0.5 leading-relaxed">
-                        Target a single specific part (e.g. only Part 1 or writing task 1 prompt).
-                      </p>
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Source Publisher</label>
-                <select
-                  value={provSource}
-                  onChange={e => setProvSource(e.target.value)}
-                  className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                >
-                  <option value="cambridge">Cambridge IELTS</option>
-                  <option value="forecast">Forecast / Actual Test</option>
-                  <option value="other">Other / Custom</option>
-                </select>
-              </div>
-
-              {/* PDF Upload Input */}
-              <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-primary/50 rounded-2xl p-5 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-gray-800/10 transition-colors">
-                <svg viewBox="0 0 24 24" className="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
-                <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold mb-1">Drag or drop PDF file here</span>
-                <span className="text-[10px] text-gray-400 mb-3">File size should not exceed 10MB</span>
-                
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handlePdfUpload}
-                  className="hidden"
-                  id="pdf-file-picker"
-                />
-                <label
-                  htmlFor="pdf-file-picker"
-                  className="px-4 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-200 cursor-pointer shadow-sm hover:bg-gray-50 transition-colors flex items-center gap-1.5"
-                >
-                  {isUploading && <span className="w-3 h-3 border border-gray-400 border-t-transparent rounded-full animate-spin" />}
-                  Select PDF
-                </label>
-
-                {sourceRef && (
-                  <div className="mt-4 text-center">
-                    <span className="text-[10px] text-green-500 font-bold block">✓ File uploaded successfully</span>
-                    <span className="text-[9px] text-gray-400 block truncate max-w-[240px] select-all mt-1">{sourceRef}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Audioscripts PDF Upload — LISTENING only */}
-              {skill === "LISTENING" && (
-                <div className="border-2 border-dashed border-blue-200 dark:border-blue-900 hover:border-blue-400/60 rounded-2xl p-5 flex flex-col items-center justify-center bg-blue-50/30 dark:bg-blue-950/10 transition-colors">
-                  <svg viewBox="0 0 24 24" className="w-7 h-7 text-blue-400 mb-1.5" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
-                  <span className="text-xs text-blue-700 dark:text-blue-300 font-semibold mb-0.5">Audioscripts PDF</span>
-                  <span className="text-[10px] text-blue-400/80 dark:text-blue-500 mb-3">Contains transcripts &amp; answer keys for all 4 parts</span>
-
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handleAudioscriptUpload}
-                    className="hidden"
-                    id="audioscript-file-picker"
-                  />
-                  <label
-                    htmlFor="audioscript-file-picker"
-                    className="px-4 py-1.5 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 rounded-xl text-xs font-bold text-blue-700 dark:text-blue-300 cursor-pointer shadow-sm hover:bg-blue-50 transition-colors flex items-center gap-1.5"
-                  >
-                    {isUploadingAudioscript && <span className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin" />}
-                    Select Audioscripts PDF
-                  </label>
-
-                  {audioscriptRef && (
-                    <div className="mt-2 text-left w-full bg-white dark:bg-gray-900 border border-blue-100 dark:border-blue-900/60 p-2.5 rounded-xl shadow-sm">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-[10px] text-blue-600 dark:text-blue-400 font-extrabold">✓ File uploaded successfully</span>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-655 dark:text-gray-400 mb-2">Target Destinations *</label>
+                      <div className="grid grid-cols-1 gap-2.5">
                         <button
                           type="button"
-                          onClick={() => setAudioscriptRef("")}
-                          className="text-[9px] text-red-400 hover:text-red-600 font-semibold"
+                          onClick={() => setTargetSystem("BOTH")}
+                          className={`group flex items-start text-left p-3.5 rounded-2xl border transition-all duration-300 relative ${
+                            targetSystem === "BOTH"
+                              ? "border-primary bg-primary/[0.03] dark:bg-primary/[0.01] ring-1 ring-primary shadow-sm"
+                              : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-955 hover:border-gray-300 dark:hover:border-gray-700"
+                          }`}
                         >
-                          Remove
+                          <div className={`w-5 h-5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 transition-all duration-200 ${
+                            targetSystem === "BOTH" ? "border-primary bg-primary text-white scale-110" : "border-gray-300 dark:border-gray-600 group-hover:border-gray-450"
+                          }`}>
+                            {targetSystem === "BOTH" && <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-none stroke-current stroke-[3.5]"><polyline points="20 6 9 17 4 12" /></svg>}
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                              Universal Commit (Both)
+                              <span className="text-[9px] bg-emerald-500/10 text-emerald-500 font-extrabold px-1.5 py-0.5 rounded-md uppercase tracking-wider">Recommended</span>
+                            </p>
+                            <p className="text-[10.5px] text-gray-400 mt-1 leading-relaxed">
+                              Add to both <strong className="font-semibold text-gray-700 dark:text-gray-300">Intensive Mock Exams</strong> and <strong className="font-semibold text-gray-700 dark:text-gray-300">Advanced modular parts</strong> simultaneously. PDF/Audio split is 100% automated.
+                            </p>
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setTargetSystem("INTENSIVE")}
+                          className={`group flex items-start text-left p-3.5 rounded-2xl border transition-all duration-300 relative ${
+                            targetSystem === "INTENSIVE"
+                              ? "border-primary bg-primary/[0.03] dark:bg-primary/[0.01] ring-1 ring-primary shadow-sm"
+                              : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-955 hover:border-gray-300 dark:hover:border-gray-700"
+                          }`}
+                        >
+                          <div className={`w-5 h-5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 transition-all duration-200 ${
+                            targetSystem === "INTENSIVE" ? "border-primary bg-primary text-white scale-110" : "border-gray-300 dark:border-gray-600 group-hover:border-gray-455"
+                          }`}>
+                            {targetSystem === "INTENSIVE" && <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-none stroke-current stroke-[3.5]"><polyline points="20 6 9 17 4 12" /></svg>}
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100">
+                              Intensive Only (Full Mock)
+                            </p>
+                            <p className="text-[10.5px] text-gray-400 mt-1 leading-relaxed">
+                              Deploy exclusively into full mock exams.
+                            </p>
+                          </div>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setTargetSystem("ADVANCED")}
+                          className={`group flex items-start text-left p-3.5 rounded-2xl border transition-all duration-300 relative ${
+                            targetSystem === "ADVANCED"
+                              ? "border-primary bg-primary/[0.03] dark:bg-primary/[0.01] ring-1 ring-primary shadow-sm"
+                              : "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-955 hover:border-gray-300 dark:hover:border-gray-700"
+                          }`}
+                        >
+                          <div className={`w-5 h-5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 transition-all duration-200 ${
+                            targetSystem === "ADVANCED" ? "border-primary bg-primary text-white scale-110" : "border-gray-300 dark:border-gray-600 group-hover:border-gray-455"
+                          }`}>
+                            {targetSystem === "ADVANCED" && <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-none stroke-current stroke-[3.5]"><polyline points="20 6 9 17 4 12" /></svg>}
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-[12px] font-bold text-gray-900 dark:text-gray-100">
+                              Advanced Only (Micro-Practice)
+                            </p>
+                            <p className="text-[10.5px] text-gray-400 mt-1 leading-relaxed">
+                              Target a single specific part (e.g. only Part 1 or writing task 1 prompt).
+                            </p>
+                          </div>
                         </button>
                       </div>
-                      <span className="text-[9px] text-gray-400 block truncate max-w-[240px] select-all">{audioscriptRef}</span>
                     </div>
-                  )}
-                </div>
-              )}
 
-              {/* Audio Tracks for Listening Skill */}
-              {skill === "LISTENING" && (
-                <div className="border border-gray-150 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/30 rounded-2xl p-4 flex flex-col gap-3">
-                  <label className="block text-xs font-bold text-gray-600 dark:text-gray-400">
-                    Audio Tracks (Part 1-4)
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[1, 2, 3, 4].map(partNum => {
-                        const uploadedUrl = audioUrls[partNum - 1];
-                        const isUploadingPart = uploadingAudioPart === partNum;
-                        return (
-                          <div key={partNum} className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-850 p-2.5 rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-extrabold text-primary uppercase">Part {partNum}</span>
-                              {uploadedUrl ? (
-                                <span className="text-[9px] font-bold text-green-600 flex items-center gap-0.5">
-                                  <span className="w-1 h-1 rounded-full bg-green-500" />
-                                  Uploaded
-                                </span>
-                              ) : (
-                                <span className="text-[9px] font-medium text-gray-400">Pending</span>
-                              )}
-                            </div>
-                            {uploadedUrl ? (
-                              <div className="mt-1.5 flex items-center justify-between gap-1">
-                                <span className="text-[9px] text-gray-500 dark:text-gray-450 truncate max-w-[120px] select-all" title={uploadedUrl}>
-                                  {uploadedUrl.split("/").pop()}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => setAudioUrls(prev => { const next = [...prev]; next[partNum - 1] = null; return next; })}
-                                  className="text-[8px] font-bold text-red-500 hover:text-red-650 font-sans"
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="mt-2.5">
-                                <input
-                                  type="file"
-                                  accept="audio/*"
-                                  id={`audio-part-${partNum}`}
-                                  className="hidden"
-                                  disabled={isUploadingPart}
-                                  onChange={e => handleAudioUpload(e, partNum)}
-                                />
-                                <label
-                                  htmlFor={`audio-part-${partNum}`}
-                                  className="block w-full text-center py-1 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-750 border border-gray-200 dark:border-gray-700 rounded-lg text-[9px] font-bold text-gray-650 dark:text-gray-300 cursor-pointer transition-colors"
-                                >
-                                  {isUploadingPart ? "Uploading..." : "Upload Audio"}
-                                </label>
-                              </div>
-                            )}
+                    <div className="bg-gray-50/50 dark:bg-gray-850/10 border border-gray-150/60 dark:border-gray-800 p-4 rounded-2xl flex flex-col gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-600 dark:border-gray-400 mb-1.5">Source Publisher</label>
+                        <select
+                          value={provSource}
+                          onChange={e => setProvSource(e.target.value)}
+                          className="w-full text-xs px-3.5 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                        >
+                          <option value="cambridge">Cambridge IELTS</option>
+                          <option value="forecast">Forecast / Actual Test</option>
+                          <option value="other">Other / Custom</option>
+                        </select>
+                      </div>
+
+                      {provSource === "cambridge" ? (
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-[11px] font-bold text-gray-600 dark:text-gray-450 mb-1">Book Number</label>
+                            <input
+                              type="number"
+                              value={provBook}
+                              onChange={e => setProvBook(Number(e.target.value))}
+                              className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-750 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary"
+                            />
                           </div>
-                        );
-                      })}
-                  </div>
-                </div>
-              )}
-
-              {/* Provenance Fields */}
-              {provSource === "cambridge" ? (
-                <div className="flex flex-col gap-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Book Number</label>
-                      <input
-                        type="number"
-                        value={provBook}
-                        onChange={e => setProvBook(Number(e.target.value))}
-                        className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Test Number</label>
-                      <input
-                        type="number"
-                        value={provTest}
-                        onChange={e => setProvTest(Number(e.target.value))}
-                        className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                      />
+                          <div>
+                            <label className="block text-[11px] font-bold text-gray-600 dark:text-gray-455 mb-1">Test Number</label>
+                            <input
+                              type="number"
+                              value={provTest}
+                              onChange={e => setProvTest(Number(e.target.value))}
+                              className="w-full text-xs px-3 py-2 border border-gray-200 dark:border-gray-750 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary"
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <label className="block text-[11px] font-bold text-gray-600 dark:text-gray-455 mb-1">Source Title / Reference</label>
+                          <input
+                            type="text"
+                            value={provTitle}
+                            onChange={e => setProvTitle(e.target.value)}
+                            placeholder="e.g. Cambridge 18 Reading Test 1"
+                            className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Source Title / Reference</label>
-                    <input
-                      type="text"
-                      value={provTitle}
-                      onChange={e => setProvTitle(e.target.value)}
-                      placeholder="e.g. Cambridge 18 Reading Test 1"
-                      className="w-full text-xs px-3 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none"
-                    />
-                  </div>
-                </div>
-              )}
 
-              <div className="flex gap-3 pt-3 border-t border-gray-100 dark:border-gray-800 mt-2 justify-end">
+                  {/* Right Column: PDF Upload & Media Inputs */}
+                  <div className="flex flex-col gap-5">
+                    {/* PDF Upload Input */}
+                    <div className="flex flex-col gap-1.5">
+                      <label className="block text-xs font-bold text-gray-600 dark:text-gray-400">PDF Booklet Document *</label>
+                      <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-primary/50 rounded-2xl p-5 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-gray-800/10 transition-all duration-200 group relative">
+                        <div className="absolute top-0 right-0 w-12 h-12 bg-primary/5 rounded-bl-full pointer-events-none group-hover:scale-110 transition-transform" />
+                        <svg viewBox="0 0 24 24" className="w-8 h-8 text-gray-400 group-hover:text-primary/70 mb-2 transition-colors duration-200" fill="none" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                        <span className="text-xs text-gray-655 text-gray-600 dark:text-gray-400 font-bold mb-1">Drag or drop PDF file here</span>
+                        <span className="text-[10px] text-gray-400 mb-3">PDF Format (max 10MB)</span>
+                        
+                        <input
+                          type="file"
+                          accept="application/pdf"
+                          onChange={handlePdfUpload}
+                          className="hidden"
+                          id="pdf-file-picker"
+                        />
+                        <label
+                          htmlFor="pdf-file-picker"
+                          className="px-4 py-1.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-200 cursor-pointer shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95 flex items-center gap-1.5"
+                        >
+                          {isUploading && <span className="w-3 h-3 border border-gray-455 border-t-transparent rounded-full animate-spin" />}
+                          Select PDF
+                        </label>
+
+                        {sourceRef && (
+                          <div className="mt-4 w-full bg-green-500/10 dark:bg-green-950/20 border border-green-500/20 px-3 py-2 rounded-xl flex items-center gap-2">
+                            <span className="text-emerald-500 bg-emerald-100 dark:bg-emerald-950/50 p-0.5 rounded-full shrink-0">
+                              <svg viewBox="0 0 20 20" className="w-3 h-3 fill-current"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                            </span>
+                            <div className="overflow-hidden">
+                              <span className="text-[10px] text-green-700 dark:text-green-400 font-bold block leading-none">PDF uploaded successfully</span>
+                              <span className="text-[9px] text-gray-455 block truncate max-w-[280px] select-all mt-1">{sourceRef}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Audioscripts PDF Upload — LISTENING only */}
+                    {skill === "LISTENING" && (
+                      <div className="border border-blue-100 dark:border-blue-900 bg-blue-50/20 dark:bg-blue-955/5 rounded-2xl p-4 flex flex-col gap-3 animate-fade-in">
+                        <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                          <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                          <span className="text-xs font-bold">Audioscripts PDF</span>
+                        </div>
+                        <p className="text-[10.5px] text-blue-600/80 dark:text-blue-500 leading-relaxed -mt-1.5">
+                          Contains tape transcripts &amp; answer keys for all 4 parts.
+                        </p>
+
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="file"
+                            accept="application/pdf"
+                            onChange={handleAudioscriptUpload}
+                            className="hidden"
+                            id="audioscript-file-picker"
+                          />
+                          <label
+                            htmlFor="audioscript-file-picker"
+                            className="px-4 py-1.5 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 rounded-xl text-xs font-bold text-blue-700 dark:text-blue-300 cursor-pointer shadow-sm hover:bg-blue-50 dark:hover:bg-gray-755 transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
+                          >
+                            {isUploadingAudioscript && <span className="w-3 h-3 border border-blue-400 border-t-transparent rounded-full animate-spin" />}
+                            Upload Audioscripts
+                          </label>
+
+                          {audioscriptRef && (
+                            <div className="flex-1 min-w-0 bg-white dark:bg-gray-900 border border-blue-100 dark:border-blue-900/60 px-3 py-1.5 rounded-xl shadow-sm flex items-center justify-between gap-2">
+                              <span className="text-[9.5px] text-gray-500 dark:text-gray-400 truncate select-all">{audioscriptRef.split("/").pop()}</span>
+                              <button
+                                type="button"
+                                onClick={() => setAudioscriptRef("")}
+                                className="text-[9px] text-red-500 hover:text-red-655 font-bold shrink-0"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Audio Tracks for Listening Skill */}
+                    {skill === "LISTENING" && (
+                      <div className="border border-gray-150 dark:border-gray-800 bg-gray-50/30 dark:bg-gray-900/30 rounded-2xl p-4 flex flex-col gap-3 animate-fade-in">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-xs font-bold text-gray-655 dark:text-gray-400">
+                            Audio Tracks (Part 1-4) *
+                          </label>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            audioUrls.filter(Boolean).length === 4
+                              ? "bg-green-500/10 text-green-500"
+                              : "bg-amber-500/10 text-amber-500 animate-pulse"
+                          }`}>
+                            {audioUrls.filter(Boolean).length}/4 Uploaded
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {[1, 2, 3, 4].map(partNum => {
+                            const uploadedUrl = audioUrls[partNum - 1];
+                            const isUploadingPart = uploadingAudioPart === partNum;
+                            return (
+                              <div key={partNum} className="bg-white dark:bg-gray-900 border border-gray-150/70 dark:border-gray-800 p-2.5 rounded-xl flex flex-col justify-between shadow-sm relative overflow-hidden">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[10px] font-extrabold text-primary uppercase">Part {partNum}</span>
+                                  {uploadedUrl ? (
+                                    <span className="text-[9px] font-bold text-green-600 flex items-center gap-0.5">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                                      Active
+                                    </span>
+                                  ) : (
+                                    <span className="text-[9px] font-medium text-gray-400">Pending</span>
+                                  )}
+                                </div>
+                                {uploadedUrl ? (
+                                  <div className="mt-2 flex items-center justify-between gap-1">
+                                    <span className="text-[9px] text-gray-400 truncate max-w-[90px] select-all" title={uploadedUrl}>
+                                      {uploadedUrl.split("/").pop()}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => setAudioUrls(prev => { const next = [...prev]; next[partNum - 1] = null; return next; })}
+                                      className="text-[8px] font-bold text-red-500 hover:text-red-650"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="mt-2.5">
+                                    <input
+                                      type="file"
+                                      accept="audio/*"
+                                      id={`audio-part-${partNum}`}
+                                      className="hidden"
+                                      disabled={isUploadingPart}
+                                      onChange={e => handleAudioUpload(e, partNum)}
+                                    />
+                                    <label
+                                      htmlFor={`audio-part-${partNum}`}
+                                      className="block w-full text-center py-1 bg-gray-50 dark:bg-gray-850 hover:bg-gray-100 dark:hover:bg-gray-750 border border-gray-200 dark:border-gray-700 rounded-lg text-[9px] font-bold text-gray-655 dark:text-gray-300 cursor-pointer transition-colors"
+                                    >
+                                      {isUploadingPart ? "Uploading..." : "Upload Audio"}
+                                    </label>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Modal Footer - Fixed */}
+              <div className="flex gap-3 px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 justify-end shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowImportDrawer(false)}
-                  className="px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  className="px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition-all active:scale-[0.98]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmittingJob || isUploading || isUploadingAudioscript || uploadingAudioPart !== null}
-                  className="px-5 py-2 text-xs font-semibold text-white bg-primary rounded-xl hover:opacity-90 disabled:opacity-60 transition-opacity flex items-center gap-1.5"
+                  disabled={isSubmittingJob || isUploading || isUploadingAudioscript || uploadingAudioPart !== null || (skill === "LISTENING" && audioUrls.filter(Boolean).length < 4)}
+                  className="px-5 py-2 text-xs font-semibold text-white bg-primary rounded-xl hover:opacity-90 disabled:opacity-60 transition-all active:scale-[0.98] flex items-center gap-1.5 shadow-sm"
                 >
                   {isSubmittingJob && <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
                   Submit Import

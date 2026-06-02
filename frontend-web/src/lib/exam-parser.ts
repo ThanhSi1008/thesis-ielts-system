@@ -64,7 +64,196 @@ export type NormalizedItem = NormalizedItemBase & (
     }
 );
 
-export function extractAllItemsFromPart(part: any): NormalizedItem[] {
+function normalizeOptions(opts: any): Record<string, string> {
+  if (Array.isArray(opts)) {
+    const res: Record<string, string> = {};
+    for (const opt of opts) {
+      if (opt && typeof opt === "object") {
+        const letter = opt.letter || opt.val || "";
+        const text = opt.text || opt.label || "";
+        if (letter) {
+          res[letter] = text;
+        }
+      }
+    }
+    return res;
+  }
+  if (opts && typeof opts === "object") {
+    const res: Record<string, string> = {};
+    for (const [k, v] of Object.entries(opts)) {
+      res[k] = String(v);
+    }
+    return res;
+  }
+  return {};
+}
+
+export function extractAllItemsFromPart(rawPart: any): NormalizedItem[] {
+  if (!rawPart) return [];
+
+  const part = { ...rawPart };
+
+  if (Array.isArray(part.question_groups)) {
+    part.question_groups = part.question_groups.map((g: any) => {
+      if (!g) return g;
+      const normalizedG = { ...g };
+
+      // 1. Map type/question_type uniformally
+      const originalType = String(g.question_type || g.type || "").toLowerCase().replace(/[\s/]/g, "_");
+      normalizedG.type = originalType;
+      normalizedG.instructions = g.instructions || g.instruction || "";
+
+      let qType = String(g.question_type || g.type || "");
+      const lowerType = qType.toLowerCase().trim();
+      if (lowerType.includes("multiple") || lowerType.includes("choice")) {
+        qType = "Multiple Choice";
+      } else if (
+        lowerType.includes("note") || 
+        lowerType.includes("form") || 
+        lowerType.includes("sentence") || 
+        lowerType.includes("table") || 
+        lowerType.includes("flowchart") || 
+        lowerType.includes("flow_chart")
+      ) {
+        qType = "Note Completion";
+      } else if (lowerType.includes("summary")) {
+        qType = "Summary Completion";
+      } else if (lowerType.includes("true") || lowerType.includes("false")) {
+        qType = "True/False/Not Given";
+      } else if (lowerType.includes("yes") || lowerType === "no" || lowerType.includes("yes/no") || lowerType.includes("yes_no") || lowerType.includes("yes no")) {
+        qType = "Yes/No/Not Given";
+      } else if (lowerType.includes("matching")) {
+        qType = "Matching";
+      }
+      normalizedG.question_type = qType;
+
+      // 2. Map questions/items uniformally
+      if (Array.isArray(g.questions) && !g.items) {
+        normalizedG.items = g.questions;
+      } else if (Array.isArray(g.items) && !g.questions) {
+        normalizedG.questions = g.items;
+      }
+
+      // Auto-wrap single mc_multi question group without items to items array
+      if (originalType.includes("multiple_choice_multiple") && Array.isArray(g.question_numbers) && !normalizedG.items) {
+        normalizedG.items = [
+          {
+            question_numbers: g.question_numbers,
+            question_text: g.text || g.question_text || "",
+            options: Array.isArray(g.options) ? normalizeOptions(g.options) : g.options
+          }
+        ];
+      }
+
+      if (Array.isArray(normalizedG.items)) {
+        normalizedG.items = normalizedG.items.map((it: any) => {
+          if (!it) return it;
+          const normalizedIt = { ...it };
+          if (typeof it.id === "number" && typeof it.question_number !== "number") {
+            normalizedIt.question_number = it.id;
+          }
+          if (typeof it.text === "string" && typeof it.question_text !== "string") {
+            normalizedIt.question_text = it.text;
+          }
+          if (Array.isArray(it.options)) {
+            normalizedIt.options = normalizeOptions(it.options);
+          }
+          return normalizedIt;
+        });
+      }
+
+      // 3. Normalize options arrays to Record objects
+      if (Array.isArray(g.options)) {
+        normalizedG.options = normalizeOptions(g.options);
+      }
+      if (g.options_box && Array.isArray(g.options_box.options)) {
+        normalizedG.options_box = {
+          ...g.options_box,
+          options: normalizeOptions(g.options_box.options)
+        };
+      }
+
+      // 4. Map legacy note_completion / form_completion with 'notes' or 'points' to new 'content' format
+      if ((originalType.includes("note") || originalType.includes("form") || originalType.includes("sentence")) && !g.content) {
+        if (Array.isArray(g.notes)) {
+          normalizedG.content = g.notes.map((n: any) => {
+            const block: any = {
+              heading: n.subheading || "",
+              points: []
+            };
+            if (Array.isArray(n.points)) {
+              for (const pt of n.points) {
+                if (typeof pt === "string") {
+                  const match = pt.match(/\{\{(\d+)\}\}/);
+                  if (match) {
+                    const qn = parseInt(match[1]);
+                    const text = pt.replace(/\{\{(\d+)\}\}/g, "______");
+                    block.points.push({
+                      question_number: qn,
+                      text: text
+                    });
+                  } else {
+                    block.points.push({
+                      text: pt
+                    });
+                  }
+                } else if (pt && typeof pt === "object") {
+                  const ptQn = pt.question_number ?? pt.id;
+                  if (typeof ptQn === "number") {
+                    block.points.push({
+                      question_number: ptQn,
+                      text: pt.text || pt.question_text || "",
+                      timestamp_seconds: pt.timestamp_seconds || pt.timestamp
+                    });
+                  } else {
+                    block.points.push(pt);
+                  }
+                }
+              }
+            }
+            return block;
+          });
+        } else if (Array.isArray(g.points)) {
+          normalizedG.content = [
+            {
+              heading: g.heading || "",
+              points: g.points.map((pt: any) => {
+                if (pt && typeof pt === "object") {
+                  const ptQn = pt.question_number ?? pt.id;
+                  if (typeof ptQn === "number") {
+                    return {
+                      question_number: ptQn,
+                      text: pt.text || pt.question_text || "",
+                      timestamp_seconds: pt.timestamp_seconds || pt.timestamp
+                    };
+                  }
+                }
+                return pt;
+              })
+            }
+          ];
+        }
+      }
+
+      // 5. Map legacy summary_completion with 'summary' to 'content' format
+      if (originalType.includes("summary") && typeof g.summary === "string" && !g.content) {
+        const matches = [...g.summary.matchAll(/\{\{(\d+)\}\}/g)];
+        const qns = matches.map((m: any) => parseInt(m[1]));
+        const text = g.summary.replace(/\{\{(\d+)\}\}/g, "$1 [blank]");
+        
+        normalizedG.content = [
+          {
+            heading: g.topic || g.heading || "",
+            text: text,
+            points: qns.map((q: number) => ({ question_number: q }))
+          }
+        ];
+      }
+
+      return normalizedG;
+    });
+  }
+
   const items: NormalizedItem[] = [];
 
   const parseContentList = (contentArr: any[]) => {
@@ -162,203 +351,215 @@ export function extractAllItemsFromPart(part: any): NormalizedItem[] {
   if (Array.isArray(part?.question_groups)) {
     for (const g of part.question_groups) {
       let groupStartIdx = items.length;
-      if (Array.isArray(g?.content)) parseContentList(g.content);
-      if (g?.table) parseTable(g.table);
-
-      const qt = String(g?.question_type || "").toLowerCase();
-      if (qt.includes("multiple choice") && Array.isArray(g?.items)) {
-        let isFirst = true;
-        const groupQns = g.items.map((i: any) => i.question_number || (Array.isArray(i.question_numbers) ? i.question_numbers[0] : null)).flat().filter(Boolean);
-
-        for (const it of g.items) {
-          if (typeof it?.question_number === "number") {
-            items.push({ 
-              kind: "mc_single", 
-              qn: it.question_number, 
-              prompt: it.question_text || it.question || "", 
-              options: it.options || {}, 
-              instructions: isFirst ? (g.instructions || "") : undefined,
-              qns: isFirst ? groupQns : undefined,
-              timestamp: it.timestamp_seconds 
-            });
-            isFirst = false;
-          } else if (Array.isArray(it?.question_numbers)) {
-            items.push({ 
-              kind: "mc_multi", 
-              qns: it.question_numbers, 
-              prompt: it.question_text || it.question || "", 
-              options: it.options || {}, 
-              instructions: isFirst ? (g.instructions || "") : undefined,
-              maxSelect: 2 
-            });
-            isFirst = false;
-          }
-        }
-      } else if ((qt.includes("true/false/not given") || qt.includes("yes/no/not given")) && Array.isArray(g?.items)) {
-        const isYesNo = qt.includes("yes/no");
-        const tfOptions = (isYesNo 
-           ? { "YES": "YES", "NO": "NO", "NOT GIVEN": "NOT GIVEN" }
-           : { "TRUE": "TRUE", "FALSE": "FALSE", "NOT GIVEN": "NOT GIVEN" }) as Record<string, string>;
-
-        let isFirst = true;
-        const groupQns = g.items.map((i: any) => i.question_number).filter((n: any) => typeof n === "number");
-
-        for (const it of g.items) {
-          if (typeof it?.question_number === "number") {
-            items.push({ 
-              kind: "mc_single", 
-              qn: it.question_number, 
-              prompt: it.question_text || it.question || "", 
-              options: tfOptions, 
-              isTrueFalse: true,
-              instructions: isFirst ? (g.instructions || "") : undefined,
-              qns: isFirst ? groupQns : undefined,
-              timestamp: it.timestamp_seconds 
-            });
-            isFirst = false;
-          }
-        }
-      } else if (qt.includes("matching") && Array.isArray(g?.items)) {
-        const options: Record<string, string> = g?.options_box?.options || {};
-
-        // Auto-generate options grids if they are missing
-        if (Object.keys(options).length === 0) {
-          const instr = g?.instructions || "";
-          const match = instr.match(/([A-Z])\s*[-–]\s*([A-Z])/i);
-          if (match) {
-            const startChar = match[1].toUpperCase().charCodeAt(0);
-            const endChar = match[2].toUpperCase().charCodeAt(0);
-            if (startChar < endChar && endChar - startChar < 26) {
-              for (let c = startChar; c <= endChar; c++) {
-                options[String.fromCharCode(c)] = "";
-              }
-            }
-          }
-          // Fallback for data committed before options_box was set:
-          // use shared options from first item if present
-          if (Object.keys(options).length === 0 && g.items.length > 0) {
-            const firstItemOpts = (g.items[0] as any)?.options;
-            if (firstItemOpts && typeof firstItemOpts === "object" && !Array.isArray(firstItemOpts)) {
-              Object.assign(options, firstItemOpts);
-            }
-          }
-        }
-        const qns: number[] = [];
-        const prompts: string[] = [];
-        let firstTimestamp: number | undefined = undefined;
-        
-        for (const it of g.items) {
-          if (typeof it?.question_number === "number") {
-             qns.push(it.question_number);
-             prompts.push(it.question_text || it.question || "");
-             if (firstTimestamp === undefined && typeof it.timestamp_seconds === "number") {
-               firstTimestamp = it.timestamp_seconds;
-             }
-          }
-        }
-        if (qns.length > 0) items.push({ kind: "matching_group", qns, prompts, options, heading: g?.heading || "", instructions: g?.instructions || "", timestamp: firstTimestamp });
-      } else if (qt.includes("summary") && Array.isArray(g?.items)) {
-        const qns: number[] = [];
-        const texts: string[] = [];
-        for (const it of g.items) {
-          if (typeof it?.question_number === "number") {
-            const qNum = it.question_number;
-            qns.push(qNum);
-            let txt = it.question_text || it.prompt || it.question || "";
-            let replaced = false;
-
-            const leadingMatch = txt.match(/^(\s*\.{3,}\s*)/);
-            const leading = leadingMatch ? leadingMatch[1] : "";
-            
-            const trailingMatch = txt.match(/(\s*\.{3,}\s*)$/);
-            const trailing = trailingMatch && (!leadingMatch || txt.length > leadingMatch[1].length)
-              ? trailingMatch[1]
-              : "";
-              
-            let middle = txt;
-            if (leading) middle = middle.substring(leading.length);
-            if (trailing) middle = middle.substring(0, middle.length - trailing.length);
-            
-            const blankMatch = middle.match(/_+|\.{3,}|\[blank\]/i);
-            if (blankMatch) {
-              const idx = blankMatch.index!;
-              middle = middle.substring(0, idx) + ` ${qNum} [blank] ` + middle.substring(idx + blankMatch[0].length);
-              replaced = true;
-            }
-            
-            txt = leading + middle + trailing;
-            if (!replaced) {
-              txt = txt.trim() + ` ${qNum} [blank]`;
-            }
-            texts.push(txt);
-          }
-        }
-        if (qns.length > 0) {
-          let mergedText = "";
-          for (let idx = 0; idx < texts.length; idx++) {
-            let current = texts[idx].trim();
-            if (idx === 0) {
-              mergedText = current;
-            } else {
-              if (mergedText.endsWith("...")) {
-                mergedText = mergedText.slice(0, -3).trim();
-              }
-              if (current.startsWith("...")) {
-                current = current.substring(3).trim();
-              }
-              mergedText = mergedText + " " + current;
-            }
-          }
-          mergedText = mergedText
-            .replace(/\s+/g, " ")
-            .replace(/\b(or|and)\s+\1\b/gi, "$1")
-            .trim();
-            
-          items.push({
-            kind: "summary_completion",
-            qns,
-            text: mergedText,
-            heading: g?.heading || "",
-            instructions: g?.instructions || "",
-            options: g?.options_box?.options
-          });
-        }
-      } else if (
-        (qt.includes("map") || qt.includes("plan") || qt.includes("diagram") || qt.includes("label")) &&
-        Array.isArray(g?.items)
-      ) {
-        // Map / plan / diagram labelling: ONE image for the whole group (promoted to
-        // group.image_url from the admin upload at commit time), shown once, followed
-        // by a labelled input per question. Only the first item carries the image +
-        // group header so neither repeats down the list.
-        const groupImage = g?.image_url || g?.imageUrl || g?.ln || "";
-        const groupQns: number[] = g.items
-          .map((i: any) => i.question_number)
-          .filter((n: any) => typeof n === "number");
-        let isFirst = true;
-        for (const it of g.items) {
-          if (typeof it?.question_number === "number") {
-            items.push({
-              kind: "plan_label",
-              qn: it.question_number,
-              prompt: it.question_text || it.question || it.prompt || "",
-              imageUrl: isFirst ? groupImage : undefined,
-              qns: isFirst ? groupQns : undefined,
-              instructions: isFirst ? (g.instructions || "") : undefined,
-              heading: isFirst ? (g.heading || "") : undefined,
-              timestamp: it.timestamp_seconds,
-            });
-            isFirst = false;
-          }
-        }
-      } else if (Array.isArray(g?.items)) {
-        for (const it of g.items) {
-          if (typeof it?.question_number === "number") {
-            items.push({ kind: "short_answer", qn: it.question_number, text: it.question_text || it.prompt || it.question || "", timestamp: it.timestamp_seconds });
-          }
-        }
+      let parsedByContent = false;
+      if (Array.isArray(g?.content)) {
+        parseContentList(g.content);
+        parsedByContent = true;
       }
-      
+      if (g?.table) {
+        parseTable(g.table);
+        parsedByContent = true;
+      }
+
+      if (!parsedByContent) {
+        const qt = String(g?.question_type || "").toLowerCase();
+        if (qt.includes("multiple choice") && Array.isArray(g?.items)) {
+          let isFirst = true;
+          const groupQns = g.items.map((i: any) => i.question_number || (Array.isArray(i.question_numbers) ? i.question_numbers[0] : null)).flat().filter(Boolean);
+
+          for (const it of g.items) {
+            if (typeof it?.question_number === "number") {
+              items.push({ 
+                kind: "mc_single", 
+                qn: it.question_number, 
+                prompt: it.question_text || it.question || "", 
+                options: it.options || {}, 
+                instructions: isFirst ? (g.instructions || "") : undefined,
+                qns: isFirst ? groupQns : undefined,
+                timestamp: it.timestamp_seconds 
+              });
+              isFirst = false;
+            } else if (Array.isArray(it?.question_numbers)) {
+              items.push({ 
+                kind: "mc_multi", 
+                qns: it.question_numbers, 
+                prompt: it.question_text || it.question || "", 
+                options: it.options || {}, 
+                instructions: isFirst ? (g.instructions || "") : undefined,
+                maxSelect: 2 
+              });
+              isFirst = false;
+            }
+          }
+        } else if ((qt.includes("true/false/not given") || qt.includes("yes/no/not given")) && Array.isArray(g?.items)) {
+          const isYesNo = qt.includes("yes/no");
+          const tfOptions = (isYesNo 
+             ? { "YES": "YES", "NO": "NO", "NOT GIVEN": "NOT GIVEN" }
+             : { "TRUE": "TRUE", "FALSE": "FALSE", "NOT GIVEN": "NOT GIVEN" }) as Record<string, string>;
+
+          let isFirst = true;
+          const groupQns = g.items.map((i: any) => i.question_number).filter((n: any) => typeof n === "number");
+
+          for (const it of g.items) {
+            if (typeof it?.question_number === "number") {
+              items.push({ 
+                kind: "mc_single", 
+                qn: it.question_number, 
+                prompt: it.question_text || it.question || "", 
+                options: tfOptions, 
+                isTrueFalse: true,
+                instructions: isFirst ? (g.instructions || "") : undefined,
+                qns: isFirst ? groupQns : undefined,
+                timestamp: it.timestamp_seconds 
+              });
+              isFirst = false;
+            }
+          }
+        } else if (qt.includes("matching") && Array.isArray(g?.items)) {
+          let options: Record<string, string> = g?.options_box?.options || {};
+
+          if (Object.keys(options).length === 0 && g.options && typeof g.options === "object" && !Array.isArray(g.options)) {
+            options = g.options;
+          }
+
+          // Auto-generate options grids if they are missing
+          if (Object.keys(options).length === 0) {
+            const instr = g?.instructions || "";
+            const match = instr.match(/([A-Z])\s*[-–]\s*([A-Z])/i);
+            if (match) {
+              const startChar = match[1].toUpperCase().charCodeAt(0);
+              const endChar = match[2].toUpperCase().charCodeAt(0);
+              if (startChar < endChar && endChar - startChar < 26) {
+                for (let c = startChar; c <= endChar; c++) {
+                  options[String.fromCharCode(c)] = "";
+                }
+              }
+            }
+            // Fallback for data committed before options_box was set:
+            // use shared options from first item if present
+            if (Object.keys(options).length === 0 && g.items.length > 0) {
+              const firstItemOpts = (g.items[0] as any)?.options;
+              if (firstItemOpts && typeof firstItemOpts === "object" && !Array.isArray(firstItemOpts)) {
+                Object.assign(options, firstItemOpts);
+              }
+            }
+          }
+          const qns: number[] = [];
+          const prompts: string[] = [];
+          let firstTimestamp: number | undefined = undefined;
+          
+          for (const it of g.items) {
+            if (typeof it?.question_number === "number") {
+               qns.push(it.question_number);
+               prompts.push(it.question_text || it.question || "");
+               if (firstTimestamp === undefined && typeof it.timestamp_seconds === "number") {
+                 firstTimestamp = it.timestamp_seconds;
+               }
+            }
+          }
+          if (qns.length > 0) items.push({ kind: "matching_group", qns, prompts, options, heading: g?.heading || "", instructions: g?.instructions || "", timestamp: firstTimestamp });
+        } else if (qt.includes("summary") && Array.isArray(g?.items)) {
+          const qns: number[] = [];
+          const texts: string[] = [];
+          for (const it of g.items) {
+            if (typeof it?.question_number === "number") {
+              const qNum = it.question_number;
+              qns.push(qNum);
+              let txt = it.question_text || it.prompt || it.question || "";
+              let replaced = false;
+
+              const leadingMatch = txt.match(/^(\s*\.{3,}\s*)/);
+              const leading = leadingMatch ? leadingMatch[1] : "";
+              
+              const trailingMatch = txt.match(/(\s*\.{3,}\s*)$/);
+              const trailing = trailingMatch && (!leadingMatch || txt.length > leadingMatch[1].length)
+                ? trailingMatch[1]
+                : "";
+                
+              let middle = txt;
+              if (leading) middle = middle.substring(leading.length);
+              if (trailing) middle = middle.substring(0, middle.length - trailing.length);
+              
+              const blankMatch = middle.match(/_+|\.{3,}|\[blank\]|\|G\|/i);
+              if (blankMatch) {
+                const idx = blankMatch.index!;
+                middle = middle.substring(0, idx) + ` ${qNum} [blank] ` + middle.substring(idx + blankMatch[0].length);
+                replaced = true;
+              }
+              
+              txt = leading + middle + trailing;
+              if (!replaced) {
+                txt = txt.trim() + ` ${qNum} [blank]`;
+              }
+              texts.push(txt);
+            }
+          }
+          if (qns.length > 0) {
+            let mergedText = "";
+            for (let idx = 0; idx < texts.length; idx++) {
+              let current = texts[idx].trim();
+              if (idx === 0) {
+                mergedText = current;
+              } else {
+                if (mergedText.endsWith("...")) {
+                  mergedText = mergedText.slice(0, -3).trim();
+                }
+                if (current.startsWith("...")) {
+                  current = current.substring(3).trim();
+                }
+                mergedText = mergedText + " " + current;
+              }
+            }
+            mergedText = mergedText
+              .replace(/\s+/g, " ")
+              .replace(/\b(or|and)\s+\1\b/gi, "$1")
+              .trim();
+              
+            items.push({
+              kind: "summary_completion",
+              qns,
+              text: mergedText,
+              heading: g?.heading || "",
+              instructions: g?.instructions || "",
+              options: g?.options_box?.options
+            });
+          }
+        } else if (
+          (qt.includes("map") || qt.includes("plan") || qt.includes("diagram") || qt.includes("label")) &&
+          Array.isArray(g?.items)
+        ) {
+          // Map / plan / diagram labelling: ONE image for the whole group (promoted to
+          // group.image_url from the admin upload at commit time), shown once, followed
+          // by a labelled input per question. Only the first item carries the image +
+          // group header so neither repeats down the list.
+          const groupImage = g?.image_url || g?.imageUrl || g?.ln || "";
+          const groupQns: number[] = g.items
+            .map((i: any) => i.question_number)
+            .filter((n: any) => typeof n === "number");
+          let isFirst = true;
+          for (const it of g.items) {
+            if (typeof it?.question_number === "number") {
+              items.push({
+                kind: "plan_label",
+                qn: it.question_number,
+                prompt: it.question_text || it.question || it.prompt || "",
+                imageUrl: isFirst ? groupImage : undefined,
+                qns: isFirst ? groupQns : undefined,
+                instructions: isFirst ? (g.instructions || "") : undefined,
+                heading: isFirst ? (g.heading || "") : undefined,
+                timestamp: it.timestamp_seconds,
+              });
+              isFirst = false;
+            }
+          }
+        } else if (Array.isArray(g?.items)) {
+          for (const it of g.items) {
+            if (typeof it?.question_number === "number") {
+              items.push({ kind: "short_answer", qn: it.question_number, text: it.question_text || it.prompt || it.question || "", timestamp: it.timestamp_seconds });
+            }
+          }
+        }
+      }    
       // Merge consecutive summary_completion items in this group
       let firstSummaryIdx = -1;
       for (let i = groupStartIdx; i < items.length; i++) {

@@ -100,7 +100,7 @@ class ExtractionService:
         elif skill_upper == "SPEAKING":
             # INTENSIVE mock exams need the full 3-part exam in one extraction;
             # the ADVANCED bank stores one part per job (legacy SpeakingPartSchema).
-            if target_upper == "INTENSIVE":
+            if target_upper in ("INTENSIVE", "BOTH"):
                 return IntensiveSpeakingExamSchema, INTENSIVE_SPEAKING_EXTRACTION_PROMPT
             return SpeakingPartSchema, SPEAKING_EXTRACTION_PROMPT
         else:
@@ -187,7 +187,7 @@ class ExtractionService:
                     
             # For Speaking, validation depends on the target system.
             elif skill_upper == "SPEAKING":
-                if target_upper == "INTENSIVE":
+                if target_upper in ("INTENSIVE", "BOTH"):
                     # INTENSIVE: full 3-part exam. Validate structure BEFORE TTS so we
                     # never synthesise audio for a malformed extraction.
                     parts = result.get("parts", [])
