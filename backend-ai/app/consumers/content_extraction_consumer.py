@@ -126,7 +126,7 @@ class ContentExtractionConsumer(threading.Thread):
         # Step 3 (INTENSIVE SPEAKING only): synthesise examiner audio with edge-tts,
         # upload each clip to Cloudinary, and assemble the final speaking contract
         # (type + examiner + video/video2 URLs). Other skills/systems skip this.
-        if skill.upper() == "SPEAKING" and (target_system or "").upper() == "INTENSIVE":
+        if skill.upper() == "SPEAKING" and (target_system or "").upper() in ("INTENSIVE", "BOTH"):
             from app.services.speaking_tts_service import get_speaking_tts_service
             logger.info(f"🎧 [Stage 3] Generating examiner TTS audio for intensive speaking job {job_id}...")
             speaking_tts = get_speaking_tts_service()
