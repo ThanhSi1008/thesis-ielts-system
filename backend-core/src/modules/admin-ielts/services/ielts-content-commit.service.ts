@@ -308,6 +308,24 @@ export class IeltsContentCommitService {
       );
     }
 
+    if (job.groupId && !_fromGroup) {
+      const siblingJobs = await this.prisma.contentImportJob.findMany({
+        where: { groupId: job.groupId },
+      });
+      const activeStates: ContentImportStatus[] = [
+        ContentImportStatus.PENDING,
+        ContentImportStatus.SCRAPING,
+        ContentImportStatus.EXTRACTING,
+        ContentImportStatus.FAILED,
+      ];
+      const hasFailedOrActive = siblingJobs.some((j) => activeStates.includes(j.status));
+      if (hasFailedOrActive) {
+        throw new ConflictException(
+          "Cannot commit individual job. Some parts of this exam group are still in progress or failed."
+        );
+      }
+    }
+
     const structuredJson = job.structuredJson as any;
     if (!structuredJson) {
       throw new UnprocessableEntityException(
@@ -400,7 +418,8 @@ export class IeltsContentCommitService {
             title,
             source,
             bookNumber,
-            testNumber
+            testNumber,
+            overwrite
           );
         }
       } else {
@@ -412,7 +431,8 @@ export class IeltsContentCommitService {
           title,
           source,
           bookNumber,
-          testNumber
+          testNumber,
+          overwrite
         );
         liveId = job.id;
       }
@@ -801,9 +821,13 @@ export class IeltsContentCommitService {
                 : [lastItem.answer, answerVal];
             } else {
               const multiItem: any = {
-                question_numbers: [q.question_number],
+                question_numbers: Array.isArray(q.question_numbers) ? q.question_numbers : [q.question_number],
                 question_text: q.question_text || q.text || "",
-                answer: [answerVal],
+                answer: Array.isArray(q.correct_answers)
+                  ? q.correct_answers
+                  : Array.isArray(q.answer)
+                  ? q.answer
+                  : [answerVal],
                 explanation: q.explanation || null,
               };
               if (formattedOptions) multiItem.options = formattedOptions;
@@ -1020,9 +1044,13 @@ export class IeltsContentCommitService {
             : [lastItem.answer, answerVal];
         } else {
           const multiItem: any = {
-            question_numbers: [q.question_number],
+            question_numbers: Array.isArray(q.question_numbers) ? q.question_numbers : [q.question_number],
             question_text: q.question_text || q.text || "",
-            answer: [answerVal],
+            answer: Array.isArray(q.correct_answers)
+              ? q.correct_answers
+              : Array.isArray(q.answer)
+              ? q.answer
+              : [answerVal],
             explanation: q.explanation || null,
           };
           if (formattedOptions) multiItem.options = formattedOptions;
@@ -1082,7 +1110,8 @@ export class IeltsContentCommitService {
     title: string,
     source: string,
     bookNumber: number | null,
-    testNumber: number | null
+    testNumber: number | null,
+    overwrite = false
   ): Promise<void> {
     if (job.skill === ContentImportSkill.LISTENING) {
       const partsObj = this.transformToPartsFormat(structuredJson, job.skill, title, job.audioUrls);
@@ -1157,7 +1186,11 @@ export class IeltsContentCommitService {
         }
       }
     } else if (job.skill === ContentImportSkill.WRITING) {
-      const rawTasks = Array.isArray(structuredJson.tasks) ? structuredJson.tasks : [];
+      const rawTasks = Array.isArray(structuredJson.tasks)
+        ? structuredJson.tasks
+        : (structuredJson.prompt || structuredJson.taskType)
+        ? [structuredJson]
+        : [];
 
       for (const t of rawTasks) {
         const taskType = t.taskType === "TASK_1" ? "TASK_1" : "TASK_2";
@@ -1169,6 +1202,13 @@ export class IeltsContentCommitService {
         if (!existing) {
           existing = await tx.ieltsAdvancedWritingPrompt.findFirst({
             where: { source, bookNumber, testNumber, taskType },
+          });
+        }
+
+        if (existing && !overwrite) {
+          throw new ConflictException({
+            message: `A writing prompt with slug "${engnovateSlug}" or composite attributes already exists.`,
+            existingId: existing.id,
           });
         }
 
@@ -1203,7 +1243,11 @@ export class IeltsContentCommitService {
         }
       }
     } else if (job.skill === ContentImportSkill.SPEAKING) {
-      const parts = Array.isArray(structuredJson.parts) ? structuredJson.parts : [];
+      const parts = Array.isArray(structuredJson.parts)
+        ? structuredJson.parts
+        : (structuredJson.questions || structuredJson.topic)
+        ? [structuredJson]
+        : [];
 
       for (const p of parts) {
         const partNumber = Number(p.part_number || p.partNumber || 1);
@@ -1215,6 +1259,13 @@ export class IeltsContentCommitService {
         if (!existing) {
           existing = await tx.ieltsAdvancedSpeakingPart.findFirst({
             where: { source, bookNumber, testNumber, partNumber },
+          });
+        }
+
+        if (existing && !overwrite) {
+          throw new ConflictException({
+            message: `A speaking part with slug "${engnovateSlug}" or composite attributes already exists.`,
+            existingId: existing.id,
           });
         }
 
