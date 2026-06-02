@@ -107,14 +107,6 @@ export function extractAllItemsFromPart(rawPart: any): NormalizedItem[] {
       const lowerType = qType.toLowerCase().trim();
       if (lowerType.includes("multiple") || lowerType.includes("choice")) {
         qType = "Multiple Choice";
-      } else if (lowerType.includes("true") || lowerType.includes("false")) {
-        qType = "True/False/Not Given";
-      } else if (lowerType.includes("yes") || lowerType.includes("no")) {
-        qType = "Yes/No/Not Given";
-      } else if (lowerType.includes("matching")) {
-        qType = "Matching";
-      } else if (lowerType.includes("summary")) {
-        qType = "Summary Completion";
       } else if (
         lowerType.includes("note") || 
         lowerType.includes("form") || 
@@ -124,6 +116,14 @@ export function extractAllItemsFromPart(rawPart: any): NormalizedItem[] {
         lowerType.includes("flow_chart")
       ) {
         qType = "Note Completion";
+      } else if (lowerType.includes("summary")) {
+        qType = "Summary Completion";
+      } else if (lowerType.includes("true") || lowerType.includes("false")) {
+        qType = "True/False/Not Given";
+      } else if (lowerType.includes("yes") || lowerType === "no" || lowerType.includes("yes/no") || lowerType.includes("yes_no") || lowerType.includes("yes no")) {
+        qType = "Yes/No/Not Given";
+      } else if (lowerType.includes("matching")) {
+        qType = "Matching";
       }
       normalizedG.question_type = qType;
 
@@ -132,6 +132,17 @@ export function extractAllItemsFromPart(rawPart: any): NormalizedItem[] {
         normalizedG.items = g.questions;
       } else if (Array.isArray(g.items) && !g.questions) {
         normalizedG.questions = g.items;
+      }
+
+      // Auto-wrap single mc_multi question group without items to items array
+      if (originalType.includes("multiple_choice_multiple") && Array.isArray(g.question_numbers) && !normalizedG.items) {
+        normalizedG.items = [
+          {
+            question_numbers: g.question_numbers,
+            question_text: g.text || g.question_text || "",
+            options: Array.isArray(g.options) ? normalizeOptions(g.options) : g.options
+          }
+        ];
       }
 
       if (Array.isArray(normalizedG.items)) {
@@ -162,45 +173,66 @@ export function extractAllItemsFromPart(rawPart: any): NormalizedItem[] {
         };
       }
 
-      // 4. Map legacy note_completion / form_completion with 'notes' to new 'content' format
-      if ((originalType.includes("note") || originalType.includes("form") || originalType.includes("sentence")) && Array.isArray(g.notes) && !g.content) {
-        normalizedG.content = g.notes.map((n: any) => {
-          const block: any = {
-            heading: n.subheading || "",
-            points: []
-          };
-          if (Array.isArray(n.points)) {
-            for (const pt of n.points) {
-              if (typeof pt === "string") {
-                const match = pt.match(/\{\{(\d+)\}\}/);
-                if (match) {
-                  const qn = parseInt(match[1]);
-                  const text = pt.replace(/\{\{(\d+)\}\}/g, "______");
-                  block.points.push({
-                    question_number: qn,
-                    text: text
-                  });
-                } else {
-                  block.points.push({
-                    text: pt
-                  });
-                }
-              } else if (pt && typeof pt === "object") {
-                const ptQn = pt.question_number ?? pt.id;
-                if (typeof ptQn === "number") {
-                  block.points.push({
-                    question_number: ptQn,
-                    text: pt.text || pt.question_text || "",
-                    timestamp_seconds: pt.timestamp_seconds || pt.timestamp
-                  });
-                } else {
-                  block.points.push(pt);
+      // 4. Map legacy note_completion / form_completion with 'notes' or 'points' to new 'content' format
+      if ((originalType.includes("note") || originalType.includes("form") || originalType.includes("sentence")) && !g.content) {
+        if (Array.isArray(g.notes)) {
+          normalizedG.content = g.notes.map((n: any) => {
+            const block: any = {
+              heading: n.subheading || "",
+              points: []
+            };
+            if (Array.isArray(n.points)) {
+              for (const pt of n.points) {
+                if (typeof pt === "string") {
+                  const match = pt.match(/\{\{(\d+)\}\}/);
+                  if (match) {
+                    const qn = parseInt(match[1]);
+                    const text = pt.replace(/\{\{(\d+)\}\}/g, "______");
+                    block.points.push({
+                      question_number: qn,
+                      text: text
+                    });
+                  } else {
+                    block.points.push({
+                      text: pt
+                    });
+                  }
+                } else if (pt && typeof pt === "object") {
+                  const ptQn = pt.question_number ?? pt.id;
+                  if (typeof ptQn === "number") {
+                    block.points.push({
+                      question_number: ptQn,
+                      text: pt.text || pt.question_text || "",
+                      timestamp_seconds: pt.timestamp_seconds || pt.timestamp
+                    });
+                  } else {
+                    block.points.push(pt);
+                  }
                 }
               }
             }
-          }
-          return block;
-        });
+            return block;
+          });
+        } else if (Array.isArray(g.points)) {
+          normalizedG.content = [
+            {
+              heading: g.heading || "",
+              points: g.points.map((pt: any) => {
+                if (pt && typeof pt === "object") {
+                  const ptQn = pt.question_number ?? pt.id;
+                  if (typeof ptQn === "number") {
+                    return {
+                      question_number: ptQn,
+                      text: pt.text || pt.question_text || "",
+                      timestamp_seconds: pt.timestamp_seconds || pt.timestamp
+                    };
+                  }
+                }
+                return pt;
+              })
+            }
+          ];
+        }
       }
 
       // 5. Map legacy summary_completion with 'summary' to 'content' format
@@ -384,7 +416,11 @@ export function extractAllItemsFromPart(rawPart: any): NormalizedItem[] {
             }
           }
         } else if (qt.includes("matching") && Array.isArray(g?.items)) {
-          const options: Record<string, string> = g?.options_box?.options || {};
+          let options: Record<string, string> = g?.options_box?.options || {};
+
+          if (Object.keys(options).length === 0 && g.options && typeof g.options === "object" && !Array.isArray(g.options)) {
+            options = g.options;
+          }
 
           // Auto-generate options grids if they are missing
           if (Object.keys(options).length === 0) {
@@ -444,7 +480,7 @@ export function extractAllItemsFromPart(rawPart: any): NormalizedItem[] {
               if (leading) middle = middle.substring(leading.length);
               if (trailing) middle = middle.substring(0, middle.length - trailing.length);
               
-              const blankMatch = middle.match(/_+|\.{3,}|\[blank\]/i);
+              const blankMatch = middle.match(/_+|\.{3,}|\[blank\]|\|G\|/i);
               if (blankMatch) {
                 const idx = blankMatch.index!;
                 middle = middle.substring(0, idx) + ` ${qNum} [blank] ` + middle.substring(idx + blankMatch[0].length);

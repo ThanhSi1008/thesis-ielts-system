@@ -36,7 +36,7 @@ export function parseTextAndBlanks(text: string): string[] {
   if (trailing) middle = middle.substring(0, middle.length - trailing.length);
 
   // 4. Split by blanks
-  const parts = middle.split(/_+|\.{3,}|\[blank\]/i);
+  const parts = middle.split(/_+|\.{3,}|\[blank\]|\|G\|/i);
 
   // 5. Re-attach leading/trailing dots to the first and last parts
   if (parts.length > 0) {
