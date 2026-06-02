@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 _GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 _client = genai.Client(api_key=_GEMINI_API_KEY) if _GEMINI_API_KEY else None
 
-MODEL = "gemini-3.5-flash"
+MODEL = "gemini-3.1-pro"
 
 SYSTEM_PROMPT = """You are an expert IELTS examiner. Grade the user's speaking test responses according to the official IELTS Speaking band descriptors.
 
@@ -30,8 +30,8 @@ You will be given:
 3. Transcription confidence indicators
 
 IMPORTANT: For Pronunciation and Fluency scoring, you MUST base your assessment on the AUDIO, not just the text. Listen for:
-- Pronunciation: individual sound accuracy, word stress, intonation patterns, connected speech, L1 interference
-- Fluency: speech rate, hesitations, false starts, self-corrections, pausing patterns
+- Pronunciation: individual sound accuracy (based on IPA phonemes: plosives /p, b, t, d, k, ɡ/, fricatives /f, v, θ, ð, s, z, ʃ, ʒ, h/, nasals /m, n, ŋ/, affricates /tʃ, dʒ/, vowels and diphthongs), word stress, intonation patterns, connected speech, and L1 interference (mother-tongue accent influence).
+- Fluency: speech rate, hesitations, false starts, self-corrections, pausing patterns.
 
 The text transcription is provided as a convenience for assessing Lexical Resource and Grammatical Range, but always cross-reference with what you hear.
 
@@ -40,12 +40,13 @@ For EACH of the four criteria (Fluency and Coherence, Lexical Resource, Grammati
 - strengths: list of 1-3 specific positive observations
 - weak_areas: list of 1-3 specific problems identified
 - how_to_improve: list of 1-3 actionable improvement tips
+- mistakes: list of notable errors in grammar, vocabulary, or pronunciation.
 
-Also identify specific mistakes:
-- Up to 10 notable language mistakes across the whole test.
-- Each mistake: the original phrase, a corrected version, a brief explanation, and the specific grading criterion it falls under.
+For Pronunciation feedback, align your evaluation with a multi-dimensional approach:
+- Classify the candidate's pronunciation level: "Excellent" (score 90-100% equivalent), "Good" (70-89% equivalent), "Fair" (50-69% equivalent), or "Needs Improvement" (under 50% equivalent).
+- Highlight specific mispronounced sounds, consonant deletion, vowel shortening, or flat intonation.
 
-Calculate the overall band as the mean of its 4 criteria (rounded down to the nearest 0.5 if it ends in .25 or .75, as per IELTS rules, but simply rounding to nearest 0.5 is acceptable for this system).
+Calculate the overall band as the mean of its 4 criteria (rounded to the nearest 0.5 using IELTS rounding rules: if the fraction is less than 0.25, round down to .0; if it is 0.25 or greater but less than 0.75, round to .5; if it is 0.75 or greater, round up to the next .0).
 
 Respond ONLY with valid JSON in this exact shape, no extra text:
 {
@@ -98,20 +99,21 @@ You will be given:
 3. Transcription confidence indicators
 
 IMPORTANT: For Pronunciation and Fluency scoring, you MUST base your assessment on the AUDIO, not just the text. Listen for:
-- Pronunciation: individual sound accuracy, word stress, intonation patterns, connected speech, L1 interference
-- Fluency: speech rate, hesitations, false starts, self-corrections, pausing patterns
+- Pronunciation: individual sound accuracy (based on IPA phonemes: plosives /p, b, t, d, k, ɡ/, fricatives /f, v, θ, ð, s, z, ʃ, ʒ, h/, nasals /m, n, ŋ/, affricates /tʃ, dʒ/, vowels and diphthongs), word stress, connected speech, and L1 interference (mother-tongue accent influence).
+- Fluency: speech rate, hesitations, false starts, self-corrections, pausing patterns.
 
 For EACH of the four criteria (Fluency and Coherence, Lexical Resource, Grammatical Range and Accuracy, Pronunciation), provide:
 - A band score from 1.0 to 9.0 (in 0.5 increments)
 - strengths: list of 1-3 specific positive observations
 - weak_areas: list of 1-3 specific problems identified
 - how_to_improve: list of 1-3 actionable improvement tips
+- mistakes: list of notable errors in grammar, vocabulary, or pronunciation.
 
-Also identify specific mistakes:
-- Up to 8 notable language mistakes
-- Each mistake: the original phrase, a corrected version, a brief explanation, and the criterion
+For Pronunciation feedback, align your evaluation with a multi-dimensional approach:
+- Classify the candidate's pronunciation level: "Excellent" (score 90-100% equivalent), "Good" (70-89% equivalent), "Fair" (50-69% equivalent), or "Needs Improvement" (under 50% equivalent).
+- Highlight specific mispronounced sounds, consonant deletion, vowel shortening, or flat intonation.
 
-Calculate the overall band as the mean of the 4 criteria (rounded to nearest 0.5).
+Calculate the overall band as the mean of the 4 criteria (rounded to the nearest 0.5 using IELTS rounding rules: if the fraction is less than 0.25, round down to .0; if it is 0.25 or greater but less than 0.75, round to .5; if it is 0.75 or greater, round up to the next .0).
 
 Respond ONLY with valid JSON in this exact shape, no extra text:
 {
@@ -145,7 +147,18 @@ Responses should demonstrate more complex language and deeper reasoning than Par
 }
 
 def _round_to_half(value: float) -> float:
-    return round(value * 2) / 2
+    # Standard IELTS rounding rules:
+    # fraction < 0.25 -> round down to .0
+    # 0.25 <= fraction < 0.75 -> round to .5
+    # fraction >= 0.75 -> round up to next .0
+    base = int(value)
+    fraction = value - base
+    if fraction < 0.25:
+        return float(base)
+    elif fraction < 0.75:
+        return float(base) + 0.5
+    else:
+        return float(base) + 1.0
 
 def _calc_overall_band(criteria: dict) -> float:
     scores = [c.get("band", 0) for c in criteria.values() if isinstance(c, dict)]
