@@ -1,20 +1,19 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import api from "@/lib/api";
 import { ChevronLeft, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormCompletionGroup } from "../../../basic/components/listening-renders/FormCompletionGroup";
-import { MCQuestionItem } from "../../../basic/components/listening-renders/MCQuestionItem";
-import { MCMultipleQuestionItem } from "../../../basic/components/listening-renders/MCMultipleQuestionItem";
-import { MatchingCompletionGroup } from "../../../basic/components/listening-renders/MatchingGroup";
+import { AnswerField } from "@/components/AnswerField";
+import { extractAllItemsFromPart } from "@/lib/exam-parser";
 
 export default function IeltsAdvancedListeningPractice({ params }: { params: { partId: string } }) {
   const [part, setPart] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<any>({});
   const [submitted, setSubmitted] = useState(false);
+  const [locatedQuestion, setLocatedQuestion] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const router = useRouter();
 
@@ -32,30 +31,18 @@ export default function IeltsAdvancedListeningPractice({ params }: { params: { p
     });
   }, [params.partId]);
 
-  const handleAnswer = (key: string | number, currentVal: string) => {
-    if (submitted) return;
-    setAnswers(prev => ({ ...prev, [key]: currentVal }));
-  };
-
-  const handleToggleMCM = (groupIndex: number, letter: string, numCorrect: number) => {
-    if (submitted) return;
-    const key = `mcm-${groupIndex}`;
-    const rawSelected = answers[key] || "";
-    const selectedLetters = rawSelected ? rawSelected.split(",") : [];
-    
-    const upper = letter.toUpperCase();
-    let next;
-    if (selectedLetters.includes(upper)) {
-      next = selectedLetters.filter(l => l !== upper);
-    } else {
-      if (selectedLetters.length >= numCorrect) return;
-      next = [...selectedLetters, upper];
-    }
-    handleAnswer(key, next.join(","));
-  };
+  const items = useMemo(() => {
+    if (!part) return [];
+    const normalizedPart = {
+      ...part,
+      question_groups: part.question_groups || part.content,
+      content: part.question_groups ? part.content : undefined
+    };
+    return extractAllItemsFromPart(normalizedPart);
+  }, [part]);
 
   const handleLocate = (qNum: number) => {
-    // Just a placeholder, audio locating uses timestamp usually
+    // Locate transcript or audio if needed
   };
 
   const handleSubmit = async () => {
@@ -99,86 +86,26 @@ export default function IeltsAdvancedListeningPractice({ params }: { params: { p
              </div>
           </div>
 
-          <div className="p-8 pt-4">
+          <div className="p-8 pt-4 space-y-6">
              <div className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 dark:text-slate-500 mb-8 flex items-center gap-3">
                 <div className="h-px bg-gray-100 dark:bg-slate-800 flex-1" />
                 Questions
                 <div className="h-px bg-gray-100 dark:bg-slate-800 flex-1" />
              </div>
-            {part.content?.map((group: any, idx: number) => {
-               if (group.type === 'form_completion' || (!group.type && group.points)) {
-                 return (
-                   <FormCompletionGroup 
-                     key={idx}
-                     heading={group.heading}
-                     points={group.points}
-                     answers={answers}
-                     onAnswer={handleAnswer}
-                     submitted={submitted}
-                     showAnswers={submitted}
-                     audioRef={audioRef}
-                     onLocate={handleLocate}
-                   />
-                 );
-               }
-
-               if (group.type === 'multiple_choice_multiple') {
-                 const key = `mcm-${idx}`;
-                 const rawSelected = answers[key] || "";
-                 const selectedLetters = rawSelected ? rawSelected.split(",") : [];
-                 const numCorrect = group.num_correct || (group.answers?.length) || 1;
-
-                 return (
-                    <MCMultipleQuestionItem
-                      key={idx}
-                      group={group}
-                      selectedLetters={selectedLetters}
-                      onToggle={(letter) => handleToggleMCM(idx, letter, numCorrect)}
-                      submitted={submitted}
-                      showAnswers={submitted}
-                      audioRef={audioRef}
-                      onLocate={handleLocate}
-                    />
-                 );
-               }
-
-               if (group.type === 'matching') {
-                 return (
-                    <MatchingCompletionGroup
-                      key={idx}
-                      group={group}
-                      answers={answers}
-                      onAnswer={handleAnswer}
-                      submitted={submitted}
-                      showAnswers={submitted}
-                      audioRef={audioRef}
-                      onLocate={handleLocate}
-                    />
-                 );
-               }
-
-               if (group.type === 'multiple_choice') {
-                 return (
-                     <div key={idx} className="space-y-4">
-                       {group.heading && <h3 className="text-[15px] font-extrabold text-gray-900 dark:text-white mb-2">{group.heading}</h3>}
-                      {group.questions?.map((q: any) => (
-                        <MCQuestionItem
-                          key={q.question_number}
-                          q={q}
-                          selected={answers[q.question_number] || ""}
-                          onSelect={(letter) => handleAnswer(q.question_number, letter)}
-                          submitted={submitted}
-                          showAnswers={submitted}
-                          audioRef={audioRef}
-                          onLocate={handleLocate}
-                        />
-                      ))}
-                    </div>
-                 );
-               }
-
-               return <div key={idx} className="p-4 border border-dashed dark:border-slate-700 rounded-lg text-gray-500 dark:text-slate-400 italic text-sm">Unsupported question type: {group.type}</div>
-            })}
+             {items.map((it, idx) => (
+                <AnswerField
+                  key={String(idx)}
+                  item={it}
+                  variant="official"
+                  answers={answers}
+                  setAnswers={setAnswers}
+                  focusedQn={locatedQuestion}
+                  setFocusedQn={setLocatedQuestion}
+                  submitted={submitted}
+                  showAnswers={submitted}
+                  onLocate={handleLocate}
+                />
+             ))}
           </div>
 
           {/* Submit Action */}

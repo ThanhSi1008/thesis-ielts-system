@@ -4,10 +4,8 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import api from "@/lib/api";
 import { ChevronLeft, Play, Pause, Volume2, SkipBack, SkipForward } from "lucide-react";
 import Link from "next/link";
-import { FormCompletionGroup } from "../../../../../basic/components/listening-renders/FormCompletionGroup";
-import { MCQuestionItem } from "../../../../../basic/components/listening-renders/MCQuestionItem";
-import { MCMultipleQuestionItem } from "../../../../../basic/components/listening-renders/MCMultipleQuestionItem";
-import { MatchingCompletionGroup } from "../../../../../basic/components/listening-renders/MatchingGroup";
+import { AnswerField } from "@/components/AnswerField";
+import { extractAllItemsFromPart } from "@/lib/exam-parser";
 
 function normalizeAnswer(a: any): string {
   if (!a) return "";
@@ -175,6 +173,16 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
   const audioRef = useRef<HTMLAudioElement>(null);
   const [locatedQuestion, setLocatedQuestion] = useState<number | null>(null);
 
+  const items = useMemo(() => {
+    if (!session?.part) return [];
+    const normalizedPart = {
+      ...session.part,
+      question_groups: session.part.question_groups || session.part.content,
+      content: session.part.question_groups ? session.part.content : undefined
+    };
+    return extractAllItemsFromPart(normalizedPart);
+  }, [session]);
+
   const handleLocate = (qNum: number) => {
     setLocatedQuestion(qNum);
     const target = document.getElementById(`transcript-q-${qNum}`);
@@ -336,83 +344,22 @@ export default function IeltsAdvancedHistoryDetailsPage({ params }: { params: { 
 
         <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-gray-100 dark:divide-slate-800 max-h-[800px]">
           {/* Left side: Questions */}
-          <div className="flex-1 overflow-y-auto px-8 py-6 bg-white dark:bg-slate-900 shrink-[2] lg:min-w-[50%] custom-scrollbar">
+          <div className="flex-1 overflow-y-auto px-8 py-6 bg-white dark:bg-slate-900 shrink-[2] lg:min-w-[50%] custom-scrollbar relative space-y-6">
             <div className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-4">Question Review</div>
-            <div className="space-y-8">
-              {session.part?.content?.map((group: any, idx: number) => {
-                if (group.type === 'form_completion' || group.type === 'note_completion' || (!group.type && group.points)) {
-                  return (
-                    <FormCompletionGroup
-                      key={idx}
-                      heading={group.heading}
-                      points={group.points}
-                      answers={session.answers || {}}
-                      onAnswer={() => { }}
-                      submitted={true}
-                      showAnswers={true}
-                      audioRef={audioRef}
-                      onLocate={handleLocate}
-                    />
-                  );
-                }
-
-                if (group.type === 'multiple_choice_multiple') {
-                  const key = `mcm-${idx}`;
-                  const rawSelected = session.answers?.[key] || "";
-                  const selectedLetters = rawSelected ? rawSelected.split(",") : [];
-
-                  return (
-                    <MCMultipleQuestionItem
-                      key={idx}
-                      group={group}
-                      selectedLetters={selectedLetters}
-                      onToggle={() => { }}
-                      submitted={true}
-                      showAnswers={true}
-                      audioRef={audioRef}
-                      onLocate={handleLocate}
-                    />
-                  );
-                }
-
-                if (group.type === 'matching') {
-                  return (
-                    <MatchingCompletionGroup
-                      key={idx}
-                      group={group}
-                      answers={session.answers || {}}
-                      onAnswer={() => { }}
-                      submitted={true}
-                      showAnswers={true}
-                      audioRef={audioRef}
-                      onLocate={handleLocate}
-                    />
-                  );
-                }
-
-                if (group.type === 'multiple_choice') {
-                  return (
-                    <div key={idx} className="space-y-4">
-                      {group.heading && <h3 className="text-[15px] font-extrabold text-gray-900 dark:text-white mb-2">{group.heading}</h3>}
-                      {group.questions?.map((q: any) => (
-                        <MCQuestionItem
-                          key={q.question_number}
-                          q={q}
-                          selected={session.answers?.[q.question_number] || ""}
-                          onSelect={() => { }}
-                          submitted={true}
-                          showAnswers={true}
-                          audioRef={audioRef}
-                          onLocate={handleLocate}
-                        />
-                      ))}
-                    </div>
-                  );
-                }
-
-                return <div key={idx} className="text-gray-500 dark:text-slate-400 italic p-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-dashed border-gray-200 dark:border-slate-700">Review for {group.type} coming soon.</div>;
-              })}
-            </div>
+            {items.map((it, idx) => (
+              <AnswerField
+                key={String(idx)}
+                item={it}
+                variant="official"
+                answers={userAnswers}
+                setAnswers={() => {}}
+                focusedQn={locatedQuestion}
+                setFocusedQn={setLocatedQuestion}
+                submitted={true}
+                showAnswers={true}
+                onLocate={handleLocate}
+              />
+            ))}
           </div>
 
           {/* Right side: Transcript */}

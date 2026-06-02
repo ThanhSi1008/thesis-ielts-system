@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import api from "@/lib/api";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ReadingPassagePanel } from "../../../basic/[skill]/exercises/[exerciseId]/_components/ui/ReadingPassagePanel";
-import { ReadingQuestionsPanel } from "../../../basic/[skill]/exercises/[exerciseId]/_components/ui/ReadingQuestionsPanel";
+import { AnswerField } from "@/components/AnswerField";
+import { extractAllItemsFromPart } from "@/lib/exam-parser";
 
 export default function IeltsAdvancedReadingPractice({ params }: { params: { partId: string } }) {
   const [part, setPart] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<any>({});
   const [submitted, setSubmitted] = useState(false);
   const [locatedQuestion, setLocatedQuestion] = useState<number | null>(null);
   const router = useRouter();
@@ -29,6 +30,16 @@ export default function IeltsAdvancedReadingPractice({ params }: { params: { par
       setLoading(false);
     });
   }, [params.partId]);
+
+  const items = useMemo(() => {
+    if (!part) return [];
+    const normalizedPart = {
+      ...part,
+      question_groups: part.question_groups || part.content,
+      content: part.question_groups ? part.content : undefined
+    };
+    return extractAllItemsFromPart(normalizedPart);
+  }, [part]);
 
   // Lock parent <main> scrollbars to enable independent column scrolls inside layout
   useEffect(() => {
@@ -50,11 +61,6 @@ export default function IeltsAdvancedReadingPractice({ params }: { params: { par
       });
     };
   }, []);
-
-  const handleAnswer = (key: string | number, currentVal: string) => {
-    if (submitted) return;
-    setAnswers(prev => ({ ...prev, [key]: currentVal }));
-  };
 
   const handleLocate = (qNum: number) => {
     setLocatedQuestion(qNum);
@@ -114,15 +120,21 @@ export default function IeltsAdvancedReadingPractice({ params }: { params: { par
           </div>
 
           {/* Right: Reading Questions */}
-          <div className="h-full overflow-y-auto pr-6 lg:pr-10 pt-6 pb-20 custom-scrollbar">
-            <ReadingQuestionsPanel
-              exercise={part}
-              answers={answers}
-              submitted={submitted}
-              showAnswers={submitted}
-              onAnswer={handleAnswer}
-              onLocate={handleLocate}
-            />
+          <div className="h-full overflow-y-auto pr-6 lg:pr-10 pt-6 pb-20 custom-scrollbar space-y-6">
+            {items.map((it, idx) => (
+              <AnswerField
+                key={String(idx)}
+                item={it}
+                variant="official"
+                answers={answers}
+                setAnswers={setAnswers}
+                focusedQn={locatedQuestion}
+                setFocusedQn={setLocatedQuestion}
+                submitted={submitted}
+                showAnswers={submitted}
+                onLocate={handleLocate}
+              />
+            ))}
           </div>
        </div>
     </div>

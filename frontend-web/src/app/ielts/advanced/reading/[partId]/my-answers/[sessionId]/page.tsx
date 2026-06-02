@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import api from "@/lib/api";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { ReadingPassagePanel } from "../../../../../basic/[skill]/exercises/[exerciseId]/_components/ui/ReadingPassagePanel";
-import { ReadingQuestionsPanel } from "../../../../../basic/[skill]/exercises/[exerciseId]/_components/ui/ReadingQuestionsPanel";
+import { AnswerField } from "@/components/AnswerField";
+import { extractAllItemsFromPart } from "@/lib/exam-parser";
 
 export default function IeltsAdvancedReadingHistoryDetailsPage({ params }: { params: { partId: string; sessionId: string } }) {
   const [session, setSession] = useState<any>(null);
@@ -34,6 +35,16 @@ export default function IeltsAdvancedReadingHistoryDetailsPage({ params }: { par
        setLoading(false);
      });
   }, [params.sessionId]);
+
+  const items = useMemo(() => {
+    if (!session?.part) return [];
+    const normalizedPart = {
+      ...session.part,
+      question_groups: session.part.question_groups || session.part.content,
+      content: session.part.question_groups ? session.part.content : undefined
+    };
+    return extractAllItemsFromPart(normalizedPart);
+  }, [session]);
 
   if (loading) return <div className="p-10 font-bold text-gray-500 dark:text-slate-400 flex justify-center mt-20">Loading History...</div>;
   if (!session) return <div className="p-10 font-bold text-red-500 flex justify-center mt-20">Session not found</div>;
@@ -104,19 +115,25 @@ export default function IeltsAdvancedReadingHistoryDetailsPage({ params }: { par
           </div>
 
           {/* Right: Reading Questions */}
-          <div className="h-full overflow-y-auto pr-6 lg:pr-10 pt-6 pb-20 custom-scrollbar relative">
+          <div className="h-full overflow-y-auto pr-6 lg:pr-10 pt-6 pb-20 custom-scrollbar relative space-y-6">
             <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md pb-4 pt-1 z-10 border-b border-gray-100 dark:border-slate-800 mb-8 rounded-b-xl flex justify-between items-center">
               <h2 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight">Question Review</h2>
             </div>
             
-            <ReadingQuestionsPanel
-              exercise={session.part}
-              answers={userAnswers}
-              submitted={true}
-              showAnswers={true}
-              onAnswer={() => {}}
-              onLocate={handleLocate}
-            />
+            {items.map((it, idx) => (
+              <AnswerField
+                key={String(idx)}
+                item={it}
+                variant="official"
+                answers={userAnswers}
+                setAnswers={() => {}}
+                focusedQn={locatedQuestion}
+                setFocusedQn={setLocatedQuestion}
+                submitted={true}
+                showAnswers={true}
+                onLocate={handleLocate}
+              />
+            ))}
           </div>
        </div>
     </div>
