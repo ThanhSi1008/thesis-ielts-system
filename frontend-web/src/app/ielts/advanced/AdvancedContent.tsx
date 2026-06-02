@@ -31,18 +31,56 @@ export default function AdvancedContent({ embedded }: { embedded?: boolean }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [skill, setSkill] = useState(searchParams.get("skill") || "Listening");
+  const [skill, setSkill] = useState("Listening");
   const [parts, setParts] = useState<PracticePart[]>([]);
   const [selectedPart, setSelectedPart] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false);
 
+  // Sync state with URL search params or sessionStorage on mount
   useEffect(() => {
+    const urlSkill = searchParams.get("skill");
+    const urlPart = searchParams.get("part");
+
+    if (urlSkill) {
+      setSkill(urlSkill);
+      sessionStorage.setItem("advanced_skill", urlSkill);
+    } else {
+      const savedSkill = sessionStorage.getItem("advanced_skill");
+      if (savedSkill) setSkill(savedSkill);
+    }
+
+    if (urlPart) {
+      setSelectedPart(Number(urlPart) || 1);
+      sessionStorage.setItem("advanced_part", urlPart);
+    } else {
+      const savedPart = sessionStorage.getItem("advanced_part");
+      if (savedPart) setSelectedPart(Number(savedPart) || 1);
+    }
+    setIsLoaded(true);
+  }, []);
+
+  // Persist selections back to sessionStorage and URL parameters on change
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    sessionStorage.setItem("advanced_skill", skill);
+    sessionStorage.setItem("advanced_part", String(selectedPart));
+
     const params = new URLSearchParams(searchParams.toString());
+    let changed = false;
     if (params.get("skill") !== skill) {
       params.set("skill", skill);
+      changed = true;
+    }
+    if (Number(params.get("part")) !== selectedPart) {
+      params.set("part", String(selectedPart));
+      changed = true;
+    }
+    if (changed) {
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }
-  }, [skill, pathname, router, searchParams]);
+  }, [skill, selectedPart, isLoaded, pathname, router, searchParams]);
 
   useEffect(() => {
     if (skill === "Listening" || skill === "Reading") {

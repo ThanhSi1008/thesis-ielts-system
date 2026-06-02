@@ -18,7 +18,7 @@ export default function IeltsAdvancedListeningPractice({ params }: { params: { p
   const router = useRouter();
 
   // Premium Custom Audio States
-  const [hasStartedAudio, setHasStartedAudio] = useState(false);
+  const [hasStartedAudio, setHasStartedAudio] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -371,29 +371,7 @@ export default function IeltsAdvancedListeningPractice({ params }: { params: { p
         </footer>
       )}
 
-      {/* Start Audio Overlay */}
-      {!hasStartedAudio && !submitted && (
-        <div className="fixed inset-0 z-[150] bg-[#0a0a0a]/90 backdrop-blur-md flex flex-col items-center justify-center text-white px-6 animate-fade-in">
-          <svg viewBox="0 0 24 24" className="w-20 h-20 mb-6 text-primary fill-current drop-shadow-[0_0_15px_rgba(255,193,7,0.3)]" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h3v-8H5v-1a7 7 0 1 1 14 0v1h-3v8h3a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9z" />
-          </svg>
-          <div className="text-[20px] font-black text-center max-w-2xl mb-4 leading-normal tracking-tight">
-            IELTS LISTENING PRACTICE
-          </div>
-          <div className="text-sm text-gray-400 text-center max-w-md mb-8 leading-relaxed">
-            You will listen to a recording and answer questions. Note that in a real IELTS exam, you can only listen to the audio once.
-          </div>
-          <button
-            onClick={handleStartAudio}
-            className="flex items-center gap-3 bg-primary hover:brightness-105 text-gray-900 px-8 py-3.5 rounded-2xl font-black text-base transition-all transform active:scale-95 shadow-lg shadow-yellow-500/10"
-          >
-            <div className="w-6 h-6 rounded-full bg-gray-900 flex items-center justify-center pl-0.5">
-              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 text-white fill-current"><path d="M8 5v14l11-7z" /></svg>
-            </div>
-            START PRACTICE
-          </button>
-        </div>
-      )}
+
 
       {/* Confirm Submit Modal */}
       {isConfirmingSubmit && (
