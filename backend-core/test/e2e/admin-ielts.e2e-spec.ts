@@ -58,7 +58,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.READING,
           status: ContentImportStatus.AWAITING_REVIEW,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com',
           provenance: { source: 'cambridge', bookNumber: 17, testNumber: 1 },
           structuredJson: {
@@ -91,7 +91,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.READING,
           status: ContentImportStatus.AWAITING_REVIEW,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com',
           provenance: { source: 'cambridge', bookNumber: 17, testNumber: 1 },
           structuredJson: {
@@ -124,7 +124,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.READING,
           status: ContentImportStatus.AWAITING_REVIEW,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com',
           provenance: { source: 'cambridge', bookNumber: 17, testNumber: 1 },
           structuredJson: {
@@ -162,7 +162,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.READING,
           status: ContentImportStatus.AWAITING_REVIEW,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com',
           provenance: { source: 'cambridge', bookNumber: 20, testNumber: 1 },
           structuredJson: {
@@ -209,7 +209,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.READING,
           status: ContentImportStatus.AWAITING_REVIEW,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com',
           provenance: { source: 'cambridge', bookNumber: 20, testNumber: 1 }, // Already committed in previous test
           structuredJson: {
@@ -242,7 +242,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.READING,
           status: ContentImportStatus.AWAITING_REVIEW,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com',
           provenance: { source: 'cambridge', bookNumber: 20, testNumber: 1 },
           structuredJson: {
@@ -299,7 +299,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
             skill: s,
             groupId,
             status: ContentImportStatus.AWAITING_REVIEW,
-            sourceType: 'WEB_URL',
+            sourceType: 'PDF_UPLOAD',
             sourceRef: 'https://example.com',
             provenance: { source: 'cambridge', bookNumber: 18, testNumber: 2 },
             structuredJson: {
@@ -334,8 +334,12 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
       const res = await request(app.getHttpServer())
         .post(`${BASE}/admin/ielts/import/group/${groupId}/commit`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ isPublished: false })
-        .expect(HttpStatus.CREATED);
+        .send({ isPublished: false });
+
+      if (res.status !== HttpStatus.CREATED) {
+        console.error('FAILED GROUP COMMIT RESPONSE:', res.body);
+      }
+      expect(res.status).toBe(HttpStatus.CREATED);
 
       expect(res.body.examIds).toBeDefined();
       expect(res.body.examIds.length).toBe(1);
@@ -415,7 +419,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.READING,
           status: ContentImportStatus.AWAITING_REVIEW,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com/cambridge-17-test-1',
           provenance: { source: 'cambridge', bookNumber: 17, testNumber: 1 },
           structuredJson: {
@@ -536,7 +540,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.READING,
           status: ContentImportStatus.COMMITTED,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com/cost-guard',
           provenance: { source: 'cambridge', bookNumber: 17, testNumber: 1 },
           tokensUsed: 10000000, // consumes 10M tokens (the default limit)
@@ -551,7 +555,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
         .send({
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.LISTENING,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com/blocked-job',
           provenance: { source: 'cambridge', bookNumber: 17, testNumber: 1 },
         })
@@ -570,7 +574,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.READING,
           status: ContentImportStatus.AWAITING_REVIEW,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com/audit-test',
           provenance: { source: 'cambridge', bookNumber: 17, testNumber: 2 },
           structuredJson: {
@@ -652,7 +656,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.READING,
           status: ContentImportStatus.SCRAPING,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com/stuck',
           provenance: { source: 'cambridge', bookNumber: 17, testNumber: 1 },
           processingStartedAt: oneHourAgo,
@@ -667,7 +671,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.LISTENING,
           status: ContentImportStatus.PENDING,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com/zombie',
           provenance: { source: 'cambridge', bookNumber: 17, testNumber: 1 },
           groupId: 'expired-group-uuid',
@@ -701,7 +705,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
           targetSystem: ContentImportTargetSystem.INTENSIVE,
           skill: ContentImportSkill.READING,
           status: ContentImportStatus.PENDING,
-          sourceType: 'WEB_URL',
+          sourceType: 'PDF_UPLOAD',
           sourceRef: 'https://example.com/hmac-test',
           provenance: { source: 'cambridge', bookNumber: 17, testNumber: 3 },
           structuredJson: {},
@@ -757,7 +761,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
             skill: s,
             groupId,
             status: i === 0 ? ContentImportStatus.AWAITING_REVIEW : ContentImportStatus.FAILED,
-            sourceType: 'WEB_URL',
+            sourceType: 'PDF_UPLOAD',
             sourceRef: 'https://example.com/fail-test',
             provenance: { source: 'cambridge', bookNumber: 18, testNumber: 3 },
             structuredJson: {
@@ -805,7 +809,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
             skill: s,
             groupId,
             status: ContentImportStatus.AWAITING_REVIEW,
-            sourceType: 'WEB_URL',
+            sourceType: 'PDF_UPLOAD',
             sourceRef: 'https://example.com/fulltest-grading',
             provenance: { source: 'cambridge', bookNumber: 19, testNumber: 1 },
             structuredJson: {
@@ -929,7 +933,7 @@ describe('IELTS Admin API E2E & Golden Tests — schema=test', () => {
         targetSystem: ContentImportTargetSystem.ADVANCED,
         skill: ContentImportSkill.WRITING,
         status: ContentImportStatus.AWAITING_REVIEW,
-        sourceType: 'WEB_URL',
+        sourceType: 'PDF_UPLOAD',
         sourceRef: 'https://example.com/WS-duplicate',
         provenance: { source: 'forecast-ws', bookNumber: 0, testNumber: 99 },
         structuredJson: {
