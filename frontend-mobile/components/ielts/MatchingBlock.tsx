@@ -345,7 +345,7 @@ function ListeningMatchingVariant({
   const items = rawItems
     .map((item: any) => ({
       id: item.question_number ?? item.id,
-      text: item.prompt || item.text || '',
+      text: item.prompt || item.text || item.question_text || '',
     }))
     .filter((item) => item.id != null);
 
@@ -402,13 +402,13 @@ function StandardMatchingVariant({
     if (Array.isArray(group.items)) {
       return group.items.map((item: any) => ({
         question_number: item.question_number,
-        text: item.question_text || item.text || '',
+        text: item.question_text || item.text || item.prompt || '',
       }));
     }
     if (Array.isArray(group.questions)) {
       return group.questions.map((q: any) => ({
         question_number: q.question_number,
-        text: q.question_text || q.text || '',
+        text: q.question_text || q.text || q.prompt || '',
       }));
     }
     return [];
@@ -491,7 +491,7 @@ function SentenceEndingsVariant({
           <MatchRow
             key={q.question_number}
             qNum={q.question_number}
-            text={q.text}
+            text={q.text || (q as any).question_text || (q as any).prompt || ''}
             options={options}
             value={answers[String(q.question_number)] || ''}
             onSelect={(v) => onAnswer(String(q.question_number), v)}
@@ -536,7 +536,7 @@ function MatchingBlockComponent({
   correctAnswers,
 }: Props) {
   const { colors, isDark } = useTheme();
-  const rawType: string = group.question_type || group.type || 'matching';
+  const rawType: string = group.type || group.question_type || 'matching';
   const type = rawType.toLowerCase().replace(/\s+/g, '_');
   const instruction: string | undefined = group.instruction || group.description;
   const heading: string | undefined = group.heading;

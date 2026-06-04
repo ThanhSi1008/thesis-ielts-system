@@ -527,71 +527,45 @@ export default function PracticePlayerScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.scrollArea}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 160 }}
-        >
-          {/* Hints Section */}
-          {hintsList.length > 0 && (
-            <View style={styles.hintCard}>
-              <TouchableOpacity
-                style={styles.hintHeader}
-                onPress={() => setHintsVisible(!hintsVisible)}
-                activeOpacity={0.8}
-              >
-                <View style={styles.hintTitleRow}>
-                  <Ionicons name="bulb" size={18} color="#F59E0B" />
-                  <Text style={styles.hintTitle}>Gợi ý Luyện tập ({hintsList.length})</Text>
-                </View>
-                <Ionicons
-                  name={hintsVisible ? 'chevron-up' : 'chevron-down'}
-                  size={18}
-                  color={colors.textSecondary}
-                />
-              </TouchableOpacity>
-              
-              {hintsVisible && (
-                <View style={styles.hintBody}>
-                  {hintsList.map((h, idx) => (
-                    <View key={idx} style={styles.hintItem}>
-                      <Text style={styles.hintQNum}>Q{h.qNum}:</Text>
-                      <Text style={styles.hintText}>{h.text}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
-          )}
+        {isListening ? (
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.scrollArea}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 160 }}
+          >
+            {/* Hints Section */}
+            {hintsList.length > 0 && (
+              <View style={styles.hintCard}>
+                <TouchableOpacity
+                  style={styles.hintHeader}
+                  onPress={() => setHintsVisible(!hintsVisible)}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.hintTitleRow}>
+                    <Ionicons name="bulb" size={18} color="#F59E0B" />
+                    <Text style={styles.hintTitle}>Gợi ý Luyện tập ({hintsList.length})</Text>
+                  </View>
+                  <Ionicons
+                    name={hintsVisible ? 'chevron-up' : 'chevron-down'}
+                    size={18}
+                    color={colors.textSecondary}
+                  />
+                </TouchableOpacity>
+                
+                {hintsVisible && (
+                  <View style={styles.hintBody}>
+                    {hintsList.map((h, idx) => (
+                      <View key={idx} style={styles.hintItem}>
+                        <Text style={styles.hintQNum}>Q{h.qNum}:</Text>
+                        <Text style={styles.hintText}>{h.text}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+            )}
 
-          {isWriting && (
-            <WritingExamBlock
-              tasks={writingTasks}
-              answers={writingAnswers}
-              onChange={setWritingAnswers}
-            />
-          )}
-
-          {isSpeaking && (
-            <SpeakingExamBlock
-              parts={speakingParts}
-              answers={speakingAnswers}
-              onChange={setSpeakingAnswers}
-              onSubmit={() => setSubmitConfirmVisible(true)}
-            />
-          )}
-
-          {isReading && (
-            <ReadingExamBlock
-              parts={readingParts}
-              answers={answers}
-              onChange={setAnswer}
-              renderGroup={renderGroup as any}
-            />
-          )}
-
-          {isListening && (
             <View style={styles.listeningPartSection}>
               {listeningParts.map((part: any, pi: number) => {
                 const groups = part.question_groups || part.groups || part.content || [];
@@ -611,8 +585,68 @@ export default function PracticePlayerScreen() {
                 );
               })}
             </View>
-          )}
-        </ScrollView>
+          </ScrollView>
+        ) : (
+          <View style={{ flex: 1 }}>
+            {/* Hints Section */}
+            {hintsList.length > 0 && (
+              <View style={styles.hintCard}>
+                <TouchableOpacity
+                  style={styles.hintHeader}
+                  onPress={() => setHintsVisible(!hintsVisible)}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.hintTitleRow}>
+                    <Ionicons name="bulb" size={18} color="#F59E0B" />
+                    <Text style={styles.hintTitle}>Gợi ý Luyện tập ({hintsList.length})</Text>
+                  </View>
+                  <Ionicons
+                    name={hintsVisible ? 'chevron-up' : 'chevron-down'}
+                    size={18}
+                    color={colors.textSecondary}
+                  />
+                </TouchableOpacity>
+                
+                {hintsVisible && (
+                  <View style={styles.hintBody}>
+                    {hintsList.map((h, idx) => (
+                      <View key={idx} style={styles.hintItem}>
+                        <Text style={styles.hintQNum}>Q{h.qNum}:</Text>
+                        <Text style={styles.hintText}>{h.text}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+            )}
+
+            {isWriting && (
+              <WritingExamBlock
+                tasks={writingTasks}
+                answers={writingAnswers}
+                onChange={setWritingAnswers}
+              />
+            )}
+
+            {isSpeaking && (
+              <SpeakingExamBlock
+                parts={speakingParts}
+                answers={speakingAnswers}
+                onChange={setSpeakingAnswers}
+                onSubmit={() => setSubmitConfirmVisible(true)}
+              />
+            )}
+
+            {isReading && (
+              <ReadingExamBlock
+                parts={readingParts}
+                answers={answers}
+                onChange={setAnswer}
+                renderGroup={renderGroup as any}
+              />
+            )}
+          </View>
+        )}
       </KeyboardAvoidingView>
 
       {/* Bottom Practice Submit Bar */}
