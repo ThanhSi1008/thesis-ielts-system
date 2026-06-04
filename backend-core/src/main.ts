@@ -36,7 +36,14 @@ async function bootstrap() {
   });
 
   // Increase payload limit for base64 audio uploads
-  app.use(json({ limit: "50mb" }));
+  app.use(
+    json({
+      limit: "50mb",
+      verify: (req: any, _res, buf: Buffer) => {
+        req.rawBody = buf;
+      },
+    }),
+  );
   app.use(urlencoded({ extended: true, limit: "50mb" }));
 
   // Global validation pipe

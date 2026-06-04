@@ -149,7 +149,7 @@ export function AnswerField({
         }}
         type="button"
         className={`${baseClass} ${statusClass} ${onLocate ? "cursor-pointer hover:opacity-80" : "cursor-default"}`}
-        title={onLocate ? "Nhấp để định vị trong bài đọc" : ""}
+        title={onLocate ? "Click to locate in passage" : ""}
       >
         {display}
       </button>
@@ -167,7 +167,7 @@ export function AnswerField({
             type="button"
             className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 px-2.5 py-1.5 rounded-lg transition-colors shadow-sm"
           >
-            <MapPin className="w-3.5 h-3.5" /> Định vị
+            <MapPin className="w-3.5 h-3.5" /> Locate
           </button>
         )}
         {realExp && (
@@ -176,7 +176,7 @@ export function AnswerField({
             type="button"
             className="flex items-center gap-1.5 text-[11px] font-bold text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 px-2.5 py-1.5 rounded-lg transition-colors shadow-sm"
           >
-            <MessageSquare className="w-3.5 h-3.5" /> Giải thích
+            <MessageSquare className="w-3.5 h-3.5" /> Explanation
           </button>
         )}
         {showExps[qNum] && (
@@ -769,7 +769,7 @@ export function AnswerField({
                   ? "bg-white border border-[#b5b5b5] text-[#1a1a1a] shadow-[0_1px_3px_rgba(0,0,0,0.1)] rounded-[3px] dark:bg-slate-900 dark:border-slate-800 dark:text-slate-100"
                   : "bg-[#f8f9fa] border border-dashed border-[#b5b5b5] text-[#a0a0a0] rounded-[3px] hover:bg-[#f0f0f0] dark:bg-slate-850 dark:border-slate-800"
               } ${focusedQn === qNum && !value ? "border-[#2181d8] ring-[1px] ring-[#2181d8]" : ""}`}
-              title={value ? "Nhấp để xóa" : ""}
+              title={value ? "Click to clear" : ""}
             >
               {value ? displayVal : <span className="font-bold text-[#333333] dark:text-slate-400">{qNum}</span>}
             </span>
@@ -1035,7 +1035,7 @@ export function AnswerField({
                   disabled={submitted}
                   onFocus={() => setFocusedQn(item.qn)}
                   onChange={(e) => setAnswers({ ...answers, [key]: e.target.value })}
-                  placeholder="Nhãn"
+                  placeholder="Label"
                   className={`w-full rounded-md border px-4 py-2.5 text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:outline-none shadow-sm font-medium ${
                     focusedQn === item.qn
                       ? variant === "modern"
