@@ -66,7 +66,7 @@ class ExtractionService:
         """
         try:
             response = await self.client.aio.models.generate_content(
-                model="gemini-2.5-flash",
+                model="gemini-flash-latest",
                 contents=file_parts + [
                     "What type of IELTS test content does this document contain? "
                     "Reply with EXACTLY one word from this list: LISTENING, READING, WRITING, SPEAKING, FULL_TEST. "
@@ -265,8 +265,8 @@ class ExtractionService:
         schema_model, system_prompt = self._get_schema_and_prompt(skill, target_system)
         
         # Models configuration for tiering
-        flash_model = "gemini-2.5-flash"
-        pro_model = "gemini-3.5-flash"
+        flash_model = "gemini-flash-latest"
+        pro_model = "gemini-flash-latest"
         
         selected_model = flash_model
         result_dict = {}
@@ -403,7 +403,7 @@ class ExtractionService:
 
             # 4. TIERED GENERATION CALL WITH FALLBACKS
             try:
-                # Tier 1: Try using cheap and fast gemini-2.5-flash
+                # Tier 1: Try using cheap and fast gemini-flash-latest
                 logger.info(f"⚡ [Tier 1] Calling {flash_model} for {skill} structuring...")
                 response = await self.client.aio.models.generate_content(
                     model=flash_model,
@@ -425,7 +425,7 @@ class ExtractionService:
                 logger.warning(f"⚠️ [Tier 1] {flash_model} failed execution or parsing: {flash_err}")
                 is_valid = False
 
-            # Tier 2 Fallback: If Flash failed validation, retry with gemini-3.5-flash
+            # Tier 2 Fallback: If Flash failed validation, retry with gemini-flash-latest
             if not is_valid:
                 logger.warning(f"⚠️ [Tier 1] Flash structuring validation failed! Falling back to {pro_model}...")
                 selected_model = pro_model

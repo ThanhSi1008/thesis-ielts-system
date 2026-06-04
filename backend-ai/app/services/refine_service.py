@@ -139,7 +139,7 @@ class RefineService:
 
         logger.info(f"🛠️ Refining structured JSON (skill={skill or 'n/a'}) — calling Gemini...")
         response = await self.client.aio.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-flash-latest",
             contents=contents,
             config=types.GenerateContentConfig(
                 system_instruction=REFINE_SYSTEM_INSTRUCTION,

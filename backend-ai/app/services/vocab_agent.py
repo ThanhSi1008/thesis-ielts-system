@@ -20,7 +20,7 @@ from app.config import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-MODEL = "gemini-2.5-flash"
+MODEL = "gemini-flash-latest"
 
 # ─── Tool Declarations ────────────────────────────────────────────────────────
 # Each tool maps to an existing backend-core REST endpoint.
