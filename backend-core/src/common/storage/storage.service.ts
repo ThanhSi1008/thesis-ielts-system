@@ -31,7 +31,8 @@ export class StorageService {
    */
   async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
     const isImage = file.mimetype?.startsWith("image/") ?? false;
-    const resourceType = isImage ? "image" : "raw";
+    const isAudio = file.mimetype?.startsWith("audio/") ?? false;
+    const resourceType = isImage ? "image" : isAudio ? "video" : "raw";
 
     return new Promise((resolve, reject) => {
       const upload = cloudinary.uploader.upload_stream(
@@ -66,14 +67,17 @@ export class StorageService {
       const filenameWithExt = urlParts[urlParts.length - 1];
       
       const isRaw = fileUrl.includes("/raw/upload/");
-      // In Cloudinary, raw resource public_ids include the extension, unlike images!
+      const isVideo = fileUrl.includes("/video/upload/");
+      const resourceType = isRaw ? "raw" : isVideo ? "video" : "image";
+      
+      // In Cloudinary, raw resource public_ids include the extension, unlike images/videos!
       const filename = isRaw ? filenameWithExt : filenameWithExt.split(".")[0];
       const folder = urlParts[urlParts.length - 2];
       const publicId = `${folder}/${filename}`;
 
       await cloudinary.uploader.destroy(
         publicId,
-        isRaw ? { resource_type: "raw" } : undefined
+        { resource_type: resourceType }
       );
       this.logger.log(`✅ File deleted: ${fileUrl}`);
     } catch (error) {

@@ -51,7 +51,7 @@ function FlashCard({
   const [flipped, setFlipped] = useState(false);
 
   // Setup expo-audio player dynamically
-  const player = useAudioPlayer(word.audioUrl || '');
+  const player = useAudioPlayer(word.audioUrl || '', { downloadFirst: true });
 
   const frontRotate = flipAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '180deg'] });
   const backRotate = flipAnim.interpolate({

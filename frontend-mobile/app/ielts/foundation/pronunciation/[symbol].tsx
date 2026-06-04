@@ -148,14 +148,15 @@ const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   consonant: { bg: '#E2E8F0', text: '#1E293B' },
 };
 
-// URL helper to prepend API_BASE_URL for relative backend assets (audio/images)
+// URL helper to prepend API_BASE_URL (excluding route prefix) for relative backend assets (audio/images)
 const getFullUrl = (url?: string) => {
   if (!url) return '';
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url;
   }
   const cleanUrl = url.startsWith('/') ? url : `/${url}`;
-  return `${API_BASE_URL}${cleanUrl}`;
+  const baseAssetUrl = API_BASE_URL.replace(/\/api\/v\d+\/?$/, '').replace(/\/+$/, '');
+  return `${baseAssetUrl}${cleanUrl}`;
 };
 
 // ─── Exponential Backoff Poller ───────────────────────────────────────────────
@@ -227,7 +228,7 @@ function WordCard({
   const { startPolling, stopPolling } = useExponentialPoller();
 
   // Play word example audio using expo-audio
-  const player = useAudioPlayer(audioUrl ? getFullUrl(audioUrl) : '');
+  const player = useAudioPlayer(audioUrl ? getFullUrl(audioUrl) : '', { downloadFirst: true });
 
   const playWordAudio = () => {
     if (!audioUrl || !player) return;
@@ -525,7 +526,7 @@ export default function IeltsSoundDetailScreen() {
   }, [user, sound]);
 
   // Setup main sound audio player
-  const heroPlayer = useAudioPlayer(sound?.audioUrl ? getFullUrl(sound.audioUrl) : '');
+  const heroPlayer = useAudioPlayer(sound?.audioUrl ? getFullUrl(sound.audioUrl) : '', { downloadFirst: true });
 
   const playHeroAudio = () => {
     if (!sound?.audioUrl || !heroPlayer) return;

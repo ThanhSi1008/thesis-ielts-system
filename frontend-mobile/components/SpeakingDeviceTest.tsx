@@ -30,7 +30,7 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
   const testAudioUrl =
     'https://res.cloudinary.com/dalaaegob/video/upload/v1774555714/changthevolume_cqpnwp.mp3';
 
-  const headphonePlayer = useAudioPlayer(testAudioUrl);
+  const headphonePlayer = useAudioPlayer(testAudioUrl, { downloadFirst: true });
   const headphoneStatus = useAudioPlayerStatus(headphonePlayer);
 
   // Monitor playback end
@@ -58,7 +58,7 @@ export function SpeakingDeviceTest({ onComplete, onExit }: SpeakingDeviceTestPro
 
   // For playing back recorded audio
   const [playbackUri, setPlaybackUri] = useState<string | null>(null);
-  const playbackPlayer = useAudioPlayer(playbackUri || '');
+  const playbackPlayer = useAudioPlayer(playbackUri || '', { downloadFirst: true });
   const playbackStatus = useAudioPlayerStatus(playbackPlayer);
 
   // Watch playback finished

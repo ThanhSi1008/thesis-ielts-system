@@ -140,7 +140,7 @@ function detectKind(value: string, fieldType?: string): ContentKind {
 
 // ─── Audio Player ─────────────────────────────────────────────────────────────
 function AudioField({ url }: { url: string }) {
-  const player = useAudioPlayer(url);
+  const player = useAudioPlayer(url, { downloadFirst: true });
   const [playing, setPlaying] = useState(false);
 
   const toggle = useCallback(async () => {

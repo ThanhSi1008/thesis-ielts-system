@@ -366,7 +366,11 @@ export default function DiagnosticScreen() {
                     url={
                       exercises.listening.audioUrl.startsWith('http')
                         ? exercises.listening.audioUrl
-                        : `${API_BASE_URL}${exercises.listening.audioUrl}`
+                        : (() => {
+                            const cleanUrl = exercises.listening.audioUrl.startsWith('/') ? exercises.listening.audioUrl : `/${exercises.listening.audioUrl}`;
+                            const baseAssetUrl = API_BASE_URL.replace(/\/api\/v\d+\/?$/, '').replace(/\/+$/, '');
+                            return `${baseAssetUrl}${cleanUrl}`;
+                          })()
                     }
                   />
                 </View>

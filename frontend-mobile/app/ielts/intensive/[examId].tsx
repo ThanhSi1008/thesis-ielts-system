@@ -16,7 +16,7 @@ import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from 'expo-au
 
 import { toast } from '@/components/ui';
 
-import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES, API_BASE_URL } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -281,10 +281,17 @@ export default function ExamPlayerScreen() {
   const [audioPlayingPartIndex, setAudioPlayingPartIndex] = useState(0);
   const listeningParts = activeExam?.questions?.parts ?? [];
   // Support both snake_case (seed data) and camelCase (AI import pipeline)
-  const audioUrl = listeningParts[audioPlayingPartIndex]?.audio_url
+  const rawAudioUrl = listeningParts[audioPlayingPartIndex]?.audio_url
     ?? listeningParts[audioPlayingPartIndex]?.audioUrl
     ?? null;
-  const player = useAudioPlayer(audioUrl || '');
+  const audioUrl = useMemo(() => {
+    if (!rawAudioUrl) return '';
+    if (rawAudioUrl.startsWith('http')) return rawAudioUrl;
+    const cleanUrl = rawAudioUrl.startsWith('/') ? rawAudioUrl : `/${rawAudioUrl}`;
+    const baseAssetUrl = API_BASE_URL.replace(/\/api\/v\d+\/?$/, '').replace(/\/+$/, '');
+    return `${baseAssetUrl}${cleanUrl}`;
+  }, [rawAudioUrl]);
+  const player = useAudioPlayer(audioUrl, { downloadFirst: true });
   const playerStatus = useAudioPlayerStatus(player);
 
   useEffect(() => {

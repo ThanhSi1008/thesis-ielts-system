@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayer } from 'expo-audio';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES, API_BASE_URL } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button, toast } from '@/components/ui';
@@ -693,8 +693,17 @@ export default function ResultScreen() {
   const [noteMap, setNoteMap] = useState<Map<number, QuestionNote>>(new Map());
   const [volume, setVolume] = useState(1.0);
 
-  const audioUrl = session?.exam?.questions?.audio_url || '';
-  const player = useAudioPlayer(audioUrl);
+  const rawAudioUrl = session?.exam?.questions?.audio_url
+    ?? session?.exam?.questions?.audioUrl
+    ?? '';
+  const audioUrl = useMemo(() => {
+    if (!rawAudioUrl) return '';
+    if (rawAudioUrl.startsWith('http')) return rawAudioUrl;
+    const cleanUrl = rawAudioUrl.startsWith('/') ? rawAudioUrl : `/${rawAudioUrl}`;
+    const baseAssetUrl = API_BASE_URL.replace(/\/api\/v\d+\/?$/, '').replace(/\/+$/, '');
+    return `${baseAssetUrl}${cleanUrl}`;
+  }, [rawAudioUrl]);
+  const player = useAudioPlayer(audioUrl, { downloadFirst: true });
 
   useEffect(() => {
     if (player) player.volume = volume;

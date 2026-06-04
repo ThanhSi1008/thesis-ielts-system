@@ -60,7 +60,7 @@ interface AudioPlayButtonProps {
 
 function AudioPlayButton({ url }: AudioPlayButtonProps) {
   const { colors, isDark } = useTheme();
-  const player = useAudioPlayer(url);
+  const player = useAudioPlayer(url, { downloadFirst: true });
   const status = useAudioPlayerStatus(player);
 
   const handlePlay = () => {

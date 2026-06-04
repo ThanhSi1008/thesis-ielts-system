@@ -630,7 +630,12 @@ function adaptVisualGroup(group: Group): Group {
   }
 
   // map_labelling / plan_labelling
-  if (bankLetters.length > 0) {
+  const hasOptionTexts = bankLetters.length > 0 && bankLetters.some(letter => {
+    const val = optionRecord?.[letter];
+    return typeof val === 'string' && val.trim().length > 0;
+  });
+
+  if (bankLetters.length > 0 && hasOptionTexts) {
     // Radio grid: each row is located against the lettered bank; answer is a letter.
     const items: LabelItem[] = rawItems
       .filter((it) => Number.isFinite(Number(it.question_number)))

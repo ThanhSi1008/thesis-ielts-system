@@ -18,7 +18,7 @@ interface AudioPlayerProps {
 }
 
 export function AudioPlayer({ url }: AudioPlayerProps) {
-  const player = useAudioPlayer(url);
+  const player = useAudioPlayer(url, { downloadFirst: true });
   const status = useAudioPlayerStatus(player);
   const [trackWidth, setTrackWidth] = React.useState(0);
   const { colors } = useTheme();

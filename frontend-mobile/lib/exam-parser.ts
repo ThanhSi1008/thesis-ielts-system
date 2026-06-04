@@ -104,6 +104,23 @@ export function normalizePart(rawPart: any): any {
 
   const part = { ...rawPart };
 
+  // If this part is a single question group (has content/points/questions but no groups/question_groups), wrap it
+  if (!part.question_groups && !part.groups && (part.content || part.points || part.items || part.questions)) {
+    part.question_groups = [
+      {
+        question_type: part.question_type || part.type || 'fill',
+        instructions: part.instructions || part.instruction || '',
+        questions: part.questions,
+        items: part.items,
+        points: part.points,
+        content: part.content,
+        options: part.options,
+        options_box: part.options_box,
+        table: part.table,
+      }
+    ];
+  }
+
   if (Array.isArray(part.groups) && !part.question_groups) {
     part.question_groups = part.groups;
   }
@@ -126,11 +143,12 @@ export function normalizePart(rawPart: any): any {
         lowerType.includes('note') ||
         lowerType.includes('form') ||
         lowerType.includes('sentence') ||
-        lowerType.includes('table') ||
         lowerType.includes('flowchart') ||
         lowerType.includes('flow_chart')
       ) {
         qType = 'Note Completion';
+      } else if (lowerType.includes('table')) {
+        qType = 'Table Completion';
       } else if (lowerType.includes('summary')) {
         qType = 'Summary Completion';
       } else if (lowerType.includes('true') || lowerType.includes('false')) {
@@ -157,7 +175,7 @@ export function normalizePart(rawPart: any): any {
 
       // Auto-wrap single mc_multi question group without items to items array
       if (
-        originalType.includes('multiple_choice_multiple') &&
+        (originalType.includes('multiple_choice_multiple') || originalType.includes('more_than_one_answer')) &&
         Array.isArray(g.question_numbers) &&
         !normalizedG.items
       ) {

@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-nativ
 import Slider from '@react-native-community/slider';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
-import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, API_BASE_URL } from '@/constants';
 
 function formatTime(seconds: number): string {
   if (!isFinite(seconds) || seconds < 0) return '0:00';
@@ -18,8 +18,16 @@ interface Props {
   style?: ViewStyle;
 }
 
-export default function RichAudioPlayer({ audioUrl, accentColor = COLORS.primary, style }: Props) {
-  const player = useAudioPlayer(audioUrl, { updateInterval: 250 });
+export default function RichAudioPlayer({ audioUrl: rawAudioUrl, accentColor = COLORS.primary, style }: Props) {
+  const audioUrl = React.useMemo(() => {
+    if (!rawAudioUrl) return '';
+    if (rawAudioUrl.startsWith('http')) return rawAudioUrl;
+    const cleanUrl = rawAudioUrl.startsWith('/') ? rawAudioUrl : `/${rawAudioUrl}`;
+    const baseAssetUrl = API_BASE_URL.replace(/\/api\/v\d+\/?$/, '').replace(/\/+$/, '');
+    return `${baseAssetUrl}${cleanUrl}`;
+  }, [rawAudioUrl]);
+
+  const player = useAudioPlayer(audioUrl, { updateInterval: 250, downloadFirst: true });
   const status = useAudioPlayerStatus(player);
 
   const position = status.currentTime ?? 0;

@@ -239,7 +239,7 @@ function normalizeGroup(g: any): any {
   }
 
   // Auto-wrap single mc_multi question group without items to items array
-  if (originalType.includes('multiple_choice_multiple') && Array.isArray(g.question_numbers) && !normalizedG.items) {
+  if ((originalType.includes('multiple_choice_multiple') || originalType.includes('more_than_one_answer')) && Array.isArray(g.question_numbers) && !normalizedG.items) {
     normalizedG.items = [
       {
         question_numbers: g.question_numbers,

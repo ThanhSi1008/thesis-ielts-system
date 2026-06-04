@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from 'expo-audio';
 
 import { toast } from '@/components/ui';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES, FONTS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES, FONTS, API_BASE_URL } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -218,8 +218,15 @@ export default function PracticePlayerScreen() {
     return allParts.map((item: any) => normalizePart(item));
   }, [questionsData, practicePart]);
 
-  const audioUrl = listeningParts[activeListeningPartIndex]?.audio_url ?? null;
-  const player = useAudioPlayer(audioUrl || '');
+  const rawAudioUrl = listeningParts[activeListeningPartIndex]?.audio_url ?? null;
+  const audioUrl = useMemo(() => {
+    if (!rawAudioUrl) return '';
+    if (rawAudioUrl.startsWith('http')) return rawAudioUrl;
+    const cleanUrl = rawAudioUrl.startsWith('/') ? rawAudioUrl : `/${rawAudioUrl}`;
+    const baseAssetUrl = API_BASE_URL.replace(/\/api\/v\d+\/?$/, '').replace(/\/+$/, '');
+    return `${baseAssetUrl}${cleanUrl}`;
+  }, [rawAudioUrl]);
+  const player = useAudioPlayer(audioUrl, { downloadFirst: true });
   const playerStatus = useAudioPlayerStatus(player);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
 
