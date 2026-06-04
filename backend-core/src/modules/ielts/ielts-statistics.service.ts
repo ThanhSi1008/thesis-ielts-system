@@ -2,6 +2,26 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import * as dayjs from "dayjs";
 
+// ── IELTS Band Conversion (Listening/Reading raw score → band; ported from final) ──
+function rawToBand(score: number): number {
+  if (score >= 39) return 9.0;
+  if (score >= 37) return 8.5;
+  if (score >= 35) return 8.0;
+  if (score >= 32) return 7.5;
+  if (score >= 30) return 7.0;
+  if (score >= 26) return 6.5;
+  if (score >= 23) return 6.0;
+  if (score >= 18) return 5.5;
+  if (score >= 16) return 5.0;
+  if (score >= 13) return 4.5;
+  if (score >= 10) return 4.0;
+  if (score >= 8) return 3.5;
+  if (score >= 6) return 3.0;
+  if (score >= 4) return 2.5;
+  if (score >= 2) return 2.0;
+  return 1.0;
+}
+
 @Injectable()
 export class IeltsStatisticsService {
   private readonly logger = new Logger(IeltsStatisticsService.name);
@@ -21,7 +41,7 @@ export class IeltsStatisticsService {
         status: { in: ["COMPLETED", "GRADED"] },
         ieltsIntensiveResult: { isNot: null },
       },
-      include: { ieltsIntensiveResult: true },
+      include: { ieltsIntensiveResult: true, ieltsIntensiveExam: { select: { type: true } } },
       orderBy: { createdAt: "desc" },
       take: 5,
     });
@@ -30,7 +50,13 @@ export class IeltsStatisticsService {
     if (recentMocks.length > 0) {
       const bands = recentMocks.map((mock: any) => {
         const result = mock.ieltsIntensiveResult;
-        return result?.totalScore || 0;
+        if (!result) return 0;
+        const examType = mock.ieltsIntensiveExam?.type;
+        // Listening/Reading lưu điểm thô (0-40) → quy đổi sang band; Writing/Speaking đã là band
+        if (examType === "LISTENING" || examType === "READING") {
+          return rawToBand(result.totalScore || 0);
+        }
+        return result.totalScore || 0;
       }).filter((band: number) => band > 0);
       if (bands.length > 0) {
         estimatedBand = bands.reduce((sum, b) => sum + b, 0) / bands.length;

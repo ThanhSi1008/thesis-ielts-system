@@ -1,13 +1,19 @@
-import { Controller, Post, Body, Res } from "@nestjs/common";
-import { Response } from "express";
+import { Controller, Post, Body, Res, Req } from "@nestjs/common";
+import { Request, Response } from "express";
 import * as http from "http";
 
 @Controller("chat")
 export class ChatController {
   @Post()
-  async proxyChat(@Body() body: any, @Res({ passthrough: false }) res: Response) {
+  async proxyChat(
+    @Body() body: any,
+    @Req() request: Request,
+    @Res({ passthrough: false }) res: Response,
+  ) {
     const { stream = true } = body;
 
+    // Forward the user's JWT so the AI agent can call back to backend-core (vocab-lab tools)
+    const authHeader = request.headers["authorization"];
     const options = {
       hostname: process.env.BACKEND_AI_HOST || "backend-ai",
       port: Number(process.env.BACKEND_AI_PORT) || 8000,
@@ -15,6 +21,7 @@ export class ChatController {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...(authHeader ? { Authorization: authHeader } : {}),
       },
     };
 

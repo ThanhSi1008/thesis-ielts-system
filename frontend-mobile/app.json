@@ -56,6 +56,10 @@
       "expo-tracking-transparency",
       "./plugins/withRemovePushNotifications"
     ],
-    "scheme": "iemai"
+    "scheme": "iemai",
+    "updates": {
+      "enabled": false,
+      "checkAutomatically": "NEVER"
+    }
   }
 }
