@@ -176,6 +176,7 @@ export interface PronunciationCheckResponse {
   // Populated later when AI processing completes
   score?: PronunciationScore;
   audioUrl?: string;
+  transcribedText?: string;
 }
 
 // ==================== EXAMS ====================

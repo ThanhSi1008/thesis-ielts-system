@@ -25,8 +25,12 @@ export const PronunciationRecorder: React.FC<PronunciationRecorderProps> = ({
   const [ieltsIntensiveResult, setResult] = useState<PronunciationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [canStop, setCanStop] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const recordingStartRef = useRef<number>(0);
+
+  const MIN_RECORDING_MS = 1000; // 1 second minimum
 
   const startRecording = async () => {
     try {
@@ -40,19 +44,28 @@ export const PronunciationRecorder: React.FC<PronunciationRecorderProps> = ({
 
       mediaRecorderRef.current.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        // Validate: reject if blob is too small (likely empty audio)
+        if (blob.size < 1000) {
+          setError('Recording too short. Hold the button longer and speak clearly.');
+          return;
+        }
         const url = URL.createObjectURL(blob);
         setAudioUrl(url);
         submitAudio(blob);
       };
 
-      mediaRecorderRef.current.start();
+      mediaRecorderRef.current.start(100); // collect data every 100ms for faster chunks
+      recordingStartRef.current = Date.now();
       setIsRecording(true);
+      setCanStop(false);
       setError(null);
       setResult(null);
       if (audioUrl) {
         URL.revokeObjectURL(audioUrl);
         setAudioUrl(null);
       }
+      // Enable stop button after minimum recording time
+      setTimeout(() => setCanStop(true), MIN_RECORDING_MS);
     } catch {
       setError('Could not access microphone. Please check permissions.');
     }
@@ -60,6 +73,19 @@ export const PronunciationRecorder: React.FC<PronunciationRecorderProps> = ({
 
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
+      // Enforce minimum recording duration
+      const elapsed = Date.now() - recordingStartRef.current;
+      if (elapsed < MIN_RECORDING_MS) {
+        // Wait for remaining time then stop
+        setTimeout(() => {
+          if (mediaRecorderRef.current?.state === 'recording') {
+            mediaRecorderRef.current.stop();
+            setIsRecording(false);
+            mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+          }
+        }, MIN_RECORDING_MS - elapsed);
+        return;
+      }
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
@@ -110,7 +136,7 @@ export const PronunciationRecorder: React.FC<PronunciationRecorderProps> = ({
       } catch {
         // transient network error — keep polling
       }
-    }, 2000);
+    }, 800);
   };
 
   const handleReset = () => {
@@ -220,6 +246,13 @@ function ResultView({ ieltsIntensiveResult, targetWord, audioUrl, onRetry }: Res
           />
         )}
 
+        {/* Show what Whisper actually heard */}
+        {ieltsIntensiveResult.transcribedText && (
+          <p className="text-[11px] text-slate-400 mt-0.5">
+            Heard: <span className="font-semibold text-slate-600">&quot;{ieltsIntensiveResult.transcribedText}&quot;</span>
+          </p>
+        )}
+
         {/* Message */}
         {feedback?.message && (
           <p className="text-xs text-slate-500 text-center max-w-[200px] leading-relaxed">
@@ -235,7 +268,7 @@ function ResultView({ ieltsIntensiveResult, targetWord, audioUrl, onRetry }: Res
           <div className="w-px bg-slate-100" />
           <SubScore label="Confidence" value={details.confidenceScore} />
           <div className="w-px bg-slate-100" />
-          <SubScore label="Text" value={details.textAccuracy} />
+          <SubScore label="Word Match" value={details.textAccuracy} />
         </div>
       )}
 

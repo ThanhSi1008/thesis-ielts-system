@@ -145,7 +145,7 @@ export default function PracticeListeningBoard({
         </div>
       </header>
 
-      <main className="flex-1 min-h-0 bg-[#f5f5f5] relative overflow-hidden">
+      <main className="flex-1 min-h-0 bg-white relative overflow-hidden">
         <audio
           ref={audioRef}
           src={(playingAudioPart?.audio_url as string) || (playingAudioPart?.audioUrl as string)}
@@ -164,7 +164,7 @@ export default function PracticeListeningBoard({
           className="hidden"
         />
         <div key={activePartIdx} id="main-scroll-container" className="h-full custom-scrollbar overflow-y-auto overflow-x-hidden relative" onClick={() => setFocusedQn(null)}>
-          <div className="w-full mx-auto bg-white pt-10 px-8 pb-32 min-h-full border-x border-gray-200 shadow-sm" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full bg-white pt-10 px-8 pb-32 min-h-full" onClick={(e) => e.stopPropagation()}>
             <div className="bg-[#f2f1ef] border border-[#e2e1df] rounded py-3 px-4 mb-8 text-[#1a1a1a] shadow-sm">
               <div className="font-bold text-[17px] mb-1">{getPartTitle(activePart)}</div>
               <div className="text-[17px]">

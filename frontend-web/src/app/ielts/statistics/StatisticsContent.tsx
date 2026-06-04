@@ -19,7 +19,12 @@ const TABS = [
 
 type TabId = typeof TABS[number]["id"];
 
-export default function StatisticsContent() {
+interface StatisticsContentProps {
+  embedded?: boolean;
+  studentId?: string;
+}
+
+export default function StatisticsContent({ embedded, studentId }: StatisticsContentProps) {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [animKey, setAnimKey] = useState(0);
 
@@ -71,11 +76,11 @@ export default function StatisticsContent() {
           key={animKey}
           className="animate-in fade-in slide-in-from-bottom-2 duration-300"
         >
-          {activeTab === "overview" && <OverviewTab />}
-          {activeTab === "foundation" && <FoundationTab />}
-          {activeTab === "basic" && <BasicTab />}
-          {activeTab === "advanced" && <AdvancedTab />}
-          {activeTab === "intensive" && <IntensiveTab />}
+          {activeTab === "overview" && <OverviewTab studentId={studentId} />}
+          {activeTab === "foundation" && <FoundationTab studentId={studentId} />}
+          {activeTab === "basic" && <BasicTab studentId={studentId} />}
+          {activeTab === "advanced" && <AdvancedTab studentId={studentId} />}
+          {activeTab === "intensive" && <IntensiveTab studentId={studentId} />}
         </div>
       </div>
     </div>

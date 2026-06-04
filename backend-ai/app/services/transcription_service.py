@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 # Try to import faster_whisper, use mock if not available
 try:
     from faster_whisper import WhisperModel
-    from app.config import get_settings
+    from app.core.config import get_settings
     settings = get_settings()
     HAS_WHISPER = True
 except ImportError:

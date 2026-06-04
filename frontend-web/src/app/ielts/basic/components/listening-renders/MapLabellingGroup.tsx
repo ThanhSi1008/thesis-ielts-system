@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Headphones, MapPin, MessageSquare, StickyNote, Check } from 'lucide-react';
+import QuestionNoteSection from '@/components/QuestionNote';
 
 export interface MapLabellingItem {
   question_number: number;
@@ -35,6 +36,7 @@ export function MapLabellingGroup({
   onLocate: (qNum: number) => void;
 }) {
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
+  const [activeNoteQn, setActiveNoteQn] = useState<number | null>(null);
 
   const seekTo = (ts?: number) => {
     if (!audioRef.current) return;
@@ -119,13 +121,13 @@ export function MapLabellingGroup({
                       }
 
                       return (
-                        <td key={label} className={`py-3 px-1 text-center border-l border-gray-200 align-middle ${submitted && isActualAnswer && !isSelected ? "bg-green-100/50" : ""
+                        <td key={label} className={`py-3 px-1 text-center border-l border-gray-200 align-middle ${submitted && showAnswers && isActualAnswer && !isSelected ? "bg-green-100/50" : ""
                           }`}>
                           <input
                             type="radio"
                             name={`q-${qNum}`}
                             value={label}
-                            checked={isSelected || (submitted && isActualAnswer)}
+                            checked={isSelected}
                             onChange={() => onAnswer(qNum, label)}
                             disabled={submitted}
                             className={radioClasses}
@@ -161,17 +163,27 @@ export function MapLabellingGroup({
               </button>
               <button
                 onClick={() => setShowExplanation(showExplanation === question_number ? null : question_number)}
-                className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors"
+                className={`flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors ${
+                  showExplanation === question_number ? "bg-blue-100 text-blue-800 hover:bg-blue-200" : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                }`}
               >
                 <MessageSquare className="w-3.5 h-3.5" /> Explain
               </button>
-              <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+              <button
+                onClick={() => setActiveNoteQn(activeNoteQn === question_number ? null : question_number)}
+                className={`flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors ${
+                  activeNoteQn === question_number ? "bg-amber-100 text-amber-800 hover:bg-amber-200" : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                }`}
+              >
                 <StickyNote className="w-3.5 h-3.5" /> Note
               </button>
               {showExplanation === question_number && (
                 <div className="w-full mt-1.5 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-[13px] text-blue-900 leading-relaxed">
                   {explanation}
                 </div>
+              )}
+              {activeNoteQn === question_number && (
+                <QuestionNoteSection questionNumber={question_number} />
               )}
             </div>
           ))}

@@ -81,10 +81,12 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
       });
 
       let exOrder = 1;
+      const createdExercises: { id: string; type: string; topic: string }[] = [];
+
       for (const ex of matchedExs) {
         if (ex.seeded) continue;
         if (skillName === "listening") {
-          await prisma.ieltsBasicListeningExercise.create({
+          const created = await prisma.ieltsBasicListeningExercise.create({
             data: {
               skillId: skillRecord.id,
               lessonId: foundationVocabLesson.id,
@@ -96,8 +98,9 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
               order: exOrder++,
             },
           });
+          createdExercises.push({ id: created.id, type: "listening", topic: ex.topic });
         } else if (skillName === "reading") {
-          await prisma.ieltsBasicReadingExercise.create({
+          const created = await prisma.ieltsBasicReadingExercise.create({
             data: {
               skillId: skillRecord.id,
               lessonId: foundationVocabLesson.id,
@@ -109,8 +112,27 @@ export async function seedIeltsBasic(prisma: PrismaClient) {
               order: exOrder++,
             },
           });
+          createdExercises.push({ id: created.id, type: "reading", topic: ex.topic });
         }
         ex.seeded = true;
+      }
+
+      if (createdExercises.length > 0) {
+        const updatedContent = [
+          ...(theory.content as any[]),
+          ...createdExercises.map((ex) => ({
+            type: "example",
+            title: ex.topic,
+            exerciseType: ex.type,
+            exerciseId: ex.id,
+            groupIndex: 0,
+          })),
+        ];
+
+        await prisma.ieltsBasicLesson.update({
+          where: { id: foundationVocabLesson.id },
+          data: { content: updatedContent },
+        });
       }
     }
 

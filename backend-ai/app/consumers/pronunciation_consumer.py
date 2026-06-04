@@ -8,10 +8,9 @@ import json
 import threading
 import time
 import pika
-import psycopg2
 import os
 from typing import Dict, Any
-from app.config import get_settings
+from app.core.config import get_settings
 from app.services.transcription_service import get_transcription_service
 from app.services.pronunciation_service import get_pronunciation_service
 from app.services.storage_service import get_storage_service
@@ -46,6 +45,18 @@ class PronunciationConsumer:
                 queue='pronunciation-check-queue',
                 durable=True
             )
+            self.channel.queue_declare(
+                queue='pronunciation-check-result-dlq',
+                durable=True
+            )
+            self.channel.queue_declare(
+                queue=settings.rabbitmq_queue_pronunciation_result,
+                durable=True,
+                arguments={
+                    'x-dead-letter-exchange': '',
+                    'x-dead-letter-routing-key': 'pronunciation-check-result-dlq',
+                }
+            )
             
             # Set QoS
             self.channel.basic_qos(prefetch_count=settings.consumer_prefetch_count)
@@ -77,8 +88,10 @@ class PronunciationConsumer:
             logger.info(f"🎤 Processing pronunciation check for attempt: {attempt_id}")
             logger.info(f"   Target word: '{target_word}'")
             
-            # Update status to PROCESSING
-            self._update_attempt_status(attempt_id, 'PROCESSING')
+            self._publish_result_event({
+                "attemptId": attempt_id,
+                "status": "PROCESSING",
+            })
             
             # Download audio file from MinIO
             # Extract filename from audioUrl (e.g., "pronunciation/uuid.wav")
@@ -108,14 +121,14 @@ class PronunciationConsumer:
             
             logger.info(f"📊 Score: {score}/100 - {feedback['level']}")
             
-            # Update database with results
-            self._update_pronunciation_result(
-                attempt_id=attempt_id,
-                transcribed_text=transcribed_text,
-                score=score,
-                feedback=feedback,
-                status='COMPLETED'
-            )
+            self._publish_result_event({
+                "attemptId": attempt_id,
+                "status": "COMPLETED",
+                "transcribedText": transcribed_text,
+                "score": score,
+                "feedback": feedback,
+                "error": None,
+            })
             
             # Clean up temporary file
             if os.path.exists(local_audio_path):
@@ -125,76 +138,34 @@ class PronunciationConsumer:
             
         except Exception as e:
             logger.error(f"❌ Pronunciation check failed: {e}")
-            # Update status to FAILED
-            try:
-                self._update_attempt_status(task.get('attemptId'), 'FAILED')
-            except:
-                pass
+            attempt_id = task.get('attemptId')
+            if attempt_id:
+                self._publish_result_event({
+                    "attemptId": attempt_id,
+                    "status": "FAILED",
+                    "feedback": {"error": str(e)},
+                    "error": str(e),
+                })
             raise
 
-    def _update_attempt_status(self, attempt_id: str, status: str):
-        """Update pronunciation attempt status"""
-        try:
-            conn = psycopg2.connect(settings.database_url)
-            cursor = conn.cursor()
-            
-            cursor.execute(
-                """
-                UPDATE pronunciation_attempts 
-                SET status = %s, "updatedAt" = NOW() 
-                WHERE id = %s
-                """,
-                (status, attempt_id)
-            )
-            
-            conn.commit()
-            cursor.close()
-            conn.close()
-            
-            logger.info(f"✅ Updated attempt {attempt_id} status to {status}")
-            
-        except Exception as e:
-            logger.error(f"❌ Failed to update attempt status: {e}")
-            raise
+    def _publish_result_event(self, event: Dict[str, Any]):
+        """Publish pronunciation result for backend-core to persist."""
+        if not self.channel:
+            raise RuntimeError("RabbitMQ channel is not initialized")
 
-    def _update_pronunciation_result(
-        self, 
-        attempt_id: str, 
-        transcribed_text: str,
-        score: int,
-        feedback: Dict[str, Any],
-        status: str
-    ):
-        """Update pronunciation attempt with results"""
-        try:
-            conn = psycopg2.connect(settings.database_url)
-            cursor = conn.cursor()
-            
-            # Convert feedback dict to JSON string
-            feedback_json = json.dumps(feedback)
-            
-            cursor.execute(
-                """
-                UPDATE pronunciation_attempts 
-                SET "transcribedText" = %s,
-                    score = %s,
-                    feedback = %s::jsonb,
-                    status = %s,
-                    "updatedAt" = NOW()
-                WHERE id = %s
-                """,
-                (transcribed_text, score, feedback_json, status, attempt_id)
-            )
-            
-            conn.commit()
-            cursor.close()
-            conn.close()
-            
-            logger.info(f"✅ Updated pronunciation result for attempt: {attempt_id}")
-            
-        except Exception as e:
-            logger.error(f"❌ Database update failed: {e}")
-            raise
+        self.channel.basic_publish(
+            exchange='',
+            routing_key=settings.rabbitmq_queue_pronunciation_result,
+            body=json.dumps(event).encode("utf-8"),
+            properties=pika.BasicProperties(
+                delivery_mode=2,
+                content_type="application/json",
+            ),
+        )
+        logger.info(
+            f"Published pronunciation result event for attempt: {event.get('attemptId')} "
+            f"status={event.get('status')}"
+        )
 
     def callback(self, ch, method, properties, body):
         """Callback function for processing messages"""

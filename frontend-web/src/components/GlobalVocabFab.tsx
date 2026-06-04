@@ -44,7 +44,7 @@ export function GlobalVocabFab() {
     e.currentTarget.releasePointerCapture(e.pointerId);
   };
 
-  const isTakePage = pathname.includes("/take/") || pathname.includes("/practice/") || pathname.endsWith("/start") || pathname === "/ielts/basic/onboarding";
+  const isTakePage = pathname.includes("/take/") || pathname.includes("/practice/") || pathname.endsWith("/start") || pathname === "/ielts/basic/onboarding" || pathname.includes("/vocab-lab");
 
   if (!user || isTakePage) return null;
 

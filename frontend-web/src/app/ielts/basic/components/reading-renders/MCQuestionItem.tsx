@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MapPin, MessageSquare, StickyNote } from 'lucide-react';
+import QuestionNoteSection from '@/components/QuestionNote';
 
 export interface MCOption {
   letter: string;
@@ -31,7 +32,9 @@ export function MCQuestionItem({
   onLocate: (qNum: number) => void;
 }) {
   const [showExplanation, setShowExplanation] = useState(false);
-  const isCorrect = selected?.toUpperCase() === q.answer?.toUpperCase();return (
+  const [showNote, setShowNote] = useState(false);
+  const isCorrect = selected?.toUpperCase() === q.answer?.toUpperCase();
+  return (
     <div id={`question-${q.question_number}`} className="mb-7">
       <p className="text-[14px] font-semibold text-gray-900 mb-3 leading-snug flex items-start">
         <span className={`inline-block mr-2 font-bold ${submitted
@@ -105,7 +108,12 @@ export function MCQuestionItem({
           <button onClick={() => setShowExplanation(!showExplanation)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
             <MessageSquare className="w-3.5 h-3.5" /> Explain
           </button>
-          <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+          <button
+            onClick={() => setShowNote(!showNote)}
+            className={`flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors ${
+              showNote ? "bg-amber-100 text-amber-800 hover:bg-amber-200" : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+            }`}
+          >
             <StickyNote className="w-3.5 h-3.5" /> Note
           </button>
         </div>
@@ -128,6 +136,12 @@ export function MCQuestionItem({
               )}
             </>
           )}
+        </div>
+      )}
+
+      {showNote && (
+        <div className="ml-8">
+          <QuestionNoteSection questionNumber={q.question_number} />
         </div>
       )}
     </div>

@@ -125,7 +125,7 @@ export function ReadingExerciseLayout({
       </div>
 
       {/* ── Bottom bar ── */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-gray-800 px-6 lg:px-10 py-3 flex items-center justify-between z-10 rounded-b-2xl transition-colors">
+      <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-gray-800 pl-6 lg:pl-10 pr-24 lg:pr-28 py-3 flex items-center justify-between z-10 rounded-b-2xl transition-colors">
         <div className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">
           <span>Questions</span>
           <div className="flex flex-wrap items-center gap-1 ml-1 max-w-[60vw]">
@@ -183,9 +183,10 @@ export function ReadingExerciseLayout({
             <button
               onClick={handleSubmit}
               disabled={Object.keys(answers).length === 0}
-              className="w-11 h-11 rounded-full bg-[#0F172A] dark:bg-primary flex items-center justify-center hover:bg-black dark:hover:bg-yellow-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+              className="px-6 py-2.5 rounded-xl bg-[#0F172A] dark:bg-primary text-white dark:text-gray-900 text-[14.5px] font-bold hover:bg-black dark:hover:bg-yellow-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-md leading-none flex items-center justify-center tracking-wide gap-2"
             >
-              <Check className="w-[22px] h-[22px] text-white dark:text-gray-900" strokeWidth={3} />
+              <Check className="w-[18px] h-[18px]" strokeWidth={3} />
+              Submit Answers
             </button>
           )}
         </div>

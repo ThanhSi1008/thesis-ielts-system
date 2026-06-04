@@ -1,21 +1,28 @@
-import { Controller, Post, Body, Res } from "@nestjs/common";
-import { Response } from "express";
+import { Controller, Post, Body, Res, Req } from "@nestjs/common";
+import { Response, Request } from "express";
 import * as http from "http";
 
 @Controller("chat")
 export class ChatController {
   @Post()
-  async proxyChat(@Body() body: any, @Res({ passthrough: false }) res: Response) {
+  async proxyChat(@Body() body: any, @Req() request: Request, @Res({ passthrough: false }) res: Response) {
     const { stream = true } = body;
 
+    const proxyHeaders: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    // Forward the user's JWT so the AI agent can make authenticated calls
+    const authHeader = request.headers["authorization"];
+    if (authHeader) {
+      proxyHeaders["Authorization"] = authHeader as string;
+    }
+
     const options = {
-      hostname: "backend-ai",
+      hostname: process.env.AI_SERVICE_HOST || "localhost",
       port: 8000,
       path: "/api/v1/chat",
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: proxyHeaders,
     };
 
     if (stream) {

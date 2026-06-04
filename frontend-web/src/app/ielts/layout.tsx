@@ -17,7 +17,8 @@ export default function IeltsLayout({
   const isGrammarUnitPage = pathname.match(/^\/ielts\/grammar\/[^\/]+\/[^\/]+$/) !== null;
   const isTakePage = pathname.includes("/take/") || pathname.includes("/practice/") || pathname.endsWith("/start");
   const isNavbarHidden = isTakePage || isOnboarding || pathname === "/login" || pathname === "/register";
-  const shouldHideSidebar = isNavbarHidden || isVocabularyUnitPage || isGrammarUnitPage;
+  const isResultPage = pathname.includes("/result/") || pathname.includes("/my-answers/");
+  const shouldHideSidebar = isNavbarHidden || isVocabularyUnitPage || isGrammarUnitPage || isResultPage;
   
   useEffect(() => {
     // Enable scrolling on the main body (it was previously hidden)

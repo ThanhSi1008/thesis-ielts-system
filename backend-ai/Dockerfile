@@ -34,8 +34,8 @@ RUN apt-get update && apt-get install -y \
 COPY --from=base /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=base /usr/local/bin /usr/local/bin
 
-# Pre-download Whisper base model into image to avoid cold-start download
-RUN python -c "from faster_whisper import WhisperModel; WhisperModel('base', device='cpu', compute_type='int8')"
+# Pre-download Whisper tiny model into image to avoid cold-start download
+RUN python -c "from faster_whisper import WhisperModel; WhisperModel('tiny', device='cpu', compute_type='int8')"
 
 # Copy application code
 COPY ./app ./app

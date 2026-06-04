@@ -134,22 +134,52 @@ class PronunciationService:
                 # ── Metric 1: Phoneme Accuracy ──
                 phoneme_score = ipa_similarity_score(target_word, transcribed_text)
 
-                # ── Metric 2: Whisper Confidence ──
+                # ── Metric 2: Raw Whisper probability (used as input to composite) ──
                 if word_details and len(word_details) > 0:
                     avg_confidence = sum(w.get("probability", 0) for w in word_details) / len(word_details)
-                    confidence_score = avg_confidence * 100
+                    raw_whisper = math.sqrt(avg_confidence) * 100  # perceptual scaling
                 else:
-                    confidence_score = 50.0  # neutral fallback
+                    raw_whisper = 50.0  # neutral fallback
 
-                # ── Metric 3: Text Accuracy (Levenshtein) ──
+                # ── Metric 3: Text Accuracy (Levenshtein + Homophones) ──
                 t_norm = transcribed_text.lower().strip()
                 r_norm = target_word.lower().strip()
-                if t_norm == r_norm:
+                
+                # Dictionary of common English homophones
+                homophones = {
+                    "red": "read", "read": "red",
+                    "two": "to", "to": "two", "too": "two",
+                    "there": "their", "their": "there", "they're": "there",
+                    "bare": "bear", "bear": "bare",
+                    "one": "won", "won": "one",
+                    "see": "sea", "sea": "see",
+                    "here": "hear", "hear": "here",
+                    "right": "write", "write": "right",
+                    "buy": "by", "by": "buy", "bye": "buy",
+                    "hole": "whole", "whole": "hole",
+                    "no": "know", "know": "no",
+                    "some": "sum", "sum": "some",
+                    "sun": "son", "son": "sun",
+                    "wait": "weight", "weight": "wait",
+                    "wood": "would", "would": "wood"
+                }
+
+                if t_norm == r_norm or homophones.get(r_norm) == t_norm or homophones.get(t_norm) == r_norm:
                     text_score = 100.0
                 else:
                     distance = Levenshtein.distance(t_norm, r_norm)
                     max_len = max(len(t_norm), len(r_norm))
                     text_score = (1 - distance / max_len) * 100 if max_len > 0 else 0
+
+                # ── Composite Confidence Score ──
+                # Blend Whisper probability with phoneme/text signals to produce
+                # a stable clarity metric (Whisper alone is unreliable for single words)
+                confidence_score = (
+                    raw_whisper * 0.3 +
+                    phoneme_score * 0.4 +
+                    text_score * 0.3
+                )
+                confidence_score = max(0.0, min(100.0, confidence_score))
 
                 # ── Combined Score ──
                 # Weighted average: phoneme (40%) + confidence (40%) + text (20%)

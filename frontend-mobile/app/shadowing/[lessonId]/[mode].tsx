@@ -45,6 +45,46 @@ const PLACEHOLDER_SENTENCES = [
   { id: 2, english: 'Listen carefully and repeat after the speaker.', vietnamese: 'Lắng nghe cẩn thận và nhắc lại sau người nói.', audioStart: 6, audioEnd: 9 },
 ];
 
+const normalizeWord = (w: string) => w.toLowerCase().replace(/[.,!?'"-\\/]/g, '').trim();
+
+const getLevenshteinDistance = (a: string, b: string): number => {
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+
+  const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
+
+  for (let i = 0; i <= a.length; i += 1) {
+    matrix[0][i] = i;
+  }
+
+  for (let j = 0; j <= b.length; j += 1) {
+    matrix[j][0] = j;
+  }
+
+  for (let j = 1; j <= b.length; j += 1) {
+    for (let i = 1; i <= a.length; i += 1) {
+      const indicator = a[i - 1] === b[j - 1] ? 0 : 1;
+      matrix[j][i] = Math.min(
+        matrix[j][i - 1] + 1, // deletion
+        matrix[j - 1][i] + 1, // insertion
+        matrix[j - 1][i - 1] + indicator // substitution
+      );
+    }
+  }
+
+  return matrix[b.length][a.length];
+};
+
+const fuzzyMatchWord = (spoken: string, correct: string): boolean => {
+  const normSpoken = normalizeWord(spoken);
+  const normCorrect = normalizeWord(correct);
+  
+  if (normSpoken === normCorrect) return true;
+  if (normCorrect.length <= 2) return normSpoken === normCorrect;
+  if (normCorrect.length <= 5) return getLevenshteinDistance(normSpoken, normCorrect) <= 1;
+  return getLevenshteinDistance(normSpoken, normCorrect) <= 2;
+};
+
 export default function ShadowingPracticeScreen() {
   // ── Auth & AI scoring ────────────────────────────────────────────────────
   const { user } = useAuth();
@@ -93,8 +133,6 @@ export default function ShadowingPracticeScreen() {
   const currentSentenceWords = React.useMemo(() => {
     return (current?.english || '').split(/\s+/).filter((w: string) => w.length > 0);
   }, [current?.english]);
-
-  const normalizeWord = (w: string) => w.toLowerCase().replace(/[.,!?'"]/g, '').trim();
 
   // Phase 2: Apply difficulty
   useEffect(() => {
@@ -184,6 +222,45 @@ export default function ShadowingPracticeScreen() {
   // Phase 3: Speech Recognition + AI Scoring
   const [isRecording, setIsRecording] = useState(false);
   const [spokenTranscript, setSpokenTranscript] = useState('');
+  const [attempts, setAttempts] = useState(0);
+  const recordingStartRef = useRef<number>(0);
+
+  const spokenWords = React.useMemo(() => {
+    return spokenTranscript.trim().split(/\s+/).filter(w => w.length > 0);
+  }, [spokenTranscript]);
+
+  const isAllCorrect = React.useMemo(() => {
+    if (!isShadowing) return false;
+    if (!currentSentenceWords || currentSentenceWords.length === 0) return false;
+    
+    let correctCount = 0;
+    currentSentenceWords.forEach((word: string, idx: number) => {
+      const spokenRaw = spokenWords[idx] || '';
+      if (fuzzyMatchWord(spokenRaw, word)) {
+        correctCount++;
+      }
+    });
+
+    const accuracy = correctCount / currentSentenceWords.length;
+    return accuracy >= 0.8;
+  }, [isShadowing, currentSentenceWords, spokenWords]);
+
+  const getWordStyle = React.useCallback((word: string, i: number) => {
+    if (spokenWords.length === 0) {
+      return { color: COLORS.text };
+    }
+    const spokenRaw = spokenWords[i];
+    if (!spokenRaw) {
+      return { color: COLORS.error, textDecorationLine: 'underline' as const };
+    }
+    if (normalizeWord(spokenRaw) === normalizeWord(word)) {
+      return { color: COLORS.success };
+    }
+    if (fuzzyMatchWord(spokenRaw, word)) {
+      return { color: '#f59e0b' }; // warning orange
+    }
+    return { color: COLORS.error, textDecorationLine: 'underline' as const };
+  }, [spokenWords, currentSentenceWords]);
 
   useSpeechRecognitionEvent('result', (event: any) => {
     if (event.results && event.results.length > 0) {
@@ -191,10 +268,16 @@ export default function ShadowingPracticeScreen() {
       setSpokenTranscript(transcript);
 
       if (isShadowing && !sentenceCorrect) {
-        const closeCount = currentSentenceWords.filter((cw: string) =>
-          transcript.toLowerCase().includes(normalizeWord(cw))
-        ).length;
-        if (closeCount >= currentSentenceWords.length * 0.7) {
+        const words = transcript.trim().split(/\s+/).filter((w: string) => w.length > 0);
+        let correctCount = 0;
+        currentSentenceWords.forEach((word: string, idx: number) => {
+          const spokenRaw = words[idx] || '';
+          if (fuzzyMatchWord(spokenRaw, word)) {
+            correctCount++;
+          }
+        });
+        const accuracy = correctCount / currentSentenceWords.length;
+        if (accuracy >= 0.8) {
           setSentenceCorrect(true);
           markCompleted(currentIdx);
           stopShadowingRecording();
@@ -206,6 +289,7 @@ export default function ShadowingPracticeScreen() {
   /** Start speech recognition + expo-audio recording simultaneously */
   const startShadowingRecording = useCallback(async () => {
     pronunciationChecker.reset();
+    recordingStartRef.current = Date.now();
     // Start audio file recording for AI scoring
     await audioRecorder.startRecording();
 
@@ -228,9 +312,21 @@ export default function ShadowingPracticeScreen() {
     // Stop speech recognition
     if (ExpoSpeechRecognitionModule) ExpoSpeechRecognitionModule.stop();
     setIsRecording(false);
+    setAttempts(prev => prev + 1);
 
+    const elapsed = Date.now() - recordingStartRef.current;
+    
     // Stop expo-audio recorder and get URI
     const uri = await audioRecorder.stopRecording();
+    
+    if (elapsed < 1000) {
+      Alert.alert('Recording too short', 'Please speak clearly and hold for at least 1 second.');
+      if (uri) {
+        audioRecorder.clearRecording();
+      }
+      return;
+    }
+
     if (uri && user?.id && current?.english) {
       await pronunciationChecker.checkPronunciation(uri, user.id, {
         targetWord: current.english,
@@ -352,6 +448,7 @@ export default function ShadowingPracticeScreen() {
     markCompleted(currentIdx);
     setDictationInput('');
     setSpokenTranscript('');
+    setAttempts(0);
     setShowAnswer(false);
     setPlaying(false);
     if (isRecording) stopRecording();
@@ -478,7 +575,7 @@ export default function ShadowingPracticeScreen() {
               <View style={styles.clickableSentence}>
                 {currentSentenceWords.map((word: string, i: number) => (
                   <TouchableOpacity key={i} onPress={() => handleWordTap(word)}>
-                    <Text style={styles.sentenceEnglishWord}>{word}</Text>
+                    <Text style={[styles.sentenceEnglishWord, getWordStyle(word, i)]}>{word}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -528,6 +625,13 @@ export default function ShadowingPracticeScreen() {
               {/* AI Pronunciation Score */}
               {pronunciationChecker.result?.score && (
                 <Animated.View entering={FadeIn} exiting={FadeOut}>
+                  {pronunciationChecker.result.transcribedText && (
+                    <View style={styles.heardBox}>
+                      <Text style={styles.heardLabel}>
+                        Heard: <Text style={styles.heardText}>"{pronunciationChecker.result.transcribedText}"</Text>
+                      </Text>
+                    </View>
+                  )}
                   <ScoreDashboard score={pronunciationChecker.result.score} />
                   {pronunciationChecker.result.score.words &&
                     pronunciationChecker.result.score.words.length > 0 && (
@@ -644,19 +748,37 @@ export default function ShadowingPracticeScreen() {
         <View style={styles.navRow}>
           <TouchableOpacity
             style={styles.prevBtn}
-            onPress={() => { if (currentIdx > 0) { setCurrentIdx(i => i - 1); setShowAnswer(false); setDictationInput(''); } }}
+            onPress={() => {
+              if (currentIdx > 0) {
+                setCurrentIdx(i => i - 1);
+                setShowAnswer(false);
+                setDictationInput('');
+                setSpokenTranscript('');
+                setAttempts(0);
+              }
+            }}
             disabled={currentIdx === 0}
           >
             <Ionicons name="chevron-back" size={20} color={currentIdx === 0 ? COLORS.textMuted : COLORS.primary} />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.nextBtn, completed.includes(currentIdx) && styles.nextBtnCompleted]}
+            style={[
+              styles.nextBtn,
+              completed.includes(currentIdx) && styles.nextBtnCompleted,
+              (isShadowing && !completed.includes(currentIdx) && attempts < 3) && styles.nextBtnDisabled
+            ]}
             onPress={handleNext}
-            disabled={saving}
+            disabled={saving || (isShadowing && !completed.includes(currentIdx) && attempts < 3)}
           >
             <Text style={styles.nextBtnText}>
-              {currentIdx === sentences.length - 1 ? (saving ? 'Saving…' : 'Finish ✓') : 'Next →'}
+              {currentIdx === sentences.length - 1 ? (
+                saving ? 'Saving…' : 'Finish ✓'
+              ) : (
+                (isShadowing && !completed.includes(currentIdx) && attempts >= 3)
+                  ? 'Skip (Speech unrecognised) →'
+                  : 'Next →'
+              )}
             </Text>
           </TouchableOpacity>
         </View>
@@ -862,6 +984,7 @@ const styles = StyleSheet.create({
   prevBtn: { width: 56, height: 56, borderRadius: RADIUS.xl, borderWidth: 1.5, borderColor: COLORS.border, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fff' },
   nextBtn: { flex: 1, backgroundColor: COLORS.primary, height: 56, borderRadius: RADIUS.xl, alignItems: 'center', justifyContent: 'center', shadowColor: COLORS.primary, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
   nextBtnCompleted: { backgroundColor: SUCCESS_COLOR, shadowColor: SUCCESS_COLOR },
+  nextBtnDisabled: { backgroundColor: COLORS.border, shadowColor: 'transparent', opacity: 0.5 },
   nextBtnText: { color: '#fff', fontFamily: FONTS.bold, fontSize: FONT_SIZES.lg },
   
   recordSection: { alignItems: 'center', marginVertical: SPACING.xl },
@@ -870,6 +993,24 @@ const styles = StyleSheet.create({
   transcriptBox: { backgroundColor: COLORS.surface, padding: SPACING.lg, borderRadius: RADIUS.xl, marginBottom: SPACING.md, borderWidth: 1, borderColor: COLORS.border },
   transcriptLabel: { fontSize: FONT_SIZES.xs, fontFamily: FONTS.bold, color: COLORS.textMuted, textTransform: 'uppercase', marginBottom: 8, letterSpacing: 0.5 },
   transcriptText: { fontSize: FONT_SIZES.md, color: COLORS.text, fontStyle: 'italic', lineHeight: 24 },
+
+  heardBox: {
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    borderRadius: RADIUS.lg,
+    padding: SPACING.md,
+    marginBottom: SPACING.md,
+  },
+  heardLabel: {
+    fontSize: FONT_SIZES.sm,
+    fontFamily: FONTS.medium,
+    color: '#64748b',
+  },
+  heardText: {
+    fontFamily: FONTS.bold,
+    color: '#334155',
+  },
   
   dictModalOverlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'flex-end', zIndex: 100 },
   dictModalBg: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.4)' },

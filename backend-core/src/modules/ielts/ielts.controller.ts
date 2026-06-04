@@ -210,6 +210,12 @@ export class IeltsController {
     return this.ieltsRoadmapService.generateRoadmap(req.user.id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Post("roadmap/regenerate")
+  async regenerateRoadmap(@Request() req: any) {
+    return this.ieltsRoadmapService.resetRoadmap(req.user.id);
+  }
+
   // ── Streak Tracking ──────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard)

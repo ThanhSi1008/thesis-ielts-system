@@ -8,14 +8,17 @@ import json
 import threading
 import time
 import pika
-import psycopg2
 import asyncio
 from typing import Dict, Any
 
-from app.config import get_settings
+from app.core.config import get_settings
 from app.services.transcription_service import get_transcription_service
-from app.services.writing_grader import grade_writing, grade_single_writing_task
-from app.services.speaking_grader import grade_speaking, grade_single_speaking_part
+from app.services.grading_service import (
+    grade_writing,
+    grade_single_writing_task,
+    grade_speaking,
+    grade_single_speaking_part,
+)
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -49,6 +52,10 @@ class GradingConsumer:
                 queue='exam-grading-dlq',
                 durable=True
             )
+            self.channel.queue_declare(
+                queue='exam-grading-result-dlq',
+                durable=True
+            )
             
             # Declare main queue with DLQ routing
             self.channel.queue_declare(
@@ -58,6 +65,14 @@ class GradingConsumer:
                     'x-dead-letter-exchange': '',
                     'x-dead-letter-routing-key': 'exam-grading-dlq',
                     'x-message-ttl': 300000,  # 5 minutes
+                }
+            )
+            self.channel.queue_declare(
+                queue=settings.rabbitmq_queue_grading_result,
+                durable=True,
+                arguments={
+                    'x-dead-letter-exchange': '',
+                    'x-dead-letter-routing-key': 'exam-grading-result-dlq',
                 }
             )
             
@@ -76,10 +91,12 @@ class GradingConsumer:
         Args:
             task: Grading task data
         """
+        session_id = task.get('sessionId')
+        exam_type = task.get('examType') or task.get('type')
+        user_id = task.get('userId')
+        job_id = task.get('jobId') or session_id
+
         try:
-            session_id = task.get('sessionId')
-            exam_type = task.get('examType') or task.get('type')
-            user_id = task.get('userId')
             answers = task.get('answers', {})
             questions = task.get('questions', {})
             
@@ -88,16 +105,16 @@ class GradingConsumer:
             result = None
             if exam_type == 'WRITING':
                 result = self._grade_writing(session_id, answers, questions)
-                self._save_result(session_id, user_id, exam_type, result)
-                self._update_session_status(session_id, 'GRADED')
+                self._publish_grading_result(job_id, session_id, user_id, exam_type, 'GRADED', result)
             elif exam_type == 'SPEAKING':
                 result = self._grade_speaking(session_id, answers, questions)
-                self._save_result(session_id, user_id, exam_type, result)
-                self._update_session_status(session_id, 'GRADED')
+                self._publish_grading_result(job_id, session_id, user_id, exam_type, 'GRADED', result)
             elif exam_type == 'ADVANCED_WRITING':
-                self._grade_advanced_writing(task)
+                result = self._grade_advanced_writing(task)
+                self._publish_grading_result(job_id, session_id, user_id, exam_type, 'GRADED', result)
             elif exam_type == 'ADVANCED_SPEAKING':
-                self._grade_advanced_speaking(task)
+                result = self._grade_advanced_speaking(task)
+                self._publish_grading_result(job_id, session_id, user_id, exam_type, 'GRADED', result)
             else:
                 raise ValueError(f"Unsupported exam type for grading: {exam_type}")
             
@@ -106,12 +123,7 @@ class GradingConsumer:
         except Exception as e:
             logger.error(f"❌ Grading task failed for {session_id}: {e}")
             if session_id:
-                if exam_type == 'ADVANCED_WRITING':
-                    self._update_advanced_writing_session(session_id, 'GRADING_FAILED', {"error": str(e)}, None)
-                elif exam_type == 'ADVANCED_SPEAKING':
-                    self._update_advanced_speaking_session(session_id, 'GRADING_FAILED', {"error": str(e)}, None)
-                else:
-                    self._update_session_status(session_id, 'GRADING_FAILED')
+                self._publish_grading_failure(job_id, session_id, user_id, exam_type, str(e))
             raise
 
     def _grade_writing(self, session_id: str, answers: Dict[str, Any], questions: Dict[str, Any]) -> Dict[str, Any]:
@@ -158,12 +170,10 @@ class GradingConsumer:
             image_url=image_url
         ))
 
-        self._update_advanced_writing_session(
-            session_id=session_id,
-            status='GRADED',
-            feedback=feedback,
-            band_score=feedback.get("overall_band", 0)
-        )
+        return {
+            "overallBand": feedback.get("overall_band", 0),
+            "feedback": feedback
+        }
 
     def _grade_advanced_speaking(self, task: Dict[str, Any]):
         session_id = task.get('sessionId')
@@ -185,99 +195,73 @@ class GradingConsumer:
             )
         )
 
-        self._update_advanced_speaking_session(
-            session_id=session_id,
-            status='GRADED',
-            feedback=feedback,
-            band_score=feedback.get("overall_band", 0),
+        return {
+            "overallBand": feedback.get("overall_band", 0),
+            "feedback": feedback
+        }
+
+    def _publish_grading_result(
+        self,
+        job_id: str,
+        session_id: str,
+        user_id: str,
+        exam_type: str,
+        status: str,
+        result: Dict[str, Any],
+    ):
+        """Publish grading result for backend-core to persist."""
+        event = {
+            "jobId": job_id,
+            "sessionId": session_id,
+            "userId": user_id,
+            "examType": exam_type,
+            "status": status,
+            "score": result.get("overallBand", 0),
+            "feedback": result.get("feedback", {}),
+            "error": None,
+            "gradedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        }
+        self._publish_result_event(event)
+
+    def _publish_grading_failure(
+        self,
+        job_id: str,
+        session_id: str,
+        user_id: str,
+        exam_type: str,
+        error: str,
+    ):
+        """Publish grading failure for backend-core to persist."""
+        event = {
+            "jobId": job_id,
+            "sessionId": session_id,
+            "userId": user_id,
+            "examType": exam_type,
+            "status": "GRADING_FAILED",
+            "score": None,
+            "feedback": {"error": error},
+            "error": error,
+            "gradedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        }
+        self._publish_result_event(event)
+
+    def _publish_result_event(self, event: Dict[str, Any]):
+        if not self.channel:
+            raise RuntimeError("RabbitMQ channel is not initialized")
+
+        self.channel.basic_publish(
+            exchange='',
+            routing_key=settings.rabbitmq_queue_grading_result,
+            body=json.dumps(event).encode("utf-8"),
+            properties=pika.BasicProperties(
+                delivery_mode=2,
+                content_type="application/json",
+            ),
         )
-
-    def _save_result(self, session_id: str, user_id: str, exam_type: str, result: Dict[str, Any]):
-        """Write grading result to the database"""
-        try:
-            conn = psycopg2.connect(settings.database_url)
-            cursor = conn.cursor()
-            
-            score = result.get('overallBand', 0)
-            feedback_json = json.dumps(result.get('feedback', {}))
-            
-            cursor.execute("""
-                INSERT INTO "results" ("id", "userId", "sessionId", "totalScore",
-                                     "writingScore", "speakingScore", "feedback", "gradedAt", "createdAt", "updatedAt")
-                VALUES (gen_random_uuid(), %s, %s, %s, %s, %s, %s::jsonb, NOW(), NOW(), NOW())
-                ON CONFLICT ("sessionId") DO UPDATE SET
-                    "totalScore" = EXCLUDED."totalScore",
-                    "writingScore" = EXCLUDED."writingScore",
-                    "speakingScore" = EXCLUDED."speakingScore",
-                    "feedback" = EXCLUDED."feedback",
-                    "gradedAt" = NOW(),
-                    "updatedAt" = NOW()
-            """, (
-                user_id, session_id, score,
-                score if exam_type == 'WRITING' else None,
-                score if exam_type == 'SPEAKING' else None,
-                feedback_json,
-            ))
-            conn.commit()
-            cursor.close()
-            conn.close()
-            
-        except Exception as e:
-            logger.error(f"❌ Database update failed: {e}")
-            raise
-
-    def _update_session_status(self, session_id: str, status: str):
-        """Update session status in database"""
-        try:
-            conn = psycopg2.connect(settings.database_url)
-            cursor = conn.cursor()
-            cursor.execute(
-                'UPDATE "exam_sessions" SET status = %s WHERE id = %s',
-                (status, session_id)
-            )
-            conn.commit()
-            cursor.close()
-            conn.close()
-        except Exception as e:
-            logger.error(f"❌ Session status update failed: {e}")
-
-    def _update_advanced_writing_session(self, session_id: str, status: str, feedback: Dict[str, Any], band_score: float | None):
-        try:
-            conn = psycopg2.connect(settings.database_url)
-            cursor = conn.cursor()
-            
-            feedback_json = json.dumps(feedback)
-            
-            cursor.execute(
-                '''UPDATE "ielts_advanced_writing_sessions" 
-                   SET status = %s, feedback = %s::jsonb, "bandScore" = %s, "updatedAt" = NOW() 
-                   WHERE id = %s''',
-                (status, feedback_json, band_score, session_id)
-            )
-            conn.commit()
-            cursor.close()
-            conn.close()
-        except Exception as e:
-            logger.error(f"❌ Advanced Writing Session status update failed: {e}")
-
-    def _update_advanced_speaking_session(self, session_id: str, status: str, feedback: Dict[str, Any], band_score: float | None):
-        try:
-            conn = psycopg2.connect(settings.database_url)
-            cursor = conn.cursor()
-
-            feedback_json = json.dumps(feedback)
-
-            cursor.execute(
-                '''UPDATE "ielts_advanced_speaking_sessions"
-                   SET status = %s, feedback = %s::jsonb, "bandScore" = %s, "updatedAt" = NOW()
-                   WHERE id = %s''',
-                (status, feedback_json, band_score, session_id)
-            )
-            conn.commit()
-            cursor.close()
-            conn.close()
-        except Exception as e:
-            logger.error(f"❌ Advanced Speaking Session status update failed: {e}")
+        logger.info(
+            f"📤 Published grading result event for session: {event.get('sessionId')} "
+            f"status={event.get('status')}"
+        )
 
     def _is_retryable(self, e: Exception) -> bool:
         """Return True for transient API errors that warrant a retry."""

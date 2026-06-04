@@ -39,7 +39,6 @@ const STATUS_BADGE: Record<WordProgress['status'], { className: string; icon: Re
 export default function ExampleWordCard({
   word, ipa, audioUrl, userId, soundId, onScoreReceived, index, tip, progress,
 }: ExampleWordCardProps) {
-  const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const playAudio = () => {
@@ -52,10 +51,6 @@ export default function ExampleWordCard({
 
   const handleResult = (result: PronunciationResult) => {
     onScoreReceived(result.score);
-    // Auto-close recorder on mastery
-    if (result.score >= 80) {
-      setTimeout(() => setIsRecording(false), 4000);
-    }
   };
 
   const badge = progress ? STATUS_BADGE[progress.status] : null;
@@ -88,7 +83,7 @@ export default function ExampleWordCard({
             </div>
           )}
 
-          {/* Audio + record buttons */}
+          {/* Audio play button */}
           <div className="flex items-center gap-2">
             <button
               onClick={playAudio}
@@ -103,34 +98,22 @@ export default function ExampleWordCard({
                 <path d="M8 5v14l11-7z" />
               </svg>
             </button>
-
-            {userId ? (
-              <button
-                onClick={() => setIsRecording(r => !r)}
-                aria-label={`Record pronunciation for ${word}`}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors
-                  ${isRecording ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40'}
-                `}
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-              </button>
-            ) : (
-              <div className="text-xs text-slate-400 bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-md hidden md:block">Log in to practice</div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Recorder panel */}
-      {isRecording && userId && (
-        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 animate-in fade-in duration-300">
+      {/* Recorder panel — always visible for logged-in users */}
+      {userId ? (
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
           <PronunciationRecorder
             targetWord={word}
             userId={userId}
             onSuccess={handleResult}
           />
+        </div>
+      ) : (
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+          <span className="text-xs text-slate-400 dark:text-slate-500">Log in to practice pronunciation</span>
         </div>
       )}
     </div>

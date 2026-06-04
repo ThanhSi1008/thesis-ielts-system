@@ -1,0 +1,68 @@
+"""
+Configuration module for AI Service
+Loads environment variables and provides configuration settings
+"""
+
+from pydantic_settings import BaseSettings
+from functools import lru_cache
+
+
+class Settings(BaseSettings):
+    """Application settings loaded from environment variables"""
+
+    # RabbitMQ Configuration
+    rabbitmq_url: str = "amqp://toeic:toeic_password@localhost:5672"
+    rabbitmq_queue_grading: str = "exam-grading-queue"
+    rabbitmq_queue_grading_result: str = "exam-grading-result-queue"
+    rabbitmq_queue_pronunciation: str = "pronunciation-check-queue"
+    rabbitmq_queue_pronunciation_result: str = "pronunciation-check-result-queue"
+    rabbitmq_queue_transcription_result: str = "dictation-transcription-result-queue"
+    rabbitmq_exchange: str = "toeic-exchange"
+
+    # Database Configuration
+    database_url: str = "postgresql://toeic_user:toeic_password@localhost:5432/toeic_db"
+
+    # Object Storage Configuration
+    storage_endpoint: str = "http://localhost:9000"
+    storage_access_key: str = "minioadmin"
+    storage_secret_key: str = "minioadmin"
+    storage_bucket: str = "toeic-files"
+    storage_region: str = "us-east-1"
+    storage_use_ssl: bool = False
+
+    # Google Cloud Storage
+    gcs_bucket_name: str = "toeic-files"
+    gcs_project_id: str = ""
+    google_application_credentials: str = ""
+
+    # AI Model Configuration
+    whisper_model: str = "tiny"
+    whisper_device: str = "cpu"
+    whisper_compute_type: str = "int8"
+    llm_model_path: str = "./models/llm"
+    llm_device: str = "cpu"
+
+    # Application Configuration
+    port: int = 8000
+    environment: str = "development"
+    log_level: str = "INFO"
+
+    # Worker Configuration
+    max_workers: int = 2
+    consumer_prefetch_count: int = 1
+
+    # Gemini AI (for IELTS Writing grader)
+    gemini_api_key: str = ""
+    backend_core_url: str = "http://localhost:3000/api/v1"
+
+    class Config:
+        env_file = ".env"
+        case_sensitive = False
+        extra = "ignore"
+
+
+@lru_cache()
+def get_settings() -> Settings:
+    """Get cached settings instance"""
+    return Settings()
+

@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function IELTSHomePage() {
-   redirect('/ielts/roadmap');
+   redirect('/ielts/dashboard');
 }

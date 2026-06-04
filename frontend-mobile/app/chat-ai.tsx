@@ -12,10 +12,47 @@ import { apiClient } from '@/services/api-client';
 import Svg, { Defs, LinearGradient, Stop, Path } from 'react-native-svg';
 import Markdown from 'react-native-markdown-display';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL, STORAGE_KEYS } from '@/constants';
+
+type ToolAction = {
+  tool: string;
+  displayName: string;
+  phase: 'calling' | 'done';
+  summary?: string;
+};
+
 type Message = {
   role: 'user' | 'model';
   content: string;
+  toolActions?: ToolAction[];
 };
+
+function decodeUtf8(array: Uint8Array): string {
+  let out = "";
+  let i = 0;
+  const len = array.length;
+  while (i < len) {
+    const c = array[i++];
+    switch (c >> 4) {
+      case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+        out += String.fromCharCode(c);
+        break;
+      case 12: case 13:
+        const char2 = array[i++];
+        out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+        break;
+      case 14:
+        const char2_3 = array[i++];
+        const char3 = array[i++];
+        out += String.fromCharCode(((c & 0x0F) << 12) |
+                       ((char2_3 & 0x3F) << 6) |
+                       ((char3 & 0x3F) << 0));
+        break;
+    }
+  }
+  return out;
+}
 
 export default function ChatAIScreen() {
   const { user } = useAuth();
@@ -50,18 +87,112 @@ export default function ChatAIScreen() {
     setIsTyping(true);
 
     try {
-      // Use standard non-streaming response for React Native
-      const res = await apiClient.post<{ response: string }>('/chat', {
-        messages: newMessages,
-        stream: false
+      const token = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+      const response = await fetch(`${API_BASE_URL}/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+          stream: true,
+        }),
       });
-      
-      setMessages(prev => [...prev, { role: 'model', content: res.response }]);
-    } catch (error) {
+
+      if (!response.ok) {
+        throw response;
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('Readable stream not supported');
+      }
+
+      let text = "";
+      let toolActions: ToolAction[] = [];
+      let sseBuffer = "";
+
+      // Add a pending message to the UI
+      setMessages([...newMessages, { role: "model", content: "", toolActions: [] }]);
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        sseBuffer += decodeUtf8(value);
+
+        // Split on double newline (SSE event boundary)
+        const events = sseBuffer.split("\n\n");
+        sseBuffer = events.pop() || "";
+
+        for (const rawEvent of events) {
+          if (!rawEvent.trim()) continue;
+
+          if (rawEvent.startsWith("event: status")) {
+            const dataLine = rawEvent.split("\n").find((l: string) => l.startsWith("data: "));
+            if (dataLine) {
+              try {
+                const status = JSON.parse(dataLine.slice(6));
+                const action: ToolAction = {
+                  tool: status.tool,
+                  displayName: status.displayName || status.tool,
+                  phase: status.phase,
+                  summary: status.summary,
+                };
+                if (status.phase === "done") {
+                  toolActions = toolActions.map((a) =>
+                    a.tool === status.tool && a.phase === "calling" ? action : a
+                  );
+                } else {
+                  toolActions = [...toolActions, action];
+                }
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  if (updated.length > 0) {
+                    updated[updated.length - 1] = {
+                      ...updated[updated.length - 1],
+                      toolActions: [...toolActions],
+                    };
+                  }
+                  return updated;
+                });
+              } catch { /* ignore */ }
+            }
+            continue;
+          }
+
+          if (rawEvent.startsWith("data: ")) {
+            const content = rawEvent.slice(6);
+            text += content;
+            setMessages((prev) => {
+              const updated = [...prev];
+              if (updated.length > 0) {
+                updated[updated.length - 1] = {
+                  ...updated[updated.length - 1],
+                  content: text,
+                };
+              }
+              return updated;
+            });
+          }
+        }
+      }
+    } catch (error: any) {
       console.error('Lexon AI error:', error);
+      const status = error?.status || (error instanceof Response ? error.status : null);
+      const isRateLimit = status === 429;
+      const isUnavailable = status === 503;
+      
+      let errMsg = 'Sorry, I encountered an error. Please check your internet connection and try again.';
+      if (isRateLimit) {
+        errMsg = 'AI is currently busy. Please wait a minute and try again.';
+      } else if (isUnavailable) {
+        errMsg = 'AI servers are experiencing high demand. Please try again later.';
+      }
+
       setMessages(prev => [...prev, { 
         role: 'model', 
-        content: 'Sorry, I encountered an error. Please check your internet connection and try again.' 
+        content: errMsg 
       }]);
     } finally {
       setIsTyping(false);
@@ -142,14 +273,45 @@ export default function ChatAIScreen() {
                   styles.messageBubble,
                   isUser ? styles.messageBubbleUser : styles.messageBubbleAI
                 ]}>
-                  {isUser ? (
-                    <Text style={[styles.messageText, styles.messageTextUser]}>
-                      {msg.content}
-                    </Text>
-                  ) : (
-                    <Markdown style={markdownStyles}>
-                      {msg.content}
-                    </Markdown>
+                  {!isUser && msg.toolActions && msg.toolActions.length > 0 && (
+                    <View style={styles.toolActionsContainer}>
+                      {msg.toolActions.map((action, aIdx) => (
+                        <View
+                          key={`${action.tool}-${aIdx}`}
+                          style={[
+                            styles.toolActionPill,
+                            action.phase === 'calling'
+                              ? styles.toolActionCalling
+                              : styles.toolActionDone
+                          ]}
+                        >
+                          {action.phase === 'calling' ? (
+                            <ActivityIndicator size="small" color="#2563eb" style={{ marginRight: 6 }} />
+                          ) : (
+                            <Ionicons name="checkmark-circle" size={14} color="#10b981" style={{ marginRight: 6 }} />
+                          )}
+                          <Text style={[
+                            styles.toolActionText,
+                            action.phase === 'calling' ? styles.toolActionTextCalling : styles.toolActionTextDone
+                          ]}>
+                            {action.phase === 'calling'
+                              ? `${action.displayName}...`
+                              : action.summary || action.displayName}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                  {(msg.content || !(msg.toolActions && msg.toolActions.length > 0)) && (
+                    isUser ? (
+                      <Text style={[styles.messageText, styles.messageTextUser]}>
+                        {msg.content}
+                      </Text>
+                    ) : (
+                      <Markdown style={markdownStyles}>
+                        {msg.content}
+                      </Markdown>
+                    )
                   )}
                 </View>
               </View>
@@ -395,5 +557,35 @@ const styles = StyleSheet.create({
   sendBtnDisabled: {
     backgroundColor: '#94a3b8',
     opacity: 0.5,
+  },
+  toolActionsContainer: {
+    marginBottom: 8,
+    gap: 6,
+  },
+  toolActionPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  toolActionCalling: {
+    backgroundColor: '#eff6ff',
+    borderColor: '#bfdbfe',
+  },
+  toolActionDone: {
+    backgroundColor: '#ecfdf5',
+    borderColor: '#a7f3d0',
+  },
+  toolActionText: {
+    fontSize: 12,
+    fontFamily: 'Farro-Medium',
+  },
+  toolActionTextCalling: {
+    color: '#2563eb',
+  },
+  toolActionTextDone: {
+    color: '#059669',
   },
 });

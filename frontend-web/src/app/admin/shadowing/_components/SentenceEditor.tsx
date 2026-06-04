@@ -112,7 +112,7 @@ function SentenceRow({
           <input
             type="number"
             min={0}
-            step={0.1}
+            step="any"
             value={sentence.audioStart}
             onChange={e => onUpdate(index, { audioStart: parseFloat(e.target.value) || 0 })}
             className="w-full text-sm px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -123,7 +123,7 @@ function SentenceRow({
           <input
             type="number"
             min={0}
-            step={0.1}
+            step="any"
             value={sentence.audioEnd}
             onChange={e => onUpdate(index, { audioEnd: parseFloat(e.target.value) || 0 })}
             className="w-full text-sm px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/50"

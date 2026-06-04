@@ -8,28 +8,38 @@ import type {
 } from "@/types";
 
 export const ieltsStatisticsApi = {
-  getOverview: async (): Promise<IeltsOverviewStats> => {
-    const { data } = await api.get<IeltsOverviewStats>("/ielts-statistics/overview");
+  getOverview: async (studentId?: string): Promise<IeltsOverviewStats> => {
+    const { data } = await api.get<IeltsOverviewStats>("/ielts-statistics/overview", {
+      params: studentId ? { studentId } : undefined,
+    });
     return data;
   },
 
-  getFoundation: async (): Promise<IeltsFoundationStats> => {
-    const { data } = await api.get<IeltsFoundationStats>("/ielts-statistics/foundation");
+  getFoundation: async (studentId?: string): Promise<IeltsFoundationStats> => {
+    const { data } = await api.get<IeltsFoundationStats>("/ielts-statistics/foundation", {
+      params: studentId ? { studentId } : undefined,
+    });
     return data;
   },
 
-  getBasic: async (): Promise<IeltsBasicStats> => {
-    const { data } = await api.get<IeltsBasicStats>("/ielts-statistics/basic");
+  getBasic: async (studentId?: string): Promise<IeltsBasicStats> => {
+    const { data } = await api.get<IeltsBasicStats>("/ielts-statistics/basic", {
+      params: studentId ? { studentId } : undefined,
+    });
     return data;
   },
 
-  getAdvanced: async (): Promise<IeltsAdvancedStats> => {
-    const { data } = await api.get<IeltsAdvancedStats>("/ielts-statistics/advanced");
+  getAdvanced: async (studentId?: string): Promise<IeltsAdvancedStats> => {
+    const { data } = await api.get<IeltsAdvancedStats>("/ielts-statistics/advanced", {
+      params: studentId ? { studentId } : undefined,
+    });
     return data;
   },
 
-  getIntensive: async (): Promise<IeltsIntensiveStats> => {
-    const { data } = await api.get<IeltsIntensiveStats>("/ielts-statistics/intensive");
+  getIntensive: async (studentId?: string): Promise<IeltsIntensiveStats> => {
+    const { data } = await api.get<IeltsIntensiveStats>("/ielts-statistics/intensive", {
+      params: studentId ? { studentId } : undefined,
+    });
     return data;
   },
 };

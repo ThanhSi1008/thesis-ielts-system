@@ -87,7 +87,8 @@ export class AuthService {
         idToken,
         audience, // ✅ array thay vì single string
       });
-    } catch {
+    } catch (error) {
+      console.error("Google verifyIdToken error:", error);
       throw new UnauthorizedException("Invalid Google ID token");
     }
 

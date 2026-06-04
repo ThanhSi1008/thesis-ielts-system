@@ -8,7 +8,7 @@ import os
 from typing import Optional
 import boto3
 from botocore.client import Config
-from app.config import get_settings
+from app.core.config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()

@@ -4,17 +4,20 @@ Handles AI operations for TOEIC Master AI system
 v1.0.3
 """
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 
-from app.config import get_settings
-from app.api import health, grading, writing, speaking, chat
+from app.core.config import get_settings
+from app.api import health, chat
 from app.consumers.grading_consumer import GradingConsumer
 from app.consumers.pronunciation_consumer import PronunciationConsumer
 from app.consumers.transcription_consumer import TranscriptionConsumer
-from app.telemetry import setup_telemetry
+from app.core.telemetry import setup_telemetry
 
 # Configure logging
 logging.basicConfig(
@@ -88,9 +91,6 @@ app.add_middleware(
 
 # Include routers
 app.include_router(health.router, tags=["Health"])
-app.include_router(grading.router, prefix="/api/v1/grading", tags=["Grading"])
-app.include_router(writing.router, prefix="/api/v1/writing", tags=["Writing"])
-app.include_router(speaking.router, prefix="/api/v1/speaking", tags=["Speaking"])
 app.include_router(chat.router, prefix="/api/v1/chat", tags=["Chat"])
 
 

@@ -7,6 +7,8 @@ export interface UseRecordingReturn {
   startRecording: () => void;
   stopRecording: () => void;
   clearRecording: () => void;
+  attempts: number;
+  resetAttempts: () => void;
   recordedAudioRef: React.RefObject<HTMLAudioElement>;
 }
 
@@ -14,6 +16,7 @@ export function useRecording(): UseRecordingReturn {
   const [isRecording, setIsRecording] = useState(false);
   const [recordedAudioUrl, setRecordedAudioUrl] = useState<string | null>(null);
   const [spokenWords, setSpokenWords] = useState<string[]>([]);
+  const [attempts, setAttempts] = useState(0);
   
   const recognitionRef = useRef<any>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -94,6 +97,11 @@ export function useRecording(): UseRecordingReturn {
       try { mediaRecorderRef.current.stop(); } catch (e) {}
     }
     setIsRecording(false);
+    setAttempts(prev => prev + 1);
+  }, []);
+
+  const resetAttempts = useCallback(() => {
+    setAttempts(0);
   }, []);
 
   useEffect(() => {
@@ -115,6 +123,8 @@ export function useRecording(): UseRecordingReturn {
     startRecording,
     stopRecording,
     clearRecording,
+    attempts,
+    resetAttempts,
     recordedAudioRef
   };
 }

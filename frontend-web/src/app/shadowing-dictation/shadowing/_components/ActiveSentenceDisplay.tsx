@@ -9,6 +9,7 @@ export interface ActiveSentenceDisplayProps {
   onToggleTranslation: () => void;
   onTogglePhonetic: () => void;
   normalizeWord: (w: string) => string;
+  fuzzyMatchWord: (spoken: string, correct: string) => boolean;
 }
 
 export default function ActiveSentenceDisplay({
@@ -19,6 +20,7 @@ export default function ActiveSentenceDisplay({
   onToggleTranslation,
   onTogglePhonetic,
   normalizeWord,
+  fuzzyMatchWord,
 }: ActiveSentenceDisplayProps) {
   return (
     <div className="p-4 bg-white dark:bg-gray-900 shrink-0 flex flex-col relative justify-center">
@@ -58,8 +60,12 @@ export default function ActiveSentenceDisplay({
             if (spokenWords.length > 0) {
               const typed = normalizeWord(spokenWords[idx] || '');
               const correct = normalizeWord(word);
-              if (typed === correct) {
+              const spokenRaw = spokenWords[idx] || '';
+              
+              if (typed === correct && typed !== '') {
                 colorClass = 'text-green-600 font-medium';
+              } else if (spokenRaw !== '' && fuzzyMatchWord(spokenRaw, word)) {
+                colorClass = 'text-amber-500 font-medium';
               } else if (idx < spokenWords.length) {
                 colorClass = 'text-red-500 underline decoration-red-300';
               }

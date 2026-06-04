@@ -1,0 +1,512 @@
+[
+  {
+    "id": "essay_071",
+    "human": {
+      "overall": 5.0,
+      "task_achievement": 5.0,
+      "coherence_cohesion": 4.0,
+      "lexical_resource": 4.0,
+      "grammatical_range": 4.0
+    },
+    "llm": {
+      "overall": 6.0,
+      "task_achievement": 6.0,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.0,
+      "grammatical_range": 6.0
+    }
+  },
+  {
+    "id": "essay_199",
+    "human": {
+      "overall": 5.0,
+      "task_achievement": 4.0,
+      "coherence_cohesion": 4.0,
+      "lexical_resource": 3.0,
+      "grammatical_range": 3.0
+    },
+    "llm": {
+      "overall": 5.5,
+      "task_achievement": 5.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 5.5,
+      "grammatical_range": 5.5
+    }
+  },
+  {
+    "id": "essay_259",
+    "human": {
+      "overall": 5.0,
+      "task_achievement": 4.0,
+      "coherence_cohesion": 3.0,
+      "lexical_resource": 3.0,
+      "grammatical_range": 3.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_272",
+    "human": {
+      "overall": 4.5,
+      "task_achievement": 4.0,
+      "coherence_cohesion": 3.5,
+      "lexical_resource": 3.5,
+      "grammatical_range": 3.5
+    },
+    "llm": {
+      "overall": 6.0,
+      "task_achievement": 6.0,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.0,
+      "grammatical_range": 6.0
+    }
+  },
+  {
+    "id": "essay_314",
+    "human": {
+      "overall": 4.0,
+      "task_achievement": 3.5,
+      "coherence_cohesion": 3.0,
+      "lexical_resource": 3.0,
+      "grammatical_range": 3.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_372",
+    "human": {
+      "overall": 4.5,
+      "task_achievement": 4.5,
+      "coherence_cohesion": 4.0,
+      "lexical_resource": 4.0,
+      "grammatical_range": 3.5
+    },
+    "llm": {
+      "overall": 6.0,
+      "task_achievement": 6.0,
+      "coherence_cohesion": 6.5,
+      "lexical_resource": 6.0,
+      "grammatical_range": 6.0
+    }
+  },
+  {
+    "id": "essay_379",
+    "human": {
+      "overall": 5.0,
+      "task_achievement": 4.0,
+      "coherence_cohesion": 3.0,
+      "lexical_resource": 3.0,
+      "grammatical_range": 3.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_381",
+    "human": {
+      "overall": 5.0,
+      "task_achievement": 3.0,
+      "coherence_cohesion": 2.0,
+      "lexical_resource": 2.0,
+      "grammatical_range": 2.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_540",
+    "human": {
+      "overall": 5.0,
+      "task_achievement": 4.0,
+      "coherence_cohesion": 3.5,
+      "lexical_resource": 3.5,
+      "grammatical_range": 3.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_601",
+    "human": {
+      "overall": 5.0,
+      "task_achievement": 5.0,
+      "coherence_cohesion": 4.0,
+      "lexical_resource": 3.5,
+      "grammatical_range": 3.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_051",
+    "human": {
+      "overall": 5.5,
+      "task_achievement": 5.0,
+      "coherence_cohesion": 4.5,
+      "lexical_resource": 4.5,
+      "grammatical_range": 4.0
+    },
+    "llm": {
+      "overall": 6.0,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.0,
+      "grammatical_range": 6.0
+    }
+  },
+  {
+    "id": "essay_131",
+    "human": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.5,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_147",
+    "human": {
+      "overall": 5.5,
+      "task_achievement": 5.5,
+      "coherence_cohesion": 5.0,
+      "lexical_resource": 5.5,
+      "grammatical_range": 5.5
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_215",
+    "human": {
+      "overall": 5.5,
+      "task_achievement": 5.5,
+      "coherence_cohesion": 5.5,
+      "lexical_resource": 5.5,
+      "grammatical_range": 5.5
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_251",
+    "human": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.5,
+      "lexical_resource": 6.0,
+      "grammatical_range": 6.0
+    },
+    "llm": {
+      "overall": 5.5,
+      "task_achievement": 5.0,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 5.5,
+      "grammatical_range": 5.5
+    }
+  },
+  {
+    "id": "essay_347",
+    "human": {
+      "overall": 5.5,
+      "task_achievement": 5.5,
+      "coherence_cohesion": 5.0,
+      "lexical_resource": 5.0,
+      "grammatical_range": 5.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_394",
+    "human": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.5,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    },
+    "llm": {
+      "overall": 6.0,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.0,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_403",
+    "human": {
+      "overall": 6.0,
+      "task_achievement": 6.0,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.0,
+      "grammatical_range": 6.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_455",
+    "human": {
+      "overall": 6.0,
+      "task_achievement": 6.0,
+      "coherence_cohesion": 5.5,
+      "lexical_resource": 6.0,
+      "grammatical_range": 5.5
+    },
+    "llm": {
+      "overall": 6.0,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.0
+    }
+  },
+  {
+    "id": "essay_495",
+    "human": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.5,
+      "lexical_resource": 6.0,
+      "grammatical_range": 6.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_001",
+    "human": {
+      "overall": 7.5,
+      "task_achievement": 7.0,
+      "coherence_cohesion": 7.5,
+      "lexical_resource": 7.0,
+      "grammatical_range": 7.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_067",
+    "human": {
+      "overall": 7.5,
+      "task_achievement": 7.5,
+      "coherence_cohesion": 7.5,
+      "lexical_resource": 7.0,
+      "grammatical_range": 7.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_078",
+    "human": {
+      "overall": 7.5,
+      "task_achievement": 7.0,
+      "coherence_cohesion": 6.5,
+      "lexical_resource": 6.0,
+      "grammatical_range": 6.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_096",
+    "human": {
+      "overall": 8.5,
+      "task_achievement": 8.5,
+      "coherence_cohesion": 7.5,
+      "lexical_resource": 7.0,
+      "grammatical_range": 7.5
+    },
+    "llm": {
+      "overall": 6.0,
+      "task_achievement": 6.0,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.0,
+      "grammatical_range": 6.0
+    }
+  },
+  {
+    "id": "essay_108",
+    "human": {
+      "overall": 8.0,
+      "task_achievement": 7.0,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 7.0,
+      "grammatical_range": 7.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_116",
+    "human": {
+      "overall": 8.5,
+      "task_achievement": 8.5,
+      "coherence_cohesion": 8.0,
+      "lexical_resource": 8.0,
+      "grammatical_range": 8.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_130",
+    "human": {
+      "overall": 7.0,
+      "task_achievement": 7.0,
+      "coherence_cohesion": 7.0,
+      "lexical_resource": 6.0,
+      "grammatical_range": 7.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_142",
+    "human": {
+      "overall": 7.0,
+      "task_achievement": 6.0,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.0,
+      "grammatical_range": 6.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.0,
+      "coherence_cohesion": 6.5,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_149",
+    "human": {
+      "overall": 8.0,
+      "task_achievement": 7.5,
+      "coherence_cohesion": 7.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.0
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  },
+  {
+    "id": "essay_287",
+    "human": {
+      "overall": 7.0,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 7.0,
+      "lexical_resource": 7.0,
+      "grammatical_range": 6.5
+    },
+    "llm": {
+      "overall": 6.5,
+      "task_achievement": 6.5,
+      "coherence_cohesion": 6.0,
+      "lexical_resource": 6.5,
+      "grammatical_range": 6.5
+    }
+  }
+]

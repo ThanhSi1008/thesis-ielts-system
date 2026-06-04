@@ -502,8 +502,10 @@ export class IeltsAdvancedService {
     });
 
     await this.aiClientService.publishGradingTask({
+      jobId: session.id,
       type: "ADVANCED_WRITING",
       sessionId: session.id,
+      userId,
       taskType: session.prompt.taskType,
       prompt: session.prompt.prompt,
       essay,
@@ -721,8 +723,10 @@ export class IeltsAdvancedService {
     const questions = ((session.part.questions as any[]) || []).map((q: any) => q.text);
 
     await this.aiClientService.publishGradingTask({
+      jobId: session.id,
       type: "ADVANCED_SPEAKING",
       sessionId: session.id,
+      userId,
       partNumber: session.part.partNumber,
       partType: session.part.partType,
       questions,

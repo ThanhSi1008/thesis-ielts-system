@@ -52,6 +52,10 @@
       "expo-font",
       "expo-web-browser"
     ],
-    "scheme": "ielts-master-ai"
+    "scheme": "ielts-master-ai",
+    "updates": {
+      "enabled": false,
+      "checkAutomatically": "NEVER"
+    }
   }
 }

@@ -25,6 +25,7 @@ interface SpeakingTaskBoardProps {
   onSubmit: (answers: Record<string, any>) => void;
   submitting: boolean;
   partIndex?: number;
+  muted?: boolean;
 }
 
 type StepState = "IDLE" | "LISTEN_CAPTION" | "PLAYING" | "THINK_CAPTION" | "THINKING" | "PLAYING_2" | "RECORDING" | "RECORDED";
@@ -35,6 +36,7 @@ export default function SpeakingTaskBoard({
   onSubmit,
   submitting,
   partIndex,
+  muted,
 }: SpeakingTaskBoardProps) {
   const parts: SpeakingPart[] = exam?.questions?.parts || [];
 
@@ -290,6 +292,7 @@ export default function SpeakingTaskBoard({
                 ref={videoRef}
                 src={activeVideoSrc}
                 playsInline
+                muted={muted}
                 onEnded={handleVideoEnded}
                 className={`w-full h-full object-cover transition-opacity duration-500 ${(step === "PLAYING" || step === "PLAYING_2") ? "opacity-100" : "opacity-80"}`}
               />
@@ -401,6 +404,7 @@ export default function SpeakingTaskBoard({
                     ref={videoRef}
                     src={activeVideoSrc}
                     playsInline
+                    muted={muted}
                     onEnded={handleVideoEnded}
                     className={`w-full h-full object-cover transition-opacity duration-500 ${(step === "PLAYING" || step === "PLAYING_2") ? "opacity-100" : "opacity-80"}`}
                   />

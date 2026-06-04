@@ -104,20 +104,37 @@ export default function IpaFeedback({ targetIPA, spokenIPA, className = '' }: Ip
 
   return (
     <div className={`flex flex-col items-center gap-1 ${className}`}>
-      {/* Target IPA row — colored per phoneme */}
+      {/* Target IPA row */}
       <div className="flex items-center font-mono text-[15px] tracking-wide">
+        <span className="text-slate-400 mr-1 text-xs">Target:</span>
         <span className="text-slate-400 mr-1">/</span>
         {aligned.map((entry, idx) => (
           <span
             key={idx}
-            className={STATUS_STYLES[entry.status]}
-            title={entry.status === 'wrong' ? `said: ${entry.spoken}` : entry.status}
+            className={`px-[1px] ${STATUS_STYLES[entry.status]}`}
           >
-            {entry.target}
+            {entry.target || '-'}
           </span>
         ))}
         <span className="text-slate-400 ml-1">/</span>
       </div>
+
+      {/* Spoken IPA row (only if different) */}
+      {spokenIPA && targetIPA !== spokenIPA && (
+        <div className="flex items-center font-mono text-[14px] tracking-wide mt-1 bg-slate-100 rounded px-2 py-0.5">
+          <span className="text-slate-400 mr-1 text-xs">Spoken:</span>
+          <span className="text-slate-400 mr-1">/</span>
+          {aligned.map((entry, idx) => (
+            <span
+              key={idx}
+              className={`px-[1px] ${entry.status === 'wrong' ? 'text-red-500 font-bold' : entry.status === 'missing' ? 'text-transparent' : 'text-slate-600'}`}
+            >
+              {entry.spoken || '-'}
+            </span>
+          ))}
+          <span className="text-slate-400 ml-1">/</span>
+        </div>
+      )}
 
       {/* Legend */}
       <div className="flex items-center gap-3 text-[10px] text-slate-500 mt-1">

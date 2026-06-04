@@ -247,34 +247,21 @@ async function main() {
       if (exercisesToSeed) {
         await prisma.foundationGrammarExercise.deleteMany({ where: { unitId } });
         for (const ex of exercisesToSeed) {
-          if (ex.items && ex.items.length > 0) {
-            for (let i = 0; i < ex.items.length; i++) {
-              const item = ex.items[i];
-              await prisma.foundationGrammarExercise.create({
-                data: {
-                  unitId,
-                  section: ex.id || `${unitData.order}.${ex.order}`,
-                  question: item.label || ex.question,
-                  type: ex.type,
-                  options: ex.options || null,
-                  answer: item.answer || "",
-                  order: i,
-                },
-              });
-            }
-          } else {
-            await prisma.foundationGrammarExercise.create({
-              data: {
-                unitId,
-                section: ex.id || `${unitData.order}.${ex.order}`,
-                question: ex.question,
-                type: ex.type,
-                options: ex.options || null,
-                answer: ex.answer || "",
-                order: parseInt(ex.id?.split('.')[1]) || 0,
-              },
-            });
-          }
+          // Determine items based on exercise structure
+          const itemsToStore = ex.items || ex.matches || [];
+          const optionsToStore = ex.options || ex.verbs || null;
+          
+          await prisma.foundationGrammarExercise.create({
+            data: {
+              unitId,
+              section: ex.id || `${unitData.order}.${ex.order}`,
+              question: ex.question || "",
+              type: ex.type || (ex.matches ? "match" : "fill_blank"),
+              options: optionsToStore,
+              answer: JSON.stringify(itemsToStore),
+              order: parseInt(ex.id?.split('.')[1] || ex.order) || 0,
+            },
+          });
         }
       }
     }

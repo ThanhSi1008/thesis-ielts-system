@@ -39,14 +39,55 @@ export class IeltsService {
   async findLessonById(lessonId: string) {
     const foundationVocabLesson = await this.prisma.ieltsBasicLesson.findUnique({
       where: { id: lessonId },
-      include: { skill: { select: { name: true } } },
+      include: {
+        skill: { select: { name: true } },
+        listeningExercises: { select: { id: true, topic: true } },
+        readingExercises: { select: { id: true, topic: true } },
+      },
     });
 
     if (!foundationVocabLesson) {
       throw new NotFoundException(`FoundationVocabLesson with ID ${lessonId} not found`);
     }
 
-    return foundationVocabLesson;
+    const content = Array.isArray(foundationVocabLesson.content)
+      ? [...(foundationVocabLesson.content as any[])]
+      : [];
+
+    const hasExample = content.some((block: any) => block.type === "example");
+
+    if (!hasExample) {
+      if (foundationVocabLesson.listeningExercises) {
+        for (const ex of foundationVocabLesson.listeningExercises) {
+          content.push({
+            type: "example",
+            title: ex.topic,
+            exerciseType: "listening",
+            exerciseId: ex.id,
+            groupIndex: 0,
+          });
+        }
+      }
+
+      if (foundationVocabLesson.readingExercises) {
+        for (const ex of foundationVocabLesson.readingExercises) {
+          content.push({
+            type: "example",
+            title: ex.topic,
+            exerciseType: "reading",
+            exerciseId: ex.id,
+            groupIndex: 0,
+          });
+        }
+      }
+    }
+
+    const { listeningExercises, readingExercises, ...rest } = foundationVocabLesson;
+
+    return {
+      ...rest,
+      content,
+    };
   }
 
   // ── Listening ──────────────────────────────────────────────────────────
