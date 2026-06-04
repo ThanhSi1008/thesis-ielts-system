@@ -39,13 +39,13 @@ interface Word {
 function FlashCard({
   word,
   onEvaluate,
-  onSave,
-  isSaved,
+  isLastCard,
+  onSkipCard,
 }: {
   word: Word;
   onEvaluate: (rating: 'again' | 'hard' | 'good' | 'easy') => void;
-  onSave: () => void;
-  isSaved: boolean;
+  isLastCard: boolean;
+  onSkipCard: () => void;
 }) {
   const flipAnim = useRef(new Animated.Value(0)).current;
   const [flipped, setFlipped] = useState(false);
@@ -60,14 +60,23 @@ function FlashCard({
   });
 
   const flip = () => {
-    if (flipped) return; // Prevent flipping back immediately to let user read
-    Animated.spring(flipAnim, {
-      toValue: 1,
-      friction: 8,
-      tension: 10,
-      useNativeDriver: true,
-    }).start();
-    setFlipped(true);
+    if (flipped) {
+      Animated.spring(flipAnim, {
+        toValue: 0,
+        friction: 8,
+        tension: 10,
+        useNativeDriver: true,
+      }).start();
+      setFlipped(false);
+    } else {
+      Animated.spring(flipAnim, {
+        toValue: 1,
+        friction: 8,
+        tension: 10,
+        useNativeDriver: true,
+      }).start();
+      setFlipped(true);
+    }
   };
 
   const handleSpeak = () => {
@@ -107,58 +116,37 @@ function FlashCard({
             flipped && { zIndex: 0 },
           ]}
         >
-          {/* Header */}
-          <View style={fc.cardHeader}>
-            {word.partOfSpeech ? (
-              <View style={fc.posBadge}>
-                <Text style={fc.posText} allowFontScaling={true}>{word.partOfSpeech}</Text>
+          {/* Word content with Image */}
+          <View style={fc.cardBody}>
+            {word.imageUrl ? (
+              <View style={fc.circleImageWrapper}>
+                <Image source={{ uri: word.imageUrl }} style={fc.circleImageLarge} resizeMode="cover" />
               </View>
             ) : (
-              <View />
+              <View style={[fc.circleImageWrapper, fc.circlePlaceholderLarge]}>
+                <Text style={{ fontSize: 48 }}>📚</Text>
+              </View>
             )}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <TouchableOpacity
-                style={fc.saveBtn}
-                onPress={onSave}
-                accessible={true}
-                accessibilityRole="button"
-                accessibilityLabel={isSaved ? "Saved to Vocab Lab" : "Save to Vocab Lab"}
-              >
-                <Ionicons
-                  name={isSaved ? 'bookmark' : 'bookmark-outline'}
-                  size={20}
-                  color={isSaved ? '#FF9800' : COLORS.primary}
-                />
-              </TouchableOpacity>
+            <Text style={fc.wordText} allowFontScaling={true}>{word.word}</Text>
+            <View style={fc.detailsRow}>
+              {word.ipa ? <Text style={fc.pronText} allowFontScaling={true}>[{word.ipa}]</Text> : null}
+              {word.partOfSpeech ? <Text style={fc.posText} allowFontScaling={true}>{word.partOfSpeech}.</Text> : null}
               {word.audioUrl ? (
                 <TouchableOpacity
-                  style={fc.audioBtn}
+                  style={fc.audioBtnSmall}
                   onPress={handleSpeak}
                   accessible={true}
                   accessibilityRole="button"
                   accessibilityLabel="Speak word"
                   accessibilityHint="Double tap to play the audio pronunciation for this word"
                 >
-                  <Ionicons name="volume-high" size={24} color={COLORS.primary} />
+                  <Ionicons name="volume-high" size={16} color={COLORS.primary} />
                 </TouchableOpacity>
               ) : null}
             </View>
           </View>
 
-          {/* Word content with Image */}
-          <View style={fc.cardBody}>
-            {word.imageUrl ? (
-              <Image source={{ uri: word.imageUrl }} style={fc.wordImg} resizeMode="cover" />
-            ) : (
-              <View style={fc.imgPlaceholder}>
-                <Ionicons name="book-outline" size={48} color={COLORS.gray[300]} />
-              </View>
-            )}
-            <Text style={fc.wordText} allowFontScaling={true}>{word.word}</Text>
-            {word.ipa ? <Text style={fc.pronText} allowFontScaling={true}>[{word.ipa}]</Text> : null}
-          </View>
-
-          <Text style={fc.hintText} allowFontScaling={true}>Tap card to flip and see meaning</Text>
+          <Text style={fc.hintText} allowFontScaling={true}>Tap card to see meaning</Text>
         </Animated.View>
 
         {/* Back */}
@@ -170,46 +158,34 @@ function FlashCard({
             !flipped && { zIndex: -1 },
           ]}
         >
-          <View style={fc.cardHeader}>
-            {word.partOfSpeech ? (
-              <View style={fc.posBadge}>
-                <Text style={fc.posText} allowFontScaling={true}>{word.partOfSpeech}</Text>
+          <ScrollView contentContainerStyle={fc.scrollBody} showsVerticalScrollIndicator={false}>
+            {word.imageUrl ? (
+              <View style={fc.circleImageWrapperSmall}>
+                <Image source={{ uri: word.imageUrl }} style={fc.circleImageSmall} resizeMode="cover" />
               </View>
             ) : (
-              <View />
+              <View style={[fc.circleImageWrapperSmall, fc.circlePlaceholderSmall]}>
+                <Text style={{ fontSize: 24 }}>📚</Text>
+              </View>
             )}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <TouchableOpacity
-                style={fc.saveBtn}
-                onPress={onSave}
-                accessible={true}
-                accessibilityRole="button"
-                accessibilityLabel={isSaved ? "Saved to Vocab Lab" : "Save to Vocab Lab"}
-              >
-                <Ionicons
-                  name={isSaved ? 'bookmark' : 'bookmark-outline'}
-                  size={20}
-                  color={isSaved ? '#FF9800' : COLORS.primary}
-                />
-              </TouchableOpacity>
+
+            <View style={fc.detailsRowBack}>
+              <Text style={fc.wordTextSmall} allowFontScaling={true}>{word.word}</Text>
+              {word.ipa ? <Text style={fc.pronTextSmall} allowFontScaling={true}>[{word.ipa}]</Text> : null}
+              {word.partOfSpeech ? <Text style={fc.posTextSmall} allowFontScaling={true}>{word.partOfSpeech}.</Text> : null}
               {word.audioUrl ? (
                 <TouchableOpacity
-                  style={fc.audioBtn}
+                  style={fc.audioBtnSmall}
                   onPress={handleSpeak}
                   accessible={true}
                   accessibilityRole="button"
                   accessibilityLabel="Speak word"
                   accessibilityHint="Double tap to play the audio pronunciation for this word"
                 >
-                  <Ionicons name="volume-high" size={24} color={COLORS.primary} />
+                  <Ionicons name="volume-high" size={16} color={COLORS.primary} />
                 </TouchableOpacity>
               ) : null}
             </View>
-          </View>
-
-          <ScrollView contentContainerStyle={fc.scrollBody} showsVerticalScrollIndicator={false}>
-            <Text style={fc.wordTextSmall} allowFontScaling={true}>{word.word}</Text>
-            {word.ipa ? <Text style={fc.pronTextSmall} allowFontScaling={true}>[{word.ipa}]</Text> : null}
 
             <View style={fc.meaningWrapper}>
               <Text style={fc.defText} allowFontScaling={true}>{word.meaning}</Text>
@@ -222,58 +198,75 @@ function FlashCard({
               </View>
             )}
           </ScrollView>
+          <Text style={fc.hintText} allowFontScaling={true}>Tap card to flip back</Text>
         </Animated.View>
       </TouchableOpacity>
 
       {/* Action buttons (only visible when flipped) */}
       {flipped && (
-        <View style={fc.srsActions}>
-          <TouchableOpacity
-            style={[fc.srsBtn, { backgroundColor: '#FEF2F2', borderColor: '#FECACA' }]}
-            onPress={() => onEvaluate('again')}
-            accessible={true}
-            accessibilityRole="button"
-            accessibilityLabel="Again, repeat this card in less than 1 minute"
-            accessibilityHint="Mark this card for immediate review"
-          >
-            <Text style={[fc.srsLabel, { color: '#EF4444' }]} allowFontScaling={true}>Again</Text>
-            <Text style={[fc.srsTime, { color: '#F87171' }]} allowFontScaling={true}>&lt;1m</Text>
-          </TouchableOpacity>
+        <View style={{ marginTop: 16 }}>
+          <View style={fc.srsActions}>
+            <TouchableOpacity
+              style={[fc.srsBtn, { backgroundColor: '#FEF2F2', borderColor: '#FECACA' }]}
+              onPress={() => onEvaluate('again')}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Again, repeat this card in less than 1 minute"
+              accessibilityHint="Mark this card for immediate review"
+            >
+              <Text style={[fc.srsLabel, { color: '#EF4444' }]} allowFontScaling={true}>Again</Text>
+              <Text style={[fc.srsTime, { color: '#F87171' }]} allowFontScaling={true}>&lt;1m</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[fc.srsBtn, { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' }]}
-            onPress={() => onEvaluate('hard')}
-            accessible={true}
-            accessibilityRole="button"
-            accessibilityLabel="Hard, repeat this card in 10 minutes"
-            accessibilityHint="Mark this card as hard"
-          >
-            <Text style={[fc.srsLabel, { color: '#F97316' }]} allowFontScaling={true}>Hard</Text>
-            <Text style={[fc.srsTime, { color: '#FDBA74' }]} allowFontScaling={true}>10m</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[fc.srsBtn, { backgroundColor: '#FFF7ED', borderColor: '#FED7AA' }]}
+              onPress={() => onEvaluate('hard')}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Hard, repeat this card in 10 minutes"
+              accessibilityHint="Mark this card as hard"
+            >
+              <Text style={[fc.srsLabel, { color: '#F97316' }]} allowFontScaling={true}>Hard</Text>
+              <Text style={[fc.srsTime, { color: '#FDBA74' }]} allowFontScaling={true}>10m</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[fc.srsBtn, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}
-            onPress={() => onEvaluate('good')}
-            accessible={true}
-            accessibilityRole="button"
-            accessibilityLabel="Good, repeat this card in 3 days"
-            accessibilityHint="Mark this card as learned"
-          >
-            <Text style={[fc.srsLabel, { color: '#0EA5E9' }]} allowFontScaling={true}>Good</Text>
-            <Text style={[fc.srsTime, { color: '#7DD3FC' }]} allowFontScaling={true}>3d</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[fc.srsBtn, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}
+              onPress={() => onEvaluate('good')}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Good, repeat this card in 3 days"
+              accessibilityHint="Mark this card as learned"
+            >
+              <Text style={[fc.srsLabel, { color: '#0EA5E9' }]} allowFontScaling={true}>Good</Text>
+              <Text style={[fc.srsTime, { color: '#7DD3FC' }]} allowFontScaling={true}>3d</Text>
+            </TouchableOpacity>
 
+            <TouchableOpacity
+              style={[fc.srsBtn, { backgroundColor: '#F0FDF4', borderColor: '#BBF7D0' }]}
+              onPress={() => onEvaluate('easy')}
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel="Easy, repeat this card in 5 days"
+              accessibilityHint="Mark this card as easy"
+            >
+              <Text style={[fc.srsLabel, { color: '#22C55E' }]} allowFontScaling={true}>Easy</Text>
+              <Text style={[fc.srsTime, { color: '#86EFAC' }]} allowFontScaling={true}>5d</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Already know - skip */}
           <TouchableOpacity
-            style={[fc.srsBtn, { backgroundColor: '#F0FDF4', borderColor: '#BBF7D0' }]}
-            onPress={() => onEvaluate('easy')}
+            style={fc.skipCardBtn}
+            onPress={onSkipCard}
             accessible={true}
             accessibilityRole="button"
-            accessibilityLabel="Easy, repeat this card in 5 days"
-            accessibilityHint="Mark this card as easy"
+            accessibilityLabel={isLastCard ? "Already know, go to reading" : "Already know, skip"}
           >
-            <Text style={[fc.srsLabel, { color: '#22C55E' }]} allowFontScaling={true}>Easy</Text>
-            <Text style={[fc.srsTime, { color: '#86EFAC' }]} allowFontScaling={true}>5d</Text>
+            <Ionicons name="checkmark" size={16} color={COLORS.gray[400]} />
+            <Text style={fc.skipCardText} allowFontScaling={true}>
+              {isLastCard ? "Already know — go to reading" : "Already know — skip"}
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -288,8 +281,8 @@ const fc = StyleSheet.create({
     backgroundColor: COLORS.background,
     borderRadius: 24,
     padding: 24,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    borderWidth: 2,
+    borderColor: '#60A5FA', // Blue border matching web border-2 border-blue-400
     backfaceVisibility: 'hidden',
     position: 'absolute',
     top: 0,
@@ -317,11 +310,14 @@ const fc = StyleSheet.create({
     borderRadius: 20,
   },
   posText: {
-    color: COLORS.info,
-    fontSize: 11,
-    fontFamily: FONTS.bold,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    color: COLORS.gray[500],
+    fontSize: 14,
+    fontFamily: FONTS.medium,
+  },
+  posTextSmall: {
+    color: COLORS.gray[500],
+    fontSize: 13,
+    fontFamily: FONTS.medium,
   },
   audioBtn: {
     padding: 8,
@@ -352,16 +348,15 @@ const fc = StyleSheet.create({
     textAlign: 'center',
   },
   wordTextSmall: {
-    fontSize: 26,
+    fontSize: 24,
     fontFamily: FONTS.bold,
     color: COLORS.text,
     textAlign: 'center',
   },
-  pronText: { fontSize: 16, color: COLORS.gray[400], marginTop: 6, fontFamily: FONTS.medium },
+  pronText: { fontSize: 16, color: COLORS.gray[400], fontFamily: FONTS.medium },
   pronTextSmall: {
     fontSize: 15,
     color: COLORS.gray[400],
-    marginTop: 4,
     textAlign: 'center',
     fontFamily: FONTS.medium,
   },
@@ -407,6 +402,7 @@ const fc = StyleSheet.create({
     fontSize: 12,
     fontFamily: FONTS.regular,
     marginTop: 'auto',
+    paddingTop: 8,
   },
   srsActions: { flexDirection: 'row', gap: 8, marginTop: 16 },
   srsBtn: { flex: 1, borderWidth: 1, borderRadius: 16, paddingVertical: 12, alignItems: 'center' },
@@ -420,6 +416,97 @@ const fc = StyleSheet.create({
     borderColor: COLORS.border,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  circleImageWrapper: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    overflow: 'hidden',
+    marginBottom: 24,
+    borderWidth: 4,
+    borderColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    backgroundColor: '#f1f5f9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  circleImageLarge: {
+    width: 160,
+    height: 160,
+  },
+  circlePlaceholderLarge: {
+    borderWidth: 2,
+    borderColor: '#e2e8f0',
+    borderStyle: 'dashed',
+  },
+  circleImageWrapperSmall: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    overflow: 'hidden',
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: '#ffffff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    backgroundColor: '#f1f5f9',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  circleImageSmall: {
+    width: 96,
+    height: 96,
+  },
+  circlePlaceholderSmall: {
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    borderStyle: 'dashed',
+  },
+  detailsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
+  detailsRowBack: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginVertical: 12,
+    flexWrap: 'wrap',
+  },
+  audioBtnSmall: {
+    padding: 6,
+    backgroundColor: COLORS.surface,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  skipCardBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    marginTop: 12,
+    alignSelf: 'center',
+  },
+  skipCardText: {
+    fontSize: 13,
+    fontFamily: FONTS.bold,
+    color: COLORS.gray[400],
   },
 });
 
@@ -641,6 +728,30 @@ export default function VocabularyUnitScreen() {
     setActiveTab('reading');
   };
 
+  const handleSkipCard = async () => {
+    const nextIndex = cardIndex + 1;
+    const newLearned = Math.min(wordsLearned + 1, wordsState.length);
+    setWordsLearned(newLearned);
+    try {
+      await vocabularyApi.updateWordProgress(unitId!, Math.min(newLearned, originalWordsCount));
+    } catch (err) {
+      if (__DEV__) console.log('Failed to update progress', err);
+    }
+
+    if (nextIndex < wordsState.length) {
+      setCardIndex(nextIndex);
+    } else {
+      setWordsLearned(originalWordsCount);
+      setWordListComplete(true);
+      try {
+        await vocabularyApi.updateWordProgress(unitId!, originalWordsCount);
+      } catch (err) {
+        if (__DEV__) console.log('Failed to update progress', err);
+      }
+      setCompletedVisible(true);
+    }
+  };
+
   const handleSubmitQuestions = async () => {
     if (!unit || !unit.questions) return;
     setQuestionSubmitting(true);
@@ -823,8 +934,8 @@ export default function VocabularyUnitScreen() {
                 <FlashCard
                   word={currentWord}
                   onEvaluate={handleEvaluate}
-                  onSave={() => handleSaveToVocab(currentWord)}
-                  isSaved={savedWordIds.has(currentWord.id)}
+                  isLastCard={cardIndex === wordsState.length - 1}
+                  onSkipCard={handleSkipCard}
                 />
               )}
               {!wordListComplete && (
