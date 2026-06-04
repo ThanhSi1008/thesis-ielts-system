@@ -20,6 +20,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { apiClient } from '@/services/api-client';
+import { fetch as expoFetch } from 'expo/fetch';
 import { vocabLabApi } from '@/services';
 import Svg, { Defs, LinearGradient, Stop, Path } from 'react-native-svg';
 import Markdown from 'react-native-markdown-display';
@@ -31,9 +32,43 @@ type SuggestionMsg = {
   payload: any;
 };
 
+type ToolAction = {
+  tool: string;
+  displayName: string;
+  phase: 'calling' | 'done';
+  summary?: string;
+};
+
+function decodeUtf8(array: Uint8Array): string {
+  let out = "";
+  let i = 0;
+  const len = array.length;
+  while (i < len) {
+    const c = array[i++];
+    switch (c >> 4) {
+      case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+        out += String.fromCharCode(c);
+        break;
+      case 12: case 13: {
+        const char2 = array[i++];
+        out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+        break;
+      }
+      case 14: {
+        const char2_3 = array[i++];
+        const char3 = array[i++];
+        out += String.fromCharCode(((c & 0x0F) << 12) | ((char2_3 & 0x3F) << 6) | ((char3 & 0x3F) << 0));
+        break;
+      }
+    }
+  }
+  return out;
+}
+
 type Message = {
   role: 'user' | 'model';
   content: string;
+  toolActions?: ToolAction[];
   suggestions?: SuggestionMsg[];
 };
 
@@ -415,63 +450,132 @@ export default function ChatAIScreen() {
     abortControllerRef.current = abortController;
 
     try {
-      const res = await apiClient.post<{ response: string }>('/chat', {
-        messages: newMessages,
-        stream: false,
-      });
+      // --- Streaming agent chat (tool-calling) via expo/fetch; fallback to non-stream ---
+      const accessToken = await AsyncStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+      const finishSuggestions = (): SuggestionMsg[] => ([
+        {
+          id: `suggest-more-${Date.now()}`,
+          label: '📈 Ask for IELTS preparation tips',
+          actionType: 'EXPLAIN_NOTE',
+          payload: { query: 'Can you give me some tips to improve my overall IELTS score?' },
+        },
+        {
+          id: `suggest-quiz-${Date.now()}`,
+          label: '🎯 Quiz me on IELTS Vocabulary',
+          actionType: 'EXPLAIN_NOTE',
+          payload: { query: 'Quiz me on 5 essential IELTS vocabulary words. Show one at a time.' },
+        },
+      ]);
 
-      const fullText = res.response;
-      let text = '';
-      let index = 0;
-      const charsPerStep = fullText.length > 500 ? 5 : 2;
+      let streamedAny = false;
+      try {
+        const response = await expoFetch(`${API_BASE_URL}/chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          },
+          body: JSON.stringify({
+            messages: newMessages.map((m: Message) => ({ role: m.role, content: m.content })),
+            stream: true,
+          }),
+          signal: abortController.signal,
+        });
 
-      typingIntervalRef.current = setInterval(() => {
-        index += charsPerStep;
-        if (index >= fullText.length) {
-          if (typingIntervalRef.current) {
-            clearInterval(typingIntervalRef.current);
-          }
-          setMessages((prev) => {
-            const next = [...prev];
-            if (next.length > 0 && next[next.length - 1].role === 'model') {
-              next[next.length - 1] = {
-                role: 'model',
-                content: fullText,
-                suggestions: [
-                  {
-                    id: `suggest-more-${Date.now()}`,
-                    label: '📈 Ask for IELTS preparation tips',
-                    actionType: 'EXPLAIN_NOTE',
-                    payload: { query: 'Can you give me some tips to improve my overall IELTS score?' },
-                  },
-                  {
-                    id: `suggest-quiz-${Date.now()}`,
-                    label: '🎯 Quiz me on IELTS Vocabulary',
-                    actionType: 'EXPLAIN_NOTE',
-                    payload: {
-                      query: 'Quiz me on 5 essential IELTS vocabulary words. Show one at a time.',
-                    },
-                  },
-                ],
-              };
-            }
-            return next;
-          });
-          setIsTyping(false);
-        } else {
-          text = fullText.substring(0, index);
-          setMessages((prev) => {
-            const next = [...prev];
-            if (next.length > 0 && next[next.length - 1].role === 'model') {
-              next[next.length - 1] = {
-                ...next[next.length - 1],
-                content: text,
-              };
-            }
-            return next;
-          });
+        if (!response.ok || !response.body) {
+          throw new Error('stream-unavailable');
         }
-      }, 12);
+
+        const reader = response.body.getReader();
+        let streamText = '';
+        let toolActions: ToolAction[] = [];
+        let sseBuffer = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          streamedAny = true;
+          sseBuffer += decodeUtf8(value as Uint8Array);
+          const events = sseBuffer.split('\n\n');
+          sseBuffer = events.pop() || '';
+
+          for (const rawEvent of events) {
+            if (!rawEvent.trim()) continue;
+
+            if (rawEvent.startsWith('event: status')) {
+              const dataLine = rawEvent.split('\n').find((l: string) => l.startsWith('data: '));
+              if (dataLine) {
+                try {
+                  const status = JSON.parse(dataLine.slice(6));
+                  const action: ToolAction = {
+                    tool: status.tool,
+                    displayName: status.displayName || status.tool,
+                    phase: status.phase,
+                    summary: status.summary,
+                  };
+                  if (status.phase === 'done') {
+                    toolActions = toolActions.map((a) =>
+                      a.tool === status.tool && a.phase === 'calling' ? action : a,
+                    );
+                  } else {
+                    toolActions = [...toolActions, action];
+                  }
+                  setMessages((prev) => {
+                    const next = [...prev];
+                    if (next.length > 0 && next[next.length - 1].role === 'model') {
+                      next[next.length - 1] = { ...next[next.length - 1], toolActions: [...toolActions] };
+                    }
+                    return next;
+                  });
+                } catch {
+                  /* ignore malformed status */
+                }
+              }
+              continue;
+            }
+
+            if (rawEvent.startsWith('data: ')) {
+              streamText += rawEvent.slice(6);
+              setMessages((prev) => {
+                const next = [...prev];
+                if (next.length > 0 && next[next.length - 1].role === 'model') {
+                  next[next.length - 1] = { ...next[next.length - 1], content: streamText };
+                }
+                return next;
+              });
+            }
+          }
+        }
+
+        setMessages((prev) => {
+          const next = [...prev];
+          if (next.length > 0 && next[next.length - 1].role === 'model') {
+            next[next.length - 1] = {
+              role: 'model',
+              content: streamText || next[next.length - 1].content,
+              toolActions,
+              suggestions: finishSuggestions(),
+            };
+          }
+          return next;
+        });
+        setIsTyping(false);
+      } catch (streamErr: any) {
+        if (streamErr?.name === 'AbortError') throw streamErr;
+        if (streamedAny) throw streamErr;
+        const res = await apiClient.post<{ response: string }>('/chat', {
+          messages: newMessages,
+          stream: false,
+        });
+        setMessages((prev) => {
+          const next = [...prev];
+          if (next.length > 0 && next[next.length - 1].role === 'model') {
+            next[next.length - 1] = { role: 'model', content: res.response, suggestions: finishSuggestions() };
+          }
+          return next;
+        });
+        setIsTyping(false);
+      }
 
     } catch (error: any) {
       if (error.name === 'AbortError') {
@@ -670,6 +774,33 @@ export default function ChatAIScreen() {
                         : [styles.messageBubbleAI, { backgroundColor: colors.card, borderColor: colors.border }],
                     ]}
                   >
+                    {!isUser && msg.toolActions && msg.toolActions.length > 0 && (
+                      <View style={styles.toolActionsContainer}>
+                        {msg.toolActions.map((action, aIdx) => (
+                          <View
+                            key={`${action.tool}-${aIdx}`}
+                            style={[
+                              styles.toolActionPill,
+                              action.phase === 'calling' ? styles.toolActionCalling : styles.toolActionDone,
+                            ]}
+                          >
+                            {action.phase === 'calling' ? (
+                              <ActivityIndicator size="small" color="#2563eb" style={{ marginRight: 6 }} />
+                            ) : (
+                              <Ionicons name="checkmark-circle" size={14} color="#10b981" style={{ marginRight: 6 }} />
+                            )}
+                            <Text
+                              style={[
+                                styles.toolActionText,
+                                action.phase === 'calling' ? styles.toolActionTextCalling : styles.toolActionTextDone,
+                              ]}
+                            >
+                              {action.phase === 'calling' ? `${action.displayName}...` : (action.summary || action.displayName)}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
                     {isUser ? (
                       <Text style={[styles.messageText, styles.messageTextUser, isDark && { color: colors.text }]}>
                         {msg.content}
@@ -948,5 +1079,35 @@ const styles = StyleSheet.create({
   sendBtnDisabled: {
     backgroundColor: '#94a3b8',
     opacity: 0.5,
+  },
+  toolActionsContainer: {
+    marginBottom: 8,
+    gap: 6,
+  },
+  toolActionPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+  },
+  toolActionCalling: {
+    backgroundColor: '#eff6ff',
+    borderColor: '#bfdbfe',
+  },
+  toolActionDone: {
+    backgroundColor: '#ecfdf5',
+    borderColor: '#a7f3d0',
+  },
+  toolActionText: {
+    fontSize: 12,
+    fontFamily: 'Farro-Medium',
+  },
+  toolActionTextCalling: {
+    color: '#2563eb',
+  },
+  toolActionTextDone: {
+    color: '#059669',
   },
 });

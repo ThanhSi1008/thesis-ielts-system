@@ -23,7 +23,7 @@ class PdfService:
         # Download PDF if it is a remote URL
         if pdf_input.startswith("http://") or pdf_input.startswith("https://"):
             logger.info(f"⬇️ Downloading remote PDF: {pdf_input}")
-            response = requests.get(pdf_input, stream=True)
+            response = requests.get(pdf_input, stream=True, timeout=180)
             response.raise_for_status()
 
             temp_file = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
