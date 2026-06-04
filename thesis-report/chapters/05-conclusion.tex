@@ -5,7 +5,7 @@
 
 \subsection{Về mặt công nghệ và kiến trúc hệ thống}
 
-Đồ án hoàn thiện hệ thống IELTS Master với kiến trúc Event-driven Modular Monolith trên các công nghệ hiện đại, bám sát chuẩn phát triển phần mềm cấp sản xuất.
+Đồ án hoàn thiện hệ thống IELTS Master English (Lexon) với kiến trúc Event-driven Modular Monolith trên các công nghệ hiện đại, bám sát chuẩn phát triển phần mềm cấp sản xuất.
 
 Về kiến trúc, hệ thống tổ chức theo mô hình Event-driven Modular Monolith. NestJS Backend Core gói 17 module nghiệp vụ (auth, exams, vocab-lab, grammar, shadowing, gamification, subscriptions\ldots) trong một ứng dụng duy nhất, giao tiếp nội bộ qua Dependency Injection --- giữ tính nhất quán và dễ bảo trì. FastAPI AI Worker tách thành microservice độc lập, kết nối với core qua RabbitMQ để chạy AI inference bất đồng bộ mà không làm chậm phản hồi API. Cách bố trí này cân bằng giữa độ đơn giản của monolith và khả năng scale độc lập cho phần tính toán nặng (AI grading).
 
