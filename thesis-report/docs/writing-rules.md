@@ -18,17 +18,19 @@
 | Lề trái | 3.5 cm |
 | Lề phải | 2.5 cm |
 
-**Ánh xạ sang LaTeX** (trong `main.tex`):
+**Ánh xạ sang LaTeX** (trong `main.tex`, biên dịch bằng XeLaTeX):
 ```latex
+\documentclass[a4paper,13pt]{extreport}  % Cỡ chữ nội dung 13pt
 \usepackage[
   paper=a4paper,
   top=2.5cm, bottom=2.5cm, left=3.5cm, right=2.5cm
 ]{geometry}
-\setmainfont{Times New Roman}
+\setmainfont{Times New Roman}            % Font Times New Roman
 \usepackage{setspace}
-\setstretch{1.3}                        % Dãn dòng 1.3
-\fontsize{13pt}{16.9pt}\selectfont      % 13pt × 1.3 = 16.9pt baseline skip
+\setstretch{1.3}                         % Dãn dòng — khớp Word "Multiple = 1.3"
 ```
+
+> **Dùng `\setstretch{1.3}`, KHÔNG dùng `\fontsize{13pt}{16.9pt}`:** Word "Multiple 1.3" = 1.3 × chiều cao dòng đơn của font (≈ 1.15 × cỡ chữ), nên `\setstretch{1.3}` (≈ 20pt baseline) mới *trông giống* Word. Cách `13 × 1.3 = 16.9pt` cho dòng quá khít so với Word, và `\fontsize` đặt ở preamble còn bị `\normalsize` ghi đè khi vào `\begin{document}` nên không có tác dụng bền.
 
 ---
 
