@@ -1,4 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 
 describe("PrismaService", () => {
@@ -13,28 +14,36 @@ describe("PrismaService", () => {
   });
 
   it("should call $connect on onModuleInit", async () => {
-    const connectSpy = jest.spyOn(service, "$connect").mockResolvedValue(undefined);
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+    const connectSpy = jest
+      .spyOn(service, "$connect")
+      .mockResolvedValue(undefined);
+    const logSpy = jest
+      .spyOn(Logger.prototype, "log")
+      .mockImplementation(() => {});
 
     await service.onModuleInit();
 
     expect(connectSpy).toHaveBeenCalled();
-    expect(consoleSpy).toHaveBeenCalledWith("✅ Database connected successfully");
+    expect(logSpy).toHaveBeenCalledWith("✅ Database connected successfully");
 
     connectSpy.mockRestore();
-    consoleSpy.mockRestore();
+    logSpy.mockRestore();
   });
 
   it("should call $disconnect on onModuleDestroy", async () => {
-    const disconnectSpy = jest.spyOn(service, "$disconnect").mockResolvedValue(undefined);
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+    const disconnectSpy = jest
+      .spyOn(service, "$disconnect")
+      .mockResolvedValue(undefined);
+    const logSpy = jest
+      .spyOn(Logger.prototype, "log")
+      .mockImplementation(() => {});
 
     await service.onModuleDestroy();
 
     expect(disconnectSpy).toHaveBeenCalled();
-    expect(consoleSpy).toHaveBeenCalledWith("❌ Database disconnected");
+    expect(logSpy).toHaveBeenCalledWith("❌ Database disconnected");
 
     disconnectSpy.mockRestore();
-    consoleSpy.mockRestore();
+    logSpy.mockRestore();
   });
 });
