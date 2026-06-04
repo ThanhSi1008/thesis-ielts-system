@@ -3,6 +3,7 @@ const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   swcMinify: true,
+  transpilePackages: ['react-markdown', 'remark-gfm', 'rehype-raw'],
   eslint: {
     ignoreDuringBuilds: true,
   },

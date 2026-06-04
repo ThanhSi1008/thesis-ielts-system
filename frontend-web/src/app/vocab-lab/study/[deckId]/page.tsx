@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { vocabLabApi } from '@/services/vocabLab.api';
 import type { StudyCard } from '@/types';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 
 // ── Style helpers ─────────────────────────────────────────────────────────────
@@ -390,8 +393,8 @@ export default function StudyPage() {
                   <div className="flex flex-col gap-4 w-full">
                     {!currentCard.cardType ? (
                       // Legacy fallback
-                      <div className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-6 leading-tight w-full whitespace-pre-wrap">
-                        {currentCard.front}
+                      <div className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-6 leading-tight w-full whitespace-pre-wrap prose max-w-none dark:prose-invert [&_*]:text-inherit">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{currentCard.front}</ReactMarkdown>
                       </div>
                     ) : (
                       // New dynamic fields for front
@@ -415,8 +418,10 @@ export default function StudyPage() {
                           <div key={fieldId} className="text-xl sm:text-2xl font-semibold leading-tight w-full prose max-w-none prose-sm sm:prose-base [&_img]:max-w-[280px] [&_img]:max-h-[280px] [&_img]:w-auto [&_img]:mx-auto [&_img]:rounded-xl [&_video]:max-w-[280px] [&_video]:max-h-[280px] [&_video]:w-auto [&_video]:mx-auto [&_video]:rounded-xl"
                             style={css} dangerouslySetInnerHTML={{ __html: value }} />
                         ) : (
-                          <div key={fieldId} className="text-xl sm:text-2xl font-semibold leading-tight w-full whitespace-pre-wrap"
-                            style={css}>{value}</div>
+                          <div key={fieldId} className="text-xl sm:text-2xl font-semibold leading-tight w-full prose max-w-none prose-sm sm:prose-base dark:prose-invert [&_*]:text-inherit"
+                            style={css}>
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{value}</ReactMarkdown>
+                          </div>
                         );
                       })
                     )}
@@ -429,8 +434,8 @@ export default function StudyPage() {
                       <div className="flex flex-col gap-5 w-full">
                         {!currentCard.cardType ? (
                           // Legacy fallback
-                          <div className="text-lg sm:text-xl text-gray-700 whitespace-pre-wrap leading-relaxed">
-                            {currentCard.back}
+                          <div className="text-lg sm:text-xl text-gray-700 whitespace-pre-wrap leading-relaxed prose max-w-none dark:prose-invert [&_*]:text-inherit">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{currentCard.back}</ReactMarkdown>
                           </div>
                         ) : (
                           // New dynamic fields for back
@@ -455,8 +460,10 @@ export default function StudyPage() {
                               <div key={fieldId} className="text-lg sm:text-xl leading-relaxed prose max-w-none prose-sm sm:prose-base [&_img]:max-w-[280px] [&_img]:max-h-[280px] [&_img]:w-auto [&_img]:mx-auto [&_img]:rounded-xl [&_video]:max-w-[280px] [&_video]:max-h-[280px] [&_video]:w-auto [&_video]:mx-auto [&_video]:rounded-xl"
                                 style={css} dangerouslySetInnerHTML={{ __html: value }} />
                             ) : (
-                              <div key={fieldId} className="text-lg sm:text-xl leading-relaxed whitespace-pre-wrap"
-                                style={css}>{value}</div>
+                              <div key={fieldId} className="text-lg sm:text-xl leading-relaxed prose max-w-none prose-sm sm:prose-base dark:prose-invert [&_*]:text-inherit"
+                                style={css}>
+                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{value}</ReactMarkdown>
+                              </div>
                             );
                           })
                         )}
