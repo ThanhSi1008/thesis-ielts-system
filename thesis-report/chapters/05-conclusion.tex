@@ -56,13 +56,13 @@ Hệ thống vẫn để lộ một số hạn chế cần thừa nhận thẳng
 Trên nền tảng đã có và các hạn chế vừa nêu, một số hướng phát triển tiếp theo được đề xuất cho các giai đoạn sau:
 
 \begin{itemize}
-    \item \textbf{Fine-tune mô hình AI chuyên biệt:} Xây dựng tập dữ liệu bài mẫu IELTS đã được giám khảo chấm điểm thực tế để fine-tune mô hình ngôn ngữ, nhằm tăng độ chính xác AI scoring và đưa chênh lệch band điểm so với giám khảo con người xuống mức $\leq$0.5~\cite{le2023nlp}.
+    \item \textbf{Fine-tune mô hình AI chuyên biệt:} Xây dựng tập dữ liệu bài mẫu IELTS đã được giám khảo chấm điểm thực tế để fine-tune mô hình ngôn ngữ, nhằm tăng độ chính xác AI scoring và đưa chênh lệch band điểm so với giám khảo con người xuống mức $\leq$0.5~\cite{nguyen2026aiwriting}.
 
     \item \textbf{Kiểm thử hiệu năng và tối ưu hóa:} Triển khai load testing (k6, JMeter) để xác định điểm nghẽn cổ chai ở tầng Backend Core và FastAPI AI Worker. Mở rộng Redis cache~\cite{redis-docs} cho kết quả chấm điểm và nội dung bài tập hay truy cập, giảm áp lực lên Gemini API và cơ sở dữ liệu PostgreSQL.
 
     \item \textbf{Mở rộng tính năng cộng đồng:} Phát triển từ nền tảng cộng đồng cơ bản đã có, bổ sung hệ thống peer review (người học chấm bài Writing/Speaking lẫn nhau theo rubric IELTS), tính năng học nhóm theo thời gian thực và diễn đàn thảo luận chuyên sâu phân loại theo kỹ năng. Đây là hướng phù hợp với mô hình Social Learning~\cite{vygotsky1978mind} và tạo sự khác biệt rõ ràng so với các nền tảng luyện thi cá nhân hiện tại.
 
-    \item \textbf{Adaptive Learning:} Dựa trên lịch sử kết quả làm bài và phân tích lỗi thường gặp, hệ thống tự động gợi ý bài tập phù hợp với điểm yếu của từng người học thay vì để người học tự chọn, tạo lộ trình học tập cá nhân hoá thực sự~\cite{tran2022elearning}.
+    \item \textbf{Adaptive Learning:} Dựa trên lịch sử kết quả làm bài và phân tích lỗi thường gặp, hệ thống tự động gợi ý bài tập phù hợp với điểm yếu của từng người học thay vì để người học tự chọn, tạo lộ trình học tập cá nhân hoá thực sự~\cite{nguyen2024aiteaching}.
 
     \item \textbf{Chế độ offline cho Mobile:} Tích hợp cơ chế download bài tập và cache audio cục bộ để người học có thể luyện tập khi không có Internet, đồng bộ kết quả lên server khi kết nối trở lại thông qua conflict resolution strategy.
 
