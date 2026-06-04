@@ -34,8 +34,9 @@ function FormCompletionBlockComponent({
   correctAnswers,
 }: Props) {
   const { colors, isDark } = useTheme();
-  const points: FormPoint[] = group.points ?? group.questions ?? [];
-  const heading = group.heading ?? group.instructions;
+  const rawPoints = group.points || group.questions;
+  const points: FormPoint[] = Array.isArray(rawPoints) ? rawPoints : [];
+  const heading = group.heading || group.instructions;
   const isFlowchart = group.type === 'flowchart_completion' || group.type === 'flow_chart';
 
   const styles = StyleSheet.create({
@@ -165,7 +166,7 @@ function FormCompletionBlockComponent({
         {points.map((point, idx) => {
           const qNum = point.question_number;
           const isHeader = !qNum;
-          const label = extractLabel(point.text ?? '');
+          const label = extractLabel(point.text || '');
 
           if (isHeader) {
             return (
@@ -176,8 +177,8 @@ function FormCompletionBlockComponent({
           }
 
           const key = String(qNum);
-          const val = answers[key] ?? '';
-          const correctVal = correctAnswers?.[key] ?? point.answer ?? (point.acceptable_answers && point.acceptable_answers[0]) ?? '';
+          const val = answers[key] || '';
+          const correctVal = correctAnswers?.[key] || point.answer || (point.acceptable_answers && point.acceptable_answers[0]) || '';
           const isCorrectAns = mode === 'review' ? isCorrect(val, correctVal) : false;
 
           let rowStyle: any = null;
@@ -258,8 +259,10 @@ export default React.memo(FormCompletionBlockComponent, (prev, next) => {
   if (prev.mode !== next.mode) return false;
   if (prev.group !== next.group) return false;
 
-  const prevPoints: FormPoint[] = prev.group.points ?? prev.group.questions ?? [];
-  const nextPoints: FormPoint[] = next.group.points ?? next.group.questions ?? [];
+  const prevRaw = prev.group.points || prev.group.questions;
+  const nextRaw = next.group.points || next.group.questions;
+  const prevPoints: FormPoint[] = Array.isArray(prevRaw) ? prevRaw : [];
+  const nextPoints: FormPoint[] = Array.isArray(nextRaw) ? nextRaw : [];
   
   if (prevPoints.length !== nextPoints.length) return false;
 

@@ -43,15 +43,14 @@ export function useExitConfirm(
     };
   }, [hasUnsavedChanges]);
 
-  const handleConfirmSave = async () => {
+  const handleConfirmSave = () => {
+    if (isConfirmedRef.current) return;
     isConfirmedRef.current = true;
     setIsVisible(false);
     if (onSave) {
-      try {
-        await onSave();
-      } catch (err) {
+      Promise.resolve(onSave()).catch((err) => {
         console.error('Failed to save on exit confirm:', err);
-      }
+      });
     }
     if (pendingAction) {
       navigation.dispatch(pendingAction);
@@ -60,15 +59,14 @@ export function useExitConfirm(
     }
   };
 
-  const handleConfirmDiscard = async () => {
+  const handleConfirmDiscard = () => {
+    if (isConfirmedRef.current) return;
     isConfirmedRef.current = true;
     setIsVisible(false);
     if (onDiscard) {
-      try {
-        await onDiscard();
-      } catch (err) {
+      Promise.resolve(onDiscard()).catch((err) => {
         console.error('Failed to discard on exit confirm:', err);
-      }
+      });
     }
     if (pendingAction) {
       navigation.dispatch(pendingAction);

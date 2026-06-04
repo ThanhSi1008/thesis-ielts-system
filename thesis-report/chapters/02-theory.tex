@@ -3,13 +3,13 @@
 
 \section{Lý thuyết học ngôn ngữ và đánh giá kỹ năng tự động}
 
-Bốn lĩnh vực học thuật làm nền lý thuyết cho IELTS Master: học ngôn ngữ hỗ trợ máy tính (CALL), đánh giá bài viết tự động (AES), đánh giá phát âm tự động (APS) và lặp lại ngắt quãng (SRS). Mục này điểm qua từng cơ sở và ánh xạ thẳng sang các tính năng cụ thể đã hiện thực trong hệ thống.
+Bốn lĩnh vực học thuật làm nền lý thuyết cho IELTS Master English (Lexon): học ngôn ngữ hỗ trợ máy tính (CALL), đánh giá bài viết tự động (AES), đánh giá phát âm tự động (APS) và lặp lại ngắt quãng (SRS). Mục này điểm qua từng cơ sở và ánh xạ thẳng sang các tính năng cụ thể đã hiện thực trong hệ thống.
 
 \subsection{Học ngôn ngữ hỗ trợ máy tính (CALL)}
 
-Học ngôn ngữ hỗ trợ máy tính (Computer-Assisted Language Learning --- CALL) nghiên cứu cách dùng công nghệ thông tin để hỗ trợ quá trình dạy và học ngôn ngữ~\cite{nguyen2020tienganh}. Chapelle và Jamieson~\cite{chapelle2010technology} đúc kết ba nguyên tắc thiết kế CALL có hiệu quả: (1) cung cấp đầu vào ngôn ngữ phong phú và đa dạng theo trình độ người học (\textit{input}); (2) tạo cơ hội luyện tập tương tác có nghĩa (\textit{interaction}); (3) đưa ra phản hồi tức thì và cụ thể (\textit{feedback}). Ebadi và Rahimi~\cite{ebadi2018scaffolding} bổ sung rằng phản hồi cá nhân hóa và lặp lại giúp người học nội hóa kiến thức ngôn ngữ tốt hơn hẳn so với học thụ động --- bằng chứng là cơ chế scaffolding trong môi trường CALL.
+Học ngôn ngữ hỗ trợ máy tính (Computer-Assisted Language Learning --- CALL) nghiên cứu cách dùng công nghệ thông tin để hỗ trợ quá trình dạy và học ngôn ngữ~\cite{warschauer1998computers}. Chapelle và Jamieson~\cite{chapelle2008tips} đúc kết ba nguyên tắc thiết kế CALL có hiệu quả: (1) cung cấp đầu vào ngôn ngữ phong phú và đa dạng theo trình độ người học (\textit{input}); (2) tạo cơ hội luyện tập tương tác có nghĩa (\textit{interaction}); (3) đưa ra phản hồi tức thì và cụ thể (\textit{feedback}). Ebadi và Rahimi~\cite{ebadi2018scaffolding} bổ sung rằng phản hồi cá nhân hóa và lặp lại giúp người học nội hóa kiến thức ngôn ngữ tốt hơn hẳn so với học thụ động --- bằng chứng là cơ chế scaffolding trong môi trường CALL.
 
-IELTS Master bám sát đủ ba nguyên tắc: nội dung học phân cấp từ Foundation lên Advanced cung cấp \textit{input} theo từng trình độ; các bài Speaking, Pronunciation và Dictation tạo \textit{interaction} trong tình huống giao tiếp thực; pipeline chấm điểm AI (Gemini 2.5 Flash và faster-whisper) trả \textit{feedback} chi tiết, gần như tức thì sau mỗi lượt luyện.
+IELTS Master English (Lexon) bám sát đủ ba nguyên tắc: nội dung học phân cấp từ Foundation lên Advanced cung cấp \textit{input} theo từng trình độ; các bài Speaking, Pronunciation và Dictation tạo \textit{interaction} trong tình huống giao tiếp thực; pipeline chấm điểm AI (Gemini 2.5 Flash và faster-whisper) trả \textit{feedback} chi tiết, gần như tức thì sau mỗi lượt luyện.
 
 \subsection{Đánh giá bài viết tự động (AES)}
 
@@ -17,13 +17,13 @@ IELTS Master bám sát đủ ba nguyên tắc: nội dung học phân cấp từ
 
 Sự xuất hiện của các mô hình ngôn ngữ lớn (LLM) mở ra hướng đi mới cho AES. Mizumoto và Eguchi~\cite{mizumoto2023exploring} chứng minh ChatGPT đạt tương quan cao với điểm chấm của giám khảo bản ngữ trên bài viết IELTS Task~2 khi được cung cấp rubric đánh giá đầy đủ thông qua prompt engineering. Ưu thế của hướng LLM nằm ở khả năng đánh giá chất lượng nội dung và lập luận --- yếu tố mà các hệ thống truyền thống dựa trên đặc trưng thống kê không nắm bắt được.
 
-IELTS Master triển khai AES bằng Gemini 2.5 Flash với prompt engineering chi tiết về bốn tiêu chí IELTS Writing (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy). Do tính biến thiên của LLM giữa các lần gọi (consistency limitation), kết quả được trình bày dưới dạng band điểm ước tính kèm cảnh báo để người dùng hiểu đúng bản chất của phản hồi.
+IELTS Master English (Lexon) triển khai AES bằng Gemini 2.5 Flash với prompt engineering chi tiết về bốn tiêu chí IELTS Writing (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy). Do tính biến thiên của LLM giữa các lần gọi (consistency limitation), kết quả được trình bày dưới dạng band điểm ước tính kèm cảnh báo để người dùng hiểu đúng bản chất của phản hồi.
 
 \subsection{Đánh giá phát âm tự động (APS)}
 
 Đánh giá phát âm tự động (Automated Pronunciation Scoring --- APS) áp dụng xử lý tín hiệu âm thanh và mô hình ngữ âm học để tính điểm phát âm của người học ngoại ngữ. Thuật toán nền tảng là Goodness of Pronunciation (GOP) do Witt và Young giới thiệu~\cite{witt2000phone}, đo xác suất log của âm vị nhận dạng được so với mô hình ngữ âm chuẩn --- GOP càng cao thì phát âm càng gần chuẩn. Eskenazi~\cite{eskenazi2009overview} tổng kết: APS hiệu quả cần xét đồng thời độ chính xác âm vị (\textit{phonemic accuracy}), nhịp điệu (\textit{prosody}) và ngữ điệu (\textit{intonation}); với mục tiêu luyện tập cá nhân, phản hồi theo từng âm vị có giá trị thực hành cao nhất.
 
-IELTS Master tiếp cận APS theo phương pháp \textit{weighted phoneme edit distance}: âm thanh ghi âm được chuyển thành văn bản kèm xác suất tin cậy từng từ qua faster-whisper; cả từ chuẩn lẫn từ nhận dạng được chuyển sang ký hiệu phiên âm quốc tế (IPA); khoảng cách chỉnh sửa được tính với chi phí thay thế phân biệt theo lớp âm vị --- thay thế trong cùng lớp (ví dụ hai phụ âm tắc /plosive/) tốn chi phí thấp hơn thay thế khác lớp, phù hợp với lý thuyết khoảng cách ngữ âm~\cite{witt2000phone}. Điểm phát âm tổng hợp được tính theo:
+IELTS Master English (Lexon) tiếp cận APS theo phương pháp \textit{weighted phoneme edit distance}: âm thanh ghi âm được chuyển thành văn bản kèm xác suất tin cậy từng từ qua faster-whisper; cả từ chuẩn lẫn từ nhận dạng được chuyển sang ký hiệu phiên âm quốc tế (IPA); khoảng cách chỉnh sửa được tính với chi phí thay thế phân biệt theo lớp âm vị --- thay thế trong cùng lớp (ví dụ hai phụ âm tắc /plosive/) tốn chi phí thấp hơn thay thế khác lớp, phù hợp với lý thuyết khoảng cách ngữ âm~\cite{witt2000phone}. Điểm phát âm tổng hợp được tính theo:
 \begin{equation}
   \text{overall} = 0{,}4 \cdot \text{phoneme} + 0{,}4 \cdot \text{confidence} + 0{,}2 \cdot \text{text}
   \label{eq:aps-score}
@@ -34,7 +34,7 @@ với \textit{phoneme} là điểm khoảng cách IPA có trọng số, \textit{
 
 Lặp lại ngắt quãng (Spaced Repetition System --- SRS) bắt nguồn từ đường cong quên lãng của Ebbinghaus~\cite{ebbinghaus1885gedachtnis}: ký ức suy giảm theo hàm mũ theo thời gian nếu không được ôn lại, mỗi lần ôn tập phục hồi ký ức và đẩy lùi thời điểm quên tiếp theo. Cepeda và cộng sự~\cite{cepeda2006distributed} phân tích tổng hợp 254 nghiên cứu, kết luận phân bố thời gian ôn tập (distributed practice) hiệu quả hơn đáng kể so với học dồn (massed practice) trong củng cố ký ức dài hạn. Karpicke và Roediger~\cite{karpicke2008critical} bổ sung: hành động chủ động nhớ lại (retrieval practice / testing effect) hiệu quả hơn đọc lại thụ động --- chính là lý thuyết nền cho thiết kế flashcard trong Vocab Lab.
 
-Thuật toán SM-2 của Woźniak~\cite{wozniak1990spaced} cải tiến lịch ôn tập bằng cách điều chỉnh khoảng cách theo lịch sử trả lời. FSRS (Free Spaced Repetition Scheduler) của Ye~\cite{ye2022fsrs} là thế hệ mới nhất, dùng mô hình DSR (Difficulty, Stability, Retrievability) và tối ưu hóa dựa trên dữ liệu thực để dự đoán chính xác hơn thời điểm một từ sắp bị quên, từ đó cá nhân hóa lịch ôn tập cho từng người học. IELTS Master nạp thư viện ts-fsrs v5.3.2 vào module Vocab Lab, áp dụng FSRS với thang đánh giá bốn mức (Again/Hard/Good/Easy) để khai thác đồng thời retrieval practice và phân bố thời gian tối ưu.
+Thuật toán SM-2 của Woźniak~\cite{wozniak1990spaced} cải tiến lịch ôn tập bằng cách điều chỉnh khoảng cách theo lịch sử trả lời. FSRS (Free Spaced Repetition Scheduler) của Ye~\cite{ye2022fsrs} là thế hệ mới nhất, dùng mô hình DSR (Difficulty, Stability, Retrievability) và tối ưu hóa dựa trên dữ liệu thực để dự đoán chính xác hơn thời điểm một từ sắp bị quên, từ đó cá nhân hóa lịch ôn tập cho từng người học. IELTS Master English (Lexon) nạp thư viện ts-fsrs v5.3.2 vào module Vocab Lab, áp dụng FSRS với thang đánh giá bốn mức (Again/Hard/Good/Easy) để khai thác đồng thời retrieval practice và phân bố thời gian tối ưu.
 
 \subsection{Tiêu chí đánh giá IELTS}
 
@@ -42,7 +42,7 @@ IELTS (International English Language Testing System) đánh giá năng lực ti
 
 Kỹ năng Writing Task~2 chấm theo bốn tiêu chí trọng số ngang nhau: (1)~Task Achievement (TA) --- mức độ đáp ứng yêu cầu đề bài và phát triển lập luận; (2)~Coherence and Cohesion (CC) --- tổ chức ý tưởng và sử dụng phương tiện liên kết; (3)~Lexical Resource (LR) --- phạm vi và độ chính xác từ vựng; (4)~Grammatical Range and Accuracy (GRA) --- đa dạng cấu trúc ngữ pháp và độ chính xác.
 
-Speaking cũng dùng bốn tiêu chí: (1)~Fluency and Coherence (FC); (2)~Lexical Resource (LR); (3)~Grammatical Range and Accuracy (GRA); (4)~Pronunciation (P). IELTS Master nhúng rubric chi tiết toàn bộ các tiêu chí trên vào prompt gửi sang Gemini API, đảm bảo phản hồi chấm điểm nhất quán với chuẩn đánh giá chính thức --- ứng dụng trực tiếp phương pháp AES dựa trên LLM với ngữ cảnh rubric đầy đủ mà Mizumoto và Eguchi~\cite{mizumoto2023exploring} đã kiểm chứng hiệu quả.
+Speaking cũng dùng bốn tiêu chí: (1)~Fluency and Coherence (FC); (2)~Lexical Resource (LR); (3)~Grammatical Range and Accuracy (GRA); (4)~Pronunciation (P). IELTS Master English (Lexon) nhúng rubric chi tiết toàn bộ các tiêu chí trên vào prompt gửi sang Gemini API, đảm bảo phản hồi chấm điểm nhất quán với chuẩn đánh giá chính thức --- ứng dụng trực tiếp phương pháp AES dựa trên LLM với ngữ cảnh rubric đầy đủ mà Mizumoto và Eguchi~\cite{mizumoto2023exploring} đã kiểm chứng hiệu quả.
 
 \section{Ngôn ngữ lập trình}
 
@@ -149,7 +149,7 @@ Gemini là dòng mô hình ngôn ngữ lớn đa phương thức (multimodal LLM
     \item \textbf{Đánh giá Speaking:} Sau khi faster-whisper chuyển đổi giọng nói thành transcript, Gemini phân tích để đánh giá theo bốn tiêu chí chấm điểm IELTS Speaking: Fluency \& Coherence, Lexical Resource, Grammatical Range \& Accuracy và Pronunciation.
 \end{itemize}
 
-Lý do chọn Gemini 2.5 Flash thay vì các mô hình thương mại lớn cùng phân khúc (GPT-4o, Claude Sonnet 4.6): chi phí mỗi triệu token thấp hơn đáng kể trong nhóm flash/haiku/mini, phù hợp khối lượng chấm điểm Writing/Speaking lặp lại nhiều lần trên ngân sách khóa luận; tích hợp liền mạch với hệ sinh thái Google Cloud qua thư viện google-genai và có endpoint trong khu vực asia-southeast1, kéo độ trễ xuống cho người dùng tại Việt Nam; context window đủ dài để gửi cả đề bài, bài viết và rubric trong một lần gọi mà không bị cắt ngữ cảnh. Mặt trái: chấm điểm bằng LLM có thể không nhất quán giữa các lần gọi (consistency limitation) --- vì vậy kết quả từ Gemini được trình bày dưới dạng band ước tính kèm cảnh báo ngay trên giao diện. Trợ lý AI vận hành trên Gemini API trong hệ thống được đặt tên là \textbf{Lexon AI}, đóng vai trò trợ lý tra cứu từ vựng và hội thoại học tập nhúng vào giao diện người dùng.
+Lý do chọn Gemini 2.5 Flash thay vì các mô hình thương mại lớn cùng phân khúc (GPT-4o, Claude Sonnet 4.6): chi phí mỗi triệu token thấp hơn đáng kể trong nhóm flash/haiku/mini, phù hợp khối lượng chấm điểm Writing/Speaking lặp lại nhiều lần trên ngân sách khóa luận; tích hợp liền mạch với hệ sinh thái Google Cloud qua thư viện google-genai và có endpoint trong khu vực asia-southeast1, kéo độ trễ xuống cho người dùng; context window đủ dài để gửi cả đề bài, bài viết và rubric trong một lần gọi mà không bị cắt ngữ cảnh. Mặt trái: chấm điểm bằng LLM có thể không nhất quán giữa các lần gọi (consistency limitation) --- vì vậy kết quả từ Gemini được trình bày dưới dạng band ước tính kèm cảnh báo ngay trên giao diện. Trợ lý AI vận hành trên Gemini API trong hệ thống được đặt tên là \textbf{Lexon AI}, đóng vai trò trợ lý tra cứu từ vựng và hội thoại học tập nhúng vào giao diện người dùng.
 
 \subsection{faster-whisper}
 
@@ -164,7 +164,7 @@ Model base của Whisper được pre-download vào Docker image của FastAPI A
 
 \subsection{RabbitMQ}
 
-RabbitMQ là message broker mã nguồn mở do Rabbit Technologies phát hành năm 2007, triển khai giao thức AMQP (Advanced Message Queuing Protocol) để các service giao tiếp bất đồng bộ qua queue~\cite{rabbitmq-docs}. Hệ thống này hiện đứng sau hàng triệu deployment production, gồm VMware, Reddit và các tổ chức tài chính lớn, nhờ độ tin cậy cao, message persistence và năng lực scale theo chiều ngang. Trong IELTS Master, RabbitMQ đóng vai trò xương sống nối NestJS Backend Core với FastAPI AI Worker.
+RabbitMQ là message broker mã nguồn mở do Rabbit Technologies phát hành năm 2007, triển khai giao thức AMQP (Advanced Message Queuing Protocol) để các service giao tiếp bất đồng bộ qua queue~\cite{rabbitmq-docs}. Hệ thống này hiện đứng sau hàng triệu deployment production, gồm VMware, Reddit và các tổ chức tài chính lớn, nhờ độ tin cậy cao, message persistence và năng lực scale theo chiều ngang. Trong IELTS Master English (Lexon), RabbitMQ đóng vai trò xương sống nối NestJS Backend Core với FastAPI AI Worker.
 
 Luồng AI grading: khi người học nộp bài Writing hoặc Speaking, module ai-client của NestJS publish task JSON vào exam-grading-queue với cờ persistent: true (đảm bảo tin nhắn không mất khi restart). FastAPI Worker consume task, gọi Gemini API để chấm điểm và ghi kết quả đánh giá thẳng vào PostgreSQL qua thư viện psycopg2. Cách bố trí này mang lại ba lợi ích:
 
@@ -209,7 +209,7 @@ Khả năng quan sát (Observability) là năng lực thấu hiểu trạng thá
 
 OpenTelemetry (OTel) là dự án mã nguồn mở thuộc CNCF (Cloud Native Computing Foundation), chuẩn hóa API và SDK để tạo, thu thập, định dạng và xuất dữ liệu telemetry độc lập với nhà cung cấp (vendor-neutral)~\cite{opentelemetry-docs}.
 
-IELTS Master tích hợp OpenTelemetry xuyên hệ thống để giám sát hiệu năng và lỗi:
+IELTS Master English (Lexon) tích hợp OpenTelemetry xuyên hệ thống để giám sát hiệu năng và lỗi:
 \begin{itemize}
     \item \textbf{Backend Core (NestJS):} Sử dụng @opentelemetry/sdk-node và prom-client để thu thập metrics (như thời gian phản hồi API, tải CPU/Memory) và traces (dấu vết luồng gọi hàm giữa các module).
     \item \textbf{Backend AI Worker (FastAPI):} Sử dụng opentelemetry-sdk và opentelemetry-instrumentation-fastapi cho Python để theo dõi thời gian thực thi của các tác vụ nặng như gọi Gemini API hay chạy faster-whisper.
@@ -250,7 +250,7 @@ VNPay là một trong những cổng thanh toán điện tử phổ biến nhấ
 
 HMAC (Hash-based Message Authentication Code) là cơ chế xác thực thông điệp kết hợp giữa một hàm băm mật mã (ở đây là SHA-512) với một khóa bí mật (secret key) chia sẻ chung~\cite{rfc2104}. Khi người dùng phát sinh giao dịch, hệ thống gom toàn bộ tham số cấu hình thanh toán (mã đơn hàng, số tiền, ngày giờ tạo theo chuẩn GMT+7...), sắp xếp theo thứ tự từ điển, dựng thành query string. Chuỗi này được băm cùng khóa vnp\_HashSecret để sinh chữ ký vnp\_SecureHash.
 
-Trong IELTS Master, luồng thanh toán gói cước (Subscriptions) triển khai thuật toán này như sau:
+Trong IELTS Master English (Lexon), luồng thanh toán gói cước (Subscriptions) triển khai thuật toán này như sau:
 \begin{itemize}
     \item \textbf{Tạo URL thanh toán:} NestJS Backend băm các tham số thanh toán bằng thuật toán HMAC-SHA512 và gắn chữ ký vnp\_SecureHash vào cuối URL trước khi chuyển hướng người dùng sang trang thanh toán VNPay.
     \item \textbf{Xác thực Webhook/Return URL:} Khi VNPay trả kết quả giao dịch về hệ thống (qua URL callback), hệ thống lấy chuỗi truy vấn (loại trừ trường vnp\_SecureHash được gửi kèm) băm lại bằng khóa bí mật. Nếu chữ ký tạo ra khớp với chữ ký VNPay gửi về, giao dịch được xác nhận là hợp lệ và an toàn; từ đó hệ thống tiến hành cấp quyền truy cập các tính năng Premium/Pro cho người học.
@@ -262,7 +262,7 @@ Trong IELTS Master, luồng thanh toán gói cước (Subscriptions) triển kha
 
 Microservices chia ứng dụng thành nhiều service nhỏ, độc lập, mỗi service phụ trách một domain và có thể deploy riêng \cite{newman2015microservices}. Đổi lại, kiến trúc này kèm chi phí vận hành đáng kể: service discovery, distributed tracing, độ trễ mạng giữa các service.
 
-IELTS Master chọn cách tiếp cận thực dụng hơn --- \textbf{Event-driven Modular Monolith}:
+IELTS Master English (Lexon) chọn cách tiếp cận thực dụng hơn --- \textbf{Event-driven Modular Monolith}:
 
 \begin{itemize}
     \item \textbf{NestJS Backend Core} là một ứng dụng monolith có module hóa (Modular Monolith) chứa 17 feature module (auth, users, exams, results, ielts, vocabulary, vocab-lab, grammar, shadowing, dictation, pronunciation, learning, notes, gamification, notifications, posts, subscriptions) giao tiếp nội bộ qua Dependency Injection. Toàn bộ chạy trong một process duy nhất, đơn giản hóa deployment và debug.

@@ -5,9 +5,9 @@
 
 \subsection{Về mặt công nghệ và kiến trúc hệ thống}
 
-Đồ án hoàn thiện hệ thống IELTS Master với kiến trúc Event-driven Modular Monolith trên các công nghệ hiện đại, bám sát chuẩn phát triển phần mềm cấp sản xuất.
+Đồ án hoàn thiện hệ thống IELTS Master English (Lexon) với kiến trúc Event-driven Modular Monolith trên các công nghệ hiện đại, bám sát chuẩn phát triển phần mềm cấp sản xuất.
 
-Về kiến trúc, hệ thống tổ chức theo mô hình Event-driven Modular Monolith. NestJS Backend Core gói 17 module nghiệp vụ (auth, exams, vocab-lab, grammar, shadowing, gamification, subscriptions\ldots) trong một ứng dụng duy nhất, giao tiếp nội bộ qua Dependency Injection --- giữ tính nhất quán và dễ bảo trì. FastAPI AI Worker tách thành microservice độc lập, kết nối với core qua RabbitMQ để chạy AI inference bất đồng bộ mà không làm chậm phản hồi API. Cách bố trí này cân bằng giữa độ đơn giản của monolith và khả năng scale độc lập cho phần tính toán nặng (AI grading).
+Về kiến trúc, hệ thống tổ chức theo mô hình Event-driven Modular Monolith. NestJS Backend Core gói 18 module nghiệp vụ (auth, exams, vocab-lab, grammar, shadowing, gamification, subscriptions\ldots) trong một ứng dụng duy nhất, giao tiếp nội bộ qua Dependency Injection --- giữ tính nhất quán và dễ bảo trì. FastAPI AI Worker tách thành microservice độc lập, kết nối với core qua RabbitMQ để chạy AI inference bất đồng bộ mà không làm chậm phản hồi API. Cách bố trí này cân bằng giữa độ đơn giản của monolith và khả năng scale độc lập cho phần tính toán nặng (AI grading).
 
 Về đa nền tảng, hệ thống đẩy ra song song giao diện Web (Next.js với Server-Side Rendering) và ứng dụng Mobile (React Native), dùng chung một backend API. Next.js giúp tối ưu SEO và tốc độ tải trang qua SSR và Static Site Generation; React Native cho phép deploy iOS và Android từ một codebase TypeScript duy nhất, cắt đáng kể chi phí so với native riêng biệt~\cite{reactnative-docs}.
 
@@ -56,18 +56,18 @@ Hệ thống vẫn để lộ một số hạn chế cần thừa nhận thẳng
 Trên nền tảng đã có và các hạn chế vừa nêu, một số hướng phát triển tiếp theo được đề xuất cho các giai đoạn sau:
 
 \begin{itemize}
-    \item \textbf{Fine-tune mô hình AI chuyên biệt:} Xây dựng tập dữ liệu bài mẫu IELTS đã được giám khảo chấm điểm thực tế để fine-tune mô hình ngôn ngữ, nhằm tăng độ chính xác AI scoring và đưa chênh lệch band điểm so với giám khảo con người xuống mức $\leq$0.5~\cite{le2023nlp}.
+    \item \textbf{Fine-tune mô hình AI chuyên biệt:} Xây dựng tập dữ liệu bài mẫu IELTS đã được giám khảo chấm điểm thực tế để fine-tune mô hình ngôn ngữ, nhằm tăng độ chính xác AI scoring và đưa chênh lệch band điểm so với giám khảo con người xuống mức $\leq$0.5~\cite{nguyen2026aiwriting}.
 
     \item \textbf{Kiểm thử hiệu năng và tối ưu hóa:} Triển khai load testing (k6, JMeter) để xác định điểm nghẽn cổ chai ở tầng Backend Core và FastAPI AI Worker. Mở rộng Redis cache~\cite{redis-docs} cho kết quả chấm điểm và nội dung bài tập hay truy cập, giảm áp lực lên Gemini API và cơ sở dữ liệu PostgreSQL.
 
     \item \textbf{Mở rộng tính năng cộng đồng:} Phát triển từ nền tảng cộng đồng cơ bản đã có, bổ sung hệ thống peer review (người học chấm bài Writing/Speaking lẫn nhau theo rubric IELTS), tính năng học nhóm theo thời gian thực và diễn đàn thảo luận chuyên sâu phân loại theo kỹ năng. Đây là hướng phù hợp với mô hình Social Learning~\cite{vygotsky1978mind} và tạo sự khác biệt rõ ràng so với các nền tảng luyện thi cá nhân hiện tại.
 
-    \item \textbf{Adaptive Learning:} Dựa trên lịch sử kết quả làm bài và phân tích lỗi thường gặp, hệ thống tự động gợi ý bài tập phù hợp với điểm yếu của từng người học thay vì để người học tự chọn, tạo lộ trình học tập cá nhân hoá thực sự~\cite{tran2022elearning}.
+    \item \textbf{Adaptive Learning:} Dựa trên lịch sử kết quả làm bài và phân tích lỗi thường gặp, hệ thống tự động gợi ý bài tập phù hợp với điểm yếu của từng người học thay vì để người học tự chọn, tạo lộ trình học tập cá nhân hoá thực sự~\cite{nguyen2024aiteaching}.
 
     \item \textbf{Chế độ offline cho Mobile:} Tích hợp cơ chế download bài tập và cache audio cục bộ để người học có thể luyện tập khi không có Internet, đồng bộ kết quả lên server khi kết nối trở lại thông qua conflict resolution strategy.
 
     \item \textbf{Mở rộng mô hình Freemium:} Hệ thống đã triển khai ba tier subscription (Free, Premium, Pro) với VNPay integration (HMAC-SHA512). Hướng phát triển tiếp theo là bổ sung cổng thanh toán MoMo và Stripe để mở rộng sang thị trường quốc tế, đồng thời tinh chỉnh feature-gating giữa các tier dựa trên dữ liệu hành vi người dùng thực tế~\cite{statista-elearning}.
 
-    \item \textbf{Triển khai chính thức trên iOS và App Store:} Hoàn thiện kiểm thử trên thiết bị iOS, đăng ký Apple Developer Program và phân phối ứng dụng trên App Store nhằm tiếp cận phân khúc người dùng iPhone -- nhóm chiếm tỷ lệ lớn trong tệp người học IELTS tại Việt Nam.
+    \item \textbf{Triển khai chính thức trên iOS và App Store:} Hoàn thiện kiểm thử trên thiết bị iOS, đăng ký Apple Developer Program và phân phối ứng dụng trên App Store nhằm tiếp cận phân khúc người dùng iPhone -- nhóm chiếm tỷ lệ lớn trong tệp người học IELTS.
 \end{itemize}
 

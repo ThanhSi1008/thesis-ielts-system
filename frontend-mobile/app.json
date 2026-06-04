@@ -53,7 +53,8 @@
       "@react-native-community/datetimepicker",
       "expo-font",
       "expo-web-browser",
-      "expo-tracking-transparency"
+      "expo-tracking-transparency",
+      "./plugins/withRemovePushNotifications"
     ],
     "scheme": "iemai"
   }

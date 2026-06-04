@@ -29,6 +29,7 @@ import {
   renderGroup,
 } from '@/components/intensive';
 
+import { normalizePart } from '@/lib/exam-parser';
 import WritingExamBlock from '@/components/ielts/WritingExamBlock';
 import SpeakingExamBlock from '@/components/ielts/SpeakingExamBlock';
 import ReadingExamBlock from '@/components/ielts/ReadingExamBlock';
@@ -212,9 +213,9 @@ export default function PracticePlayerScreen() {
     const allParts = questionsData.parts || [];
     if (practicePart !== null && practicePart !== undefined) {
       const p = allParts.find((item: any) => item.part_number === practicePart);
-      return p ? [p] : allParts;
+      return p ? [normalizePart(p)] : allParts.map((item: any) => normalizePart(item));
     }
-    return allParts;
+    return allParts.map((item: any) => normalizePart(item));
   }, [questionsData, practicePart]);
 
   const audioUrl = listeningParts[activeListeningPartIndex]?.audio_url ?? null;
@@ -429,27 +430,27 @@ export default function PracticePlayerScreen() {
     const tasks = questionsData.tasks || [];
     if (practicePart !== null && practicePart !== undefined) {
       const t = tasks.find((item: any) => item.task_number === practicePart);
-      return t ? [t] : tasks;
+      return t ? [normalizePart(t)] : tasks.map((item: any) => normalizePart(item));
     }
-    return tasks;
+    return tasks.map((item: any) => normalizePart(item));
   }, [questionsData, practicePart]);
 
   const speakingParts = useMemo(() => {
     const parts = questionsData.parts || [];
     if (practicePart !== null && practicePart !== undefined) {
       const p = parts.find((item: any) => item.part_number === practicePart);
-      return p ? [p] : parts;
+      return p ? [normalizePart(p)] : parts.map((item: any) => normalizePart(item));
     }
-    return parts;
+    return parts.map((item: any) => normalizePart(item));
   }, [questionsData, practicePart]);
 
   const readingParts = useMemo(() => {
     const passages = questionsData.passages || questionsData.parts || [];
     if (practicePart !== null && practicePart !== undefined) {
       const p = passages[practicePart - 1];
-      return p ? [p] : passages;
+      return p ? [normalizePart(p)] : passages.map((item: any) => normalizePart(item));
     }
-    return passages;
+    return passages.map((item: any) => normalizePart(item));
   }, [questionsData, practicePart]);
 
   if (loading) {

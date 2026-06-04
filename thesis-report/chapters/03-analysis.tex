@@ -3,7 +3,7 @@
 
 \section{Quy trình nghiệp vụ}
 
-Nền tảng IELTS Master English AI vận hành quanh hai nhóm tác nhân: Người học (Learner) và Người quản lý (Admin). Thay vì ép người học đi theo một hành trình tuyến tính cố định, các chức năng được nhóm thành sáu phân hệ độc lập, người học chủ động chọn phần phù hợp với nhu cầu của mình: phân hệ IELTS dành riêng cho người có mục tiêu luyện thi cụ thể, phân hệ Shadowing \& Dictation để rèn nghe--nói tiếng Anh tổng quát qua video YouTube, phân hệ Vocab Lab để quản lý và ôn luyện từ vựng bằng flashcard thông minh, phân hệ Community để kết nối với cộng đồng người học, phân hệ Pricing để nâng cấp quyền truy cập theo nhu cầu, và hệ thống thông báo cập nhật các sự kiện quan trọng trong quá trình học. Cách vận hành từng phân hệ được mô tả dưới đây.
+Nền tảng IELTS Master English (Lexon) vận hành quanh hai nhóm tác nhân: Người học (Learner) và Người quản lý (Admin). Thay vì ép người học đi theo một hành trình tuyến tính cố định, các chức năng được nhóm thành sáu phân hệ độc lập, người học chủ động chọn phần phù hợp với nhu cầu của mình: phân hệ IELTS dành riêng cho người có mục tiêu luyện thi cụ thể, phân hệ Shadowing \& Dictation để rèn nghe--nói tiếng Anh tổng quát qua video YouTube, phân hệ Vocab Lab để quản lý và ôn luyện từ vựng bằng flashcard thông minh, phân hệ Community để kết nối với cộng đồng người học, phân hệ Pricing để nâng cấp quyền truy cập theo nhu cầu, và hệ thống thông báo cập nhật các sự kiện quan trọng trong quá trình học. Cách vận hành từng phân hệ được mô tả dưới đây.
 
 % =================================================================
 % 1. NGHIỆP VỤ NGƯỜI HỌC
@@ -139,7 +139,7 @@ Nền tảng cung cấp ba gói thành viên với quyền hạn tăng dần nh�
 \centering
 \caption{Giới hạn tính năng theo gói thành viên}
 \label{tab:feature-limits}
-\begin{tabular}{|l|c|c|c|}
+\begin{tabularx}{\linewidth}{|X|c|c|c|}
 \hline
 \textbf{Tính năng} & \textbf{FREE} & \textbf{PREMIUM} & \textbf{PRO} \\
 \hline
@@ -159,7 +159,7 @@ Vocab Lab: thẻ/bộ thẻ & 50 & Không giới hạn & Không giới hạn \\
 Lexon AI sinh thẻ (lượt/tháng) & 0 & 50 & Không giới hạn \\
 Marketplace nhập/xuất bản & Không & Có & Có \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 Để nâng cấp, người học truy cập trang Pricing, xem chi tiết từng gói và nhấn nút đăng ký. Thanh toán được thực hiện qua cổng \textbf{VNPay} với chữ ký HMAC-SHA512 đảm bảo toàn vẹn dữ liệu; sau khi hoàn tất thanh toán, người học được điều hướng về trang xác nhận và gói thành viên kích hoạt ngay lập tức. Để đảm bảo người học không bị gián đoạn đột ngột, hệ thống cron chạy hàng ngày lúc 2:00 sáng để gửi email nhắc nhở sắp hết hạn vào các mốc 7 ngày, 3 ngày và 1 ngày trước; sau khi hết hạn, tài khoản còn thêm 3 ngày gia hạn trước khi tự động downgrade về gói FREE. Phiên dùng thử trial cũng kết thúc đúng hạn theo cùng lịch cron này.
@@ -172,6 +172,12 @@ Hệ thống thông báo giúp người học không bỏ lỡ bất kỳ sự k
 % 2. NGHIỆP VỤ NGƯỜI QUẢN LÝ
 % =================================================================
 \subsection{Nghiệp vụ dành cho Người quản lý}
+
+\subsubsection{Quản lý nội dung đề thi IELTS}
+
+Người quản lý chịu trách nhiệm xây dựng kho đề luyện và đề thi thử cho phân hệ IELTS, phục vụ hai mục đích luyện tập khác nhau. Với \textbf{IELTS Advanced}, người quản lý tạo từng phần (Part) riêng lẻ thuộc một kỹ năng cụ thể --- Listening, Reading, Writing hoặc Speaking --- để người học luyện sâu vào đúng phần mình còn yếu mà không phải làm trọn cả bài thi. Mỗi phần được khai báo tiêu đề, số thứ tự phần, nội dung câu hỏi cùng các dạng câu hỏi tương ứng; riêng phần Listening kèm thêm tệp âm thanh và transcript. Với \textbf{IELTS Intensive}, người quản lý tạo đề thi thử bao quát đầy đủ các phần của một kỹ năng (chẳng hạn trọn bài Listening 40 phút hay trọn bài Reading 60 phút), khai báo tiêu đề, mô tả, độ khó và thời lượng làm bài để hệ thống mô phỏng đúng áp lực phòng thi thực tế. Ở cả hai loại, chỉ những đề ở trạng thái ``Xuất bản'' mới hiển thị cho người học, còn đề ``Nháp'' chỉ người quản lý truy cập được để tiếp tục hoàn thiện.
+
+Vì việc nhập tay từng câu hỏi rất tốn công, hệ thống cung cấp quy trình nhập đề có AI hỗ trợ nhằm rút ngắn thời gian biên soạn. Người quản lý tải lên tài liệu đề gốc (tệp văn bản hoặc ảnh chụp đề), chọn kỹ năng và loại đề cần tạo; hệ thống dùng AI bóc tách tự động nội dung tài liệu thành cấu trúc câu hỏi chuẩn rồi trả về một bản nháp để người quản lý kiểm tra. Tại bước này, người quản lý có thể chỉnh sửa trực tiếp bản nháp hoặc yêu cầu AI tinh chỉnh lại theo hướng dẫn (kèm ảnh minh họa nếu cần) cho đến khi nội dung chính xác, sau đó xác nhận để hệ thống tự động tách thành các phần luyện IELTS Advanced hoặc tạo đề thi thử IELTS Intensive tương ứng. Người quản lý cũng có thể chỉnh sửa hoặc xóa các đề đã tạo; khi xóa, hệ thống đồng thời dọn các tệp âm thanh và hình ảnh đính kèm để tránh dữ liệu thừa.
 
 \subsubsection{Quản lý nội dung Shadowing và Dictation}
 
@@ -203,9 +209,9 @@ Hệ thống có hai tác nhân chính tương tác trực tiếp, được mô 
         \hline
         \textbf{Tác nhân} & \textbf{Mô tả} \\ \hline
         Người học (Learner) &
-        Là đối tượng sử dụng chính của hệ thống, bao gồm bất kỳ ai có nhu cầu học tiếng Anh hoặc luyện thi IELTS. Người học đăng ký tài khoản bằng email/mật khẩu hoặc Google OAuth, sau đó truy cập sáu phân hệ hoàn toàn độc lập theo nhu cầu riêng. Trong phân hệ \textbf{IELTS}, người học xây dựng nền tảng ngôn ngữ qua từ vựng (6 cuốn \textit{4000 Essential English Words}), ngữ pháp (3 cấp độ \textit{Grammar in Use}) và phát âm (44 âm IPA); luyện lý thuyết dạng câu hỏi và bài tập chuẩn ở IELTS Basic; luyện sâu theo từng Part ở IELTS Advanced (chỉ Premium/Pro); thi thử toàn phần và xem lịch sử thi ở IELTS Intensive; đồng thời sử dụng Roadmap, Statistics, Calculator và Student/Teacher để định hướng và theo dõi tiến độ. Trong phân hệ \textbf{Shadowing \& Dictation}, người học luyện nói đuổi (Shadowing) và nghe chép chính tả (Dictation) từ thư viện video YouTube do Admin biên soạn; người dùng Premium/Pro có thể tự nhập video YouTube riêng để luyện. Trong phân hệ \textbf{Community}, người học đăng bài chia sẻ kinh nghiệm, tương tác với bài của người khác qua Like/Comment, theo dõi hoạt động cá nhân và xem bảng xếp hạng XP tuần và Streak. Trong phân hệ \textbf{Vocab Lab}, người học tạo và ôn luyện bộ flashcard cá nhân với thuật toán FSRS, dùng Lexon AI sinh thẻ từ nội dung bài học, duyệt và chỉnh sửa thẻ qua Browse, xem thống kê SRS, và trao đổi bộ thẻ qua Community Marketplace. Trong phân hệ \textbf{Pricing}, người học đăng ký gói thành viên (FREE/PREMIUM/PRO) và thanh toán qua VNPay. Ngoài ra, người học nhận và quản lý \textbf{thông báo} về kết quả chấm điểm, streak và trạng thái gói. Người học cũng có thể mở rộng vai trò thành giáo viên để theo dõi tiến độ học viên đã liên kết qua tính năng Student/Teacher. \\ \hline
+        Là đối tượng sử dụng chính của hệ thống, gồm học sinh, sinh viên, người đi làm và bất kỳ ai có nhu cầu học tiếng Anh hoặc luyện thi IELTS. Sau khi đăng ký và đăng nhập (bằng email hoặc tài khoản Google), người học chủ động chọn sáu phân hệ độc lập theo nhu cầu của mình: luyện thi IELTS đủ bốn kỹ năng theo các cấp độ từ cơ bản đến thi thử toàn phần --- trong đó bài Viết và Nói được hệ thống tự động chấm điểm, kèm các công cụ định hướng lộ trình và theo dõi tiến độ; luyện nói đuổi và nghe chép chính tả qua video; học và ôn từ vựng bằng thẻ ghi nhớ thông minh có hỗ trợ AI; tham gia cộng đồng để chia sẻ bài viết, tương tác và xem bảng xếp hạng; đăng ký và thanh toán các gói thành viên; đồng thời nhận thông báo về kết quả học tập và trạng thái tài khoản. Người học cũng có thể liên kết với giáo viên để được theo dõi tiến độ. \\ \hline
         Người quản lý (Admin) &
-        Là người có vai trò quản lý nội dung và vận hành hệ thống, truy cập qua giao diện Admin riêng biệt. Người quản lý tạo, chỉnh sửa và xóa bài học Shadowing và Dictation cho thư viện chuẩn (nhập ID video YouTube, transcript có timestamp cho Shadowing; transcript ground-truth cho Dictation); quản lý danh sách đăng ký thành viên (theo dõi trạng thái từng tài khoản theo gói FREE/PREMIUM/PRO, xem doanh thu tổng hợp); và cấp gói thành viên thủ công cho học viên cụ thể khi cần. \\ \hline
+        Là người chịu trách nhiệm biên soạn nội dung và vận hành hệ thống qua giao diện quản trị riêng. Người quản lý tạo, chỉnh sửa, xóa và xuất bản học liệu --- đề luyện và đề thi thử IELTS, bài luyện nói đuổi và nghe chép chính tả; quản lý danh sách người dùng theo từng gói thành viên và theo dõi doanh thu; đồng thời cấp gói thành viên thủ công cho tài khoản cụ thể khi cần. \\ \hline
     \end{tabularx}
     \caption{Danh sách tác nhân và mô tả}
     \label{tab:actors}
@@ -475,14 +481,15 @@ Khi người học nhấn lưu cấu hình template, hệ thống gửi đúng m
 Bảng~\ref{tab:uc28_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc28} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc28} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+\setlength{\tbu}{\dimexpr(\linewidth - 4\tabcolsep - 3\arrayrulewidth)/2\relax}
+\begin{longtable}{|p{\tbu}|p{\tbu}|}
     \caption{Đặc tả chức năng Tra cứu và thêm từ vựng bằng AI (UC28)} \label{tab:uc28_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC28} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công vào hệ thống web và đang xem nội dung bài học có văn bản. Vocab Lab của người học có ít nhất một loại thẻ (Card Type) đã được định nghĩa.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Một Flashcard mới với nội dung do Lexon AI sinh ra được lưu vào Vocab Lab của người học, gắn với deck đã chọn.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công vào hệ thống web và đang xem nội dung bài học có văn bản. Vocab Lab của người học có ít nhất một loại thẻ (Card Type) đã được định nghĩa.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Hậu điều kiện (Post-condition):} Một Flashcard mới với nội dung do Lexon AI sinh ra được lưu vào Vocab Lab của người học, gắn với deck đã chọn.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -553,14 +560,15 @@ Trình duyệt lắng nghe sự kiện bôi đen văn bản trên các màn hìn
 Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc03} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc03} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+\setlength{\tbu}{\dimexpr(\linewidth - 4\tabcolsep - 3\arrayrulewidth)/2\relax}
+\begin{longtable}{|p{\tbu}|p{\tbu}|}
     \caption{Đặc tả chức năng Học từ vựng nền tảng IELTS (UC03)} \label{tab:uc03_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC03} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và đang ở trang ielts/vocabulary.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Unit được đánh dấu hoàn thành và lưu vào cơ sở dữ liệu; người học nhận 15~XP từ hệ thống gamification; các từ đã được đánh giá SRS được lưu vào Vocab Lab của người học.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và đang ở trang ielts/vocabulary.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Hậu điều kiện (Post-condition):} Unit được đánh dấu hoàn thành và lưu vào cơ sở dữ liệu; người học nhận 15~XP từ hệ thống gamification; các từ đã được đánh giá SRS được lưu vào Vocab Lab của người học.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -583,7 +591,7 @@ Bảng~\ref{tab:uc03_spec} đặc tả luồng sự kiện; hình~\ref{fig:activ
     & 8a. Tạo Flashcard trong bộ thẻ mặc định của Vocab Lab với trạng thái SRS tương ứng với mức đánh giá; hiển thị thông báo ``Added to Vocab Lab''; cập nhật tiến độ học. Chuyển sang Flashcard tiếp theo. \\ \hline
     7b. Nhấn ``Already know --- skip''. & \\ \hline
     & 8b. Chuyển sang Flashcard tiếp theo mà không thêm từ vào Vocab Lab; cập nhật tiến độ học. \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{Lặp lại bước 5--8 cho đến khi tất cả các từ trong unit được xem qua.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{Lặp lại bước 5--8 cho đến khi tất cả các từ trong unit được xem qua.} \\ \hline
     & 10. Tự động mở khóa tab ``Reading Comprehension''; hiển thị đoạn văn đọc hiểu với các từ đã học được in đậm kèm tooltip, và bộ câu hỏi kiểm tra bên phải (dạng điền từ hoặc trắc nghiệm). \\ \hline
     11. Đọc đoạn văn, điền câu trả lời cho từng câu hỏi, nhấn ``Submit Answers''. & \\ \hline
     & 12. Đối chiếu từng đáp án với đáp án chuẩn và trả về kết quả gồm số câu đúng, tổng số câu và trạng thái từng câu; đánh dấu unit hoàn thành và lưu vào cơ sở dữ liệu (vô điều kiện, bất kể điểm số); kích hoạt sự kiện gamification 15~XP. \\ \hline
@@ -627,14 +635,15 @@ Có một quyết định kỹ thuật đáng chú ý ở phía client: chọn `
 Bảng~\ref{tab:uc06_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc06} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc06-lessons} và hình~\ref{fig:sequence-uc06-exercises} thể hiện sơ đồ tuần tự cho luồng học lý thuyết và luồng luyện bài tập nghe.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+\setlength{\tbu}{\dimexpr(\linewidth - 4\tabcolsep - 3\arrayrulewidth)/2\relax}
+\begin{longtable}{|p{\tbu}|p{\tbu}|}
     \caption{Đặc tả chức năng Học bài Listening IELTS cơ bản (UC06)} \label{tab:uc06_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC06} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bài học lý thuyết hoặc bài tập luyện nghe được đánh dấu hoàn thành và lưu vào cơ sở dữ liệu; người học nhận 10~XP khi hoàn thành bài học hoặc 15~XP khi hoàn thành bài tập với điểm tuyệt đối; chuỗi học liên tiếp được cập nhật.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Hậu điều kiện (Post-condition):} Bài học lý thuyết hoặc bài tập luyện nghe được đánh dấu hoàn thành và lưu vào cơ sở dữ liệu; người học nhận 10~XP khi hoàn thành bài học hoặc 15~XP khi hoàn thành bài tập với điểm tuyệt đối; chuỗi học liên tiếp được cập nhật.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -717,14 +726,15 @@ Logic chấm chạy hoàn toàn phía client để giảm tải máy chủ. Khi 
 Bảng~\ref{tab:uc11_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc11} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc11} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+\setlength{\tbu}{\dimexpr(\linewidth - 4\tabcolsep - 3\arrayrulewidth)/2\relax}
+\begin{longtable}{|p{\tbu}|p{\tbu}|}
     \caption{Đặc tả chức năng Luyện Reading IELTS nâng cao (UC11)} \label{tab:uc11_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC11} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và có gói đăng ký Premium hoặc Pro đang hoạt động.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Phiên luyện tập Reading được lưu vào cơ sở dữ liệu với điểm số, câu trả lời và dữ liệu phân tích theo loại câu hỏi; người học nhận 20~XP; nếu tỷ lệ đúng $\geq 80\%$ nhận thêm 10~XP; chuỗi học liên tiếp được cập nhật.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và có gói đăng ký Premium hoặc Pro đang hoạt động.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Hậu điều kiện (Post-condition):} Phiên luyện tập Reading được lưu vào cơ sở dữ liệu với điểm số, câu trả lời và dữ liệu phân tích theo loại câu hỏi; người học nhận 20~XP; nếu tỷ lệ đúng $\geq 80\%$ nhận thêm 10~XP; chuỗi học liên tiếp được cập nhật.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -804,14 +814,15 @@ Chấm điểm chạy hoàn toàn phía máy chủ sau khi người học submit
 Bảng~\ref{tab:uc17_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc17} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc17} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+\setlength{\tbu}{\dimexpr(\linewidth - 4\tabcolsep - 3\arrayrulewidth)/2\relax}
+\begin{longtable}{|p{\tbu}|p{\tbu}|}
     \caption{Đặc tả chức năng Thi thử Speaking (Mock Test) (UC17)} \label{tab:uc17_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC17} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Phiên thi Speaking được cập nhật sang trạng thái hoàn thành; kết quả chứa band điểm Speaking ước tính (thang 0.0--9.0) và nhận xét từ AI theo bốn tiêu chí: \textit{Fluency \& Coherence}, \textit{Lexical Resource}, \textit{Grammatical Range \& Accuracy} và \textit{Pronunciation}; chuỗi học liên tiếp được cập nhật.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Hậu điều kiện (Post-condition):} Phiên thi Speaking được cập nhật sang trạng thái hoàn thành; kết quả chứa band điểm Speaking ước tính (thang 0.0--9.0) và nhận xét từ AI theo bốn tiêu chí: \textit{Fluency \& Coherence}, \textit{Lexical Resource}, \textit{Grammatical Range \& Accuracy} và \textit{Pronunciation}; chuỗi học liên tiếp được cập nhật.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -908,14 +919,15 @@ Audio dung lượng lớn được lưu tạm dưới dạng Blob trong React st
 Bảng~\ref{tab:uc24_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc24} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc24} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+\setlength{\tbu}{\dimexpr(\linewidth - 4\tabcolsep - 3\arrayrulewidth)/2\relax}
+\begin{longtable}{|p{\tbu}|p{\tbu}|}
     \caption{Đặc tả chức năng Luyện nghe chép chính tả (Dictation) (UC24)} \label{tab:uc24_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC24} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Tiến trình hoàn thành bài học được lưu vào cơ sở dữ liệu với danh sách các câu đã hoàn thành; trạng thái bài học được cập nhật trong danh sách thư viện; chuỗi học liên tiếp được ghi nhận.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Hậu điều kiện (Post-condition):} Tiến trình hoàn thành bài học được lưu vào cơ sở dữ liệu với danh sách các câu đã hoàn thành; trạng thái bài học được cập nhật trong danh sách thư viện; chuỗi học liên tiếp được ghi nhận.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -999,14 +1011,15 @@ Kiểm tra đáp án kích hoạt theo input event: mỗi khi người học ch�
 Bảng~\ref{tab:uc19_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc19} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc19} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+\setlength{\tbu}{\dimexpr(\linewidth - 4\tabcolsep - 3\arrayrulewidth)/2\relax}
+\begin{longtable}{|p{\tbu}|p{\tbu}|}
     \caption{Đặc tả chức năng Xây dựng lộ trình học tập (UC19)} \label{tab:uc19_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC19} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và chưa hoàn thành quá trình khởi tạo hồ sơ IELTS.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Hồ sơ IELTS được tạo mới hoặc cập nhật với mục tiêu band điểm, cam kết học hàng ngày và ngày thi dự kiến; nếu người học làm bài kiểm tra chẩn đoán và đạt điểm $\geq$ 90\% ở kỹ năng nào, toàn bộ bài học kỹ năng đó được đánh dấu hoàn thành trong cơ sở dữ liệu; người học được điều hướng đến lộ trình học tập cá nhân hóa.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và chưa hoàn thành quá trình khởi tạo hồ sơ IELTS.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Hậu điều kiện (Post-condition):} Hồ sơ IELTS được tạo mới hoặc cập nhật với mục tiêu band điểm, cam kết học hàng ngày và ngày thi dự kiến; nếu người học làm bài kiểm tra chẩn đoán và đạt điểm $\geq$ 90\% ở kỹ năng nào, toàn bộ bài học kỹ năng đó được đánh dấu hoàn thành trong cơ sở dữ liệu; người học được điều hướng đến lộ trình học tập cá nhân hóa.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead
@@ -1079,14 +1092,15 @@ Sau khi API trả về thành công, giao diện gọi window.location.reload() 
 Bảng~\ref{tab:uc35_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc35} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc35} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
 \renewcommand{\arraystretch}{1.3}
-\begin{longtable}{|p{0.46\linewidth}|p{0.46\linewidth}|}
+\setlength{\tbu}{\dimexpr(\linewidth - 4\tabcolsep - 3\arrayrulewidth)/2\relax}
+\begin{longtable}{|p{\tbu}|p{\tbu}|}
     \caption{Đặc tả chức năng Đăng bài trong Community (UC35)} \label{tab:uc35_spec} \\
     \hline
     \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC35} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
-    \multicolumn{2}{|p{0.88\linewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Bài đăng mới được lưu vào cơ sở dữ liệu; bài xuất hiện ngay đầu feed mà không cần tải lại trang; người học nhận +5 XP và huy hiệu bài đăng đầu tiên nếu đây là lần đăng đầu tiên.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth - 2\tabcolsep - 2\arrayrulewidth\relax}|}{\textbf{Hậu điều kiện (Post-condition):} Bài đăng mới được lưu vào cơ sở dữ liệu; bài xuất hiện ngay đầu feed mà không cần tải lại trang; người học nhận +5 XP và huy hiệu bài đăng đầu tiên nếu đây là lần đăng đầu tiên.} \\ \hline
     \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
     \textbf{Actor} & \textbf{Hệ thống} \\ \hline
     \endfirsthead

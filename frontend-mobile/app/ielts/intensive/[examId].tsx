@@ -37,7 +37,7 @@ import {
 import WritingExamBlock from '@/components/ielts/WritingExamBlock';
 import SpeakingExamBlock from '@/components/ielts/SpeakingExamBlock';
 import ReadingExamBlock from '@/components/ielts/ReadingExamBlock';
-import { extractAllItemsFromPart } from '@/lib/exam-parser';
+import { extractAllItemsFromPart, normalizePart } from '@/lib/exam-parser';
 
 export default function ExamPlayerScreen() {
   const router = useRouter();
@@ -68,6 +68,10 @@ export default function ExamPlayerScreen() {
   const [gradingErrorVisible, setGradingErrorVisible] = useState(false);
   const [gradingErrorMessage, setGradingErrorMessage] = useState('');
   const [submitConfirmVisible, setSubmitConfirmVisible] = useState(false);
+
+  const [currentSection, setCurrentSection] = useState<'listening' | 'reading' | 'writing' | 'speaking'>('listening');
+  const [accumulatedTime, setAccumulatedTime] = useState(0);
+  const [timerResumedElapsed, setTimerResumedElapsed] = useState(0);
 
   const [flaggedQuestions, setFlaggedQuestions] = useState<Set<number>>(new Set());
   const toggleFlagQuestion = useCallback((n: number) => {
@@ -147,9 +151,42 @@ export default function ExamPlayerScreen() {
     buildSubmitPayload,
   } = useAnswerState(exam?.type);
 
-  const examType: string = exam?.type || 'LISTENING';
-  const questionsData = exam?.questions as any;
-  const parts = questionsData?.parts || questionsData?.passages || questionsData?.tasks || [];
+  const getSubExam = useCallback((
+    section: 'listening' | 'reading' | 'writing' | 'speaking',
+    fullExam: any,
+  ) => {
+    if (!fullExam || !fullExam.questions) return null;
+    const questionsObj = fullExam.questions as any;
+
+    const durations = {
+      listening: 40,
+      reading: 60,
+      writing: 60,
+      speaking: 15,
+    };
+
+    const sectionName = section.charAt(0).toUpperCase() + section.slice(1);
+
+    return {
+      ...fullExam,
+      title: `${fullExam.title} - ${sectionName}`,
+      type: section.toUpperCase() as any,
+      questions: questionsObj[section] || {},
+      duration: durations[section],
+    };
+  }, []);
+
+  const activeExam = useMemo(() => {
+    if (!exam) return null;
+    return exam.type === 'FULL_TEST' ? getSubExam(currentSection, exam) : exam;
+  }, [exam, currentSection, getSubExam]);
+
+  const examType: string = activeExam?.type || 'LISTENING';
+  const questionsData = activeExam?.questions as any;
+  const rawParts = questionsData?.parts || questionsData?.passages || questionsData?.tasks || [];
+  const parts = useMemo(() => {
+    return rawParts.map((p: any) => normalizePart(p));
+  }, [rawParts]);
 
   const answeredSet = useMemo(() => {
     const s = new Set<number>();
@@ -182,25 +219,67 @@ export default function ExamPlayerScreen() {
     }
     const a = session.answers;
     if (a) {
-      if (exam?.type === 'WRITING') {
-        setWritingAnswers({
-          task1: a.task1 || '',
-          task2: a.task2 || '',
+      if (exam?.type === 'FULL_TEST') {
+        let startSection: 'listening' | 'reading' | 'writing' | 'speaking' = 'listening';
+        const keys = Object.keys(a);
+        if (keys.some((k) => k.startsWith('s-'))) {
+          startSection = 'speaking';
+        } else if (keys.some((k) => k.startsWith('w-'))) {
+          startSection = 'speaking'; // finished writing, now on speaking
+        } else if (keys.some((k) => k.startsWith('R'))) {
+          startSection = 'writing'; // finished reading, now on writing
+        } else if (keys.some((k) => k.startsWith('L'))) {
+          startSection = 'reading'; // finished listening, now on reading
+        }
+
+        setCurrentSection(startSection);
+        setAccumulatedTime(session.timeTaken || 0);
+
+        const cleanedAnswers: Record<string, string> = {};
+        const cleanedWriting = { task1: '', task2: '' };
+        const cleanedSpeaking: Record<string, string> = {};
+
+        Object.entries(a).forEach(([key, val]: [string, any]) => {
+          if (key.startsWith('L')) {
+            cleanedAnswers[key.slice(1)] = val;
+          } else if (key.startsWith('R')) {
+            cleanedAnswers[key.slice(1)] = val;
+          } else if (key.startsWith('w-')) {
+            const task = key.slice(2) as 'task1' | 'task2';
+            cleanedWriting[task] = val;
+          } else if (key.startsWith('s-')) {
+            cleanedSpeaking[key.slice(2)] = val;
+          }
         });
-      } else if (exam?.type === 'SPEAKING') {
-        setSpeakingAnswers(a || {});
+
+        if (startSection === 'listening' || startSection === 'reading') {
+          setAnswers(cleanedAnswers);
+        } else if (startSection === 'writing') {
+          setWritingAnswers(cleanedWriting);
+        } else if (startSection === 'speaking') {
+          setSpeakingAnswers(cleanedSpeaking);
+        }
       } else {
-        setAnswers(a || {});
+        if (exam?.type === 'WRITING') {
+          setWritingAnswers({
+            task1: a.task1 || '',
+            task2: a.task2 || '',
+          });
+        } else if (exam?.type === 'SPEAKING') {
+          setSpeakingAnswers(a || {});
+        } else {
+          setAnswers(a || {});
+        }
       }
     }
-  }, [session, exam?.type, setAnswers, setWritingAnswers, setSpeakingAnswers]);
+  }, [session, exam, setAnswers, setWritingAnswers, setSpeakingAnswers]);
 
   const hasSubmittedRef = useRef(false);
   const [isAutoSubmitting, setIsAutoSubmitting] = useState(false);
   const elapsedRef = useRef(0);
 
   const [audioPlayingPartIndex, setAudioPlayingPartIndex] = useState(0);
-  const listeningParts = exam?.questions?.parts ?? [];
+  const listeningParts = activeExam?.questions?.parts ?? [];
   // Support both snake_case (seed data) and camelCase (AI import pipeline)
   const audioUrl = listeningParts[audioPlayingPartIndex]?.audio_url
     ?? listeningParts[audioPlayingPartIndex]?.audioUrl
@@ -274,60 +353,166 @@ export default function ExamPlayerScreen() {
     }
 
     try {
-      const payload = buildSubmitPayload(exam?.type);
-      const isAiType = exam?.type === 'WRITING' || exam?.type === 'SPEAKING';
-      
-      const submitTime = isAutoSubmit ? (exam?.duration ?? 60) * 60 : elapsedRef.current;
+      const submitTime = isAutoSubmit ? (activeExam?.duration ?? 60) * 60 : elapsedRef.current;
 
-      if (isAiType) {
-        await submitAndTrack({
-          sessionId: session.id,
-          examId,
-          examType: 'INTENSIVE',
-          answers: payload,
-          timeTaken: submitTime,
-          resultUrl: ROUTES.ieltsIntensiveResult(session.id),
+      if (exam?.type === 'FULL_TEST') {
+        const sectionAnswers = buildSubmitPayload(examType);
+        const prefix =
+          currentSection === 'listening'
+            ? 'L'
+            : currentSection === 'reading'
+            ? 'R'
+            : currentSection === 'writing'
+            ? 'w-'
+            : 's-';
+
+        const namespaced: Record<string, any> = {};
+        Object.entries(sectionAnswers).forEach(([k, v]) => {
+          namespaced[prefix + k] = v;
         });
-        setPendingResultSessionId(session.id);
-        setShowSuccess(true);
-      } else {
-        const res = await submitSession(payload, submitTime);
-        if (res?.sessionId) {
-          setPendingResultSessionId(res.sessionId);
+
+        const nextAnswers = { ...session.answers, ...namespaced };
+        const nextAccumulatedTime = accumulatedTime + submitTime;
+
+        if (currentSection === 'listening') {
+          await ieltsExamsApi.saveProgress(session.id, nextAnswers, nextAccumulatedTime);
+          setAnswers({});
+          setAccumulatedTime(nextAccumulatedTime);
+          setCurrentSection('reading');
+          setTimerResumedElapsed(0);
+          timer.reset();
+          hasSubmittedRef.current = false;
+          setIsAutoSubmitting(false);
+          setTimerRunning(true);
+          toast.success('Listening Complete', 'Moving on to the Reading section.');
+        } else if (currentSection === 'reading') {
+          await ieltsExamsApi.saveProgress(session.id, nextAnswers, nextAccumulatedTime);
+          setAnswers({});
+          setAccumulatedTime(nextAccumulatedTime);
+          setCurrentSection('writing');
+          setTimerResumedElapsed(0);
+          timer.reset();
+          hasSubmittedRef.current = false;
+          setIsAutoSubmitting(false);
+          setTimerRunning(true);
+          toast.success('Reading Complete', 'Moving on to the Writing section.');
+        } else if (currentSection === 'writing') {
+          await ieltsExamsApi.saveProgress(session.id, nextAnswers, nextAccumulatedTime);
+          setWritingAnswers({ task1: '', task2: '' });
+          setAccumulatedTime(nextAccumulatedTime);
+          setCurrentSection('speaking');
+          setTimerResumedElapsed(0);
+          timer.reset();
+          hasSubmittedRef.current = false;
+          setIsAutoSubmitting(false);
+          setTimerRunning(true);
+          toast.success('Writing Complete', 'Moving on to the Speaking section.');
+        } else {
+          // SPEAKING complete - final submit!
+          await submitAndTrack({
+            sessionId: session.id,
+            examId,
+            examType: 'INTENSIVE',
+            answers: nextAnswers,
+            timeTaken: nextAccumulatedTime,
+            resultUrl: ROUTES.ieltsIntensiveResult(session.id),
+          });
+          setPendingResultSessionId(session.id);
+          setShowSuccess(true);
         }
-        setShowSuccess(true);
+      } else {
+        const payload = buildSubmitPayload(exam?.type);
+        const isAiType = exam?.type === 'WRITING' || exam?.type === 'SPEAKING';
+
+        if (isAiType) {
+          await submitAndTrack({
+            sessionId: session.id,
+            examId,
+            examType: 'INTENSIVE',
+            answers: payload,
+            timeTaken: submitTime,
+            resultUrl: ROUTES.ieltsIntensiveResult(session.id),
+          });
+          setPendingResultSessionId(session.id);
+          setShowSuccess(true);
+        } else {
+          const res = await submitSession(payload, submitTime);
+          if (res?.sessionId) {
+            setPendingResultSessionId(res.sessionId);
+          }
+          setShowSuccess(true);
+        }
       }
     } catch (e) {
       hasSubmittedRef.current = false;
       setIsAutoSubmitting(false);
       toast.error('Failed to submit. Try again.');
     }
-  }, [session, exam, player, buildSubmitPayload, submitAndTrack, submitSession, examId]);
+  }, [
+    session,
+    exam,
+    activeExam,
+    examType,
+    currentSection,
+    accumulatedTime,
+    player,
+    buildSubmitPayload,
+    submitAndTrack,
+    submitSession,
+    examId,
+  ]);
 
   const handleExpire = useCallback(async () => {
     executeSubmit(true);
   }, [executeSubmit]);
 
-  const {
-    elapsed,
-    display: timerDisplay,
-    isWarning: isTimerWarning,
-  } = useExamTimer(exam?.duration ?? 60, timerRunning, handleExpire, resumedElapsed);
+  const timer = useExamTimer(
+    activeExam?.duration ?? 60,
+    timerRunning,
+    handleExpire,
+    timerResumedElapsed,
+  );
+
+  const timerDisplay = timer.display;
+  const isTimerWarning = timer.isWarning;
 
   useEffect(() => {
-    elapsedRef.current = elapsed;
-  }, [elapsed]);
+    elapsedRef.current = timer.elapsed;
+  }, [timer.elapsed]);
 
   const handleSaveProgress = useCallback(async () => {
     if (!session) return;
     try {
-      const payload = buildSubmitPayload(exam?.type);
-      await ieltsExamsApi.saveProgress(session.id, payload, elapsed);
+      const sectionAnswers = buildSubmitPayload(examType);
+      const prefix =
+        exam?.type === 'FULL_TEST'
+          ? currentSection === 'listening'
+            ? 'L'
+            : currentSection === 'reading'
+            ? 'R'
+            : currentSection === 'writing'
+            ? 'w-'
+            : 's-'
+          : '';
+
+      let payload: any = sectionAnswers;
+      if (exam?.type === 'FULL_TEST') {
+        const namespaced: Record<string, any> = {};
+        Object.entries(sectionAnswers).forEach(([k, v]) => {
+          namespaced[prefix + k] = v;
+        });
+        payload = { ...session.answers, ...namespaced };
+      }
+
+      const currentElapsed = timer.elapsed;
+      const totalTime = exam?.type === 'FULL_TEST' ? accumulatedTime + currentElapsed : currentElapsed;
+
+      await ieltsExamsApi.saveProgress(session.id, payload, totalTime);
       toast.success('Progress saved successfully.');
     } catch (e) {
       toast.error('Failed to save progress.');
     }
-  }, [session, exam, buildSubmitPayload, elapsed]);
+  }, [session, exam, examType, currentSection, accumulatedTime, buildSubmitPayload, timer.elapsed]);
 
   const handleDiscardProgress = useCallback(async () => {
     if (!session) return;
@@ -355,7 +540,7 @@ export default function ExamPlayerScreen() {
     sessionId: session?.id ?? null,
     enabled: examType === 'WRITING' && examReady && !submitting && !isAiProcessing,
     getPayload: () => buildSubmitPayload('WRITING'),
-    save: (sid, payload) => ieltsExamsApi.saveProgress(sid, payload, elapsed),
+    save: (sid, payload) => ieltsExamsApi.saveProgress(sid, payload, timer.elapsed),
   });
 
   const scrollToQuestion = useCallback(
