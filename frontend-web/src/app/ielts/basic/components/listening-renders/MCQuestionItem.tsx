@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Headphones, MapPin, MessageSquare, StickyNote } from 'lucide-react';
+import QuestionNoteSection from '@/components/QuestionNote';
 
 export interface MCOption {
   letter: string;
@@ -33,6 +34,7 @@ export function MCQuestionItem({
   onLocate: (qNum: number) => void;
 }) {
   const [showExplanation, setShowExplanation] = useState(false);
+  const [showNote, setShowNote] = useState(false);
   const isCorrect = selected?.toUpperCase() === q.answer?.toUpperCase();
 
   const seekTo = () => {
@@ -118,7 +120,12 @@ export function MCQuestionItem({
           <button onClick={() => setShowExplanation(!showExplanation)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
             <MessageSquare className="w-3.5 h-3.5" /> Explain
           </button>
-          <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+          <button
+            onClick={() => setShowNote(!showNote)}
+            className={`flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors ${
+              showNote ? "bg-amber-100 text-amber-800 hover:bg-amber-200" : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+            }`}
+          >
             <StickyNote className="w-3.5 h-3.5" /> Note
           </button>
         </div>
@@ -127,6 +134,12 @@ export function MCQuestionItem({
       {showExplanation && (
         <div className="ml-8 mt-2 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-[13px] text-blue-900 leading-relaxed">
           {q.explanation}
+        </div>
+      )}
+
+      {showNote && (
+        <div className="ml-8">
+          <QuestionNoteSection questionNumber={q.question_number} />
         </div>
       )}
     </div>

@@ -35,8 +35,9 @@ export default function LoginPage() {
     try {
       await loginWithGoogle(idToken);
       router.push("/");
-    } catch {
-      setError("Google sign-in failed. Please try again.");
+    } catch (err: any) {
+      console.error("Google login failed details:", err?.response?.data || err);
+      setError(err?.response?.data?.message || "Google sign-in failed. Please try again.");
     }
   };
 

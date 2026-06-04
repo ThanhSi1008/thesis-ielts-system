@@ -514,7 +514,7 @@ function CardsTab({ cardType, onClose }: { cardType: CardType; onClose: () => vo
       </div>
 
       {/* Main layout: left panel + right preview */}
-      <div className="flex bg-white flex-1 min-h-[420px] overflow-hidden">
+      <div className="flex bg-white flex-1 min-h-0 overflow-auto">
 
         {/* ── Left panel ── */}
         <div className="flex-1 border-r border-gray-100 flex flex-col overflow-y-auto custom-scrollbar">

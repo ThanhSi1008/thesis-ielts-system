@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Headphones, MapPin, MessageSquare, StickyNote } from 'lucide-react';
+import QuestionNoteSection from '@/components/QuestionNote';
 
 export interface MatchingItem {
   id: number;
@@ -44,6 +45,7 @@ export function MatchingCompletionGroup({
   onLocate: (qNum: number) => void;
 }) {
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
+  const [activeNoteQn, setActiveNoteQn] = useState<number | null>(null);
 
   const seekTo = (ts?: number) => {
     if (!audioRef.current) return;
@@ -127,17 +129,27 @@ export function MatchingCompletionGroup({
               </button>
               <button
                 onClick={() => setShowExplanation(showExplanation === qNum ? null : qNum)}
-                className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors"
+                className={`flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors ${
+                  showExplanation === qNum ? "bg-blue-100 text-blue-800 hover:bg-blue-200" : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                }`}
               >
                 <MessageSquare className="w-3.5 h-3.5" /> Explain
               </button>
-              <button className="flex items-center gap-1 text-[11px] font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 px-2.5 py-1.5 rounded-lg transition-colors">
+              <button
+                onClick={() => setActiveNoteQn(activeNoteQn === qNum ? null : qNum)}
+                className={`flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-colors ${
+                  activeNoteQn === qNum ? "bg-amber-100 text-amber-800 hover:bg-amber-200" : "text-gray-600 bg-gray-100 hover:bg-gray-200"
+                }`}
+              >
                 <StickyNote className="w-3.5 h-3.5" /> Note
               </button>
               {showExplanation === qNum && (
                 <div className="w-full mt-1.5 bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-[13px] text-blue-900 leading-relaxed">
                   {explanation}
                 </div>
+              )}
+              {activeNoteQn === qNum && (
+                <QuestionNoteSection questionNumber={qNum} />
               )}
             </div>
           ))}

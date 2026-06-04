@@ -33,6 +33,31 @@ export const apiClient = axios.create({
   timeout: 60000,
 });
 
+// ── Auto-retry on network errors ───────────────────────────────────────────────
+// After idle periods, the first request often fails because the backend's DB
+// connection is stale. By the time the user manually reloads, the backend has
+// already reconnected. This retry handles that transparently.
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 1500;
+
+apiClient.interceptors.response.use(undefined, async (error: AxiosError) => {
+  const config = error.config as InternalAxiosRequestConfig & { __retryCount?: number };
+  if (!config) return Promise.reject(error);
+
+  // Only retry on network errors (no response at all) or 502/503/504
+  const isNetworkError = !error.response;
+  const isServerError = error.response && [502, 503, 504].includes(error.response.status);
+
+  if ((isNetworkError || isServerError) && (config.__retryCount ?? 0) < MAX_RETRIES) {
+    config.__retryCount = (config.__retryCount ?? 0) + 1;
+    console.warn(`🔄 API retry ${config.__retryCount}/${MAX_RETRIES}: ${config.method?.toUpperCase()} ${config.url}`);
+    await new Promise((r) => setTimeout(r, RETRY_DELAY_MS * config.__retryCount!));
+    return apiClient(config);
+  }
+
+  return Promise.reject(error);
+});
+
 // Request Interceptor: Inject Token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {

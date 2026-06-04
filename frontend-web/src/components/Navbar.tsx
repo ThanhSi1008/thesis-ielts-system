@@ -183,7 +183,7 @@ export default function Navbar() {
             />
           </Link>
 
-          <nav className="hidden md:flex gap-8 font-semibold items-center ml-8">
+          <nav className="hidden xl:flex xl:gap-5 2xl:gap-8 font-semibold items-center ml-8">
             <Link href="/" className={navLinkClass(pathname === "/")}>
               HOME
               <span className="absolute left-0 bottom-0 h-[2px] bg-primary transition-all duration-300 w-0 group-hover:w-full" />
@@ -230,7 +230,7 @@ export default function Navbar() {
         </div>
 
         {/* Right: Vocab Lab icon + Auth */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden xl:flex items-center gap-2 2xl:gap-3">
           {/* Vocab Lab pill */}
           <div className="relative">
             <Link
@@ -484,7 +484,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <button
-          className={`md:hidden p-2 ${isOverlay ? "text-white" : "text-gray-600"
+          className={`xl:hidden p-2 ${isOverlay ? "text-white" : "text-gray-600"
             }`}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label="Toggle menu"
@@ -516,7 +516,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 space-y-4 shadow-lg absolute w-full left-0 top-full z-50">
+        <div className="xl:hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 space-y-4 shadow-lg absolute w-full left-0 top-full z-50">
           <div className="flex flex-col gap-4 pt-2">
             <Link
               href="/"

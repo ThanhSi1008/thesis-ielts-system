@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Request } from "@nestjs/common";
+import { Controller, Get, UseGuards, Request, Query } from "@nestjs/common";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { IeltsStatisticsService } from "./ielts-statistics.service";
 
@@ -8,27 +8,27 @@ export class IeltsStatisticsController {
   constructor(private readonly statisticsService: IeltsStatisticsService) {}
 
   @Get("overview")
-  async getOverviewStats(@Request() req: any) {
-    return this.statisticsService.getOverviewStats(req.user.id);
+  async getOverviewStats(@Request() req: any, @Query("studentId") studentId?: string) {
+    return this.statisticsService.getOverviewStats(studentId || req.user.id);
   }
 
   @Get("foundation")
-  async getFoundationStats(@Request() req: any) {
-    return this.statisticsService.getFoundationStats(req.user.id);
+  async getFoundationStats(@Request() req: any, @Query("studentId") studentId?: string) {
+    return this.statisticsService.getFoundationStats(studentId || req.user.id);
   }
 
   @Get("basic")
-  async getBasicStats(@Request() req: any) {
-    return this.statisticsService.getBasicStats(req.user.id);
+  async getBasicStats(@Request() req: any, @Query("studentId") studentId?: string) {
+    return this.statisticsService.getBasicStats(studentId || req.user.id);
   }
 
   @Get("advanced")
-  async getAdvancedStats(@Request() req: any) {
-    return this.statisticsService.getAdvancedStats(req.user.id);
+  async getAdvancedStats(@Request() req: any, @Query("studentId") studentId?: string) {
+    return this.statisticsService.getAdvancedStats(studentId || req.user.id);
   }
 
   @Get("intensive")
-  async getIntensiveStats(@Request() req: any) {
-    return this.statisticsService.getIntensiveStats(req.user.id);
+  async getIntensiveStats(@Request() req: any, @Query("studentId") studentId?: string) {
+    return this.statisticsService.getIntensiveStats(studentId || req.user.id);
   }
 }

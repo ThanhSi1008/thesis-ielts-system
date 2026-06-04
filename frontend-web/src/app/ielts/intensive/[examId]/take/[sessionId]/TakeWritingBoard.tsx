@@ -53,6 +53,8 @@ export default function TakeWritingBoard({
   useEffect(() => {
     if (activeJob?.status === "DONE" && activeJob.resultUrl) {
       router.replace(activeJob.resultUrl);
+    } else if (activeJob?.status === "ERROR") {
+      setSubmitting(false);
     }
   }, [activeJob?.status, activeJob?.resultUrl, router]);
 
@@ -94,7 +96,15 @@ export default function TakeWritingBoard({
         </div>
       </header>
 
-      <main className="flex-1 min-h-0 bg-white shadow-inner relative flex overflow-hidden">
+      <main className="flex-1 min-h-0 bg-white shadow-inner relative flex flex-col overflow-hidden">
+        {activeJob?.status === "ERROR" && (
+          <div className="bg-red-50 border-b border-red-200 p-3 text-center text-red-700 font-medium z-10 shadow-sm flex items-center justify-center gap-2 text-sm">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+            {activeJob.error || "An error occurred during grading. Please try submitting again."}
+          </div>
+        )}
         <WritingTaskBoard
           key="writing-board"
           tasks={writingTasks}

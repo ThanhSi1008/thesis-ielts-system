@@ -8,6 +8,7 @@ import { vocabLabApi } from "@/services/vocabLab.api";
 import api from "@/lib/api";
 import { authService } from "@/services/auth.service";
 import { API_BASE_URL } from "@/constants";
+import { toast } from "./Toaster";
 
 type SuggestionMsg = {
   id: string;
@@ -16,10 +17,18 @@ type SuggestionMsg = {
   payload: unknown;
 };
 
+type ToolAction = {
+  tool: string;
+  displayName: string;
+  phase: "calling" | "done";
+  summary?: string;
+};
+
 type Message = {
   role: "user" | "model";
   content: string;
   suggestions?: SuggestionMsg[];
+  toolActions?: ToolAction[];
 };
 
 const parseInlineStyles = (line: string) => {
@@ -262,8 +271,19 @@ export function GlobalAIChatFab() {
         },
       ]);
       localStorage.setItem("preferredExplanationCardTypeId", cardType.id);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Generation error:", error);
+      const isRateLimit = error?.message?.includes("429");
+      const isUnavailable = error?.message?.includes("503");
+      
+      if (isRateLimit) {
+        toast.error("AI is currently busy. Please wait a minute and try again.", 6000);
+      } else if (isUnavailable) {
+        toast.error("AI servers are experiencing high demand. Please try again later.", 6000);
+      } else {
+        toast.error("Failed to generate the explanation. Please try again.", 4000);
+      }
+
       setMessages((prev) => [
         ...prev,
         {
@@ -415,8 +435,19 @@ export function GlobalAIChatFab() {
             }),
           );
         }, 500);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Generation error:", error);
+        const isRateLimit = error?.message?.includes("429");
+        const isUnavailable = error?.message?.includes("503");
+        
+        if (isRateLimit) {
+          toast.error("AI is currently busy. Please wait a minute and try again.", 6000);
+        } else if (isUnavailable) {
+          toast.error("AI servers are experiencing high demand. Please try again later.", 6000);
+        } else {
+          toast.error("Failed to generate the card fields. Please try again.", 4000);
+        }
+
         setMessages((prev) => [
           ...prev,
           {
@@ -491,23 +522,69 @@ export function GlobalAIChatFab() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let text = "";
+      let toolActions: ToolAction[] = [];
+      let sseBuffer = "";
 
       // Add a pending message to the UI
-      setMessages([...newMessages, { role: "model", content: "" }]);
+      setMessages([...newMessages, { role: "model", content: "", toolActions: [] }]);
 
       while (true) {
         const { value, done } = await reader.read();
         if (done) break;
-        const chunkValue = decoder.decode(value);
-        
-        // Parse SSE format (data: ...\n\n)
-        const lines = chunkValue.split("\n\n");
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const content = line.slice(6);
+        sseBuffer += decoder.decode(value, { stream: true });
+
+        // Split on double newline (SSE event boundary)
+        const events = sseBuffer.split("\n\n");
+        // Keep the last (possibly incomplete) chunk in the buffer
+        sseBuffer = events.pop() || "";
+
+        for (const rawEvent of events) {
+          if (!rawEvent.trim()) continue;
+
+          // Check for named event: "event: status\ndata: {...}"
+          if (rawEvent.startsWith("event: status")) {
+            const dataLine = rawEvent.split("\n").find((l: string) => l.startsWith("data: "));
+            if (dataLine) {
+              try {
+                const status = JSON.parse(dataLine.slice(6));
+                const action: ToolAction = {
+                  tool: status.tool,
+                  displayName: status.displayName || status.tool,
+                  phase: status.phase,
+                  summary: status.summary,
+                };
+                // Update or add the tool action
+                if (status.phase === "done") {
+                  toolActions = toolActions.map((a) =>
+                    a.tool === status.tool && a.phase === "calling" ? action : a
+                  );
+                  // If the agent created/modified cards, refresh the header badge
+                  if (status.tool === "create_flashcard" || status.tool === "create_deck") {
+                    window.dispatchEvent(new CustomEvent("vocabduechanged"));
+                  }
+                } else {
+                  toolActions = [...toolActions, action];
+                }
+                // Update message with new tool actions
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  if (updated.length > 0) {
+                    updated[updated.length - 1] = {
+                      ...updated[updated.length - 1],
+                      toolActions: [...toolActions],
+                    };
+                  }
+                  return updated;
+                });
+              } catch { /* ignore malformed status */ }
+            }
+            continue;
+          }
+
+          // Regular data event: "data: <text>"
+          if (rawEvent.startsWith("data: ")) {
+            const content = rawEvent.slice(6);
             text += content;
-            
-            // Update the last message with the new text
             setMessages((prev) => {
               const updated = [...prev];
               if (updated.length > 0) {
@@ -521,8 +598,19 @@ export function GlobalAIChatFab() {
           }
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Chat error:", error);
+      const isRateLimit = error?.message?.includes("429");
+      const isUnavailable = error?.message?.includes("503");
+      
+      if (isRateLimit) {
+        toast.error("AI is currently busy. Please wait a minute and try again.", 6000);
+      } else if (isUnavailable) {
+        toast.error("AI servers are experiencing high demand. Please try again later.", 6000);
+      } else {
+        toast.error("Failed to connect to the AI service. Please try again.", 4000);
+      }
+
       setMessages([
         ...newMessages,
         {
@@ -670,6 +758,39 @@ export function GlobalAIChatFab() {
                     <NeutralBlackHoleIcon className="mt-1 mr-2" />
                   )}
                   <div className={`flex flex-col gap-2 max-w-[85%] w-fit`}>
+                    {/* Tool action pills — shown above the message text */}
+                    {message.role === "model" && message.toolActions && message.toolActions.length > 0 && (
+                      <div className="flex flex-col gap-1 mb-1">
+                        {message.toolActions.map((action, aIdx) => (
+                          <div
+                            key={`${action.tool}-${aIdx}`}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all ${
+                              action.phase === "calling"
+                                ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/50"
+                                : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50"
+                            }`}
+                          >
+                            {action.phase === "calling" ? (
+                              <svg className="w-3 h-3 animate-spin shrink-0" viewBox="0 0 24 24" fill="none">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-3 h-3 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                            <span>
+                              {action.phase === "calling"
+                                ? `${action.displayName}...`
+                                : action.summary || action.displayName}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {/* Message text bubble */}
+                    {(message.content || !(message.toolActions && message.toolActions.length > 0)) && (
                     <div
                       className={`px-4 py-2.5 shadow-sm text-[14px] ${message.role === "user"
                         ? "bg-[#111111] dark:bg-gray-800 text-white rounded-[20px] self-end"
@@ -681,6 +802,7 @@ export function GlobalAIChatFab() {
                     >
                       {renderMessageContent(message.content)}
                     </div>
+                    )}
                   </div>
                 </div>
 

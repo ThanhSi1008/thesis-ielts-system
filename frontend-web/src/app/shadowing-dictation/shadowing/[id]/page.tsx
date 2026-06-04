@@ -8,7 +8,7 @@ import { useYouTubePlayer } from '../_hooks/useYouTubePlayer';
 import { useAudioPlayer } from '../_hooks/useAudioPlayer';
 import { useRecording } from '../_hooks/useRecording';
 import { useShadowingShortcuts } from '../_hooks/useShadowingShortcuts';
-import { SPEED_PRESETS, normalizeWord, formatTime } from '../_constants';
+import { SPEED_PRESETS, normalizeWord, fuzzyMatchWord, formatTime } from '../_constants';
 
 import ShadowingVideoPlayer from '../_components/ShadowingVideoPlayer';
 import ShadowingProgressBar from '../_components/ShadowingProgressBar';
@@ -66,6 +66,8 @@ export default function ShadowingPracticePage() {
     startRecording,
     stopRecording,
     clearRecording,
+    attempts,
+    resetAttempts,
   } = useRecording();
 
   const currentSentence = sentences[currentIndex];
@@ -85,6 +87,7 @@ export default function ShadowingPracticePage() {
     if (!currentSentence) return;
     markCompleted(currentIndex);
     clearRecording();
+    resetAttempts();
     if (currentIndex < totalSentences - 1) {
       setCurrentIndex(currentIndex + 1);
     }
@@ -117,6 +120,23 @@ export default function ShadowingPracticePage() {
       }, 50);
     }
   }, [currentIndex, completedSentences]);
+
+  const isAllCorrect = React.useMemo(() => {
+    if (!currentSentence?.words || currentSentence.words.length === 0) return false;
+    const words = currentSentence.words;
+    
+    let correctCount = 0;
+    words.forEach((word: string, idx: number) => {
+      const spokenRaw = spokenWords[idx] || '';
+      if (fuzzyMatchWord(spokenRaw, word)) {
+        correctCount++;
+      }
+    });
+
+    // Allow user to proceed if they hit 80% accuracy
+    const accuracy = correctCount / words.length;
+    return accuracy >= 0.8;
+  }, [currentSentence, spokenWords]);
 
   if (isInitializing) {
     return (
@@ -181,6 +201,7 @@ export default function ShadowingPracticePage() {
               onToggleTranslation={() => setShowTranslation(!showTranslation)}
               onTogglePhonetic={() => setShowPhonetic(!showPhonetic)}
               normalizeWord={normalizeWord}
+              fuzzyMatchWord={fuzzyMatchWord}
             />
 
             <div className="flex flex-col items-center justify-center gap-2">
@@ -211,6 +232,8 @@ export default function ShadowingPracticePage() {
           onNext={handleNext}
           isFinished={isFinished}
           hasNext={currentIndex < totalSentences - 1}
+          disabled={!isAllCorrect}
+          allowSkip={attempts >= 3 && !isAllCorrect}
         />
       </div>
 

@@ -25,13 +25,13 @@ function StatCard({ label, value, subValue, icon: Icon, tone }: { label: string,
   );
 }
 
-export default function OverviewTab() {
+export default function OverviewTab({ studentId }: { studentId?: string }) {
   const [data, setData] = useState<IeltsOverviewStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    ieltsStatisticsApi.getOverview().then(setData).catch(() => setData(null)).finally(() => setLoading(false));
-  }, []);
+    ieltsStatisticsApi.getOverview(studentId).then(setData).catch(() => setData(null)).finally(() => setLoading(false));
+  }, [studentId]);
 
   if (loading) return <OverviewSkeleton />;
 
@@ -58,8 +58,8 @@ export default function OverviewTab() {
         />
         <StatCard
           label="Tests Taken"
-          value="12" // Placeholder, need real data if available
-          subValue="+2 this week"
+          value={String(data?.testsTaken ?? 0)}
+          subValue={`+${data?.testsThisWeek ?? 0} this week`}
           icon={Sparkles}
           tone={BAND_TONE_STYLES.success}
         />
@@ -80,21 +80,31 @@ export default function OverviewTab() {
             <h3 className="text-lg font-black text-slate-800 dark:text-slate-200 tracking-tight">Progress Over Time</h3>
             <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Last 6 Months</div>
           </div>
-          {/* Mock Bar Chart using CSS/SVG */}
+          {/* Bar Chart from real data */}
           <div className="h-[240px] flex items-end justify-between gap-4 px-2">
-            {[65, 45, 80, 55, 90, 75].map((h, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-3 group">
-                <div className="w-full relative">
-                  <div 
-                    className={`w-full rounded-t-xl transition-all duration-500 group-hover:opacity-80 ${i === 4 ? overviewTone.bg : "bg-slate-100 dark:bg-slate-800"}`} 
-                    style={{ height: `${h}%` }}
-                  />
+            {(data?.progressOverTime ?? []).map((pt: any, i: number) => {
+              const maxBand = 9;
+              const hPct = pt.band != null ? Math.round((pt.band / maxBand) * 100) : 0;
+              const hasData = pt.band != null && pt.count > 0;
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center gap-3 group">
+                  <div className="w-full relative flex flex-col items-center justify-end" style={{ height: '100%' }}>
+                    {hasData && (
+                      <div className="text-[10px] font-bold text-slate-500 mb-1">
+                        {pt.band.toFixed(1)}
+                      </div>
+                    )}
+                    <div 
+                      className={`w-full rounded-t-xl transition-all duration-500 group-hover:opacity-80 ${hasData ? overviewTone.bg : "bg-slate-100 dark:bg-slate-800"}`} 
+                      style={{ height: `${hPct}%`, minHeight: hasData ? 8 : 4 }}
+                    />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                    {pt.month}
+                  </span>
                 </div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                  {["Jan", "Feb", "Mar", "Apr", "May", "Jun"][i]}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

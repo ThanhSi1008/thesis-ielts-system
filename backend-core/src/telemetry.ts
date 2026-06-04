@@ -13,7 +13,7 @@ const sdk = new NodeSDK({
     ? new OTLPTraceExporter({
         url: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://172.18.0.1:4318/v1/traces',
       })
-    : new ConsoleSpanExporter(),
+    : undefined, // Disabled in dev to avoid flooding the console
   instrumentations: [
     getNodeAutoInstrumentations({
       '@opentelemetry/instrumentation-fs': { enabled: false },

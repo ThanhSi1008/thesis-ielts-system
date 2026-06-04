@@ -78,13 +78,13 @@ function FoundationSkeleton() {
   );
 }
 
-export default function FoundationTab() {
+export default function FoundationTab({ studentId }: { studentId?: string }) {
   const [data, setData] = useState<IeltsFoundationStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    ieltsStatisticsApi.getFoundation().then(setData).catch(() => setData(null)).finally(() => setLoading(false));
-  }, []);
+    ieltsStatisticsApi.getFoundation(studentId).then(setData).catch(() => setData(null)).finally(() => setLoading(false));
+  }, [studentId]);
 
   if (loading) return <FoundationSkeleton />;
   if (!data) return <div className="text-center py-16 text-slate-500 text-sm">Could not load Foundation stats.</div>;

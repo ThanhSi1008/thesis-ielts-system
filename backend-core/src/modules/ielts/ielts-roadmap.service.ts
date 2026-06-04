@@ -434,4 +434,25 @@ export class IeltsRoadmapService {
       data: updateData,
     });
   }
+
+  async resetRoadmap(userId: string) {
+    // Reset the profile's onboarding state so the user can redo it
+    await this.prisma.ieltsProfile.update({
+      where: { userId },
+      data: {
+        onboardingCompleted: false,
+        placementScore: null,
+        placementListening: null,
+        placementReading: null,
+        placementWriting: null,
+      },
+    });
+
+    // Clear all IELTS Basic progress so the roadmap starts fresh
+    await this.prisma.ieltsBasicProgress.deleteMany({
+      where: { userId },
+    });
+
+    return { success: true };
+  }
 }

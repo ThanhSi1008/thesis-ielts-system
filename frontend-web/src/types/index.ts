@@ -716,10 +716,13 @@ export interface IeltsOverviewStats {
   bandGap: number | null;
   dailyMinutesPracticed: number;
   dailyCommitmentMins: number;
+  testsTaken: number;
+  testsThisWeek: number;
   heatmap: { date: string; minutes: number }[];
-  recentActivity: any[]; // Expand this when feed is ready
+  recentActivity: { label: string; date: string }[];
   daysToExam: number | null;
   readinessScore: number | null;
+  progressOverTime: { month: string; band: number | null; count: number }[];
 }
 
 export interface IeltsFoundationStats {
