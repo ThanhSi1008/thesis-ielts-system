@@ -175,7 +175,21 @@ export const ieltsExamsApi = {
   getExam: (id: string) => apiClient.get<any>(`/exams/${id}`),
   createSession: (examId: string, userId: string, practicePart?: number) =>
     apiClient.post<any>(`/exams/${examId}/sessions`, { userId, practicePart }),
-  getSession: (sessionId: string) => apiClient.get<any>(`/exams/sessions/${sessionId}`),
+  getSession: async (sessionId: string): Promise<any> => {
+    const data = await apiClient.get<any>(`/exams/sessions/${sessionId}`);
+    // The backend returns raw Prisma relation keys (`ieltsIntensiveExam` /
+    // `ieltsIntensiveResult`). The result/practice screens read `exam` / `result`,
+    // so expose both. Without this the exam type falls back to LISTENING and the
+    // score reads 0 → the band incorrectly shows 1.0.
+    if (data && typeof data === 'object') {
+      return {
+        ...data,
+        exam: data.exam ?? data.ieltsIntensiveExam ?? null,
+        result: data.result ?? data.ieltsIntensiveResult ?? null,
+      };
+    }
+    return data;
+  },
   submitSession: (sessionId: string, answers: Record<string, any>, timeTaken?: number) =>
     apiClient.post<any>(`/exams/sessions/${sessionId}/submit`, { answers, timeTaken }),
   saveProgress: (sessionId: string, answers: Record<string, any>, timeTaken?: number) =>

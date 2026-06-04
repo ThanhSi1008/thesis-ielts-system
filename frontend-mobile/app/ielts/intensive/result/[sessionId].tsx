@@ -842,18 +842,19 @@ export default function ResultScreen() {
   const userAnswers: Record<string, any> = session.answers ?? {};
   const totalQuestions = correctMap.size > 0 ? correctMap.size : 40;
 
-  const rawSpeakingFeedback = session.result?.feedback;
-  const speakingFeedback =
-    rawSpeakingFeedback != null
-      ? typeof rawSpeakingFeedback === 'string'
+  // Writing & speaking AI feedback both live in the `feedback` JSON column.
+  const rawAiFeedback = session.result?.feedback;
+  const aiFeedback =
+    rawAiFeedback != null
+      ? typeof rawAiFeedback === 'string'
         ? (() => {
             try {
-              return JSON.parse(rawSpeakingFeedback);
+              return JSON.parse(rawAiFeedback);
             } catch {
               return null;
             }
           })()
-        : rawSpeakingFeedback
+        : rawAiFeedback
       : null;
 
   return (
@@ -1043,9 +1044,9 @@ export default function ResultScreen() {
           />
         )}
 
-        {!isPending && examType === 'WRITING' && session.result?.writingFeedback && (
+        {!isPending && examType === 'WRITING' && aiFeedback && (
           <WritingRubricView
-            feedback={session.result.writingFeedback}
+            feedback={aiFeedback}
             answers={{
               task1: session.answers?.task1 ?? session.answers?.['1'],
               task2: session.answers?.task2 ?? session.answers?.['2'],
@@ -1054,9 +1055,9 @@ export default function ResultScreen() {
           />
         )}
 
-        {!isPending && examType === 'SPEAKING' && speakingFeedback && (
+        {!isPending && examType === 'SPEAKING' && aiFeedback && (
           <SpeakingRubricView
-            feedback={speakingFeedback}
+            feedback={aiFeedback}
             answers={session.answers ?? {}}
             exam={session.exam}
           />
