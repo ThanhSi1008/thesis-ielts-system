@@ -67,6 +67,11 @@ class Settings(BaseSettings):
         "https://res.cloudinary.com/demo/image/upload/examiner_placeholder.png"
     )
 
+    # Vocab Lab flashcard TTS — the voice used when the AI agent generates
+    # pronunciation audio for a card's front (word/term). en-US-AriaNeural is a
+    # clear, neutral US English voice well suited to single words and phrases.
+    vocab_tts_voice: str = "en-US-AriaNeural"
+
     class Config:
         env_file = ".env"
         case_sensitive = False

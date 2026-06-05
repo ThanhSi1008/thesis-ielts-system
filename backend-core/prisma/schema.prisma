@@ -491,6 +491,7 @@ model Flashcard {
   front          String
   back           String    @db.Text
   tags           String[]
+  audioUrl       String?    @db.Text // TTS-generated pronunciation audio (e.g. AI-created cards); null = no audio
   // FSRS scheduling fields
   due            DateTime  @default(now())
   stability      Float     @default(0)

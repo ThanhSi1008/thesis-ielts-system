@@ -427,6 +427,7 @@ export interface Flashcard {
   deckId: string;
   front: string;
   back: string;
+  audioUrl?: string | null; // TTS pronunciation audio (e.g. AI-created cards); press-to-listen
   state?: 'new' | 'learning' | 'review';
   cardTypeId?: string;
   fieldValues?: Record<string, string>;

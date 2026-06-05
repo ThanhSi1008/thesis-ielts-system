@@ -910,6 +910,7 @@ export class VocabLabService {
         front: dto.front ?? "",
         back: dto.back ?? "",
         tags: dto.tags || [],
+        audioUrl: dto.audioUrl ?? null,
         cardTypeId,
         fieldValues,
         fieldStyles: dto.fieldStyles,

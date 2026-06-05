@@ -361,6 +361,7 @@ export interface Flashcard {
   front: string;
   back: string;
   tags: string[];
+  audioUrl?: string | null; // TTS pronunciation audio (e.g. AI-created cards); press-to-listen
   // FSRS scheduling fields
   due: string;
   stability: number;

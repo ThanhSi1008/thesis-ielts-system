@@ -46,6 +46,7 @@ export interface ViewerCard {
   id: string;
   front?: string;
   back?: string;
+  audioUrl?: string | null;
   tags?: string[];
   fieldValues?: Record<string, string>;
   fieldStyles?: Record<string, Record<string, string>>;
@@ -186,6 +187,46 @@ const af = StyleSheet.create({
     alignItems: 'center',
   },
   label: { fontSize: FONT_SIZES.sm, color: COLORS.textSecondary, fontWeight: '600' },
+});
+
+// ─── Speaker button (top-level card pronunciation, e.g. AI-generated audio) ─────
+// Mirrors the press-to-listen affordance in IELTS Foundation vocabulary.
+function SpeakerButton({ url }: { url: string }) {
+  const player = useAudioPlayer(url, { downloadFirst: true });
+  const play = useCallback(() => {
+    try {
+      player.seekTo(0);
+      player.play();
+    } catch {
+      /* silent */
+    }
+  }, [player]);
+
+  return (
+    <TouchableOpacity
+      style={sb.btn}
+      onPress={play}
+      activeOpacity={0.7}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      accessibilityRole="button"
+      accessibilityLabel="Play pronunciation"
+    >
+      <Ionicons name="volume-high" size={18} color={COLORS.primary} />
+    </TouchableOpacity>
+  );
+}
+const sb = StyleSheet.create({
+  btn: {
+    alignSelf: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: RADIUS.full,
+    backgroundColor: COLORS.primary + '14',
+    borderWidth: 1,
+    borderColor: COLORS.primary + '33',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 // ─── Image field ──────────────────────────────────────────────────────────────
@@ -358,6 +399,7 @@ export const FlashcardViewer = React.memo(function FlashcardViewer({
     const kind = detectKind(fallbackValue);
     return (
       <View style={f.container}>
+        {isFront && card.audioUrl ? <SpeakerButton url={card.audioUrl} /> : null}
         {kind === 'img-only' ? (
           <ImageField src={parseImgSrc(fallbackValue) ?? ''} maxW={cardW - SPACING.lg * 2} />
         ) : kind === 'html' ? (
@@ -402,6 +444,7 @@ export const FlashcardViewer = React.memo(function FlashcardViewer({
 
   return (
     <View style={f.container}>
+      {isFront && card.audioUrl ? <SpeakerButton url={card.audioUrl} /> : null}
       {fieldsToRender.map(({ fid, value, fieldDef, mergedStyle }) => (
         <View key={fid} style={f.fieldWrap}>
           <FieldRenderer

@@ -16,6 +16,7 @@ from google import genai
 from google.genai import types
 
 from app.config import get_settings
+from app.services.vocab_tts_service import synthesize_vocab_audio
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -195,6 +196,13 @@ async def execute_tool(function_call: Any, user_token: str) -> dict:
                 if args.get("tags"):
                     payload["tags"] = args["tags"]
 
+                # Generate pronunciation audio for the card's front (the word/term)
+                # so the learner can press to listen — same UX as Foundation vocab.
+                # Best-effort: never blocks card creation if TTS/Cloudinary fails.
+                audio_url = await synthesize_vocab_audio(args.get("front", ""))
+                if audio_url:
+                    payload["audioUrl"] = audio_url
+
                 # Resolve card type name → ID and field names → field IDs
                 card_type_name = args.get("cardTypeName", "Basic")
                 fields_by_name = dict(args.get("fields", {})) if args.get("fields") else None
@@ -264,6 +272,7 @@ async def execute_tool(function_call: Any, user_token: str) -> dict:
                         "front": card.get("front"),
                         "back": card.get("back"),
                         "tags": card.get("tags"),
+                        "audioUrl": card.get("audioUrl"),
                     },
                 }
 

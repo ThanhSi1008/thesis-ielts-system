@@ -7,6 +7,7 @@ import type { StudyCard } from '@/types';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
+import { Volume2 } from 'lucide-react';
 
 
 // ── Style helpers ─────────────────────────────────────────────────────────────
@@ -387,6 +388,19 @@ export default function StudyPage() {
                         </span>
                       ))}
                     </div>
+                  )}
+
+                  {/* Pronunciation audio (e.g. AI-generated) — press to listen */}
+                  {currentCard.audioUrl && (
+                    <button
+                      type="button"
+                      onClick={() => { void new Audio(currentCard.audioUrl as string).play(); }}
+                      className="mb-3 inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 transition-colors"
+                      aria-label="Play pronunciation"
+                      title="Play pronunciation"
+                    >
+                      <Volume2 className="w-5 h-5" />
+                    </button>
                   )}
 
                   {/* Front side */}
