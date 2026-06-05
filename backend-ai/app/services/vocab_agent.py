@@ -196,10 +196,20 @@ async def execute_tool(function_call: Any, user_token: str) -> dict:
                 if args.get("tags"):
                     payload["tags"] = args["tags"]
 
-                # Generate pronunciation audio for the card's front (the word/term)
-                # so the learner can press to listen — same UX as Foundation vocab.
+                # Generate pronunciation audio for the card's WORD/term only (never the
+                # meaning or example) so the learner can press to listen — same UX as
+                # Foundation vocabulary. Always attempted for every AI-created card.
+                # Source: `front`, falling back to a Word/Front field for structured
+                # cards (where the model fills `fields` and may leave `front` empty).
                 # Best-effort: never blocks card creation if TTS/Cloudinary fails.
-                audio_url = await synthesize_vocab_audio(args.get("front", ""))
+                fields_arg = args.get("fields") or {}
+                word_text = (args.get("front") or "").strip()
+                if not word_text and isinstance(fields_arg, dict):
+                    for _key in ("Word", "word", "Front", "front", "Term", "term"):
+                        if fields_arg.get(_key):
+                            word_text = str(fields_arg[_key]).strip()
+                            break
+                audio_url = await synthesize_vocab_audio(word_text)
                 if audio_url:
                     payload["audioUrl"] = audio_url
 
