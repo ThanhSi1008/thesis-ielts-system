@@ -7,7 +7,7 @@
 
 \section*{C.1. Tổng quan thị trường}
 
-Thị trường e-learning toàn cầu dự kiến đạt 400 tỷ USD vào năm 2026, trong đó phân khúc luyện thi ngôn ngữ (Language Testing Prep) tăng trưởng mạnh tại khu vực Đông Nam Á~\cite{statista-elearning}. Tại Việt Nam, hơn 200.000 thí sinh đăng ký thi IELTS mỗi năm~\cite{ielts-vietnam-2023}, với chi phí luyện thi trung bình từ 3--8 triệu đồng/khóa tại các trung tâm truyền thống~\cite{ielts-global-stats}. Nhu cầu về nền tảng luyện thi trực tuyến cá nhân hóa, chi phí thấp và có phản hồi AI tự động theo cơ chế bất đồng bộ là cơ hội thị trường rõ ràng.
+Thị trường e-learning toàn cầu dự kiến đạt 400 tỷ USD vào năm 2026, trong đó phân khúc luyện thi ngôn ngữ (Language Testing Prep) tăng trưởng mạnh tại khu vực Đông Nam Á. Tại Việt Nam, hơn 200.000 thí sinh đăng ký thi IELTS mỗi năm, với chi phí luyện thi trung bình từ 3--8 triệu đồng/khóa tại các trung tâm truyền thống. Nhu cầu về nền tảng luyện thi trực tuyến cá nhân hóa, chi phí thấp và có phản hồi AI tự động theo cơ chế bất đồng bộ là cơ hội thị trường rõ ràng.
 
 \section*{C.2. Mô hình kinh doanh}
 
@@ -61,16 +61,16 @@ Thanh toán hiện tại qua VNPay (thị trường Việt Nam). Lộ trình b�
     \endfoot
     \hline
     \endlastfoot
-    ELSA Speak~\cite{elsa-speak-pricing}
+    ELSA Speak
       & AI phát âm mạnh, trải nghiệm người dùng tốt
       & Chỉ tập trung kỹ năng Speaking/phát âm; không có Mock Test toàn phần hay AI grading Writing
       & \$6.99/tháng \\ \hline
-    Cambly~\cite{cambly-pricing}
+    Cambly
       & Giáo viên bản ngữ thực tế, linh hoạt lịch học
       & Giá cao; không có AI grading tự động; phụ thuộc hoàn toàn vào lịch của gia sư
       & \$50--100/tháng \\ \hline
     IDP Online / BC Online
-      & Thương hiệu uy tín~\cite{ielts-global-stats}, đề thi chuẩn IELTS chính thức
+      & Thương hiệu uy tín, đề thi chuẩn IELTS chính thức
       & Thiếu phản hồi AI tự động; nền tảng web là chủ yếu, ứng dụng di động có chức năng hạn chế
       & 500.000--1.000.000 VNĐ/khóa học$^*$ \\ \hline
     \textbf{Hệ thống IELTS (dự án này)}
@@ -95,7 +95,7 @@ Thanh toán hiện tại qua VNPay (thị trường Việt Nam). Lộ trình b�
 
 Dự án được thiết kế và vận hành theo mô hình tinh gọn (Lean Startup) trong giai đoạn đầu ra mắt:
 \begin{itemize}
-    \item \textbf{Nhà sáng lập / Kỹ sư toàn trình (Full-stack \& AI Engineer):} Đảm nhiệm toàn bộ vòng đời phát triển phần mềm bao gồm: thiết kế kiến trúc hệ thống, lập trình Backend (NestJS, FastAPI), triển khai và tích hợp mô hình AI chấm điểm (faster-whisper~\cite{faster-whisper-docs}, Gemini API~\cite{gemini-api}), phát triển Frontend (Next.js~\cite{nextjs-docs}), Mobile App (React Native~\cite{reactnative-docs}) và triển khai hạ tầng đám mây (CI/CD, Docker).
+    \item \textbf{Nhà sáng lập / Kỹ sư toàn trình (Full-stack \& AI Engineer):} Đảm nhiệm toàn bộ vòng đời phát triển phần mềm bao gồm: thiết kế kiến trúc hệ thống, lập trình Backend (NestJS, FastAPI), triển khai và tích hợp mô hình AI chấm điểm (faster-whisper, Gemini API), phát triển Frontend (Next.js), Mobile App (React Native) và triển khai hạ tầng đám mây (CI/CD, Docker).
     \item \textbf{Cố vấn chuyên môn:} Giảng viên hướng dẫn đóng vai trò định hướng học thuật, rà soát quy trình công nghệ và nghiệm thu các chuẩn đầu ra kỹ thuật.
     \item \textbf{Đối tác nội dung (dự kiến bổ sung):} Các giáo viên IELTS hoặc trung tâm ngoại ngữ để kiểm định chất lượng bộ đề Mock Test và tối ưu hóa bộ tiêu chí (prompt) cho AI grading.
 \end{itemize}
@@ -107,9 +107,9 @@ Hệ thống tận dụng tối đa các dịch vụ đám mây có quản lý (
 \begin{itemize}
     \item \textbf{Hạ tầng máy chủ cốt lõi:} Google Cloud VM (n2-standard-4, 16\,GB RAM) chạy Backend Core và AI Worker, cùng với Google Cloud Run cho Web App, chi phí ước tính $\sim$3.800.000 VNĐ/tháng.
 
-    \item \textbf{Cơ sở dữ liệu và Message Broker:} Các gói Free-tier hoặc Pay-as-you-go từ Supabase (PostgreSQL), Upstash (Redis~\cite{redis-docs}) và CloudAMQP (RabbitMQ~\cite{rabbitmq-docs}), dự phòng $\sim$500.000 VNĐ/tháng.
+    \item \textbf{Cơ sở dữ liệu và Message Broker:} Các gói Free-tier hoặc Pay-as-you-go từ Supabase (PostgreSQL), Upstash (Redis) và CloudAMQP (RabbitMQ), dự phòng $\sim$500.000 VNĐ/tháng.
 
-    \item \textbf{Chi phí API trí tuệ nhân tạo (Gemini):} Mô hình Gemini 2.5 Flash~\cite{gemini-pricing} áp dụng cấu trúc giá phân biệt input và output token. Với bài Writing/Speaking trung bình 300--500 từ, tổng chi phí (input + output) ước tính $\sim$0.15--0.30\,USD/bài grading. Ước tính $\sim$300.000 VNĐ/tháng cho lượng grading tương ứng 1.000 người dùng hoạt động.
+    \item \textbf{Chi phí API trí tuệ nhân tạo (Gemini):} Mô hình Gemini 2.5 Flash áp dụng cấu trúc giá phân biệt input và output token. Với bài Writing/Speaking trung bình 300--500 từ, tổng chi phí (input + output) ước tính $\sim$0.15--0.30\,USD/bài grading. Ước tính $\sim$300.000 VNĐ/tháng cho lượng grading tương ứng 1.000 người dùng hoạt động.
 
     \item \textbf{Lưu trữ và CDN (Cloudinary):} Cloudinary đóng vai trò CDN cho ảnh và file audio ghi âm của người dùng. Với 1.000 người dùng hoạt động, chi phí bandwidth và transformations ước tính $\sim$200.000 VNĐ/tháng.
 
@@ -131,7 +131,7 @@ Lưu ý rằng chi phí API (Gemini) và CDN (Cloudinary) sẽ tăng tuyến tí
 \section*{C.7. Phân tích rủi ro}
 
 \begin{itemize}
-    \item \textbf{Rủi ro kỹ thuật --- Độ chính xác AI grading:} Band điểm do Gemini ước tính dựa trên prompt engineering, chưa được fine-tune trên dữ liệu IELTS thực tế và chưa được kiểm chứng bởi giám khảo độc lập. Chênh lệch $\pm$0.5 band so với kết quả thi chính thức có thể ảnh hưởng đến độ tin cậy của sản phẩm~\cite{bachman1990fundamental}. \textit{Biện pháp giảm thiểu:} xây dựng tập dữ liệu kiểm chứng và công bố kết quả đánh giá minh bạch với người dùng.
+    \item \textbf{Rủi ro kỹ thuật --- Độ chính xác AI grading:} Band điểm do Gemini ước tính dựa trên prompt engineering, chưa được fine-tune trên dữ liệu IELTS thực tế và chưa được kiểm chứng bởi giám khảo độc lập. Chênh lệch $\pm$0.5 band so với kết quả thi chính thức có thể ảnh hưởng đến độ tin cậy của sản phẩm. \textit{Biện pháp giảm thiểu:} xây dựng tập dữ liệu kiểm chứng và công bố kết quả đánh giá minh bạch với người dùng.
 
     \item \textbf{Rủi ro kỹ thuật --- Hiệu năng quy mô lớn:} Hệ thống chưa được kiểm thử tải (load testing) ở quy mô hàng nghìn phiên Mock Test đồng thời. Tắc nghẽn có thể xảy ra tại tầng RabbitMQ hoặc FastAPI AI Worker. \textit{Biện pháp giảm thiểu:} triển khai load testing (k6, JMeter) và mở rộng số lượng consumer theo nhu cầu.
 
