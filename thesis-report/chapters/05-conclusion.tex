@@ -1,5 +1,6 @@
 % !TEX root = ../main.tex
-\chapter{KẾT LUẬN}
+\chapter{KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN}
+\thispagestyle{mainstyle}
 
 \section{Kết quả đạt được}
 
@@ -9,7 +10,7 @@
 
 Về kiến trúc, hệ thống tổ chức theo mô hình Event-driven Modular Monolith. NestJS Backend Core gói 18 module nghiệp vụ (auth, exams, vocab-lab, grammar, shadowing, gamification, subscriptions\ldots) trong một ứng dụng duy nhất, giao tiếp nội bộ qua Dependency Injection --- giữ tính nhất quán và dễ bảo trì. FastAPI AI Worker tách thành microservice độc lập, kết nối với core qua RabbitMQ để chạy AI inference bất đồng bộ mà không làm chậm phản hồi API. Cách bố trí này cân bằng giữa độ đơn giản của monolith và khả năng scale độc lập cho phần tính toán nặng (AI grading).
 
-Về đa nền tảng, hệ thống đẩy ra song song giao diện Web (Next.js với Server-Side Rendering) và ứng dụng Mobile (React Native), dùng chung một backend API. Next.js giúp tối ưu SEO và tốc độ tải trang qua SSR và Static Site Generation; React Native cho phép deploy iOS và Android từ một codebase TypeScript duy nhất, cắt đáng kể chi phí so với native riêng biệt~\cite{reactnative-docs}.
+Về đa nền tảng, hệ thống đẩy ra song song giao diện web (Next.js với Server-Side Rendering) và ứng dụng di động (mobile) (React Native), dùng chung một backend API. Next.js giúp tối ưu SEO và tốc độ tải trang qua SSR và Static Site Generation; React Native cho phép deploy iOS và Android từ một codebase TypeScript duy nhất, cắt đáng kể chi phí so với native riêng biệt~\cite{reactnative-docs}.
 
 Về tích hợp trí tuệ nhân tạo, hệ thống đưa Gemini API~\cite{gemini-api} (model gemini-2.5-flash) vào pipeline chấm tự động bài Writing theo bốn tiêu chí IELTS chính thức (Task Achievement, Coherence and Cohesion, Lexical Resource, Grammatical Range and Accuracy) và bài Speaking theo bốn tiêu chí Speaking tương ứng. faster-whisper~\cite{whisper-paper} --- bản tối ưu hóa của OpenAI Whisper trên CTranslate2 backend --- chạy cục bộ trong Docker container, đảm nhiệm chuyển giọng nói thành văn bản cho chấm phát âm và dictation; hoàn toàn tự chủ, không chịu quota từ dịch vụ bên thứ ba. Pipeline grading bất đồng bộ qua RabbitMQ giữ cho API trả về tức thì dù inference mất vài giây.
 
@@ -28,7 +29,7 @@ Hệ thống đã hiện thực đủ các chức năng cốt lõi của một n
 
     \item \textbf{Placement Test và lộ trình học tập:} Bài kiểm tra đầu vào tự động đánh giá trình độ ban đầu theo ba kỹ năng (Listening, Reading và Writing) và gợi ý lộ trình học tập phù hợp, giúp người học mới tiếp cận hệ thống một cách có định hướng.
 
-    \item \textbf{Admin Dashboard:} Giao diện quản trị cho phép admin tạo, chỉnh sửa, xóa và xuất bản bài học Shadowing và Dictation; đồng thời xem danh sách và trạng thái đăng ký thành viên của học viên, cấp gói thành viên thủ công khi cần.
+    \item \textbf{admin dashboard:} Giao diện quản trị cho phép admin tạo, chỉnh sửa, xóa và xuất bản bài học Shadowing và Dictation; đồng thời xem danh sách và trạng thái đăng ký thành viên của học viên, cấp gói thành viên thủ công khi cần.
 
     \item \textbf{Tính năng cộng đồng học tập:} Mô-đun Community cho phép người học đăng bài theo ba loại (mẹo học tập, chia sẻ thành tích band điểm, thảo luận chung), bình luận có phân cấp (threaded comments), yêu thích và lưu bài; kết hợp với tính năng chia sẻ và khám phá flashcard deck cộng đồng trong Vocab Lab, tạo môi trường tương tác đa chiều giữa người học.
 \end{itemize}
@@ -46,7 +47,7 @@ Hệ thống vẫn để lộ một số hạn chế cần thừa nhận thẳng
 
     \item \textbf{Tính năng cộng đồng còn hạn chế:} Mặc dù hệ thống đã có mô-đun cộng đồng cơ bản (đăng bài, bình luận, yêu thích, lưu bài và chia sẻ flashcard deck), chưa có tính năng nâng cao như peer review (người học chấm bài Writing/Speaking lẫn nhau theo rubric IELTS) hay học nhóm theo thời gian thực -- đây là yếu tố quan trọng để phát huy lý thuyết vùng phát triển gần (ZPD) trong học tập ngôn ngữ~\cite{vygotsky1978mind}.
 
-    \item \textbf{Chưa hỗ trợ chế độ offline:} Ứng dụng Mobile yêu cầu kết nối Internet liên tục; nội dung bài tập được phục vụ qua REST API (từ cơ sở dữ liệu PostgreSQL) và file audio được tải từ Cloudinary, chưa có cơ chế cache cục bộ cho thiết bị.
+    \item \textbf{Chưa hỗ trợ chế độ offline:} Ứng dụng di động (mobile) yêu cầu kết nối Internet liên tục; nội dung bài tập được phục vụ qua REST API (từ cơ sở dữ liệu PostgreSQL) và file audio được tải từ Cloudinary, chưa có cơ chế cache cục bộ cho thiết bị.
 
     \item \textbf{Nền tảng iOS chưa được kiểm thử đầy đủ:} Do chi phí Apple Developer Program, ứng dụng React Native hiện tập trung kiểm thử trên Android; chưa được phân phối chính thức trên App Store.
 \end{itemize}
@@ -64,7 +65,7 @@ Trên nền tảng đã có và các hạn chế vừa nêu, một số hướng
 
     \item \textbf{Adaptive Learning:} Dựa trên lịch sử kết quả làm bài và phân tích lỗi thường gặp, hệ thống tự động gợi ý bài tập phù hợp với điểm yếu của từng người học thay vì để người học tự chọn, tạo lộ trình học tập cá nhân hoá thực sự~\cite{nguyen2024aiteaching}.
 
-    \item \textbf{Chế độ offline cho Mobile:} Tích hợp cơ chế download bài tập và cache audio cục bộ để người học có thể luyện tập khi không có Internet, đồng bộ kết quả lên server khi kết nối trở lại thông qua conflict resolution strategy.
+    \item \textbf{Chế độ offline cho di động (mobile):} Tích hợp cơ chế download bài tập và cache audio cục bộ để người học có thể luyện tập khi không có Internet, đồng bộ kết quả lên server khi kết nối trở lại thông qua conflict resolution strategy.
 
     \item \textbf{Mở rộng mô hình Freemium:} Hệ thống đã triển khai ba tier subscription (Free, Premium, Pro) với VNPay integration (HMAC-SHA512). Hướng phát triển tiếp theo là bổ sung cổng thanh toán MoMo và Stripe để mở rộng sang thị trường quốc tế, đồng thời tinh chỉnh feature-gating giữa các tier dựa trên dữ liệu hành vi người dùng thực tế~\cite{statista-elearning}.
 

@@ -90,18 +90,18 @@
     \textbf{\fontsize{16pt}{19pt}\selectfont DEVELOPING AN INTELLIGENT PLATFORM}\\
     \textbf{\fontsize{16pt}{19pt}\selectfont FOR ENGLISH LEARNING AND}\\
     \textbf{\fontsize{16pt}{19pt}\selectfont IELTS TEST PREPARATION}\\
-    \vspace{1cm}
+    \vspace{0.8cm}
     \textbf{\fontsize{14pt}{16pt}\selectfont ABSTRACT}
 \end{center}
 \justify
 \begin{sloppypar}
-IELTS is a globally recognized English proficiency certification. However, existing preparation platforms often specialize in a single skill, depend on costly human tutors, or lack automated scoring aligned with official IELTS rubrics. This thesis presents \textbf{IELTS Master English (Lexon)} --- a comprehensive learning and test preparation system for learners aiming for Band 4.0 to 7.5+, delivered on both web and mobile.
+IELTS is a globally recognized English proficiency certification. However, existing preparation platforms often specialize in a single skill, rely on costly human tutoring, or lack automated scoring aligned with official rubrics. This thesis presents \textbf{IELTS Master English (Lexon)} — a comprehensive web and mobile platform for IELTS learners aiming for Band 4.0 to 7.5+.
 
-The system utilizes an event-driven modular monolith architecture: a NestJS backend (18 feature modules), a FastAPI AI worker communicating asynchronously via RabbitMQ, a Next.js web portal on Cloud Run, and a React Native Expo mobile application. The data tier leverages managed cloud services (Supabase PostgreSQL, Upstash Redis, CloudAMQP, and Cloudinary) running on a GCP VM behind an Nginx reverse proxy. Key features include a four-tier learning track (Foundation, Basic, Advanced, Intensive) covering all four IELTS skills; 44-phoneme IPA pronunciation scoring using a weighted formula; automated Writing and Speaking grading via the Gemini 2.5 Flash API following the four official IELTS criteria; full-length Mock Tests; Shadowing/Dictation; an FSRS spaced repetition vocabulary lab; placement tests with personalized roadmaps; gamification; and VNPay subscription integration.
+The system utilizes an event-driven modular monolith architecture, consisting of a NestJS backend (18 modules), a FastAPI AI worker communicating via RabbitMQ, a Next.js web portal, and an Expo React Native mobile app. The infrastructure leverages Supabase, Upstash Redis, CloudAMQP, and Cloudinary on a GCP VM. Key features include a four-tier learning track, 44-phoneme IPA pronunciation scoring, Gemini-powered automated Writing/Speaking grading, full Mock Tests, Shadowing/Dictation, an FSRS spaced repetition vocabulary lab, personalized roadmaps, gamification, and VNPay integration.
 
-Testing confirms that the asynchronous grading pipeline returns Writing and Speaking results within 5--10 seconds, and the platform runs consistently across web and mobile. The project demonstrates the feasibility of combining a modular architecture with generative AI to offer Vietnamese learners a comprehensive, interactive, and cost-effective IELTS preparation solution.
+Testing confirms that the automated grading pipeline returns evaluation results within 5–10 seconds, ensuring high consistency across platforms. The project demonstrates the feasibility of combining modular architecture with generative AI to provide a comprehensive, interactive, and cost-effective IELTS preparation solution.
 \end{sloppypar}
 
-\vspace{0.5cm}
+\vspace{0.6cm}
 {\sloppy \noindent \textbf{Keywords:} IELTS Preparation, Automated AI Scoring, Modular Monolith, NestJS, Next.js, React Native, Gemini API, faster-whisper, Spaced Repetition (FSRS), Personalized Learning Path, Cloud Deployment.\par}
 

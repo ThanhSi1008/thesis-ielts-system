@@ -2,19 +2,20 @@
 \chapter*{LỜI MỞ ĐẦU}
 \addcontentsline{toc}{chapter}{LỜI MỞ ĐẦU}
 \thispagestyle{mainstyle}
-IELTS là một trong những chứng chỉ tiếng Anh quan trọng nhất tại Việt Nam phục vụ cho mục đích du học, định cư và tuyển dụng. Song song với đó, nhu cầu học trực tuyến tăng mạnh mẽ trong những năm gần đây, mở ra tiềm năng lớn cho các nền tảng edtech. Tuy nhiên, việc tự luyện thi bốn kỹ năng gặp nhiều thách thức, đặc biệt là hai kỹ năng tạo sinh (Writing và Speaking) đòi hỏi giáo viên chuyên môn đánh giá với chi phí cao. Các nền tảng hiện nay thường tập trung đơn lẻ từng kỹ năng, thiếu cơ chế chấm điểm tự động bám sát tiêu chí IELTS, và chưa đồng bộ trải nghiệm Web--Mobile trong một hệ sinh thái học tập toàn diện. Hệ quả là người học thiếu một thước đo khách quan để có thể tự ôn tập hiệu quả.
+IELTS là một trong những chứng chỉ tiếng Anh quan trọng nhất tại Việt Nam phục vụ cho mục đích du học, định cư và tuyển dụng. Song song với đó, nhu cầu học trực tuyến tăng mạnh mẽ trong những năm gần đây, mở ra tiềm năng lớn cho các nền tảng edtech. Tuy nhiên, việc tự luyện thi bốn kỹ năng gặp nhiều thách thức, đặc biệt là hai kỹ năng tạo sinh (Writing và Speaking) đòi hỏi giáo viên chuyên môn đánh giá với chi phí cao. Các nền tảng hiện nay thường tập trung đơn lẻ từng kỹ năng, thiếu cơ chế chấm điểm tự động bám sát tiêu chí IELTS, và chưa đồng bộ trải nghiệm web--di động (mobile) trong một hệ sinh thái học tập toàn diện. Hệ quả là người học thiếu một thước đo khách quan để có thể tự ôn tập hiệu quả.
 
-Những tiến bộ vượt bậc của trí tuệ nhân tạo (như LLM Gemini và mô hình nhận dạng giọng nói Whisper) mở ra cơ hội tự động hóa khâu đánh giá này. Đồ án tập trung nghiên cứu, thiết kế và hiện thực nền tảng học tiếng Anh và hỗ trợ luyện thi IELTS thông minh hoạt động song song trên Web (Next.js) và Mobile (React Native Expo). Hệ thống cung cấp lộ trình cá nhân hóa từ cơ bản đến nâng cao (Foundation, Basic, Advanced, Intensive), tích hợp pipeline chấm điểm AI bất đồng bộ cho bài Viết và bài Nói được điều phối qua hàng đợi thông điệp, đi kèm các phân hệ hỗ trợ học từ vựng (thuật toán FSRS), luyện phát âm và các yếu tố tạo động lực (gamification).
+Những tiến bộ vượt bậc của trí tuệ nhân tạo (như LLM Gemini và mô hình nhận dạng giọng nói Whisper) mở ra cơ hội tự động hóa khâu đánh giá này. Đồ án tập trung nghiên cứu, thiết kế và hiện thực nền tảng học tiếng Anh và hỗ trợ luyện thi IELTS thông minh hoạt động song song trên web (Next.js) và di động (React Native Expo). Hệ thống cung cấp lộ trình cá nhân hóa từ cơ bản đến nâng cao (Foundation, Basic, Advanced, Intensive), tích hợp pipeline chấm điểm AI bất đồng bộ cho bài viết và bài nói được điều phối qua hàng đợi thông điệp, đi kèm các phân hệ hỗ trợ học từ vựng (thuật toán FSRS), luyện phát âm và các yếu tố tạo động lực (gamification).
 
 Đề tài hướng tới một sản phẩm thực tế giúp người học tự ôn luyện bốn kỹ năng hiệu quả với chi phí tối ưu, đồng thời là minh chứng kỹ thuật cho việc xây dựng kiến trúc full-stack tích hợp AI hoàn chỉnh từ giao diện đa nền tảng đến quy trình giám sát vận hành. Bố cục của báo cáo khóa luận lần lượt trình bày cơ sở lý thuyết liên quan, phân tích yêu cầu nghiệp vụ, thiết kế kiến trúc chi tiết, kết quả thực nghiệm và định hướng phát triển trong tương lai.
 
 \chapter{GIỚI THIỆU}
+\thispagestyle{mainstyle}
 
 \section{Tổng quan}
 
 IELTS được đồng quản lý bởi British Council, IDP: IELTS Australia và Cambridge Assessment English. Tính đến năm 2023, kết quả thi được hơn 11.000 tổ chức ở trên 140 quốc gia công nhận \cite{ielts-global-stats}; số lượt thi toàn cầu đã vượt mốc 3,5 triệu mỗi năm và còn trên đà tăng. Tại Việt Nam, đây là chứng chỉ tiếng Anh được dùng phổ biến nhất cho du học và tuyển dụng ở các tập đoàn đa quốc gia.
 
-Cung sản phẩm luyện thi IELTS chưa đáp ứng đủ chiều rộng lẫn chiều sâu mà thí sinh cần. \textbf{ELSA Speak} làm tốt phát âm và giao tiếp ngắn nhưng bỏ ngỏ Reading và Writing --- hai trong bốn kỹ năng cấu thành band Overall~\cite{elsa-speak-pricing}. \textbf{Cambly} kết nối gia sư bản ngữ trực tuyến với chi phí cao~\cite{cambly-pricing}, không có chấm điểm tự động, phụ thuộc hoàn toàn vào lịch của tutor; người học khó duy trì cường độ ôn tập đều đặn. Các sản phẩm đa kỹ năng quen thuộc hơn như British Council hay Magoosh IELTS có thư viện đề phong phú nhưng thiếu tính năng \textit{automated AI scoring} bám sát bốn tiêu chí chính thức của IELTS cho Writing Task 1/2 và Speaking. Khoảng trống lớn nhất nằm ở chỗ: chưa có nền tảng nào gói gọn placement test, lộ trình cá nhân hóa, luyện đủ bốn kỹ năng và pipeline AI scoring trong cùng một sản phẩm thống nhất giữa web và ứng dụng di động.
+Cung sản phẩm luyện thi IELTS chưa đáp ứng đủ chiều rộng lẫn chiều sâu mà thí sinh cần. ELSA Speak làm tốt phát âm và giao tiếp ngắn nhưng bỏ ngỏ Reading và Writing --- hai trong bốn kỹ năng cấu thành band Overall~\cite{elsa-speak-pricing}. Cambly kết nối gia sư bản ngữ trực tuyến với chi phí cao~\cite{cambly-pricing}, không có chấm điểm tự động, phụ thuộc hoàn toàn vào lịch của tutor; người học khó duy trì cường độ ôn tập đều đặn. Các sản phẩm đa kỹ năng quen thuộc hơn như British Council hay Magoosh IELTS có thư viện đề phong phú nhưng thiếu tính năng \textit{automated AI scoring} bám sát bốn tiêu chí chính thức của IELTS cho Writing Task 1/2 và Speaking. Khoảng trống lớn nhất nằm ở chỗ: chưa có nền tảng nào gói gọn placement test, lộ trình cá nhân hóa, luyện đủ bốn kỹ năng và pipeline AI scoring trong cùng một sản phẩm thống nhất giữa web và ứng dụng di động.
 
 Hệ thống đề xuất trong khóa luận hướng đến lấp đúng các khoảng trống vừa nêu --- đưa AI vào cả vòng luyện tập lẫn vòng đánh giá năng lực ngôn ngữ.
 
@@ -22,7 +23,7 @@ Hệ thống đề xuất trong khóa luận hướng đến lấp đúng các k
 
 Đề tài hướng tới xây dựng một nền tảng học và luyện thi IELTS hoạt động song song trên website và ứng dụng điện thoại, giúp người học ôn luyện đủ bốn kỹ năng và tự đánh giá được trình độ của mình mà không phải phụ thuộc hoàn toàn vào giáo viên. Trên cơ sở khảo sát nhu cầu người học, hệ thống được xác định cần đáp ứng sáu mục tiêu sau:
 
-\textbf{Mục tiêu 1 --- Lộ trình luyện thi IELTS đầy đủ bốn kỹ năng:} Hệ thống dẫn dắt người học đi từ trình độ cơ bản đến khi sẵn sàng dự thi, chia thành các cấp độ tăng dần. Người mới bắt đầu được học từ vựng, ngữ pháp và phát âm nền tảng; sau đó làm quen với từng dạng câu hỏi của bài thi IELTS; rồi luyện sâu theo từng phần của mỗi kỹ năng; và cuối cùng là thi thử trọn vẹn một bài thi như thật, có tính giờ giống phòng thi. Với hai kỹ năng Viết và Nói, hệ thống cần tự động chấm điểm và đưa ra nhận xét theo đúng các tiêu chí chấm của IELTS, để người học biết mình đang ở mức nào và cần cải thiện điều gì. Hệ thống cũng gợi ý lộ trình học theo tuần dựa trên bài kiểm tra đầu vào và thống kê tiến độ học cho người dùng.
+\textbf{Mục tiêu 1 --- Lộ trình luyện thi IELTS đầy đủ bốn kỹ năng:} Hệ thống dẫn dắt người học đi từ trình độ cơ bản đến khi sẵn sàng dự thi, chia thành các cấp độ tăng dần. Người mới bắt đầu được học từ vựng, ngữ pháp và phát âm nền tảng; sau đó làm quen với từng dạng câu hỏi của bài thi IELTS; rồi luyện sâu theo từng phần của mỗi kỹ năng; và cuối cùng là thi thử trọn vẹn một bài thi như thật, có tính giờ giống phòng thi. Với hai kỹ năng viết và nói, hệ thống cần tự động chấm điểm và đưa ra nhận xét theo đúng các tiêu chí chấm của IELTS, để người học biết mình đang ở mức nào và cần cải thiện điều gì. Hệ thống cũng gợi ý lộ trình học theo tuần dựa trên bài kiểm tra đầu vào và thống kê tiến độ học cho người dùng.
 
 \textbf{Mục tiêu 2 --- Luyện nói đuổi và nghe chép chính tả:} Người học có thể chọn các video tiếng Anh để vừa nghe vừa nói nhắc lại theo từng câu, hoặc luyện nghe chép chính tả với nhiều mức độ khó khác nhau. Hệ thống ghi lại tiến độ và khuyến khích người học duy trì thói quen luyện tập đều đặn mỗi ngày.
 
@@ -38,13 +39,13 @@ Hệ thống đề xuất trong khóa luận hướng đến lấp đúng các k
 
 Hệ thống phục vụ hai nhóm người dùng: người học IELTS --- chủ yếu là học sinh, sinh viên và người đi làm muốn đạt một mức band điểm mục tiêu --- và người quản lý chịu trách nhiệm biên soạn nội dung học tập và theo dõi người dùng.
 
-Về chức năng, hệ thống cần đáp ứng các nhóm việc sau cho người học: đăng ký, đăng nhập và quản lý hồ sơ cá nhân; làm bài kiểm tra đầu vào để biết trình độ và nhận lộ trình học phù hợp theo tuần; học và luyện đủ bốn kỹ năng Nghe, Nói, Đọc, Viết theo các cấp độ từ cơ bản đến nâng cao, trong đó bài Viết và Nói được hệ thống tự động chấm điểm; thi thử trọn vẹn một bài thi IELTS có tính giờ; luyện nghe--nói qua video và học từ vựng bằng thẻ ghi nhớ; tham gia cộng đồng, chia sẻ bài viết và theo dõi thành tích học tập; đăng ký và thanh toán trực tuyến các gói thành viên. Về phía người quản lý, hệ thống cần cho phép biên soạn và xuất bản học liệu, quản lý người dùng cùng các gói thành viên.
+Về chức năng, hệ thống cần đáp ứng các nhóm việc sau cho người học: đăng ký, đăng nhập và quản lý hồ sơ cá nhân; làm bài kiểm tra đầu vào để biết trình độ và nhận lộ trình học phù hợp theo tuần; học và luyện đủ bốn kỹ năng nghe, nói, đọc, viết theo các cấp độ từ cơ bản đến nâng cao, trong đó bài viết và nói được hệ thống tự động chấm điểm; thi thử trọn vẹn một bài thi IELTS có tính giờ; luyện nghe--nói qua video và học từ vựng bằng thẻ ghi nhớ; tham gia cộng đồng, chia sẻ bài viết và theo dõi thành tích học tập; đăng ký và thanh toán trực tuyến các gói thành viên. Về phía người quản lý, hệ thống cần cho phép biên soạn và xuất bản học liệu, quản lý người dùng cùng các gói thành viên.
 
 Một số nội dung nằm ngoài phạm vi đề tài: hệ thống không cấp chứng chỉ IELTS thật hay có giá trị pháp lý; không tổ chức dạy kèm trực tiếp giữa giáo viên và học viên; chức năng thanh toán chỉ chạy ở chế độ thử nghiệm, chưa xử lý giao dịch bằng tiền thật; nội dung chỉ tập trung vào IELTS Academic, không bao gồm IELTS General Training.
 
 \section{Mô tả yêu cầu chức năng}
 
-Hệ thống phục vụ hai nhóm tác nhân: \textbf{Người học} và \textbf{Người quản lý (Admin)}.
+Hệ thống phục vụ hai nhóm tác nhân: \textbf{Người học} và \textbf{Người quản lý (admin)}.
 
 \textbf{Người học} có thể thực hiện các chức năng sau:
 
@@ -78,13 +79,13 @@ Hệ thống phục vụ hai nhóm tác nhân: \textbf{Người học} và \text
 
     \item \textbf{Thông báo:} Nhận thông báo khi có kết quả chấm điểm Writing/Speaking, khi đạt cột mốc học tập mới, khi gói thành viên sắp hết hạn.
 
-    \item \textbf{Đăng ký gói thành viên:} Xem và so sánh các gói FREE, PREMIUM, PRO; thanh toán qua VNPay; dùng thử 7 ngày Premium miễn phí khi mới đăng ký.
+    \item \textbf{Đăng ký gói thành viên:} Xem và so sánh các gói Free, Premium, Pro; thanh toán qua VNPay; dùng thử 7 ngày Premium miễn phí khi mới đăng ký.
 \end{itemize}
 
-\textbf{Người quản lý (Admin)} có thể thực hiện các chức năng sau:
+\textbf{Người quản lý (admin)} có thể thực hiện các chức năng sau:
 
 \begin{itemize}
-    \item \textbf{Quản lý đề thi IELTS:} Thêm, chỉnh sửa, xóa và xuất bản đề luyện \textbf{IELTS Advanced} --- đề luyện theo từng phần (Part) riêng lẻ của một kỹ năng cụ thể (Nghe, Đọc, Viết hoặc Nói); tạo và quản lý đề thi thử \textbf{IELTS Intensive} --- bài thi thử bao quát đầy đủ các phần của một kỹ năng. Hệ thống còn hỗ trợ nhập đề tự động từ tài liệu có sẵn bằng AI nhằm rút ngắn thời gian biên soạn.
+    \item \textbf{Quản lý đề thi IELTS:} Thêm, chỉnh sửa, xóa và xuất bản đề luyện IELTS Advanced --- đề luyện theo từng phần (part) riêng lẻ của một kỹ năng cụ thể (nghe, đọc, viết hoặc nói); tạo và quản lý đề thi thử IELTS Intensive --- bài thi thử bao quát đầy đủ các phần của một kỹ năng. Hệ thống còn hỗ trợ nhập đề tự động từ tài liệu có sẵn bằng AI nhằm rút ngắn thời gian biên soạn.
 
     \item \textbf{Quản lý học liệu Shadowing và Dictation:} Thêm, chỉnh sửa, xóa và xuất bản bài luyện nghe Shadowing (kèm transcript đồng bộ theo thời gian) và bài Dictation (kèm đáp án chuẩn từng câu).
 
@@ -99,12 +100,12 @@ Hệ thống phục vụ hai nhóm tác nhân: \textbf{Người học} và \text
 \section{Các ràng buộc và quy tắc quản lý}
 
 \begin{sloppypar}
-Về nền tảng hỗ trợ, ứng dụng Web chạy trên các trình duyệt hiện đại (Chrome, Firefox, Safari); ứng dụng Mobile xây dựng bằng React Native Expo, hỗ trợ song song iOS và Android. Kết nối Internet bắt buộc cho các tính năng AI (Writing scoring, Speaking evaluation) cũng như đồng bộ phiên thi thử IELTS Intensive.
+Về nền tảng hỗ trợ, ứng dụng web chạy trên các trình duyệt hiện đại (Chrome, Firefox, Safari); ứng dụng di động (mobile) xây dựng bằng React Native Expo, hỗ trợ song song iOS và Android. Kết nối Internet bắt buộc cho các tính năng AI (Writing scoring, Speaking evaluation) cũng như đồng bộ phiên thi thử IELTS Intensive.
 \end{sloppypar}
 
 Về bảo mật tài khoản, mật khẩu lưu dưới dạng băm một chiều bằng bcrypt và không thể phục hồi ngược; rate limiting chặn các đợt brute-force tự động; phiên xác thực duy trì qua JWT access token trong suốt vòng đời session.
 
-Về giới hạn AI, dịch vụ chấm điểm Gemini chịu ràng buộc quota theo gói~\cite{gemini-pricing}, hệ thống trả về thông báo lỗi rõ ràng khi vượt giới hạn; mô hình nhận dạng giọng nói chạy trực tiếp trên máy chủ nên không bị bóp quota. Về xuất bản nội dung, chỉ bài học có trạng thái ``Xuất bản'' mới hiển thị cho người học; nội dung ``Nháp'' chỉ Admin được phép truy cập và chỉnh sửa.
+Về giới hạn AI, dịch vụ chấm điểm Gemini chịu ràng buộc quota theo gói~\cite{gemini-pricing}, hệ thống trả về thông báo lỗi rõ ràng khi vượt giới hạn; mô hình nhận dạng giọng nói chạy trực tiếp trên máy chủ nên không bị bóp quota. Về xuất bản nội dung, chỉ bài học có trạng thái ``Xuất bản'' mới hiển thị cho người học; nội dung ``Nháp'' chỉ admin được phép truy cập và chỉnh sửa.
 
 \begin{sloppypar}
 Về lưu trữ và bảo vệ dữ liệu, toàn bộ dữ liệu người dùng đặt trên PostgreSQL 16; file media (audio, ảnh) đẩy lên Cloudinary theo phân vùng riêng từng tài khoản, không chia sẻ chéo. Hệ thống tuân thủ Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân; audio Speaking lưu trữ tối thiểu hóa và xóa sau khi chấm điểm hoặc khi người dùng yêu cầu. Audio Speaking và bản viết Writing được gửi sang Gemini API (Google) phục vụ chấm điểm --- dữ liệu rời lãnh thổ Việt Nam tại bước này, hệ thống công khai điều này trong điều khoản sử dụng và chỉ truyền nội dung tối thiểu cần thiết cho việc chấm điểm, không kèm thông tin định danh người học.
@@ -114,7 +115,7 @@ Về lưu trữ và bảo vệ dữ liệu, toàn bộ dữ liệu người dùn
 
 \textbf{Bảo mật:} Thông tin tài khoản và mật khẩu người dùng phải được lưu trữ an toàn, không thể đọc được trực tiếp kể cả khi dữ liệu bị rò rỉ. Mọi trao đổi giữa người dùng và hệ thống phải được mã hóa. Hệ thống phải tự động phát hiện và ngăn chặn các hành vi dò mật khẩu hay truy cập bất thường. Dữ liệu cá nhân của người học không bị chia sẻ ra ngoài ngoài mục đích phục vụ việc học.
 
-\textbf{Hiệu năng:} Các thao tác thông thường như đăng nhập, mở bài học hay xem danh sách phải phản hồi trong vòng 3 giây. Việc chấm điểm Viết và Nói bằng AI được xử lý ở chế độ nền và trả kết quả trong vòng tối đa 5 phút, trong khi người học vẫn có thể tiếp tục dùng các chức năng khác. Hệ thống phải phục vụ ổn định cho ít nhất 100 người học truy cập cùng lúc mà không bị chậm hay gián đoạn.
+\textbf{Hiệu năng:} Các thao tác thông thường như đăng nhập, mở bài học hay xem danh sách phải phản hồi trong vòng 3 giây. Việc chấm điểm viết và nói bằng AI được xử lý ở chế độ nền và trả kết quả trong vòng tối đa 5 phút, trong khi người học vẫn có thể tiếp tục dùng các chức năng khác. Hệ thống phải phục vụ ổn định cho ít nhất 100 người học truy cập cùng lúc mà không bị chậm hay gián đoạn.
 
 \textbf{Tính ổn định và sẵn sàng:} Hệ thống cần hoạt động liên tục với thời gian hoạt động đạt tối thiểu 99\% mỗi tháng. Khi một thành phần xử lý gặp sự cố hoặc quá tải, hệ thống phải báo lỗi rõ ràng cho người dùng thay vì ngừng hoạt động, và các chức năng còn lại vẫn phải dùng được bình thường.
 
@@ -124,4 +125,4 @@ Về lưu trữ và bảo vệ dữ liệu, toàn bộ dữ liệu người dùn
 
 \textbf{Khả năng mở rộng và bảo trì:} Hệ thống phải được thiết kế để dễ dàng nâng cấp, bổ sung tính năng mới hoặc tăng khả năng phục vụ khi số lượng người dùng tăng lên, mà không phải xây dựng lại từ đầu.
 
-\textbf{Giới hạn của AI:} Kết quả chấm điểm Viết và Nói do AI đưa ra chỉ mang tính tham khảo, hỗ trợ người học tự luyện tập, không thay thế cho đánh giá của giám khảo IELTS chính thức; hệ thống cần nêu rõ điều này cho người dùng.
+\textbf{Giới hạn của AI:} Kết quả chấm điểm viết và nói do AI đưa ra chỉ mang tính tham khảo, hỗ trợ người học tự luyện tập, không thay thế cho đánh giá của giám khảo IELTS chính thức; hệ thống cần nêu rõ điều này cho người dùng.

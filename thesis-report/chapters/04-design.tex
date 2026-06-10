@@ -1,13 +1,14 @@
 % !TEX root = ../main.tex
 \chapter{THIẾT KẾ VÀ HIỆN THỰC}
+\thispagestyle{mainstyle}
 
 Dựa trên kết quả phân tích ở Chương~3, chương này trình bày cách hệ thống được hiện thực cụ thể: từ thiết kế cơ sở dữ liệu, kiến trúc phần mềm đến giao diện người dùng và kết quả kiểm thử. Toàn bộ hệ thống được xây dựng trên nền tảng NestJS~\cite{nestjs-docs}, Next.js~\cite{nextjs-docs} và React Native~\cite{reactnative-docs}.
 
 \section{Sơ đồ lớp}
 
-Để tăng tính rõ ràng, sơ đồ lớp được tách thành hai nhóm: nhóm \textbf{Core} phụ trách tài khoản và vận hành nền tảng; nhóm \textbf{IELTS} phụ trách toàn bộ nội dung và tiến độ học tập~\cite{fowler2002patterns}.
+Để tăng tính rõ ràng, sơ đồ lớp được tách thành hai nhóm: nhóm Core phụ trách tài khoản và vận hành nền tảng; nhóm IELTS phụ trách toàn bộ nội dung và tiến độ học tập~\cite{fowler2002patterns}.
 
-Nhóm Core tập trung vào quản lý tài khoản và xác thực. Lớp User là trung tâm, lưu các thông tin cơ bản như email, mật khẩu (mã hoá bằng bcrypt), họ tên, avatar và vai trò (STUDENT / INSTRUCTOR / ADMIN). Người dùng đăng nhập bằng Google OAuth sẽ không có trường mật khẩu. Danh tính được xác thực qua JWT. Lớp Subscription liên kết 1-1 với User để quản lý gói cước hiện tại (FREE / PREMIUM / PRO) và ngày hết hạn.
+Nhóm Core tập trung vào quản lý tài khoản và xác thực. Lớp User là trung tâm, lưu các thông tin cơ bản như email, mật khẩu (mã hoá bằng bcrypt), họ tên, avatar và vai trò (STUDENT / INSTRUCTOR / ADMIN). Người dùng đăng nhập bằng Google OAuth sẽ không có trường mật khẩu. Danh tính được xác thực qua JWT. Lớp Subscription liên kết 1-1 với User để quản lý gói cước hiện tại (Free / Premium / Pro) và ngày hết hạn.
 
 Nhóm IELTS chứa toàn bộ nội dung học tập, tổ chức theo từng giai đoạn trong lộ trình~\cite{fowler2002patterns}. Ở giai đoạn Basic, bốn kỹ năng được tách thành bốn lớp exercise riêng biệt (Listening, Reading, Writing, Speaking) kèm bảng tiến độ. Giai đoạn Advanced bổ sung thêm lớp Session để lưu lại từng lần luyện tập cùng điểm số phản hồi từ AI. Giai đoạn Intensive dùng lớp IeltsIntensiveSession để quản lý phiên thi thử với vòng đời trạng thái từ khi bắt đầu cho đến khi có kết quả chấm điểm. Ngoài ra, phân hệ Vocab Lab dùng lớp Flashcard với thuật toán nhắc lại FSRS (qua thư viện ts-fsrs) để giúp người học ghi nhớ từ vựng theo lịch tối ưu.
 
@@ -27,7 +28,7 @@ Nhóm IELTS chứa toàn bộ nội dung học tập, tổ chức theo từng gi
 
 \section{Sơ đồ cơ sở dữ liệu}
 
-Hệ thống dùng PostgreSQL~\cite{postgresql-docs} thông qua Prisma ORM~\cite{prisma-docs}. Cơ sở dữ liệu được lưu trữ trên \textbf{Supabase} — một dịch vụ PostgreSQL được quản lý sẵn, kết nối qua PgBouncer (port 6543) trong môi trường chạy thực và kết nối trực tiếp (port 5432) khi chạy migration. Toàn bộ schema được định nghĩa tập trung trong file schema.prisma với 66 model. Tương tự sơ đồ lớp, ERD cũng được tách thành hai nhóm để dễ đọc: nhóm \textbf{Core} và nhóm \textbf{IELTS}.
+Hệ thống dùng PostgreSQL~\cite{postgresql-docs} thông qua Prisma ORM~\cite{prisma-docs}. Cơ sở dữ liệu được lưu trữ trên Supabase — một dịch vụ PostgreSQL được quản lý sẵn, kết nối qua PgBouncer (port 6543) trong môi trường chạy thực và kết nối trực tiếp (port 5432) khi chạy migration. Toàn bộ schema được định nghĩa tập trung trong file schema.prisma với 66 model. Tương tự sơ đồ lớp, ERD cũng được tách thành hai nhóm để dễ đọc: nhóm Core và nhóm IELTS.
 
 Nhóm Core quản lý người dùng và các nghiệp vụ liên quan. Bảng users lưu thông tin tài khoản, trạng thái hoạt động và định danh Google OAuth. Kèm theo là các bảng subscriptions, pricing\_plans (gói cước), payments (thanh toán), notifications (thông báo) và student\_teacher\_links (liên kết học viên -- giáo viên). Sơ đồ ERD nhóm Core được trình bày trong hình~\ref{fig:erd-core}.
 
@@ -58,7 +59,7 @@ Ngoài ra, phân hệ Vocab Lab dùng các bảng decks, flashcards và flashcar
 
 \section{Sơ đồ kiến trúc phần mềm}
 
-Hệ thống được xây dựng theo kiến trúc \textbf{Event-driven Modular Monolith}~\cite{newman2015microservices}, gồm các thành phần chính như sau:
+Hệ thống được xây dựng theo kiến trúc event-driven modular monolith~\cite{newman2015microservices}, gồm các thành phần chính như sau:
 
 \begin{itemize}
     \item \textbf{NestJS Backend Core:} Toàn bộ nghiệp vụ được tổ chức thành 18 module trong một ứng dụng NestJS 10 duy nhất. Các module giao tiếp nội bộ qua Dependency Injection, giúp dễ bảo trì mà không cần phân tán thành nhiều service riêng lẻ.
@@ -78,7 +79,7 @@ Hệ thống được xây dựng theo kiến trúc \textbf{Event-driven Modular
 
 \subsection{Sơ đồ luồng màn hình website}
 
-Trên nền tảng Web, người dùng bắt đầu từ trang chủ Landing Page, đăng nhập hoặc đăng ký tài khoản, rồi vào Dashboard chính. Tại đây, người học theo lộ trình từ Foundation (xây dựng nền tảng từ vựng, ngữ pháp, phát âm), qua Basic (làm quen bốn kỹ năng cơ bản), Advanced (luyện chuyên sâu với phản hồi từ AI), đến Intensive (thi thử sát thực tế). Ngoài ra còn có các công cụ bổ trợ như Vocab Lab (sổ tay từ vựng cá nhân), Dictation, Shadowing, Community, Roadmap và trang Thống kê để theo dõi tiến độ. Người quản lý có nhánh riêng vào Admin Dashboard với các chức năng quản lý nội dung, đề thi và tài khoản học viên.
+Trên nền tảng web, người dùng bắt đầu từ trang chủ landing page, đăng nhập hoặc đăng ký tài khoản, rồi vào dashboard chính. Tại đây, người học theo lộ trình từ Foundation (xây dựng nền tảng từ vựng, ngữ pháp, phát âm), qua Basic (làm quen bốn kỹ năng cơ bản), Advanced (luyện chuyên sâu với phản hồi từ AI), đến Intensive (thi thử sát thực tế). Ngoài ra còn có các công cụ bổ trợ như Vocab Lab (sổ tay từ vựng cá nhân), Dictation, Shadowing, Community, Roadmap và trang Thống kê để theo dõi tiến độ. Người quản lý có nhánh riêng vào admin dashboard với các chức năng quản lý nội dung, đề thi và tài khoản học viên.
 
 \begin{figure}[H]
     \centering
@@ -89,7 +90,7 @@ Trên nền tảng Web, người dùng bắt đầu từ trang chủ Landing Pag
 
 \subsection{Sơ đồ luồng màn hình mobile}
 
-Trên nền tảng Mobile (React Native), cấu trúc điều hướng sử dụng Tab Navigation ở tầng dưới cùng với 5 tab hiển thị: \textbf{Home} (Trang chủ), \textbf{Explore} (Khám phá), \textbf{IELTS} (trung tâm học tập), \textbf{Community} (Cộng đồng) và \textbf{Profile} (Hồ sơ). Các màn hình chuyên biệt như Vocab Lab, Shadowing, Pronunciation, Vocabulary, Grammar và More được truy cập qua điều hướng nội bộ từ tab IELTS và Home, không hiển thị trực tiếp trên thanh tab. Các màn hình con được quản lý bằng Stack Navigator tích hợp trong Expo Router.
+Trên nền tảng di động (mobile) (React Native), cấu trúc điều hướng sử dụng tab navigation ở tầng dưới cùng với 5 tab hiển thị: Home (Trang chủ), Explore (Khám phá), IELTS (trung tâm học tập), Community (Cộng đồng) và Profile (Hồ sơ). Các màn hình chuyên biệt như Vocab Lab, Shadowing, Pronunciation, Vocabulary, Grammar và More được truy cập qua điều hướng nội bộ từ tab IELTS và Home, không hiển thị trực tiếp trên thanh tab. Các màn hình con được quản lý bằng stack navigator tích hợp trong Expo Router.
 
 \begin{figure}[H]
     \centering
@@ -100,27 +101,27 @@ Trên nền tảng Mobile (React Native), cấu trúc điều hướng sử dụ
 
 \section{Giao diện chương trình}
 
-Phần này trình bày 13 giao diện tiêu biểu của hệ thống trên nền tảng Web, sắp xếp theo hành trình người dùng từ khi lần đầu truy cập cho đến khi sử dụng các tính năng học tập chuyên sâu.
+Phần này trình bày 13 giao diện tiêu biểu của hệ thống trên nền tảng web, sắp xếp theo hành trình người dùng từ khi lần đầu truy cập cho đến khi sử dụng các tính năng học tập chuyên sâu.
 
-\subsection{Giao diện trang chủ (Landing Page)}
+\subsection{Giao diện trang chủ (landing page)}
 
 Trang chủ là màn hình đầu tiên người dùng nhìn thấy khi truy cập hệ thống. Giao diện truyền tải thông điệp \textit{``Master English, Ace IELTS, Smarter with AI''} qua bố cục hiện đại với hình ảnh minh hoạ sinh động và hiệu ứng hoạt hình nhẹ. Nút ``START LEARNING'' đặt nổi bật ở trung tâm để khuyến khích người dùng bắt đầu ngay. Khi nhấn vào đó, hệ thống đưa người dùng thẳng vào phân hệ học tập chính. Giao diện trang chủ được trình bày trong hình~\ref{fig:ui-landing}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{4.5. Program Interface/images/01-homepage.png}
-    \caption{Giao diện trang chủ (Landing Page)}
+    \caption{Giao diện trang chủ (landing page)}
     \label{fig:ui-landing}
 \end{figure}
 
-\subsection{Giao diện Dashboard người học}
+\subsection{Giao diện dashboard người học}
 
-IELTS Dashboard là hub điều phối chính của người học. Mọi tiến độ luyện thi đều quy tụ về đây. Trục xương sống của trang là Learning Roadmap chia thành bốn giai đoạn tăng dần: Foundation (xây nền từ vựng, ngữ pháp, phát âm), Basic (nắm bốn kỹ năng cơ bản), Advanced (luyện sâu từng dạng câu hỏi với AI) và Intensive (thi thử sát thực tế). Bên cạnh thanh tiến độ và Quick Stats tổng quan, Dashboard còn là điểm truy cập tới các công cụ bổ trợ (Tools \& Features) quan trọng: lộ trình học cá nhân hóa, Band Score Calculator, liên kết Student/Teacher để giáo viên theo dõi tiến độ học viên, cùng hệ thống Statistics chi tiết --- giúp người học khoanh trúng kỹ năng còn yếu. Giao diện Dashboard được trình bày trong hình~\ref{fig:ui-dashboard}.
+IELTS dashboard là hub điều phối chính của người học. Mọi tiến độ luyện thi đều quy tụ về đây. Trục xương sống của trang là Learning Roadmap chia thành bốn giai đoạn tăng dần: Foundation (xây nền từ vựng, ngữ pháp, phát âm), Basic (nắm bốn kỹ năng cơ bản), Advanced (luyện sâu từng dạng câu hỏi với AI) và Intensive (thi thử sát thực tế). Bên cạnh thanh tiến độ và Quick Stats tổng quan, dashboard còn là điểm truy cập tới các công cụ bổ trợ (Tools \& Features) quan trọng: lộ trình học cá nhân hóa, Band Score Calculator, liên kết Student/Teacher để giáo viên theo dõi tiến độ học viên, cùng hệ thống Statistics chi tiết --- giúp người học khoanh trúng kỹ năng còn yếu. Giao diện dashboard được trình bày trong hình~\ref{fig:ui-dashboard}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{4.5. Program Interface/images/02-ielts-dashboard.png}
-    \caption{Giao diện Dashboard người học}
+    \caption{Giao diện dashboard người học}
     \label{fig:ui-dashboard}
 \end{figure}
 
@@ -148,7 +149,7 @@ Trang Vocabulary thuộc giai đoạn Foundation, mở thư viện sách từ v�
 
 \subsection{Giao diện luyện Listening cơ bản (Basic Listening)}
 
-Trang IELTS Basic Listening Exercise là giao diện làm bài tập thực hành kỹ năng Nghe ở giai đoạn cơ bản. Trải nghiệm người dùng ở đây tập trung vào việc nghe audio và tương tác trả lời câu hỏi theo các định dạng bài thi quen thuộc (như điền từ, trắc nghiệm). Sau khi nộp bài, hệ thống sẽ tự động chấm điểm và cung cấp phản hồi (đáp án đúng, transcript) ngay lập tức để học viên rút kinh nghiệm và củng cố kỹ năng nghe cho từng dạng bài cụ thể. Giao diện luyện Listening cơ bản được trình bày trong hình~\ref{fig:ui-listening-basic}.
+Trang IELTS Basic Listening Exercise là giao diện làm bài tập thực hành kỹ năng nghe ở giai đoạn cơ bản. Trải nghiệm người dùng ở đây tập trung vào việc nghe audio và tương tác trả lời câu hỏi theo các định dạng bài thi quen thuộc (như điền từ, trắc nghiệm). Sau khi nộp bài, hệ thống sẽ tự động chấm điểm và cung cấp phản hồi (đáp án đúng, transcript) ngay lập tức để học viên rút kinh nghiệm và củng cố kỹ năng nghe cho từng dạng bài cụ thể. Giao diện luyện Listening cơ bản được trình bày trong hình~\ref{fig:ui-listening-basic}.
 
 \begin{figure}[H]
     \centering
@@ -288,6 +289,7 @@ Ba mươi lăm file spec của backend-core được tổ chức thành 18 nhóm
 
 % 5 cột p{}, divisor=100: 4+18+32+6+40; -4pt buffer cho rounding
 \setlength{\tbu}{\dimexpr(\linewidth - 10\tabcolsep - 6\arrayrulewidth - 4pt)/100\relax}
+{\small
 \begin{longtable}{|p{4\tbu}|p{18\tbu}|p{32\tbu}|p{6\tbu}|p{40\tbu}|}
     \caption{Phạm vi kiểm thử backend-core}
     \label{tab:test_scope} \\
@@ -323,7 +325,7 @@ Ba mươi lăm file spec của backend-core được tổ chức thành 18 nhóm
 
     10 & Gamification -- XP và thành tích (gamification) & gamification.service.spec.ts & 10 & Tạo XpLog, cập nhật totalXp, thông báo lên level, grant achievement, không tạo trùng \\ \hline
 
-    11 & Bài thi thử IELTS Intensive (exams) & exams-submit.spec.ts\newline result-callback.spec.ts & 10 & Submit + dispatch publishGradingTask, quota guard cho gói FREE, HMAC signature callback từ AI worker, idempotency \\ \hline
+    11 & Bài thi thử IELTS Intensive (exams) & exams-submit.spec.ts\newline result-callback.spec.ts & 10 & Submit + dispatch publishGradingTask, quota guard cho gói Free, HMAC signature callback từ AI worker, idempotency \\ \hline
 
     12 & Polling kết quả chấm AI (results) & results.spec.ts & 6 & Trạng thái GRADING/GRADED/GRADING\_\allowbreak{}FAILED; bảo vệ IDOR (trả 404 ẩn existence) \\ \hline
 
@@ -339,6 +341,7 @@ Ba mươi lăm file spec của backend-core được tổ chức thành 18 nhóm
 
     18 & E2E -- xác thực và quản trị IELTS (test/e2e) & auth.e2e-spec.ts\newline admin-ielts.e2e-spec.ts & 33 & Postgres thật trên schema test. Luồng register/login/refresh kèm token hết hạn, token giả mạo chữ ký, đăng ký trùng email (12 TC); golden test cho luồng quản trị nội dung IELTS: hợp lệ hóa đề, chống trùng commit, gộp nhóm câu hỏi, chuẩn hóa và chấm điểm đối chiếu Listening/Reading (21 TC) \\ \hline
 \end{longtable}
+}
 
 Hai nhóm Edge case (STT~14) và Security (STT~15) không gắn với một mô-đun đơn lẻ mà kiểm thử xuyên suốt nhiều endpoint, tập trung vào các loại lỗi thường gặp như IDOR (Insecure Direct Object Reference), kiểm tra giá trị biên và phân trang bất thường. Nhóm Subscription (STT~13) bao gồm cả webhook IPN của cổng thanh toán VNPay (một luồng tích hợp với hệ thống bên ngoài) nên được tách thành ba file spec để phân tách trách nhiệm: kiểm thử webhook, lifecycle service và cron downgrade.
 
@@ -346,10 +349,11 @@ Hai nhóm Edge case (STT~14) và Security (STT~15) không gắn với một mô-
 
 Sau khi hoàn thiện hệ thống, toàn bộ 255 test case unit/integration cùng 33 test case E2E --- tổng cộng 288 test case --- được thực thi tự động qua hai lệnh: npm test (cho unit/integration, đồng thời kích hoạt custom reporter sinh báo cáo Markdown) và npm run test:e2e (cho E2E). Cả hai lệnh đều chạy trên Jest và ghi log chi tiết per-test vào tài liệu auto-generated docs/testing/test-results.md. Ở lần chạy gần nhất (04/06/2026), toàn bộ 255 test case unit/integration thuộc 33 test suite đều đạt trạng thái \textbf{Pass} sau khoảng 8,4 giây; 33 test case E2E (chạy trên PostgreSQL schema test) cũng đạt \textbf{Pass} hoàn toàn sau khoảng 5,4 giây --- đạt tỷ lệ thành công 288/288 (100\%). Bảng~\ref{tab:testcase_result} tổng hợp kết quả theo từng nhóm chức năng đã định nghĩa ở phạm vi kiểm thử; chi tiết per-test có thể đối chiếu trong tài liệu docs/testing/test-results.md đính kèm với mã nguồn.
 
-\renewcommand{\arraystretch}{1.2}
-% 8 cột p{}, divisor=100: 4+28+8+8+8+10+20+14; -4pt buffer cho rounding
+\renewcommand{\arraystretch}{1.1}
+% 8 cột p{}, divisor=100: 4+28+8+8+8+10+16+18; -4pt buffer cho rounding
 \setlength{\tbu}{\dimexpr(\linewidth - 16\tabcolsep - 9\arrayrulewidth - 4pt)/100\relax}
-\begin{longtable}{|p{4\tbu}|p{28\tbu}|p{8\tbu}|p{8\tbu}|p{8\tbu}|p{10\tbu}|p{20\tbu}|p{14\tbu}|}
+{\small
+\begin{longtable}{|p{4\tbu}|p{28\tbu}|p{8\tbu}|p{8\tbu}|p{8\tbu}|p{10\tbu}|p{16\tbu}|p{18\tbu}|}
     \caption{Tổng hợp kết quả kiểm thử theo nhóm}
     \label{tab:testcase_result} \\
     \hline
@@ -384,6 +388,7 @@ Sau khi hoàn thiện hệ thống, toàn bộ 255 test case unit/integration c�
     18 & E2E (xác thực + quản trị IELTS) & 33 & 33 & 0 & 100\% & Auto (Jest) & 04/06/2026 \\ \hline
     \multicolumn{2}{|r|}{\textbf{Tổng cộng}} & \textbf{288} & \textbf{288} & \textbf{0} & \textbf{100\%} & \multicolumn{2}{c|}{Auto (Jest)} \\ \hline
 \end{longtable}
+}
 
 Kết quả khẳng định backend-core đáp ứng đầy đủ các yêu cầu nghiệp vụ đặc tả ở chương~3 --- ràng buộc bảo mật (IDOR, JWT lifecycle), tính nhất quán cấp cơ sở dữ liệu (unique email, ownership deck/note/post) và tính chính xác của các luồng tích hợp ngoài như VNPay IPN và AI grading callback đều giữ vững. Quá trình kiểm thử cũng chủ động ghi nhận năm khe hở nhỏ --- là các trường hợp hiện vẫn ``pass'' theo hành vi mặc định nhưng được đánh dấu để cải thiện ở phiên bản sau: (i) JwtStrategy.validate() trả về undefined cho trường sub hoặc role khi token thiếu các trường này, thay vì ném UnauthorizedException (TC\_JWT\_04, TC\_JWT\_05); (ii) điểm phát âm bằng 101 vẫn được chấp nhận do DTO thiếu ràng buộc @Max(100) (TC\_BOUND\_03); (iii) bài đăng kèm 11 ảnh vẫn được chấp nhận do thiếu @ArrayMaxSize(10) (TC\_BOUND\_08); và (iv) tài khoản quản trị chưa được phép xóa bài của người dùng khác --- hiện trả 403 thay vì 200 do cơ chế admin bypass chưa được hiện thực (TC\_SEC\_08). Nhật ký per-test của toàn bộ 288 test case được lưu trong tài liệu auto-generated docs/testing/test-results.md đính kèm với mã nguồn, phục vụ tra cứu và kiểm chứng.
 

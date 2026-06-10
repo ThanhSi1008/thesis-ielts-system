@@ -1,5 +1,6 @@
 % !TEX root = ../main.tex
 \chapter{CƠ SỞ LÝ THUYẾT}
+\thispagestyle{mainstyle}
 
 \section{Lý thuyết học ngôn ngữ và đánh giá kỹ năng tự động}
 
@@ -63,7 +64,7 @@ Toàn bộ stack của đồ án --- từ backend (NestJS) đến frontend web (
 
 Python là ngôn ngữ bậc cao đa mục đích, ra mắt năm 1991 và đứng đầu chỉ số TIOBE 2024~\cite{python-docs}. Ưu thế của Python nằm ở mảng AI/ML nhờ hệ sinh thái thư viện phong phú: NumPy, PyTorch, Transformers, Whisper và các framework inference như CTranslate2.
 
-Đồ án dùng Python cho \textbf{Backend AI Worker} --- microservice gánh toàn bộ AI inference:
+Đồ án dùng Python cho backend AI worker --- microservice gánh toàn bộ AI inference:
 
 \begin{itemize}
     \item \textbf{Hỗ trợ AI/ML độc quyền:} Python là ngôn ngữ duy nhất được faster-whisper (CTranslate2) và eng-to-ipa (IPA conversion) hỗ trợ đầy đủ --- không thể thay thế bằng TypeScript\slash Node.js cho các tác vụ AI inference này.
@@ -149,7 +150,7 @@ Gemini là dòng mô hình ngôn ngữ lớn đa phương thức (multimodal LLM
     \item \textbf{Đánh giá Speaking:} Sau khi faster-whisper chuyển đổi giọng nói thành transcript, Gemini phân tích để đánh giá theo bốn tiêu chí chấm điểm IELTS Speaking: Fluency \& Coherence, Lexical Resource, Grammatical Range \& Accuracy và Pronunciation.
 \end{itemize}
 
-Lý do chọn Gemini 2.5 Flash thay vì các mô hình thương mại lớn cùng phân khúc (GPT-4o, Claude Sonnet 4.6): chi phí mỗi triệu token thấp hơn đáng kể trong nhóm flash/haiku/mini, phù hợp khối lượng chấm điểm Writing/Speaking lặp lại nhiều lần trên ngân sách khóa luận; tích hợp liền mạch với hệ sinh thái Google Cloud qua thư viện google-genai và có endpoint trong khu vực asia-southeast1, kéo độ trễ xuống cho người dùng; context window đủ dài để gửi cả đề bài, bài viết và rubric trong một lần gọi mà không bị cắt ngữ cảnh. Mặt trái: chấm điểm bằng LLM có thể không nhất quán giữa các lần gọi (consistency limitation) --- vì vậy kết quả từ Gemini được trình bày dưới dạng band ước tính kèm cảnh báo ngay trên giao diện. Trợ lý AI vận hành trên Gemini API trong hệ thống được đặt tên là \textbf{Lexon AI}, đóng vai trò trợ lý tra cứu từ vựng và hội thoại học tập nhúng vào giao diện người dùng.
+Lý do chọn Gemini 2.5 Flash thay vì các mô hình thương mại lớn cùng phân khúc (GPT-4o, Claude Sonnet 4.6): chi phí mỗi triệu token thấp hơn đáng kể trong nhóm flash/haiku/mini, phù hợp khối lượng chấm điểm Writing/Speaking lặp lại nhiều lần trên ngân sách khóa luận; tích hợp liền mạch với hệ sinh thái Google Cloud qua thư viện google-genai và có endpoint trong khu vực asia-southeast1, kéo độ trễ xuống cho người dùng; context window đủ dài để gửi cả đề bài, bài viết và rubric trong một lần gọi mà không bị cắt ngữ cảnh. Mặt trái: chấm điểm bằng LLM có thể không nhất quán giữa các lần gọi (consistency limitation) --- vì vậy kết quả từ Gemini được trình bày dưới dạng band ước tính kèm cảnh báo ngay trên giao diện. Trợ lý AI vận hành trên Gemini API trong hệ thống được đặt tên là Lexon AI, đóng vai trò trợ lý tra cứu từ vựng và hội thoại học tập nhúng vào giao diện người dùng.
 
 \subsection{faster-whisper}
 
@@ -220,7 +221,7 @@ IELTS Master English (Lexon) tích hợp OpenTelemetry xuyên hệ thống để
 
 PostgreSQL là RDBMS mã nguồn mở hiệu năng cao, ra đời năm 1986 tại Đại học California Berkeley và duy trì bởi cộng đồng PostgreSQL Global Development Group~\cite{postgresql-docs}. Theo Stack Overflow Developer Survey 2024, đây là cơ sở dữ liệu được yêu thích nhất trong 5 năm liên tiếp, với trên 49\% developer chuyên nghiệp sử dụng~\cite{stackoverflow-survey-2024}; ưu thế đến từ tính ổn định, tuân thủ chuẩn SQL nghiêm ngặt và hỗ trợ nhiều kiểu dữ liệu phức tạp (JSON, Array, Full-text search).
 
-Đồ án triển khai PostgreSQL 16 trên nền tảng \textbf{Supabase}~\cite{supabase-docs} --- dịch vụ cơ sở dữ liệu quản lý đám mây dựng trên PostgreSQL mã nguồn mở, kèm connection pooling tự động qua PgBouncer. Prisma ORM kết nối Supabase theo hai chế độ: pooler port 6543 với tham số pgbouncer=true cho query thông thường (tối ưu số kết nối đồng thời), và direct port 5432 cho Prisma Migrate (yêu cầu kết nối trực tiếp khi thay đổi schema).
+Đồ án triển khai PostgreSQL 16 trên nền tảng Supabase~\cite{supabase-docs} --- dịch vụ cơ sở dữ liệu quản lý đám mây dựng trên PostgreSQL mã nguồn mở, kèm connection pooling tự động qua PgBouncer. Prisma ORM kết nối Supabase theo hai chế độ: pooler port 6543 với tham số pgbouncer=true cho query thông thường (tối ưu số kết nối đồng thời), và direct port 5432 cho Prisma Migrate (yêu cầu kết nối trực tiếp khi thay đổi schema).
 
 Schema gồm 66 model định nghĩa trong schema.prisma và quản lý bằng Prisma Migrate. Các domain chính: User Management, IELTS Learning (Foundation\slash Basic\slash Advanced\slash Intensive), Vocabulary \& Grammar, nghe và nói đuổi (Shadowing) \& nghe chép chính tả (Dictation), Vocab Lab (FSRS), Community, Gamification và Subscriptions.
 
@@ -262,7 +263,7 @@ Trong IELTS Master English (Lexon), luồng thanh toán gói cước (Subscripti
 
 Microservices chia ứng dụng thành nhiều service nhỏ, độc lập, mỗi service phụ trách một domain và có thể deploy riêng \cite{newman2015microservices}. Đổi lại, kiến trúc này kèm chi phí vận hành đáng kể: service discovery, distributed tracing, độ trễ mạng giữa các service.
 
-IELTS Master English (Lexon) chọn cách tiếp cận thực dụng hơn --- \textbf{Event-driven Modular Monolith}:
+IELTS Master English (Lexon) chọn cách tiếp cận thực dụng hơn --- event-driven modular monolith:
 
 \begin{itemize}
     \item \textbf{NestJS Backend Core} là một ứng dụng monolith có module hóa (Modular Monolith) chứa 17 feature module (auth, users, exams, results, ielts, vocabulary, vocab-lab, grammar, shadowing, dictation, pronunciation, learning, notes, gamification, notifications, posts, subscriptions) giao tiếp nội bộ qua Dependency Injection. Toàn bộ chạy trong một process duy nhất, đơn giản hóa deployment và debug.
@@ -278,13 +279,12 @@ REST (Representational State Transfer) là phong cách kiến trúc cho hệ th�
 \section{Hosting và triển khai}
 
 Hệ thống deploy trên Google Cloud Platform (GCP), khu vực asia-southeast1 (Singapore), kết hợp các dịch vụ quản lý đám mây từ nhiều nhà cung cấp chuyên biệt:
-
 \begin{itemize}
-    \item \textbf{Google Cloud Run:} Deploy Next.js web frontend dưới dạng managed container, tự động scale theo lưu lượng truy cập.
-    \item \textbf{GCP VM (n2-standard-4):} Chạy Docker Compose với ba container: nginx (reverse proxy + SSL termination bằng Let's Encrypt), backend-core (NestJS) và backend-ai (FastAPI). nginx định tuyến /api/v1/ đến NestJS:3000 và /ai/ đến FastAPI:8000.
-    \item \textbf{Supabase:} Cơ sở dữ liệu PostgreSQL 16 quản lý đám mây~\cite{supabase-docs}. NestJS kết nối qua PgBouncer pooler (port 6543) cho query và direct connection (port 5432) cho migration.
-    \item \textbf{Upstash:} Redis serverless, kết nối TLS từ NestJS~\cite{redis-docs}. Loại bỏ overhead vận hành Redis instance tự quản lý trong môi trường container cloud.
-    \item \textbf{CloudAMQP:} RabbitMQ managed service~\cite{rabbitmq-docs}, kết nối từ cả NestJS và FastAPI qua AMQPS (TLS). Đảm bảo độ tin cậy message queue mà không cần tự vận hành RabbitMQ server.
-    \item \textbf{Google Cloud Storage (GCS) \& Cloudinary:} Cloudinary được sử dụng để lưu trữ và tối ưu hoá ảnh cũng như file audio ghi âm của người dùng. Google Cloud Storage (GCS) chỉ đóng vai trò lưu trữ các file audio được hệ thống sinh ra tự động qua Google Cloud Text-to-Speech (GoogleTTS).
-    \item \textbf{GitHub Actions CI/CD:} Pipeline tự động phát hiện service nào thay đổi (path filter), build Docker image, push lên Google Container Registry (GCR), và deploy: frontend qua gcloud run deploy, backend qua SSH + docker compose pull \&\& up.
+    \item \textbf{Google Cloud Run:} Deploy frontend Next.js dưới dạng managed container, tự động scale theo lưu lượng truy cập.
+    \item \textbf{GCP VM (n2-standard-4):} Chạy Docker Compose gồm ba container: nginx (reverse proxy + SSL), NestJS backend và FastAPI AI worker. nginx định tuyến cuộc gọi vào các cổng tương ứng.
+    \item \textbf{Supabase:} Database PostgreSQL 16 đám mây~\cite{supabase-docs}, kết nối qua PgBouncer pooler (port 6543) cho query và kết nối trực tiếp (port 5432) cho migration.
+    \item \textbf{Upstash:} Redis serverless lưu cache và cấu hình rate limiting, kết nối TLS từ NestJS~\cite{redis-docs} giúp tối ưu hóa vận hành.
+    \item \textbf{CloudAMQP:} RabbitMQ managed service~\cite{rabbitmq-docs}, định tuyến tin nhắn chấm điểm bất đồng bộ qua giao thức AMQPS (TLS) bảo mật.
+    \item \textbf{GCS \& Cloudinary:} Cloudinary lưu trữ và tối ưu hóa ảnh/audio của người học. Google Cloud Storage (GCS) lưu trữ các file audio hệ thống tự động tạo qua Google TTS.
+    \item \textbf{GitHub Actions CI/CD:} Pipeline tự động build Docker image, push lên Google Container Registry (GCR) và tự động cập nhật deploy lên Cloud Run cùng VM qua SSH.
 \end{itemize}

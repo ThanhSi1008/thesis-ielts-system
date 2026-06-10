@@ -33,12 +33,23 @@
 % Cấu hình lề trang
 \usepackage[
   paper=a4paper,
-  top=2.5cm, bottom=2.5cm, left=3.5cm, right=2.5cm,
+  top=3cm, bottom=3cm, left=3.5cm, right=2cm,
   headheight=15pt
 ]{geometry}
 
 \usepackage{setspace}
-\setstretch{1.3}
+\setstretch{1.5}
+
+% Cấu hình ngăn chặn tràn lề (Overfull \hbox)
+\emergencystretch 3em
+\let\oldunderscore\_
+\renewcommand{\_}{\oldunderscore\allowbreak}
+
+% Cấu hình hiển thị tiêu đề hình vẽ/bảng biểu (cỡ chữ bằng cỡ chữ văn bản, nhãn in đậm)
+\usepackage[font=normalsize,labelfont=bf]{caption}
+
+% Giới hạn mục lục chỉ đưa đến nhóm tiểu mục thứ 3 (X.Y.Z)
+\setcounter{tocdepth}{2}
 
 % Các gói tiện ích
 \usepackage{amsmath, amssymb}
@@ -50,6 +61,7 @@
 \usepackage{fancyhdr}
 \usepackage{hyperref}
 \hypersetup{urlcolor=blue,linkcolor=black,citecolor=black,colorlinks=true}
+\usepackage{xurl}
 
 % Cấu hình Bibliography
 % Lưu ý: load language=english để biblatex chạy ổn định trên nền tảng english
@@ -60,6 +72,11 @@
     language=english
 ]{biblatex}
 \addbibresource{references.bib}
+
+% Cho phép ngắt dòng URL/DOI tại các ký tự chữ và số trong bibliography
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{8000}
+\setcounter{biburlnumpenalty}{9000}
 
 % --- DỊCH THỦ CÔNG CÁC TỪ KHÓA BIBLATEX ---
 % Ta định nghĩa lại các từ của 'english' thành tiếng Việt
@@ -120,6 +137,28 @@
         \end{tabular}
     }
     \fancyfoot[C]{\thepage}
+    \renewcommand{\headrulewidth}{0.5pt}
+    \renewcommand{\footrulewidth}{0.5pt}
+}
+
+% Style cho phần Phụ lục (không đánh số trang)
+\fancypagestyle{appendixstyle}{
+    \fancyhf{}
+    \fancyhead[L]{\small \textit{Khóa luận tốt nghiệp ngành Kỹ thuật phần mềm}}
+    \fancyhead[R]{\small \textit{Hệ thống học và luyện thi IELTS}}
+    \fancyfoot[L]{
+        \begin{tabular}{@{}l@{}}
+            \small \textit{Lai Thanh Sĩ} \\[-2pt]
+            \small \textit{Phạm Đức Tài}
+        \end{tabular}
+    }
+    \fancyfoot[R]{
+        \begin{tabular}{@{}r@{}}
+            \small \textit{DHKTPM18B} \\[-2pt]
+            \small \textit{DHKTPM18A}
+        \end{tabular}
+    }
+    \fancyfoot[C]{} % Không đánh số trang phần phụ lục
     \renewcommand{\headrulewidth}{0.5pt}
     \renewcommand{\footrulewidth}{0.5pt}
 }
@@ -203,7 +242,7 @@
 % PHỤ LỤC
 % --------------------------------------------------
 \newpage
-\pagestyle{frontmatter}
+\pagestyle{appendixstyle}
 \appendix
 \renewcommand{\thechapter}{\Alph{chapter}}
 \setcounter{chapter}{0}
