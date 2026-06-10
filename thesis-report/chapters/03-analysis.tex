@@ -288,35 +288,42 @@ Phần này trình bày đặc tả chi tiết cho 11 use case được lựa ch
 \subsection{Đăng ký tài khoản (UC01)}
 Bảng~\ref{tab:uc01_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc01} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc01} và hình~\ref{fig:sequence-uc01-gg} thể hiện sơ đồ tuần tự cho hai luồng đăng ký bằng email và Google OAuth.
 \subsubsection{Mô tả use case}
-\begin{table}[H]
-    \centering
-    \renewcommand{\arraystretch}{1.3}
-    \begin{tabularx}{\linewidth}{|X|X|}
-        \hline
-        \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC01} \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người dùng chưa có tài khoản và đang ở màn hình Đăng ký.} \\ \hline
-        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Tài khoản được tạo thành công; hệ thống tự động đăng nhập, cấp JWT access token và chuyển người học đến trang Home (áp dụng cho cả hai luồng Email và Google).} \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
-        \textbf{Actor} & \textbf{Hệ thống} \\ \hline
-        1a. Nhập Họ và tên, Email, Mật khẩu (tối thiểu 6 ký tự) và Xác nhận mật khẩu vào form, sau đó nhấn ``Create Account''. & \\ \hline
-        & 2a. Kiểm tra tất cả các trường đã điền và mật khẩu xác nhận khớp nhau. \\ \hline
-        & 3a. Kiểm tra định dạng email và xác nhận email chưa tồn tại trong cơ sở dữ liệu. \\ \hline
-        & 4a. Băm mật khẩu, tạo tài khoản với vai trò người học và khởi tạo bộ thẻ từ vựng mặc định. \\ \hline
-        & 5a. Đăng ký thành công; hệ thống tự động đăng nhập, cấp JWT access token và chuyển người học đến trang Home. Kết thúc use-case. \\ \hline
-        1b. Nhấn ``Continue with Google'' và chọn tài khoản Google. & \\ \hline
-        & 2b. Xác thực thông tin Google OAuth; tạo hoặc liên kết tài khoản từ thông tin Google (email, họ tên, ảnh đại diện), tạo tài khoản với vai trò người học và khởi tạo bộ thẻ mặc định. \\ \hline
-        & 3b. Cấp JWT access token và chuyển đến trang Home. Kết thúc use-case. \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
-        & 2a.1. Một hoặc nhiều trường bỏ trống hoặc mật khẩu không khớp: thông báo lỗi tương ứng, không gửi yêu cầu lên máy chủ. Quay lại bước 1a. \\ \hline
-        & 3a.1. Email đã tồn tại trong hệ thống: máy chủ trả về thông báo ``Email đã tồn tại''. Quay lại bước 1a. \\ \hline
-        1b.1. Hủy đăng ký hoặc xác thực Google thất bại. & \\ \hline
-        & 1b.2. Hiển thị thông báo lỗi, không tạo tài khoản. \\ \hline
-    \end{tabularx}
-    \caption{Đặc tả chức năng Đăng ký tài khoản (UC01)}
-    \label{tab:uc01_spec}
-\end{table}
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tbu}{\dimexpr(\linewidth - 4\tabcolsep - 3\arrayrulewidth)/2\relax}
+\begin{longtable}{|p{\tbu}|p{\tbu}|}
+    \caption{Đặc tả chức năng Đăng ký tài khoản (UC01)} \label{tab:uc01_spec} \\
+    \hline
+    \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC01} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{Tiền điều kiện (Pre-condition):} Người dùng chưa có tài khoản và đang ở màn hình Đăng ký.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{Hậu điều kiện (Post-condition):} Tài khoản được tạo thành công; hệ thống tự động đăng nhập, cấp JWT access token và chuyển người học đến trang Home (áp dụng cho cả hai luồng Email và Google).} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endfirsthead
+    \multicolumn{2}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endhead
+    \hline
+    \multicolumn{2}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    1a. Nhập Họ và tên, Email, Mật khẩu (tối thiểu 6 ký tự) và Xác nhận mật khẩu vào form, sau đó nhấn ``Create Account''. & \\ \hline
+    & 2a. Kiểm tra tất cả các trường đã điền và mật khẩu xác nhận khớp nhau. \\ \hline
+    & 3a. Kiểm tra định dạng email và xác nhận email chưa tồn tại trong cơ sở dữ liệu. \\ \hline
+    & 4a. Băm mật khẩu, tạo tài khoản với vai trò người học và khởi tạo bộ thẻ từ vựng mặc định. \\ \hline
+    & 5a. Đăng ký thành công; hệ thống tự động đăng nhập, cấp JWT access token và chuyển người học đến trang Home. Kết thúc use-case. \\ \hline
+    1b. Nhấn ``Continue with Google'' và chọn tài khoản Google. & \\ \hline
+    & 2b. Xác thực thông tin Google OAuth; tạo hoặc liên kết tài khoản từ thông tin Google (email, họ tên, ảnh đại diện), tạo tài khoản với vai trò người học và khởi tạo bộ thẻ mặc định. \\ \hline
+    & 3b. Cấp JWT access token và chuyển đến trang Home. Kết thúc use-case. \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
+    & 2a.1. Một hoặc nhiều trường bỏ trống hoặc mật khẩu không khớp: thông báo lỗi tương ứng, không gửi yêu cầu lên máy chủ. Quay lại bước 1a. \\ \hline
+    & 3a.1. Email đã tồn tại trong hệ thống: máy chủ trả về thông báo ``Email đã tồn tại''. Quay lại bước 1a. \\ \hline
+    1b.1. Hủy đăng ký hoặc xác thực Google thất bại. & \\ \hline
+    & 1b.2. Hiển thị thông báo lỗi, không tạo tài khoản. \\ \hline
+\end{longtable}
 
 \subsubsection{Sơ đồ activity}
 \begin{figure}[H]
@@ -354,32 +361,39 @@ Luồng Google OAuth phục vụ đa nền tảng (Web, iOS, Android) với cùn
 \subsection{Đăng nhập (UC02)}
 Bảng~\ref{tab:uc02_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc02} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc02} và hình~\ref{fig:sequence-uc02-gg} thể hiện sơ đồ tuần tự cho hai luồng đăng nhập bằng email và Google OAuth.
 \subsubsection{Mô tả use case}
-\begin{table}[H]
-    \centering
-    \renewcommand{\arraystretch}{1.3}
-    \begin{tabularx}{\linewidth}{|X|X|}
-        \hline
-        \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC02} \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã có tài khoản đăng ký trong hệ thống và đang ở màn hình Đăng nhập.} \\ \hline
-        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Người học truy cập thành công vào Dashboard; hệ thống cấp JWT.} \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
-        \textbf{Actor} & \textbf{Hệ thống} \\ \hline
-        1a. Nhập địa chỉ email và mật khẩu, sau đó nhấn ``Sign in''. & \\ \hline
-        & 2a. Truy vấn cơ sở dữ liệu bằng email và xác minh mật khẩu nhập vào khớp với thông tin đã lưu. \\ \hline
-        & 3a. Cấp JWT access token và chuyển hướng người học đến màn hình Dashboard. Kết thúc use-case. \\ \hline
-        1b. Nhấn ``Đăng nhập với Google'' và chọn tài khoản Google. & \\ \hline
-        & 2b. Xác thực thông tin Google OAuth; tìm hoặc tạo tài khoản tương ứng trong cơ sở dữ liệu. \\ \hline
-        & 3b. Cấp JWT access token và chuyển hướng người học đến màn hình Dashboard. Kết thúc use-case. \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
-        & 2a.1. Email không tồn tại hoặc mật khẩu sai: hiển thị thông báo ``Email hoặc mật khẩu không đúng'' và dừng luồng. Quay lại bước 1a. \\ \hline
-        1b.1. Hủy đăng nhập hoặc xác thực Google thất bại. & \\ \hline
-        & 1b.2. Hiển thị thông báo lỗi, không cấp JWT. \\ \hline
-    \end{tabularx}
-    \caption{Đặc tả chức năng Đăng nhập (UC02)}
-    \label{tab:uc02_spec}
-\end{table}
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tbu}{\dimexpr(\linewidth - 4\tabcolsep - 3\arrayrulewidth)/2\relax}
+\begin{longtable}{|p{\tbu}|p{\tbu}|}
+    \caption{Đặc tả chức năng Đăng nhập (UC02)} \label{tab:uc02_spec} \\
+    \hline
+    \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC02} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã có tài khoản đăng ký trong hệ thống và đang ở màn hình Đăng nhập.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{Hậu điều kiện (Post-condition):} Người học truy cập thành công vào Dashboard; hệ thống cấp JWT.} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endfirsthead
+    \multicolumn{2}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endhead
+    \hline
+    \multicolumn{2}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    1a. Nhập địa chỉ email và mật khẩu, sau đó nhấn ``Sign in''. & \\ \hline
+    & 2a. Truy vấn cơ sở dữ liệu bằng email và xác minh mật khẩu nhập vào khớp với thông tin đã lưu. \\ \hline
+    & 3a. Cấp JWT access token và chuyển hướng người học đến màn hình Dashboard. Kết thúc use-case. \\ \hline
+    1b. Nhấn ``Đăng nhập với Google'' và chọn tài khoản Google. & \\ \hline
+    & 2b. Xác thực thông tin Google OAuth; tìm hoặc tạo tài khoản tương ứng trong cơ sở dữ liệu. \\ \hline
+    & 3b. Cấp JWT access token và chuyển hướng người học đến màn hình Dashboard. Kết thúc use-case. \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
+    & 2a.1. Email không tồn tại hoặc mật khẩu sai: hiển thị thông báo ``Email hoặc mật khẩu không đúng'' và dừng luồng. Quay lại bước 1a. \\ \hline
+    1b.1. Hủy đăng nhập hoặc xác thực Google thất bại. & \\ \hline
+    & 1b.2. Hiển thị thông báo lỗi, không cấp JWT. \\ \hline
+\end{longtable}
 
 \subsubsection{Sơ đồ activity}
 \begin{figure}[H]
@@ -418,37 +432,44 @@ Sau khi credential pass --- bằng Passport.js local strategy với email/mật 
 \subsection{Tạo loại thẻ học (UC27)}
 Bảng~\ref{tab:uc27_spec} đặc tả luồng sự kiện; hình~\ref{fig:activity-uc27} thể hiện sơ đồ activity; hình~\ref{fig:sequence-uc27} thể hiện sơ đồ tuần tự.
 \subsubsection{Mô tả use case}
-\begin{table}[H]
-    \centering
-    \renewcommand{\arraystretch}{1.3}
-    \begin{tabularx}{\linewidth}{|X|X|}
-        \hline
-        \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC27} \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
-        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và đang ở màn hình Vocab Lab.} \\ \hline
-        \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth}|}{\textbf{Hậu điều kiện (Post-condition):} Loại thẻ mới được tạo và lưu trong hệ thống; người học có thể sử dụng loại thẻ này để tạo flashcard.} \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
-        \textbf{Actor} & \textbf{Hệ thống} \\ \hline
-        1. Nhấn ``Add'', sau đó nhấn vào selector ``Type'' ở form thêm thẻ. & \\ \hline
-        & 2. Hiển thị màn hình ``Choose Card Type'' với danh sách loại thẻ hiện có. \\ \hline
-        3. Nhấn biểu tượng cài đặt. & \\ \hline
-        & 4. Tải danh sách các loại thẻ của người học từ cơ sở dữ liệu và hiển thị màn hình ``Manage Card Types''. \\ \hline
-        5. Nhấn nút dấu cộng (+). & \\ \hline
-        & 6. Hiển thị form nhập tên inline với ô văn bản (placeholder: ``Card type name\ldots''). \\ \hline
-        7. Nhập tên loại thẻ rồi nhấn nút "create". & \\ \hline
-        & 8. Tạo loại thẻ mới trong cơ sở dữ liệu và tự động mở màn hình ``Edit Card Type'' với ba tab: \textbf{Fields}, \textbf{Templates}, \textbf{Preview}. \\ \hline
-        9. Cấu hình loại thẻ qua ba tab: (a) tab \textit{Fields} --- thêm, sửa, xóa trường với tên, kiểu (\textit{Text} hoặc \textit{Media}) và mô tả; (b) tab \textit{Templates} --- chọn trường hiển thị mặt trước/mặt sau; định dạng từng trường (in đậm, nghiêng, gạch chân, cỡ chữ, căn lề, màu chữ); thiết lập kiểu thẻ tổng thể (màu nền, màu chữ); (c) tab \textit{Preview} --- xem trước thẻ trực tiếp. & \\ \hline
-        10. Nhấn ``Save''. & \\ \hline
-        & 11. Lưu toàn bộ cấu hình (trường, mẫu hiển thị, kiểu dáng) vào cơ sở dữ liệu; đóng màn hình và quay về danh sách loại thẻ. \\ \hline
-        \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
-        & 7.1. Tên loại thẻ rỗng: hệ thống không cho phép xác nhận. Quay lại bước 7. \\ \hline
-        10.1. Nhấn ``Cancel'' thay vì ``Save''. & \\ \hline
-        & 10.2. Hệ thống hủy toàn bộ thay đổi chưa lưu và đóng màn hình. \\ \hline
-    \end{tabularx}
-    \caption{Đặc tả chức năng Tạo loại thẻ học (UC27)}
-    \label{tab:uc27_spec}
-\end{table}
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tbu}{\dimexpr(\linewidth - 4\tabcolsep - 3\arrayrulewidth)/2\relax}
+\begin{longtable}{|p{\tbu}|p{\tbu}|}
+    \caption{Đặc tả chức năng Tạo loại thẻ học (UC27)} \label{tab:uc27_spec} \\
+    \hline
+    \multicolumn{2}{|l|}{\textbf{Đặc tả use-case}} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Mã use-case:} UC27} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Actor:} Người học} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{Tiền điều kiện (Pre-condition):} Người học đã đăng nhập thành công và đang ở màn hình Vocab Lab.} \\ \hline
+    \multicolumn{2}{|p{\dimexpr\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{Hậu điều kiện (Post-condition):} Loại thẻ mới được tạo và lưu trong hệ thống; người học có thể sử dụng loại thẻ này để tạo flashcard.} \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện chính (Basic flow)}} \\ \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endfirsthead
+    \multicolumn{2}{r}{\textit{(tiếp trang trước)}} \\
+    \hline
+    \textbf{Actor} & \textbf{Hệ thống} \\ \hline
+    \endhead
+    \hline
+    \multicolumn{2}{r}{\textit{(tiếp trang sau)}} \\
+    \endfoot
+    \hline
+    \endlastfoot
+    1. Nhấn ``Add'', sau đó nhấn vào selector ``Type'' ở form thêm thẻ. & \\ \hline
+    & 2. Hiển thị màn hình ``Choose Card Type'' với danh sách loại thẻ hiện có. \\ \hline
+    3. Nhấn biểu tượng cài đặt. & \\ \hline
+    & 4. Tải danh sách các loại thẻ của người học từ cơ sở dữ liệu và hiển thị màn hình ``Manage Card Types''. \\ \hline
+    5. Nhấn nút dấu cộng (+). & \\ \hline
+    & 6. Hiển thị form nhập tên inline với ô văn bản (placeholder: ``Card type name\ldots''). \\ \hline
+    7. Nhập tên loại thẻ rồi nhấn nút "create". & \\ \hline
+    & 8. Tạo loại thẻ mới trong cơ sở dữ liệu và tự động mở màn hình ``Edit Card Type'' với ba tab: \textbf{Fields}, \textbf{Templates}, \textbf{Preview}. \\ \hline
+    9. Cấu hình loại thẻ qua ba tab: (a) tab \textit{Fields} --- thêm, sửa, xóa trường với tên, kiểu (\textit{Text} hoặc \textit{Media}) và mô tả; (b) tab \textit{Templates} --- chọn trường hiển thị mặt trước/mặt sau; định dạng từng trường (in đậm, nghiêng, gạch chân, cỡ chữ, căn lề, màu chữ); thiết lập kiểu thẻ tổng thể (màu nền, màu chữ); (c) tab \textit{Preview} --- xem trước thẻ trực tiếp. & \\ \hline
+    10. Nhấn ``Save''. & \\ \hline
+    & 11. Lưu toàn bộ cấu hình (trường, mẫu hiển thị, kiểu dáng) vào cơ sở dữ liệu; đóng màn hình và quay về danh sách loại thẻ. \\ \hline
+    \multicolumn{2}{|l|}{\textbf{Luồng sự kiện thay thế (Alternative flow)}} \\ \hline
+    & 7.1. Tên loại thẻ rỗng: hệ thống không cho phép xác nhận. Quay lại bước 7. \\ \hline
+    10.1. Nhấn ``Cancel'' thay vì ``Save''. & \\ \hline
+    & 10.2. Hệ thống hủy toàn bộ thay đổi chưa lưu và đóng màn hình. \\ \hline
+\end{longtable}
 
 \subsubsection{Sơ đồ activity}
 \begin{figure}[H]
