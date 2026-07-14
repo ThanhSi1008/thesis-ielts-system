@@ -18,9 +18,9 @@ import type { VocabularyUnitWithContent, FoundationVocabItem, SubmitQuestionsRes
 
 const SRS_RATINGS = [
   { rating: 1, label: 'Again', interval: '<10m', bgColor: 'bg-red-50', hoverBg: 'hover:bg-red-100', textColor: 'text-red-700', borderColor: 'border-red-200', keyBg: 'bg-red-100', keyHoverBg: 'group-hover:bg-red-200' },
-  { rating: 2, label: 'Hard', interval: '1d', bgColor: 'bg-orange-50', hoverBg: 'hover:bg-orange-100', textColor: 'text-orange-700', borderColor: 'border-orange-200', keyBg: 'bg-orange-100', keyHoverBg: 'group-hover:bg-orange-200' },
-  { rating: 3, label: 'Good', interval: '3d', bgColor: 'bg-blue-50', hoverBg: 'hover:bg-blue-100', textColor: 'text-blue-700', borderColor: 'border-blue-200', keyBg: 'bg-blue-100', keyHoverBg: 'group-hover:bg-blue-200' },
-  { rating: 4, label: 'Easy', interval: '5d', bgColor: 'bg-green-50', hoverBg: 'hover:bg-green-100', textColor: 'text-green-700', borderColor: 'border-green-200', keyBg: 'bg-green-100', keyHoverBg: 'group-hover:bg-green-200' },
+  { rating: 2, label: 'Hard', interval: '0d', bgColor: 'bg-orange-50', hoverBg: 'hover:bg-orange-100', textColor: 'text-orange-700', borderColor: 'border-orange-200', keyBg: 'bg-orange-100', keyHoverBg: 'group-hover:bg-orange-200' },
+  { rating: 3, label: 'Good', interval: '0d', bgColor: 'bg-blue-50', hoverBg: 'hover:bg-blue-100', textColor: 'text-blue-700', borderColor: 'border-blue-200', keyBg: 'bg-blue-100', keyHoverBg: 'group-hover:bg-blue-200' },
+  { rating: 4, label: 'Easy', interval: '8d', bgColor: 'bg-green-50', hoverBg: 'hover:bg-green-100', textColor: 'text-green-700', borderColor: 'border-green-200', keyBg: 'bg-green-100', keyHoverBg: 'group-hover:bg-green-200' },
 ] as const;
 
 // ============================================================

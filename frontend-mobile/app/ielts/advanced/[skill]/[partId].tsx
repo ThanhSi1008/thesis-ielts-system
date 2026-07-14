@@ -174,7 +174,249 @@ export default function AdvancedPartScreen() {
   const isListening = skill === 'listening';
   const accentColor = isListening ? COLORS.skill.listening : COLORS.skill.reading;
 
-  const items = React.useMemo(() => (part ? extractAllItemsFromPart(part) : []), [part]);
+function normalizeOptions(opts: any): Record<string, string> {
+  if (Array.isArray(opts)) {
+    const res: Record<string, string> = {};
+    for (const opt of opts) {
+      if (opt && typeof opt === 'object') {
+        const letter = opt.letter || opt.val || '';
+        const text = opt.text || opt.label || '';
+        if (letter) {
+          res[letter] = text;
+        }
+      }
+    }
+    return res;
+  }
+  if (opts && typeof opts === 'object') {
+    const res: Record<string, string> = {};
+    for (const [k, v] of Object.entries(opts)) {
+      res[k] = String(v);
+    }
+    return res;
+  }
+  return {};
+}
+
+function normalizeGroup(g: any): any {
+  if (!g) return g;
+  const normalizedG = { ...g };
+
+  // 1. Map type/question_type uniformally
+  const originalType = String(g.question_type || g.type || '').toLowerCase().replace(/[\s/]/g, '_');
+  normalizedG.type = originalType;
+  normalizedG.instructions = g.instructions || g.instruction || '';
+
+  let qType = String(g.question_type || g.type || '');
+  const lowerType = qType.toLowerCase().trim();
+  if (lowerType.includes('multiple') || lowerType.includes('choice')) {
+    qType = 'Multiple Choice';
+  } else if (
+    lowerType.includes('note') ||
+    lowerType.includes('form') ||
+    lowerType.includes('sentence') ||
+    lowerType.includes('table') ||
+    lowerType.includes('flowchart') ||
+    lowerType.includes('flow_chart')
+  ) {
+    qType = 'Note Completion';
+  } else if (lowerType.includes('summary')) {
+    qType = 'Summary Completion';
+  } else if (lowerType.includes('true') || lowerType.includes('false')) {
+    qType = 'True/False/Not Given';
+  } else if (lowerType.includes('yes') || lowerType === 'no' || lowerType.includes('yes/no') || lowerType.includes('yes_no') || lowerType.includes('yes no')) {
+    qType = 'Yes/No/Not Given';
+  } else if (lowerType.includes('matching')) {
+    qType = 'Matching';
+  }
+  normalizedG.question_type = qType;
+
+  // 2. Map questions/items uniformally
+  if (Array.isArray(g.questions) && !g.items) {
+    normalizedG.items = g.questions;
+  } else if (Array.isArray(g.items) && !g.questions) {
+    normalizedG.questions = g.items;
+  }
+
+  // Auto-wrap single mc_multi question group without items to items array
+  if ((originalType.includes('multiple_choice_multiple') || originalType.includes('more_than_one_answer')) && Array.isArray(g.question_numbers) && !normalizedG.items) {
+    normalizedG.items = [
+      {
+        question_numbers: g.question_numbers,
+        question_text: g.text || g.question_text || '',
+        options: Array.isArray(g.options) ? normalizeOptions(g.options) : g.options,
+      },
+    ];
+  }
+
+  if (Array.isArray(normalizedG.items)) {
+    normalizedG.items = normalizedG.items.map((it: any) => {
+      if (!it) return it;
+      const normalizedIt = { ...it };
+      if (typeof it.id === 'number' && typeof it.question_number !== 'number') {
+        normalizedIt.question_number = it.id;
+      }
+      if (typeof it.text === 'string' && typeof it.question_text !== 'string') {
+        normalizedIt.question_text = it.text;
+      }
+      if (typeof it.question_text === 'string' && typeof it.text !== 'string') {
+        normalizedIt.text = it.question_text;
+      }
+      if (Array.isArray(it.options)) {
+        normalizedIt.options = normalizeOptions(it.options);
+      }
+      return normalizedIt;
+    });
+    normalizedG.questions = normalizedG.items;
+  }
+
+  // 3. Normalize options arrays to Record objects
+  if (Array.isArray(g.options)) {
+    normalizedG.options = normalizeOptions(g.options);
+  }
+  if (g.options_box && Array.isArray(g.options_box.options)) {
+    normalizedG.options_box = {
+      ...g.options_box,
+      options: normalizeOptions(g.options_box.options),
+    };
+  }
+
+  // 4. Map legacy note_completion / form_completion with 'notes' or 'points' to new 'content' format
+  if ((originalType.includes('note') || originalType.includes('form') || originalType.includes('sentence')) && !g.content) {
+    if (Array.isArray(g.notes)) {
+      normalizedG.content = g.notes.map((n: any) => {
+        const block: any = {
+          heading: n.subheading || '',
+          points: [],
+        };
+        if (Array.isArray(n.points)) {
+          for (const pt of n.points) {
+            if (typeof pt === 'string') {
+              const match = pt.match(/\{\{(\d+)\}\}/);
+              if (match) {
+                const qn = parseInt(match[1]);
+                const text = pt.replace(/\{\{(\d+)\}\}/g, '______');
+                block.points.push({
+                  question_number: qn,
+                  text: text,
+                });
+              } else {
+                block.points.push({
+                  text: pt,
+                });
+              }
+            } else if (pt && typeof pt === 'object') {
+              const ptQn = pt.question_number ?? pt.id;
+              if (typeof ptQn === 'number') {
+                block.points.push({
+                  question_number: ptQn,
+                  text: pt.text || pt.question_text || '',
+                  timestamp_seconds: pt.timestamp_seconds || pt.timestamp,
+                });
+              } else {
+                block.points.push(pt);
+              }
+            }
+          }
+        }
+        return block;
+      });
+    } else if (Array.isArray(g.points)) {
+      normalizedG.content = [
+        {
+          heading: g.heading || '',
+          points: g.points.map((pt: any) => {
+            if (pt && typeof pt === 'object') {
+              const ptQn = pt.question_number ?? pt.id;
+              if (typeof ptQn === 'number') {
+                return {
+                  question_number: ptQn,
+                  text: pt.text || pt.question_text || '',
+                  timestamp_seconds: pt.timestamp_seconds || pt.timestamp,
+                };
+              }
+            }
+            return pt;
+          }),
+        },
+      ];
+    }
+  }
+
+  // 5. Map legacy summary_completion with 'summary' to 'content' format
+  if (originalType.includes('summary') && typeof g.summary === 'string' && !g.content) {
+    const matches = [...g.summary.matchAll(/\{\{(\d+)\}\}/g)];
+    const qns = matches.map((m: any) => parseInt(m[1]));
+    const text = g.summary.replace(/\{\{(\d+)\}\}/g, '$1 [blank]');
+
+    normalizedG.content = [
+      {
+        heading: g.topic || g.heading || '',
+        text: text,
+        points: qns.map((q: number) => ({ question_number: q })),
+      },
+    ];
+  }
+
+  // 6. Flatten content points for FormCompletionBlock
+  let flatPoints: any[] = [];
+  if (Array.isArray(normalizedG.content)) {
+    for (const section of normalizedG.content) {
+      if (section && Array.isArray(section.points)) {
+        if (section.heading) {
+          flatPoints.push({
+            text: section.heading,
+          });
+        }
+        for (const pt of section.points) {
+          if (pt && typeof pt === 'object') {
+            const ptQn = pt.question_number ?? pt.id;
+            const rawText = pt.text || pt.question_text || '';
+            const cleanText = rawText.replace(/\{\{(\d+)\}\}/g, '______');
+            
+            flatPoints.push({
+              ...pt,
+              question_number: ptQn,
+              text: cleanText,
+            });
+          } else if (typeof pt === 'string') {
+            const cleanText = pt.replace(/\{\{(\d+)\}\}/g, '______');
+            flatPoints.push({
+              text: cleanText,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  if (flatPoints.length > 0) {
+    normalizedG.points = flatPoints;
+    normalizedG.questions = flatPoints;
+  }
+
+  return normalizedG;
+}
+
+  const normalizedPart = React.useMemo(() => {
+    if (!part) return null;
+    const rawGroups = part.question_groups || part.content || [];
+    const normalizedGroups = Array.isArray(rawGroups) ? rawGroups.map(normalizeGroup) : [];
+    return {
+      ...part,
+      question_groups: normalizedGroups,
+    };
+  }, [part]);
+
+  const items = React.useMemo(() => {
+    if (!normalizedPart) return [];
+    const parserPart = {
+      ...normalizedPart,
+      content: part.question_groups ? part.content : undefined
+    };
+    return extractAllItemsFromPart(parserPart);
+  }, [normalizedPart, part]);
+
   const qNumbers = React.useMemo(() => questionNumbersFromItems(items), [items]);
 
   const questionsScrollRef = useRef<ScrollView>(null);
@@ -203,9 +445,8 @@ export default function AdvancedPartScreen() {
 
   const answeredSet = React.useMemo(() => {
     const s = new Set<number>();
-    if (!part) return s;
-    const itemsList = extractAllItemsFromPart(part);
-    for (const item of itemsList) {
+    if (items.length === 0) return s;
+    for (const item of items) {
       if ('qns' in item && item.qns) {
         for (const n of item.qns) {
           if (answers[String(n)] && answers[String(n)].trim()) {
@@ -219,7 +460,7 @@ export default function AdvancedPartScreen() {
       }
     }
     return s;
-  }, [part, answers]);
+  }, [items, answers]);
 
   const handleToggleFlag = useCallback((n: number) => {
     setFlagged((prev) => {
@@ -476,7 +717,7 @@ export default function AdvancedPartScreen() {
       ) : (
         <View style={{ flex: 1, marginBottom: 80 }}>
           <ReadingExamBlock
-            parts={[part]}
+            parts={[normalizedPart]}
             answers={answers}
             onChange={setAnswer}
             renderGroup={(g, ans, onChange, gi, pi, cls, dark) =>

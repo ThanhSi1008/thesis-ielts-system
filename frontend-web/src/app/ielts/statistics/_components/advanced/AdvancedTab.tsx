@@ -200,17 +200,17 @@ function AdvancedSkeleton() {
 // ---------------------------------------------------------------------------
 // Main AdvancedTab
 // ---------------------------------------------------------------------------
-export default function AdvancedTab() {
+export default function AdvancedTab({ studentId }: { studentId?: string }) {
   const [data, setData] = useState<IeltsAdvancedStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     ieltsStatisticsApi
-      .getAdvanced()
+      .getAdvanced(studentId)
       .then(setData)
       .catch(() => setData(null))
       .finally(() => setLoading(false));
-  }, []);
+  }, [studentId]);
 
   if (loading) return <AdvancedSkeleton />;
   const warningTone = BAND_TONE_STYLES.warning;

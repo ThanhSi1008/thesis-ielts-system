@@ -602,6 +602,351 @@ export const SummaryBlankSelector = React.memo(SummaryBlankSelectorComponent, (p
   );
 });
 
+// ─── Table Completion Block ──────────────────────────────────────────────────
+function TableCompletionBlock({
+  group,
+  answers,
+  onAnswer,
+  onLocate,
+  mode = 'edit',
+  correctAnswers,
+}: {
+  group: any;
+  answers: Record<string, string>;
+  onAnswer: (key: string, value: string) => void;
+  onLocate?: (qNum: number) => void;
+  mode?: 'edit' | 'review';
+  correctAnswers?: Record<string, string>;
+}) {
+  const { colors, isDark } = useTheme();
+  const qStyles = createQStyles(colors, isDark);
+  const tableData = group.table || group;
+  let headers: string[] = Array.isArray(tableData.headers) ? tableData.headers : [];
+  const rows: any[] = Array.isArray(tableData.rows) ? tableData.rows : [];
+
+  // Fallback if headers are empty but rows are objects:
+  if (headers.length === 0 && rows.length > 0 && !Array.isArray(rows[0])) {
+    const allKeys = new Set<string>();
+    rows.forEach(r => {
+      if (r && typeof r === 'object') {
+        Object.keys(r).forEach(k => {
+          if (k !== 'questions') allKeys.add(k);
+        });
+      }
+    });
+    headers = Array.from(allKeys);
+  }
+
+  const rawQuestions = (Array.isArray(group.questions) ? group.questions : null) || group.items || [];
+  const questionsList = Array.isArray(rawQuestions) ? rawQuestions : [];
+
+  // Merge group questions and row-specific questions
+  const qMap: Record<number, any> = { ...Object.fromEntries(questionsList.map((q: any) => [q.question_number, q])) };
+  rows.forEach((row: any) => {
+    if (Array.isArray(row)) {
+      row.forEach((cell: any) => {
+        if (cell && typeof cell.question_number === 'number') {
+          qMap[cell.question_number] = {
+            question_number: cell.question_number,
+            answer: cell.answer || cell.text || '',
+            ...cell,
+          };
+        }
+      });
+    } else if (row && row.questions) {
+      Object.entries(row.questions).forEach(([qNumStr, qData]: [string, any]) => {
+        qMap[Number(qNumStr)] = {
+          question_number: Number(qNumStr),
+          ...(typeof qData === 'object' ? qData : { answer: qData }),
+        };
+      });
+    }
+  });
+
+  if (rows.length === 0) {
+    return (
+      <FormCompletionBlock
+        key={group.id || `table-fallback-${group.instructions}`}
+        group={group}
+        answers={answers}
+        onAnswer={onAnswer}
+        mode={mode}
+        correctAnswers={correctAnswers}
+      />
+    );
+  }
+
+  const maxCols = Math.max(headers.length, ...rows.map(r => Array.isArray(r) ? r.length : 0));
+
+  const renderTableInput = (qNum: number) => {
+    const key = String(qNum);
+    const value = answers[key] || '';
+    const qData = qMap[qNum] || {};
+    const correctVal = correctAnswers?.[key] || qData.answer || '';
+    const isCorrectAns = mode === 'review' ? isCorrect(value, correctVal) : false;
+
+    let inputBorderColor = colors.border;
+    let inputBgColor = colors.card;
+    let inputTextColor = colors.text;
+
+    if (mode === 'review') {
+      if (value) {
+        if (isCorrectAns) {
+          inputBorderColor = '#22c55e';
+          inputBgColor = 'rgba(34, 197, 94, 0.08)';
+          inputTextColor = '#16a34a';
+        } else {
+          inputBorderColor = '#ef4444';
+          inputBgColor = 'rgba(239, 68, 68, 0.08)';
+          inputTextColor = '#ef4444';
+        }
+      } else {
+        inputBorderColor = '#ef4444';
+        inputBgColor = 'rgba(239, 68, 68, 0.03)';
+        inputTextColor = '#ef4444';
+      }
+    }
+
+    return (
+      <View style={{ gap: 2, marginVertical: 2 }} key={key}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            borderWidth: 1,
+            borderColor: inputBorderColor,
+            backgroundColor: inputBgColor,
+            borderRadius: RADIUS.md,
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            minWidth: 80,
+            maxWidth: 150,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 10,
+              fontWeight: 'bold',
+              color: mode === 'review' ? (isCorrectAns ? '#16a34a' : '#ef4444') : colors.primary,
+              marginRight: 4,
+            }}
+          >
+            {qNum}
+          </Text>
+          <TextInput
+            style={{
+              flex: 1,
+              fontSize: FONT_SIZES.sm,
+              color: inputTextColor,
+              padding: 0,
+              margin: 0,
+              fontWeight: '600',
+              height: 20,
+            }}
+            value={value}
+            onChangeText={(v) => onAnswer(key, v)}
+            placeholder="..."
+            placeholderTextColor={colors.textMuted}
+            editable={mode !== 'review'}
+            returnKeyType="done"
+          />
+          {mode === 'review' && (
+            <Ionicons
+              name={isCorrectAns ? 'checkmark-circle' : 'close-circle'}
+              size={12}
+              color={isCorrectAns ? '#22c55e' : '#ef4444'}
+              style={{ marginLeft: 4 }}
+            />
+          )}
+        </View>
+        {mode === 'review' && !isCorrectAns && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, paddingLeft: 2 }}>
+            <Ionicons name="checkmark-circle-outline" size={10} color="#16a34a" />
+            <Text style={{ fontSize: 10, fontWeight: '700', color: '#16a34a' }} numberOfLines={1}>
+              {correctVal}
+            </Text>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const renderCellText = (text: string, cellQNum?: number) => {
+    const blankRegex = /(\d+)\s*(?:_+|\.{3,}|\[blank\])/g;
+    const matches = Array.from(text.matchAll(blankRegex));
+
+    if (matches.length === 0) {
+      if (cellQNum) {
+        return (
+          <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}>
+            {text ? <Text style={{ fontSize: FONT_SIZES.sm, color: colors.text }}>{text}</Text> : null}
+            {renderTableInput(cellQNum)}
+          </View>
+        );
+      }
+      return <Text style={{ fontSize: FONT_SIZES.sm, color: colors.text }}>{text}</Text>;
+    }
+
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+
+    for (let i = 0; i < matches.length; i++) {
+      const match = matches[i];
+      const matchText = match[0];
+      const matchIndex = match.index ?? 0;
+      const qNum = Number(match[1]);
+
+      if (matchIndex > lastIndex) {
+        parts.push(
+          <Text key={`text-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: colors.text }}>
+            {text.slice(lastIndex, matchIndex)}
+          </Text>
+        );
+      }
+
+      parts.push(
+        <View key={`input-wrap-${qNum}`} style={{ marginHorizontal: 2 }}>
+          {renderTableInput(qNum)}
+        </View>
+      );
+
+      lastIndex = matchIndex + matchText.length;
+    }
+
+    if (lastIndex < text.length) {
+      parts.push(
+        <Text key={`text-${lastIndex}`} style={{ fontSize: FONT_SIZES.sm, color: colors.text }}>
+          {text.slice(lastIndex)}
+        </Text>
+      );
+    }
+
+    return (
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}>
+        {parts}
+      </View>
+    );
+  };
+
+  const renderObjectCell = (val: any, row: any) => {
+    if (Array.isArray(val)) {
+      return (
+        <View style={{ gap: 4 }}>
+          {val.map((item, i) => (
+            <View key={i} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 4 }}>
+              <Text style={{ color: colors.textSecondary, marginTop: 4 }}>•</Text>
+              <View style={{ flex: 1 }}>{renderCellText(String(item))}</View>
+            </View>
+          ))}
+        </View>
+      );
+    }
+    return renderCellText(String(val));
+  };
+
+  return (
+    <View style={{ marginBottom: SPACING.xl }}>
+      {group.instructions ? (
+        <Text style={[qStyles.instructions, { color: colors.textSecondary, backgroundColor: colors.surface, borderLeftColor: colors.primary }]}>
+          {group.instructions}
+        </Text>
+      ) : null}
+
+      <ScrollView horizontal showsHorizontalScrollIndicator style={{ marginVertical: SPACING.md }}>
+        <View
+          style={{
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: RADIUS.lg,
+            overflow: 'hidden',
+            backgroundColor: colors.card,
+          }}
+        >
+          {/* Header row */}
+          {headers.length > 0 && (
+            <View
+              style={{
+                flexDirection: 'row',
+                backgroundColor: isDark ? colors.surface : '#F8FAFC',
+                borderBottomWidth: 1,
+                borderBottomColor: colors.border,
+              }}
+            >
+              {headers.map((header: string, hIdx: number) => (
+                <View
+                  key={`h-${hIdx}`}
+                  style={{
+                    width: 160,
+                    padding: 12,
+                    borderRightWidth: hIdx === headers.length - 1 ? 0 : 1,
+                    borderRightColor: colors.border,
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Text style={{ fontWeight: '800', color: colors.primary, fontSize: FONT_SIZES.sm }}>
+                    {header}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Rows */}
+          {rows.map((row: any, rIdx: number) => (
+            <View
+              key={`r-${rIdx}`}
+              style={{
+                flexDirection: 'row',
+                borderBottomWidth: rIdx === rows.length - 1 ? 0 : 1,
+                borderBottomColor: colors.border,
+                backgroundColor: rIdx % 2 === 1 ? (isDark ? 'rgba(255,255,255,0.02)' : '#F8FAFC40') : colors.card,
+              }}
+            >
+              {Array.from({ length: maxCols }).map((_, cIdx: number) => {
+                const isRowArray = Array.isArray(row);
+                if (isRowArray) {
+                  const cell = row[cIdx];
+                  return (
+                    <View
+                      key={`c-${rIdx}-${cIdx}`}
+                      style={{
+                        width: 160,
+                        padding: 12,
+                        borderRightWidth: cIdx === maxCols - 1 ? 0 : 1,
+                        borderRightColor: colors.border,
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {cell ? renderCellText(cell.text || '', cell.question_number) : null}
+                    </View>
+                  );
+                } else {
+                  const header = headers[cIdx];
+                  const cellVal = header ? row[header] : undefined;
+                  return (
+                    <View
+                      key={`c-${rIdx}-${cIdx}`}
+                      style={{
+                        width: 160,
+                        padding: 12,
+                        borderRightWidth: cIdx === maxCols - 1 ? 0 : 1,
+                        borderRightColor: colors.border,
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {cellVal !== undefined ? renderObjectCell(cellVal, row) : null}
+                    </View>
+                  );
+                }
+              })}
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
 const DIAGRAM_TYPES = new Set([
   'diagram_labelling',
   'diagram_completion',
@@ -629,8 +974,8 @@ export function renderGroup(
   mode: 'edit' | 'review' = 'edit',
   correctAnswers?: Record<string, string>,
 ) {
-  const type = group.question_type ?? group.type ?? 'fill';
-  const qStyles = createQStyles(colors ?? {}, isDark ?? false);
+  const type = group.question_type || group.type || 'fill';
+  const qStyles = createQStyles(colors || {}, isDark || false);
   const baseKey = `p${partIdx}-g${groupIdx}-${type}`;
 
   let questions: any[] = [];
@@ -640,7 +985,7 @@ export function renderGroup(
   } else if (Array.isArray(group.content)) {
     const firstItem = group.content[0];
     if (firstItem && Array.isArray(firstItem.points)) {
-      questions = group.content.flatMap((section: any) => section.points ?? []);
+      questions = group.content.flatMap((section: any) => section.points || []);
     } else {
       questions = group.content;
     }
@@ -651,16 +996,20 @@ export function renderGroup(
     (q: any) => q.question_number != null || Array.isArray(q.question_numbers),
   );
 
+  const originalType = (group.type || '').toLowerCase();
+  const isTable = type.toLowerCase().includes('table') || originalType.includes('table') || !!group.table;
+  const isMCMulti = type.toLowerCase().includes('multiple_choice_multiple') || type.toLowerCase().includes('more_than_one_answer') || originalType.includes('multiple_choice_multiple') || originalType.includes('more_than_one_answer');
+
   const isMatchingType = MATCHING_TYPES.has(type.toLowerCase().replace(/ /g, '_'));
   const isDiagramType = DIAGRAM_TYPES.has(type.toLowerCase().replace(/ /g, '_'));
-  const isMCQ = type.toLowerCase().includes('multiple') || Array.isArray(group.items);
+  const isMCQ = type.toLowerCase().includes('multiple') || Array.isArray(group.items) || isMCMulti;
 
   const isTFNG = /true.false|yes.no/i.test(type);
   const tfOptions = /yes.no/i.test(type)
     ? { YES: 'Yes', NO: 'No', 'NOT GIVEN': 'Not Given' }
     : { TRUE: 'True', FALSE: 'False', 'NOT GIVEN': 'Not Given' };
 
-  const optionsBox = group.options_box ?? null;
+  const optionsBox = group.options_box || null;
 
   if (isDiagramType) {
     return (
@@ -688,7 +1037,21 @@ export function renderGroup(
     );
   }
 
-  if (type === 'multiple_choice_multiple') {
+  if (isTable) {
+    return (
+      <TableCompletionBlock
+        key={baseKey}
+        group={group}
+        answers={answers}
+        onAnswer={setAnswer}
+        onLocate={onLocate}
+        mode={mode}
+        correctAnswers={correctAnswers}
+      />
+    );
+  }
+
+  if (isMCMulti) {
     return (
       <MCMultipleBlock
         key={baseKey}
@@ -702,13 +1065,17 @@ export function renderGroup(
     );
   }
 
+  const hasSections =
+    Array.isArray(group.content) &&
+    group.content.some((section: any) => section && Array.isArray(section.points));
+
   const FORM_TYPES = new Set([
     'form_completion',
     'note_completion',
     'flowchart_completion',
     'flow_chart',
   ]);
-  if (FORM_TYPES.has(type.toLowerCase().replace(/ /g, '_'))) {
+  if (FORM_TYPES.has(type.toLowerCase().replace(/ /g, '_')) && !hasSections) {
     return (
       <FormCompletionBlock
         key={baseKey}
@@ -720,9 +1087,6 @@ export function renderGroup(
       />
     );
   }
-
-  const hasSections =
-    Array.isArray(group.content) && group.content[0] && Array.isArray(group.content[0].points);
 
   const renderPassageContext = (rawText: string, cKey: string) => {
     const regex = /(\d+)\s*\[blank\]/g;
@@ -961,11 +1325,31 @@ export function renderGroup(
                         />
                       );
                     }
-                    if (optionsBox) {
+                    if (optionsBox?.options) {
+                      const currentVal = answers[num] || '';
+                      const displayLabel = optionsBox.options[currentVal]
+                        ? `${currentVal} — ${optionsBox.options[currentVal]}`
+                        : '';
+                      return (
+                        <SummaryBlankSelector
+                          key={qKey}
+                          qNum={Number(num)}
+                          value={currentVal}
+                          displayLabel={displayLabel}
+                          options={optionsBox.options}
+                          answers={answers}
+                          onSelect={(letter) => setAnswer(num, letter)}
+                          onClear={() => setAnswer(num, '')}
+                          mode={mode}
+                          correctAnswers={correctAnswers}
+                        />
+                      );
+                    }
+                    if (isMCQ || q.options || q.type === 'multiple_choice' || String(q.question_type || q.type || '').toLowerCase().includes('multiple_choice')) {
                       return (
                         <MCQQuestion
                           key={qKey}
-                          q={{ ...q, options: optionsBox.options }}
+                          q={q}
                           answers={answers}
                           onAnswer={setAnswer}
                           onLocate={onLocate}
@@ -1002,6 +1386,26 @@ export function renderGroup(
                   answers={answers}
                   onAnswer={setAnswer}
                   onLocate={onLocate}
+                  mode={mode}
+                  correctAnswers={correctAnswers}
+                />
+              );
+            }
+            if (optionsBox?.options) {
+              const currentVal = answers[num] || '';
+              const displayLabel = optionsBox.options[currentVal]
+                ? `${currentVal} — ${optionsBox.options[currentVal]}`
+                : '';
+              return (
+                <SummaryBlankSelector
+                  key={qKey}
+                  qNum={Number(num)}
+                  value={currentVal}
+                  displayLabel={displayLabel}
+                  options={optionsBox.options}
+                  answers={answers}
+                  onSelect={(letter) => setAnswer(num, letter)}
+                  onClear={() => setAnswer(num, '')}
                   mode={mode}
                   correctAnswers={correctAnswers}
                 />

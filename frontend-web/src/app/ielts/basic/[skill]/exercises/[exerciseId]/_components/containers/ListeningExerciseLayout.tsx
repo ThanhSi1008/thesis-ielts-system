@@ -54,7 +54,7 @@ export function ListeningExerciseLayout({
 
   return (
     <FloatingSelectionManager>
-    <div className="flex flex-col h-[calc(100vh-90px)] min-h-[600px] relative bg-white dark:bg-slate-950 rounded-2xl border border-gray-100/50 dark:border-gray-800 shadow-sm w-full overflow-hidden transition-colors duration-300">
+    <div className="flex flex-col h-[calc(100vh-180px)] relative bg-white dark:bg-slate-950 rounded-2xl border border-gray-100/50 dark:border-gray-800 shadow-sm w-full overflow-hidden transition-colors duration-300">
       {/* ── Header ── */}
       <div className="border-b border-gray-100 dark:border-gray-800 px-6 lg:px-10 pt-6 pb-3">
         <div className="flex items-start justify-between">
@@ -86,9 +86,9 @@ export function ListeningExerciseLayout({
       </div>
 
       {/* ── Body ── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 h-full overflow-hidden">
         {/* Questions column */}
-        <div className={`overflow-y-auto px-6 lg:px-10 pt-3 pb-24 transition-all duration-300 ${submitted && isPerfectScore ? "w-1/2" : "w-full"}`}>
+        <div className={`h-full overflow-y-auto px-6 lg:px-10 pt-3 pb-24 transition-all duration-300 ${submitted && isPerfectScore ? "w-1/2" : "w-full"}`}>
           <ListeningQuestionsPanel
             exercise={exercise as any}
             answers={answers}
@@ -102,14 +102,14 @@ export function ListeningExerciseLayout({
 
         {/* Listening: Transcript on RIGHT after submit - only if perfect score */}
         {submitted && isPerfectScore && exercise.transcript && (
-          <div className="w-1/2 overflow-hidden py-3 pr-6 lg:pr-10 border-l border-gray-100 dark:border-gray-800">
+          <div className="w-1/2 h-full overflow-hidden py-3 pr-6 lg:pr-10 border-l border-gray-100 dark:border-gray-800">
             <TranscriptPanel transcript={exercise.transcript} locatedQuestion={locatedQuestion} />
           </div>
         )}
       </div>
 
       {/* ── Bottom bar ── */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-gray-800 px-6 lg:px-10 py-3 flex items-center justify-between z-10 rounded-b-2xl transition-colors">
+      <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-gray-800 pl-6 lg:pl-10 pr-24 lg:pr-28 py-3 flex items-center justify-between z-10 rounded-b-2xl transition-colors">
         <div className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">
           <span>Questions</span>
           <div className="flex flex-wrap items-center gap-1 ml-1 max-w-[60vw]">
@@ -167,9 +167,10 @@ export function ListeningExerciseLayout({
             <button
               onClick={handleSubmit}
               disabled={Object.keys(answers).length === 0}
-              className="w-11 h-11 rounded-full bg-[#0F172A] dark:bg-primary flex items-center justify-center hover:bg-black dark:hover:bg-yellow-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+              className="px-6 py-2.5 rounded-xl bg-[#0F172A] dark:bg-primary text-white dark:text-gray-900 text-[14.5px] font-bold hover:bg-black dark:hover:bg-yellow-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-md leading-none flex items-center justify-center tracking-wide gap-2"
             >
-              <Check className="w-[22px] h-[22px] text-white dark:text-gray-900" strokeWidth={3} />
+              <Check className="w-[18px] h-[18px]" strokeWidth={3} />
+              Submit Answers
             </button>
           )}
         </div>

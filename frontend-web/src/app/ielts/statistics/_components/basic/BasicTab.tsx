@@ -114,13 +114,13 @@ function BasicSkeleton() {
   );
 }
 
-export default function BasicTab() {
+export default function BasicTab({ studentId }: { studentId?: string }) {
   const [data, setData] = useState<IeltsBasicStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    ieltsStatisticsApi.getBasic().then(setData).catch(() => setData(null)).finally(() => setLoading(false));
-  }, []);
+    ieltsStatisticsApi.getBasic(studentId).then(setData).catch(() => setData(null)).finally(() => setLoading(false));
+  }, [studentId]);
 
   if (loading) return <BasicSkeleton />;
   if (!data) return <div className="text-center py-16 text-slate-500 text-sm">Could not load Basic stats.</div>;

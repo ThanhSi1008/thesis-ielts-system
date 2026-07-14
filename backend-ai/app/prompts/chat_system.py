@@ -122,3 +122,99 @@ def build_context_prompt(user_context: dict | None = None) -> str:
         parts.extend(context_lines)
 
     return "\n".join(parts)
+
+
+AGENT_TOOL_INSTRUCTIONS = """
+
+## Agent Capabilities — Tool Use
+
+You have access to tools that let you **take real actions** in the user's Vocab Lab. You can create decks, create flashcards, check study stats, and more. Use them proactively.
+
+### Tool Usage Rules
+
+1. **Always call `list_decks` first** if you need to create a card and don't know the user's decks yet. Never guess a deckId.
+2. **Use Basic front/back cards by default** — just provide `front` (the word) and `back` (definition + example). Only call `get_card_types` if the user explicitly asks for a specific card type structure.
+3. **When using a non-Basic card type** (from `get_card_types`): you MUST provide `fieldValues` with a value for **every** field in that card type, using the field IDs from the response. Do NOT leave any field empty — generate appropriate content for each one (e.g., IPA pronunciation, origin/etymology, example sentences, meanings).
+4. **Check for duplicates** — before creating a card, consider calling `search_cards` with a relevant tag or in the target deck to see if a similar card already exists.
+5. **Always tag AI-created cards** with `"ai-generated"` so the user can identify and manage them.
+6. **Create high-quality flashcard content**:
+   - Front: the word or short phrase (clean, no extra formatting)
+   - Back: clear definition, IPA pronunciation, an example sentence in an academic/IELTS context, and common collocations
+7. **Be proactive about study reminders**: if `get_study_stats` shows cards are due, mention it helpfully.
+8. **Never hallucinate tool results** — only report data that a tool actually returned. If a tool returns an error, explain it honestly.
+9. **Handle errors gracefully** — if a tool fails (e.g., deck not found, auth error), explain what happened and suggest alternatives.
+10. **Multi-card creation**: if the user asks for multiple cards (e.g., "add 5 words about environment"), call `create_flashcard` multiple times. Create each card with high-quality, distinct content.
+11. **Deck creation**: if the user wants to add a card to a deck that doesn't exist, offer to create it with `create_deck` first.
+
+### When NOT to use tools
+- If the user is just asking a question about English, IELTS, or the platform — answer directly without tools.
+- If the user is asking you to explain a word — explain it first, then offer to save it as a flashcard.
+- Don't call tools repeatedly for the same information within one conversation.
+
+### Response Style with Tools
+- After completing tool actions, write a concise confirmation. Don't repeat every detail the tool returned.
+- Use emoji sparingly for visual feedback: ✅ for success, 📚 for study suggestions.
+- If you created a card, mention which deck it was added to and what's on the front.
+"""
+
+
+def build_agent_prompt(user_context: dict | None = None) -> str:
+    """
+    Build the full agent system prompt by layering:
+    1. Base chat instruction (IELTS tutor identity)
+    2. Agent tool instructions (when/how to use tools)
+    3. User context injection (name, streak, page, etc.)
+    """
+    parts = [CHAT_SYSTEM_INSTRUCTION, AGENT_TOOL_INSTRUCTIONS]
+
+    if not user_context:
+        return "\n".join(parts)
+
+    context_lines = ["\n## Current User Session Context"]
+
+    name = user_context.get("name")
+    if name:
+        context_lines.append(f"- Student name: **{name}**")
+
+    current_page = user_context.get("currentPage")
+    if current_page:
+        context_lines.append(f"- Currently viewing: `{current_page}`")
+
+    recent_scores = user_context.get("recentScores")
+    if recent_scores:
+        scores_str = ", ".join(
+            f"{skill.capitalize()}: Band {score}"
+            for skill, score in recent_scores.items()
+            if score is not None
+        )
+        if scores_str:
+            context_lines.append(f"- Recent band scores: {scores_str}")
+
+    streak = user_context.get("studyStreak")
+    if streak and streak > 0:
+        context_lines.append(f"- Study streak: **{streak} days** 🔥")
+
+    vocab_due = user_context.get("vocabDueCount")
+    if vocab_due and vocab_due > 0:
+        context_lines.append(f"- Vocab Lab cards due for review: **{vocab_due}**")
+
+    active_content = user_context.get("activeContent")
+    if active_content:
+        content_type = active_content.get("type", "")
+        part = active_content.get("part")
+        topic = active_content.get("topic")
+        desc = f"- Active practice: {content_type.capitalize()}"
+        if part:
+            desc += f" Part {part}"
+        if topic:
+            desc += f' — "{topic}"'
+        context_lines.append(desc)
+
+    if len(context_lines) > 1:
+        context_lines.append(
+            "\nUse this context to personalize your answers and tool usage. "
+            "Reference the student's name, scores, and current activity where relevant."
+        )
+        parts.extend(context_lines)
+
+    return "\n".join(parts)

@@ -37,6 +37,10 @@ export class CreateFlashcardDto {
 
   @IsString()
   @IsOptional()
+  audioUrl?: string; // TTS-generated pronunciation audio URL (set by the AI agent)
+
+  @IsString()
+  @IsOptional()
   cardTypeId?: string;
 
   @IsObject()

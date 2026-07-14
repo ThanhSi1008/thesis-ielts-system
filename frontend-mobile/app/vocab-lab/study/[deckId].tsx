@@ -13,6 +13,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
+import { useAudioPlayer } from 'expo-audio';
 import { vocabLabApi } from '@/services/features.api';
 import { COLORS, SPACING, RADIUS, FONT_SIZES } from '@/constants';
 import { FlashcardViewer } from '@/components/vocab-lab/FlashcardViewer';
@@ -24,6 +25,7 @@ interface StudyCard {
   id: string;
   front: string;
   back: string;
+  audioUrl?: string | null;
   tags?: string[];
   cardState?: string;
   scheduledDays?: number;
@@ -64,6 +66,56 @@ function getDisplayText(card: StudyCard, side: 'front' | 'back'): string {
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_W = SCREEN_W - SPACING.lg * 2;
 const CARD_H = 400; // slightly taller to accommodate media
+
+// ─── Pronunciation button ──────────────────────────────────────────────────────
+// Rendered as an overlay OUTSIDE the flip Pressable so tapping it plays the audio
+// instead of flipping the card (the flip faces are stacked absolutely, so an inner
+// button would be buried under the back face and the tap would bubble to the flip).
+function CardAudioButton({ url }: { url: string }) {
+  const { colors } = useTheme();
+  const player = useAudioPlayer(url, { downloadFirst: true });
+  const play = useCallback(() => {
+    try {
+      player.seekTo(0);
+      player.play();
+    } catch {
+      /* silent */
+    }
+  }, [player]);
+
+  return (
+    <Pressable
+      onPress={play}
+      hitSlop={10}
+      accessibilityRole="button"
+      accessibilityLabel="Play pronunciation"
+      style={({ pressed }) => [
+        audioBtn.btn,
+        { backgroundColor: colors.primary + '1A', borderColor: colors.primary + '40' },
+        pressed && { opacity: 0.6 },
+      ]}
+    >
+      <Ionicons name="volume-high" size={20} color={colors.primary} />
+    </Pressable>
+  );
+}
+const audioBtn = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    top: SPACING.md,
+    right: SPACING.md,
+    zIndex: 10,
+    elevation: 10,
+  },
+  btn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 
 function FlipCard({
   card,
@@ -106,6 +158,7 @@ function FlipCard({
   const containerStyle = parseStyle(cardStyle);
 
   return (
+    <View style={{ width: CARD_W, minHeight: CARD_H }}>
     <Pressable
       onPress={onFlip}
       style={{ width: CARD_W, minHeight: CARD_H }}
@@ -182,6 +235,12 @@ function FlipCard({
         </ScrollView>
       </Animated.View>
     </Pressable>
+      {card.audioUrl ? (
+        <View style={audioBtn.overlay} pointerEvents="box-none">
+          <CardAudioButton url={card.audioUrl} />
+        </View>
+      ) : null}
+    </View>
   );
 }
 

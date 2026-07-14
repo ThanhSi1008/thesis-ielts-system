@@ -345,17 +345,26 @@ function ListeningMatchingVariant({
   const items = rawItems
     .map((item: any) => ({
       id: item.question_number ?? item.id,
-      text: item.prompt || item.text || '',
+      text: item.prompt || item.text || item.question_text || '',
     }))
     .filter((item) => item.id != null);
 
   const rawOptions = group.options_box?.options ?? group.options_box ?? group.options;
-  const options: LetterOption[] =
+  let options: LetterOption[] =
     rawOptions && !Array.isArray(rawOptions) && typeof rawOptions === 'object'
       ? Object.entries(rawOptions).map(([letter, text]) => ({ letter, text: String(text) }))
       : Array.isArray(rawOptions)
         ? rawOptions
         : [];
+
+  // Fallback for data committed before options_box was set: use the shared
+  // options bank attached to the first item (mirrors web exam-parser).
+  if (options.length === 0) {
+    const firstOpts = rawItems[0]?.options;
+    if (firstOpts && typeof firstOpts === 'object' && !Array.isArray(firstOpts)) {
+      options = Object.entries(firstOpts).map(([letter, text]) => ({ letter, text: String(text) }));
+    }
+  }
 
   const bankTitle = group.options_box?.title || 'Options Box';
 
@@ -402,13 +411,13 @@ function StandardMatchingVariant({
     if (Array.isArray(group.items)) {
       return group.items.map((item: any) => ({
         question_number: item.question_number,
-        text: item.question_text || item.text || '',
+        text: item.question_text || item.text || item.prompt || '',
       }));
     }
     if (Array.isArray(group.questions)) {
       return group.questions.map((q: any) => ({
         question_number: q.question_number,
-        text: q.question_text || q.text || '',
+        text: q.question_text || q.text || q.prompt || '',
       }));
     }
     return [];
@@ -433,6 +442,17 @@ function StandardMatchingVariant({
         for (let c = start; c <= end; c++) {
           options.push({ letter: String.fromCharCode(c), text: '' });
         }
+      }
+    }
+  }
+
+  // Fallback for data committed before options_box was set: use the shared
+  // options bank attached to the first item/question (mirrors web exam-parser).
+  if (options.length === 0) {
+    const firstOpts = group.items?.[0]?.options ?? group.questions?.[0]?.options;
+    if (firstOpts && typeof firstOpts === 'object' && !Array.isArray(firstOpts)) {
+      for (const [letter, text] of Object.entries(firstOpts)) {
+        options.push({ letter, text: String(text) });
       }
     }
   }
@@ -491,7 +511,7 @@ function SentenceEndingsVariant({
           <MatchRow
             key={q.question_number}
             qNum={q.question_number}
-            text={q.text}
+            text={q.text || (q as any).question_text || (q as any).prompt || ''}
             options={options}
             value={answers[String(q.question_number)] || ''}
             onSelect={(v) => onAnswer(String(q.question_number), v)}
@@ -536,9 +556,13 @@ function MatchingBlockComponent({
   correctAnswers,
 }: Props) {
   const { colors, isDark } = useTheme();
-  const rawType: string = group.question_type || group.type || 'matching';
+  const rawType: string = group.type || group.question_type || 'matching';
   const type = rawType.toLowerCase().replace(/\s+/g, '_');
-  const instruction: string | undefined = group.instruction || group.description;
+  // The committed player format uses `instructions` (plural); the rest of the
+  // renderer reads that key too. Reading only `instruction` here left the
+  // matching instruction (e.g. the "paragraphs A–G" context) blank on mobile.
+  const instruction: string | undefined =
+    group.instructions || group.instruction || group.description;
   const heading: string | undefined = group.heading;
 
   const renderVariant = () => {

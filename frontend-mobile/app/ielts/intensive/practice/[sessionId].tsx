@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAudioPlayer, useAudioPlayerStatus, setAudioModeAsync } from 'expo-audio';
 
 import { toast } from '@/components/ui';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES, FONTS } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, ROUTES, FONTS, API_BASE_URL } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -29,6 +29,7 @@ import {
   renderGroup,
 } from '@/components/intensive';
 
+import { normalizePart } from '@/lib/exam-parser';
 import WritingExamBlock from '@/components/ielts/WritingExamBlock';
 import SpeakingExamBlock from '@/components/ielts/SpeakingExamBlock';
 import ReadingExamBlock from '@/components/ielts/ReadingExamBlock';
@@ -212,13 +213,20 @@ export default function PracticePlayerScreen() {
     const allParts = questionsData.parts || [];
     if (practicePart !== null && practicePart !== undefined) {
       const p = allParts.find((item: any) => item.part_number === practicePart);
-      return p ? [p] : allParts;
+      return p ? [normalizePart(p)] : allParts.map((item: any) => normalizePart(item));
     }
-    return allParts;
+    return allParts.map((item: any) => normalizePart(item));
   }, [questionsData, practicePart]);
 
-  const audioUrl = listeningParts[activeListeningPartIndex]?.audio_url ?? null;
-  const player = useAudioPlayer(audioUrl || '');
+  const rawAudioUrl = listeningParts[activeListeningPartIndex]?.audio_url ?? null;
+  const audioUrl = useMemo(() => {
+    if (!rawAudioUrl) return '';
+    if (rawAudioUrl.startsWith('http')) return rawAudioUrl;
+    const cleanUrl = rawAudioUrl.startsWith('/') ? rawAudioUrl : `/${rawAudioUrl}`;
+    const baseAssetUrl = API_BASE_URL.replace(/\/api\/v\d+\/?$/, '').replace(/\/+$/, '');
+    return `${baseAssetUrl}${cleanUrl}`;
+  }, [rawAudioUrl]);
+  const player = useAudioPlayer(audioUrl, { downloadFirst: true });
   const playerStatus = useAudioPlayerStatus(player);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
 
@@ -429,27 +437,27 @@ export default function PracticePlayerScreen() {
     const tasks = questionsData.tasks || [];
     if (practicePart !== null && practicePart !== undefined) {
       const t = tasks.find((item: any) => item.task_number === practicePart);
-      return t ? [t] : tasks;
+      return t ? [normalizePart(t)] : tasks.map((item: any) => normalizePart(item));
     }
-    return tasks;
+    return tasks.map((item: any) => normalizePart(item));
   }, [questionsData, practicePart]);
 
   const speakingParts = useMemo(() => {
     const parts = questionsData.parts || [];
     if (practicePart !== null && practicePart !== undefined) {
       const p = parts.find((item: any) => item.part_number === practicePart);
-      return p ? [p] : parts;
+      return p ? [normalizePart(p)] : parts.map((item: any) => normalizePart(item));
     }
-    return parts;
+    return parts.map((item: any) => normalizePart(item));
   }, [questionsData, practicePart]);
 
   const readingParts = useMemo(() => {
     const passages = questionsData.passages || questionsData.parts || [];
     if (practicePart !== null && practicePart !== undefined) {
       const p = passages[practicePart - 1];
-      return p ? [p] : passages;
+      return p ? [normalizePart(p)] : passages.map((item: any) => normalizePart(item));
     }
-    return passages;
+    return passages.map((item: any) => normalizePart(item));
   }, [questionsData, practicePart]);
 
   if (loading) {
@@ -519,71 +527,45 @@ export default function PracticePlayerScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.scrollArea}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 160 }}
-        >
-          {/* Hints Section */}
-          {hintsList.length > 0 && (
-            <View style={styles.hintCard}>
-              <TouchableOpacity
-                style={styles.hintHeader}
-                onPress={() => setHintsVisible(!hintsVisible)}
-                activeOpacity={0.8}
-              >
-                <View style={styles.hintTitleRow}>
-                  <Ionicons name="bulb" size={18} color="#F59E0B" />
-                  <Text style={styles.hintTitle}>Gợi ý Luyện tập ({hintsList.length})</Text>
-                </View>
-                <Ionicons
-                  name={hintsVisible ? 'chevron-up' : 'chevron-down'}
-                  size={18}
-                  color={colors.textSecondary}
-                />
-              </TouchableOpacity>
-              
-              {hintsVisible && (
-                <View style={styles.hintBody}>
-                  {hintsList.map((h, idx) => (
-                    <View key={idx} style={styles.hintItem}>
-                      <Text style={styles.hintQNum}>Q{h.qNum}:</Text>
-                      <Text style={styles.hintText}>{h.text}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
-          )}
+        {isListening ? (
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.scrollArea}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 160 }}
+          >
+            {/* Hints Section */}
+            {hintsList.length > 0 && (
+              <View style={styles.hintCard}>
+                <TouchableOpacity
+                  style={styles.hintHeader}
+                  onPress={() => setHintsVisible(!hintsVisible)}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.hintTitleRow}>
+                    <Ionicons name="bulb" size={18} color="#F59E0B" />
+                    <Text style={styles.hintTitle}>Gợi ý Luyện tập ({hintsList.length})</Text>
+                  </View>
+                  <Ionicons
+                    name={hintsVisible ? 'chevron-up' : 'chevron-down'}
+                    size={18}
+                    color={colors.textSecondary}
+                  />
+                </TouchableOpacity>
+                
+                {hintsVisible && (
+                  <View style={styles.hintBody}>
+                    {hintsList.map((h, idx) => (
+                      <View key={idx} style={styles.hintItem}>
+                        <Text style={styles.hintQNum}>Q{h.qNum}:</Text>
+                        <Text style={styles.hintText}>{h.text}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+            )}
 
-          {isWriting && (
-            <WritingExamBlock
-              tasks={writingTasks}
-              answers={writingAnswers}
-              onChange={setWritingAnswers}
-            />
-          )}
-
-          {isSpeaking && (
-            <SpeakingExamBlock
-              parts={speakingParts}
-              answers={speakingAnswers}
-              onChange={setSpeakingAnswers}
-              onSubmit={() => setSubmitConfirmVisible(true)}
-            />
-          )}
-
-          {isReading && (
-            <ReadingExamBlock
-              parts={readingParts}
-              answers={answers}
-              onChange={setAnswer}
-              renderGroup={renderGroup as any}
-            />
-          )}
-
-          {isListening && (
             <View style={styles.listeningPartSection}>
               {listeningParts.map((part: any, pi: number) => {
                 const groups = part.question_groups || part.groups || part.content || [];
@@ -603,8 +585,68 @@ export default function PracticePlayerScreen() {
                 );
               })}
             </View>
-          )}
-        </ScrollView>
+          </ScrollView>
+        ) : (
+          <View style={{ flex: 1 }}>
+            {/* Hints Section */}
+            {hintsList.length > 0 && (
+              <View style={styles.hintCard}>
+                <TouchableOpacity
+                  style={styles.hintHeader}
+                  onPress={() => setHintsVisible(!hintsVisible)}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.hintTitleRow}>
+                    <Ionicons name="bulb" size={18} color="#F59E0B" />
+                    <Text style={styles.hintTitle}>Gợi ý Luyện tập ({hintsList.length})</Text>
+                  </View>
+                  <Ionicons
+                    name={hintsVisible ? 'chevron-up' : 'chevron-down'}
+                    size={18}
+                    color={colors.textSecondary}
+                  />
+                </TouchableOpacity>
+                
+                {hintsVisible && (
+                  <View style={styles.hintBody}>
+                    {hintsList.map((h, idx) => (
+                      <View key={idx} style={styles.hintItem}>
+                        <Text style={styles.hintQNum}>Q{h.qNum}:</Text>
+                        <Text style={styles.hintText}>{h.text}</Text>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+            )}
+
+            {isWriting && (
+              <WritingExamBlock
+                tasks={writingTasks}
+                answers={writingAnswers}
+                onChange={setWritingAnswers}
+              />
+            )}
+
+            {isSpeaking && (
+              <SpeakingExamBlock
+                parts={speakingParts}
+                answers={speakingAnswers}
+                onChange={setSpeakingAnswers}
+                onSubmit={() => setSubmitConfirmVisible(true)}
+              />
+            )}
+
+            {isReading && (
+              <ReadingExamBlock
+                parts={readingParts}
+                answers={answers}
+                onChange={setAnswer}
+                renderGroup={renderGroup as any}
+              />
+            )}
+          </View>
+        )}
       </KeyboardAvoidingView>
 
       {/* Bottom Practice Submit Bar */}

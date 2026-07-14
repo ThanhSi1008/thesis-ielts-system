@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
 import type { IeltsIntensiveCatalogResponse, IeltsIntensiveGroup, IeltsBasicSkill, PracticeCatalogResponse } from "@/types";
 
@@ -241,6 +241,68 @@ function IeltsIntensiveContentInner({ embedded, initialView }: { embedded?: bool
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [mockTestOpen, setMockTestOpen] = useState(true);
   const [testHistoryOpen, setTestHistoryOpen] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Sync state with URL search params or sessionStorage on mount
+  useEffect(() => {
+    const urlView = searchParams.get("view");
+    const urlSkill = searchParams.get("skill");
+    const urlPart = searchParams.get("part");
+
+    if (urlView) {
+      setView(urlView as any);
+      sessionStorage.setItem("intensive_view", urlView);
+    } else {
+      const savedView = sessionStorage.getItem("intensive_view");
+      if (savedView) setView(savedView as any);
+    }
+
+    if (urlSkill) {
+      setSkill(urlSkill.toUpperCase() as any);
+      sessionStorage.setItem("intensive_skill", urlSkill);
+    } else {
+      const savedSkill = sessionStorage.getItem("intensive_skill");
+      if (savedSkill) setSkill(savedSkill.toUpperCase() as any);
+    }
+
+    if (urlPart) {
+      setActivePartNumber(Number(urlPart) || 1);
+      sessionStorage.setItem("intensive_part", urlPart);
+    } else {
+      const savedPart = sessionStorage.getItem("intensive_part");
+      if (savedPart) setActivePartNumber(Number(savedPart) || 1);
+    }
+    setIsLoaded(true);
+  }, []);
+
+  // Persist selections back to sessionStorage and URL parameters on change
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    sessionStorage.setItem("intensive_view", view);
+    sessionStorage.setItem("intensive_skill", skill.toLowerCase());
+    sessionStorage.setItem("intensive_part", String(activePartNumber));
+
+    const params = new URLSearchParams(searchParams.toString());
+    let changed = false;
+    if (params.get("view") !== view) {
+      params.set("view", view);
+      changed = true;
+    }
+    if (params.get("skill") !== skill.toLowerCase()) {
+      params.set("skill", skill.toLowerCase());
+      changed = true;
+    }
+    if (Number(params.get("part")) !== activePartNumber) {
+      params.set("part", String(activePartNumber));
+      changed = true;
+    }
+    if (changed) {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+  }, [view, skill, activePartNumber, isLoaded, pathname, router, searchParams]);
 
   useEffect(() => {
     let mounted = true;

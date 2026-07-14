@@ -28,6 +28,7 @@ interface FillQuestion {
   question_number: number;
   answer: string;
   acceptable_answers?: string[];
+  label_context?: string;
 }
 
 interface Group {
@@ -570,15 +571,103 @@ function OptionsBank({ options }: { options: OptionItem[] }) {
   );
 }
 
+// ─── Normalise the flat AI / admin-import group into the native render shape ──
+// The extraction → commit pipeline emits visual groups as a flat `items[]`
+// (each `{ question_number, question_text, answer, options? }`) plus a STRING
+// `questions` range label. The render variants below instead expect native
+// arrays: `labels` + `items[].text` (radio grid), `labels` with `{{n}}` markers
+// + `questions[]` (diagram completion), or `questions[].label_context` (fill).
+// Native seed groups already provide those arrays and pass through untouched.
+function adaptVisualGroup(group: Group): Group {
+  const rawItems: any[] = Array.isArray((group as any).items) ? (group as any).items : [];
+  const hasNativeLabels = Array.isArray(group.labels) && group.labels.length > 0;
+  const hasNativeQuestions = Array.isArray(group.questions) && group.questions.length > 0;
+  const isAiShape =
+    rawItems.length > 0 &&
+    !hasNativeLabels &&
+    !hasNativeQuestions &&
+    rawItems.some((it) => typeof it?.question_text === 'string');
+  if (!isAiShape) return group;
+
+  // The commit service stamps `instructions` (plural); the renderer reads `instruction`.
+  const instruction = (group as any).instruction ?? (group as any).instructions;
+  // A lettered bank lives either on a group-level options_box or on each item's
+  // `options` record ({ A: "...", B: "..." }) produced from the AI options array.
+  const optionRecord =
+    (group as any).options_box?.options ??
+    rawItems.find((it) => it?.options && typeof it.options === 'object' && !Array.isArray(it.options))?.options ??
+    null;
+  const bankLetters: string[] = optionRecord ? Object.keys(optionRecord) : [];
+
+  if (group.type === 'diagram_completion') {
+    // Each "The ___ valve" becomes a label "The {{5}} valve" with an inline blank.
+    const labels: string[] = [];
+    const questions: FillQuestion[] = [];
+    for (const it of rawItems) {
+      const qn = Number(it.question_number);
+      if (!Number.isFinite(qn)) continue;
+      const text = String(it.question_text ?? '').trim() || `Label ${qn}`;
+      labels.push(text.includes('___') ? text.replace('___', `{{${qn}}}`) : `${text} {{${qn}}}`);
+      questions.push({ question_number: qn, answer: String(it.answer ?? '') });
+    }
+    return { ...group, instruction, labels, questions } as Group;
+  }
+
+  if (group.type === 'diagram_labelling') {
+    // Options bank + radio grid: build OptionItem[] from the lettered bank.
+    const options: OptionItem[] = bankLetters.map((letter) => ({
+      letter,
+      text: String(optionRecord?.[letter] ?? '').trim(),
+    }));
+    const items: LabelItem[] = rawItems
+      .filter((it) => Number.isFinite(Number(it.question_number)))
+      .map((it) => ({
+        question_number: Number(it.question_number),
+        answer: String(it.answer ?? ''),
+        text: String(it.question_text ?? '').trim() || undefined,
+      }));
+    return { ...group, instruction, options, items } as Group;
+  }
+
+  // map_labelling / plan_labelling
+  const hasOptionTexts = bankLetters.length > 0 && bankLetters.some(letter => {
+    const val = optionRecord?.[letter];
+    return typeof val === 'string' && val.trim().length > 0;
+  });
+
+  if (bankLetters.length > 0 && hasOptionTexts) {
+    // Radio grid: each row is located against the lettered bank; answer is a letter.
+    const items: LabelItem[] = rawItems
+      .filter((it) => Number.isFinite(Number(it.question_number)))
+      .map((it) => ({
+        question_number: Number(it.question_number),
+        answer: String(it.answer ?? ''),
+        text: String(it.question_text ?? '').trim() || undefined,
+      }));
+    return { ...group, instruction, labels: bankLetters, items } as Group;
+  }
+
+  // Fill-text variant: type the place name; the prompt text becomes label_context.
+  const questions: FillQuestion[] = rawItems
+    .filter((it) => Number.isFinite(Number(it.question_number)))
+    .map((it) => ({
+      question_number: Number(it.question_number),
+      answer: String(it.answer ?? ''),
+      label_context: String(it.question_text ?? '').trim() || undefined,
+    }));
+  return { ...group, instruction, questions } as Group;
+}
+
 // ─── Main exported component ──────────────────────────────────────────────────
 function DiagramMapBlockComponent({
-  group,
+  group: rawGroup,
   answers,
   onAnswer,
   mode = 'edit',
   correctAnswers,
 }: Props) {
   const { colors, isDark } = useTheme();
+  const group = React.useMemo(() => adaptVisualGroup(rawGroup), [rawGroup]);
   const isDiagramLabelling = group.type === 'diagram_labelling';
   const isMapLabelling = group.type === 'map_labelling' || group.type === 'plan_labelling';
   const isDiagramCompletion = group.type === 'diagram_completion';

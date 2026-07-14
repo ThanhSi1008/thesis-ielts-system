@@ -83,7 +83,6 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/admin/ielts-advanced",
         match: (p) => p.startsWith("/admin/ielts-advanced"),
         icon: <GraduationIcon />,
-        disabled: true,
       },
       {
         key: "ielts-intensive",
@@ -91,7 +90,6 @@ const NAV_GROUPS: NavGroup[] = [
         href: "/admin/ielts-intensive",
         match: (p) => p.startsWith("/admin/ielts-intensive"),
         icon: <GraduationIcon />,
-        disabled: true,
       },
     ],
   },

@@ -26,6 +26,7 @@ import { NotificationsModule } from "./modules/notifications/notifications.modul
 import { PostsModule } from "./modules/posts/posts.module";
 import { GamificationModule } from "./modules/gamification/gamification.module";
 import { SubscriptionsModule } from "./modules/subscriptions/subscriptions.module";
+import { AdminIeltsModule } from "./modules/admin-ielts/admin-ielts.module";
 
 // Import common modules
 import { PrismaModule } from "./common/prisma/prisma.module";
@@ -77,6 +78,7 @@ import { CacheModule } from "./common/cache/cache.module";
     PostsModule,
     GamificationModule,
     SubscriptionsModule,
+    AdminIeltsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

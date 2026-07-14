@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Animated } from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Animated, Image } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -57,7 +57,6 @@ export default function VocabularyScreen() {
   const [books, setBooks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedStage, setSelectedStage] = useState<string>('All');
   const { handleScroll } = useTabBarVisibility();
 
   const load = useCallback(async () => {
@@ -76,7 +75,7 @@ export default function VocabularyScreen() {
     load();
   }, [load]);
 
-  // Pre-assign stable stages & themes to books to prevent theme shifting on filter
+  // Pre-assign stable stages & themes to books to prevent theme shifting
   const booksWithThemes = useMemo(() => {
     return books.map((book, idx) => {
       const theme = BOOK_THEMES[idx % BOOK_THEMES.length];
@@ -87,12 +86,6 @@ export default function VocabularyScreen() {
       };
     });
   }, [books]);
-
-  // Filter books based on selected chip stage
-  const filteredBooks = useMemo(() => {
-    if (selectedStage === 'All') return booksWithThemes;
-    return booksWithThemes.filter((b) => b.stage === selectedStage);
-  }, [booksWithThemes, selectedStage]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={['top']}>
@@ -134,45 +127,21 @@ export default function VocabularyScreen() {
       {/* Count */}
       <View style={styles.countRow}>
         <Text variant="caption" weight="bold" style={styles.countText} allowFontScaling={true}>
-          {filteredBooks.length > 0 ? `${filteredBooks.length} books available` : 'Vocabulary'}
+          {booksWithThemes.length > 0 ? `${booksWithThemes.length} books available` : 'Vocabulary'}
         </Text>
-      </View>
-
-      {/* Category Filter Chips */}
-      <View style={styles.filterWrapper}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.chipsContainer}
-          accessibilityRole="tablist"
-        >
-          {['All', 'Foundation', 'Basic', 'Advanced', 'Intensive', 'Master', 'Expert'].map((stage) => (
-            <Chip
-              key={stage}
-              label={stage}
-              active={selectedStage === stage}
-              onPress={() => setSelectedStage(stage)}
-              accessibilityRole="tab"
-              accessibilityLabel={`${stage} category filter`}
-              accessibilityHint={`Double tap to view ${stage} books`}
-            />
-          ))}
-        </ScrollView>
       </View>
 
       <DataScreen
         loading={loading}
         error={null}
-        empty={filteredBooks.length === 0}
+        empty={booksWithThemes.length === 0}
         onRetry={load}
         skeleton={<BookListSkeleton count={3} />}
         emptyState={
           <EmptyState
             illustration={EmptyStates.bookmarks}
-            title={selectedStage === 'All' ? "No Vocabulary Books" : `No ${selectedStage} Books`}
-            description={selectedStage === 'All'
-              ? "You don't have any vocabulary books assigned yet."
-              : `You don't have any ${selectedStage.toLowerCase()} vocabulary books assigned.`}
+            title="No Vocabulary Books"
+            description="You don't have any vocabulary books assigned yet."
             primaryAction={{
               title: 'Try Again',
               onPress: load,
@@ -196,7 +165,7 @@ export default function VocabularyScreen() {
           }
           contentContainerStyle={styles.listContent}
         >
-          {filteredBooks.map((book) => {
+          {booksWithThemes.map((book) => {
             const pct = book.progress ?? 0;
             const started = pct > 0;
             const totalUnits = book._count?.units ?? 0;
@@ -205,81 +174,170 @@ export default function VocabularyScreen() {
             return (
               <Card
                 key={book.id}
-                variant="gradient"
-                gradientColors={book.theme.colors as unknown as string[]}
+                variant="elevated"
                 onPress={() => router.push(ROUTES.foundationVocabularyBook(book.id))}
-                style={styles.card}
+                style={[
+                  styles.card,
+                  {
+                    padding: 0,
+                    overflow: 'hidden',
+                    backgroundColor: colors.card,
+                    borderColor: colors.border,
+                    borderWidth: 1,
+                  },
+                ]}
                 accessibilityLabel={`Vocabulary book: ${book.name}. Stage: ${book.stage}. Total words: ${wordCount}. Total units: ${totalUnits}. Progress: ${pct} percent. ${started ? 'Double tap to continue learning.' : 'Double tap to start learning.'}`}
                 accessibilityHint={started ? 'Continue vocabulary practice' : 'Start vocabulary practice'}
               >
-                {/* Word count badge */}
-                <View style={styles.badge}>
-                  <Ionicons name="text" size={10} color="rgba(255,255,255,0.85)" />
-                  <Text variant="caption" weight="bold" style={styles.badgeText} allowFontScaling={true}>
-                    {wordCount} words
-                  </Text>
-                </View>
-
-                {/* Hero section */}
-                <View style={styles.heroRow}>
-                  {/* Icon Tile */}
-                  <View style={styles.iconTile}>
-                    <Ionicons name="book" size={24} color="#ffffff" />
-                  </View>
-
-                  {/* Text labels */}
-                  <View style={styles.heroTextCol}>
-                    <Text variant="caption" weight="bold" style={styles.heroStage} allowFontScaling={true}>
-                      Stage · {book.stage}
-                    </Text>
-                    <Text variant="title" weight="bold" style={styles.heroTitle} numberOfLines={2} allowFontScaling={true}>
-                      {book.name}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Divider */}
-                <View style={styles.divider} />
-
-                {/* Progress (if started) */}
-                {started && (
-                  <View style={styles.progressSection}>
-                    <View style={styles.progressRow}>
-                      <Text variant="label" weight="bold" style={styles.progressLabel} allowFontScaling={true}>
-                        Progress
-                      </Text>
-                      <Text variant="label" weight="bold" style={styles.progressValue} allowFontScaling={true}>
-                        {pct}%
-                      </Text>
-                    </View>
-                    <ProgressBar
-                      value={pct}
-                      height={6}
-                      color="#ffffff"
-                      trackColor="rgba(255,255,255,0.25)"
-                    />
+                {/* Cover Image */}
+                {book.imageUrl ? (
+                  <Image
+                    source={{ uri: book.imageUrl }}
+                    style={{ width: '100%', height: 160 }}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View
+                    style={{
+                      width: '100%',
+                      height: 160,
+                      backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Ionicons name="book" size={48} color={isDark ? '#475569' : '#cbd5e1'} />
                   </View>
                 )}
 
-                {/* Footer action row */}
-                <View style={styles.actionRow}>
-                  <View style={styles.unitInfo}>
-                    <Ionicons name="layers" size={14} color="rgba(255,255,255,0.85)" />
-                    <Text variant="body" weight="medium" style={styles.unitText} allowFontScaling={true}>
+                {/* Card Body */}
+                <View style={{ padding: 16 }}>
+                  {/* Stage Label */}
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      fontFamily: FONTS.bold,
+                      color: COLORS.gray[400],
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.8,
+                      marginBottom: 4,
+                    }}
+                    allowFontScaling={true}
+                  >
+                    Stage · {book.stage}
+                  </Text>
+
+                  {/* Book Title */}
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      fontFamily: FONTS.bold,
+                      color: colors.text,
+                      marginBottom: 8,
+                    }}
+                    numberOfLines={2}
+                    allowFontScaling={true}
+                  >
+                    {book.name}
+                  </Text>
+
+                  {/* Word count row */}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                      marginBottom: 12,
+                    }}
+                  >
+                    <Image
+                      source={{
+                        uri: 'https://res.cloudinary.com/dalaaegob/image/upload/v1769774878/dictionary-icon_qxfgms.png',
+                      }}
+                      style={{ width: 18, height: 18, opacity: 0.6 }}
+                      resizeMode="contain"
+                    />
+                    <Text
+                      style={{
+                        color: colors.textSecondary,
+                        fontFamily: FONTS.medium,
+                        fontSize: 12,
+                      }}
+                      allowFontScaling={true}
+                    >
+                      {wordCount} words
+                    </Text>
+                    <Text style={{ color: colors.textMuted, fontSize: 12 }}>•</Text>
+                    <Text
+                      style={{
+                        color: colors.textSecondary,
+                        fontFamily: FONTS.medium,
+                        fontSize: 12,
+                      }}
+                      allowFontScaling={true}
+                    >
                       {totalUnits} units
                     </Text>
                   </View>
 
-                  <View style={styles.actionBtn}>
+                  {/* Progress (if started) */}
+                  {started && (
+                    <View style={{ marginBottom: 16 }}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 4,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 11,
+                            fontFamily: FONTS.medium,
+                            color: colors.textSecondary,
+                          }}
+                          allowFontScaling={true}
+                        >
+                          Progress
+                        </Text>
+                        <Text
+                          style={{ fontSize: 11, fontFamily: FONTS.bold, color: colors.text }}
+                          allowFontScaling={true}
+                        >
+                          {pct}%
+                        </Text>
+                      </View>
+                      <ProgressBar
+                        value={pct}
+                        height={4}
+                        color="#FFC600"
+                        trackColor={isDark ? '#334155' : '#E2E8F0'}
+                      />
+                    </View>
+                  )}
+
+                  {/* START LEARNING button */}
+                  <View
+                    style={{
+                      backgroundColor: '#FFC600',
+                      paddingVertical: 12,
+                      borderRadius: 10,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginTop: 4,
+                    }}
+                  >
                     <Text
-                      variant="label"
-                      weight="bold"
-                      style={[styles.actionBtnText, { color: book.theme.colors[1] }]}
+                      style={{
+                        color: '#000000',
+                        fontFamily: FONTS.bold,
+                        fontSize: 12,
+                        letterSpacing: 0.5,
+                      }}
                       allowFontScaling={true}
                     >
-                      {started ? 'CONTINUE' : 'START'}
+                      {started ? 'CONTINUE LEARNING' : 'START LEARNING'}
                     </Text>
-                    <Ionicons name="chevron-forward" size={12} color={book.theme.colors[1]} />
                   </View>
                 </View>
               </Card>

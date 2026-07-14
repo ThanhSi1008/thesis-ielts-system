@@ -361,6 +361,7 @@ export interface Flashcard {
   front: string;
   back: string;
   tags: string[];
+  audioUrl?: string | null; // TTS pronunciation audio (e.g. AI-created cards); press-to-listen
   // FSRS scheduling fields
   due: string;
   stability: number;
@@ -716,10 +717,13 @@ export interface IeltsOverviewStats {
   bandGap: number | null;
   dailyMinutesPracticed: number;
   dailyCommitmentMins: number;
+  testsTaken: number;
+  testsThisWeek: number;
   heatmap: { date: string; minutes: number }[];
-  recentActivity: any[]; // Expand this when feed is ready
+  recentActivity: { label: string; date: string }[];
   daysToExam: number | null;
   readinessScore: number | null;
+  progressOverTime: { month: string; band: number | null; count: number }[];
 }
 
 export interface IeltsFoundationStats {

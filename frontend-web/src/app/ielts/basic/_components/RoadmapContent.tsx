@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { useEffect, useState } from "react";
-import { CheckCircle2, Lock, BookOpen, Headphones, PenTool, Mic, Check, Play } from "lucide-react";
+import { CheckCircle2, Lock, BookOpen, Headphones, PenTool, Mic, Check, Play, RefreshCw } from "lucide-react";
 import { RoadmapStep, RoadmapItem } from "./RoadmapSidebar";
 
 export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
@@ -11,6 +11,8 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
   const [steps, setSteps] = useState<RoadmapStep[]>([]);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [loading, setLoading] = useState(true);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
 
   const fetchRoadmap = async () => {
     try {
@@ -31,6 +33,18 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
   useEffect(() => {
     fetchRoadmap();
   }, []);
+
+  const handleRegenerate = async () => {
+    setIsRegenerating(true);
+    try {
+      await api.post("/ielts/roadmap/regenerate");
+      router.push("/ielts/basic/onboarding");
+    } catch (err) {
+      console.error("Failed to regenerate roadmap", err);
+      setIsRegenerating(false);
+      setShowRegenerateConfirm(false);
+    }
+  };
 
   const getSkillIcon = (skill: string) => {
     switch (skill) {
@@ -87,7 +101,17 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
     <div className="flex-1 min-w-0 bg-white dark:bg-slate-950 overflow-y-auto p-4 md:p-6 flex flex-col items-start gap-8 w-full shrink-0 h-full">
       {/* Summary Section */}
       <div className="bg-[#FAF7F2] dark:bg-slate-900 p-6 lg:p-8 rounded-3xl flex flex-col w-full">
-        <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">IELTS Basic Mastery Roadmap</h2>
+        <div className="flex items-start justify-between mb-6">
+          <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">IELTS Basic Mastery Roadmap</h2>
+          <button
+            onClick={() => setShowRegenerateConfirm(true)}
+            className="flex items-center gap-2 px-4 py-2 text-[13px] font-bold text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-gray-700 dark:hover:text-white transition-all duration-200 shadow-sm"
+            title="Regenerate your roadmap with new settings"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Regenerate
+          </button>
+        </div>
 
         <div className="flex flex-wrap items-center gap-5 mb-6">
           <div className="flex items-center gap-1.5">
@@ -109,6 +133,52 @@ export default function RoadmapContent({ embedded }: { embedded?: boolean }) {
           to establish a strong baseline before moving on to advanced strategies. Complete the tasks in sequential order to unlock the next steps.
         </p>
       </div>
+
+      {/* Regenerate Confirmation Modal */}
+      {showRegenerateConfirm && (
+        <div className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden max-w-sm w-full mx-auto animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <div className="w-12 h-12 bg-amber-50 dark:bg-amber-900/20 rounded-xl flex items-center justify-center mb-4">
+                <RefreshCw className="w-6 h-6 text-amber-500" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Regenerate Roadmap?</h3>
+              <p className="text-gray-500 dark:text-slate-400 text-[14px] leading-relaxed">
+                This will reset your current roadmap and all IELTS Basic progress. You'll go through the onboarding setup again to create a fresh study plan.
+              </p>
+              <p className="text-red-500 text-[13px] font-semibold mt-3">
+                ⚠ This action cannot be undone.
+              </p>
+            </div>
+            <div className="bg-gray-50 dark:bg-slate-800 px-6 py-4 flex items-center justify-end gap-3 border-t border-gray-100 dark:border-slate-700">
+              <button
+                onClick={() => setShowRegenerateConfirm(false)}
+                disabled={isRegenerating}
+                className="px-4 py-2 font-semibold text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-xl hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRegenerate}
+                disabled={isRegenerating}
+                className="px-4 py-2 font-bold text-white bg-amber-500 rounded-xl hover:bg-amber-600 transition-colors flex items-center gap-2 disabled:opacity-60"
+              >
+                {isRegenerating ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Resetting...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4" />
+                    Yes, Regenerate
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Roadmap List */}
       <div className="flex flex-col w-full">

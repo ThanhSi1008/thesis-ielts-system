@@ -716,12 +716,12 @@ push to main/develop
         │
         ├── deploy-frontend
         │     Build linux/amd64 Docker image
-        │     Push to gcr.io/ielts-master-495612/frontend-web:{sha} + :latest
+        │     Push to gcr.io/ielts-master-502414/frontend-web:{sha} + :latest
         │     gcloud run deploy frontend-web --region asia-southeast1
         │
         └── deploy-backend
               Build changed images → push to GCR
-              SSH (ed25519) to VM 34.143.226.199 as user xis108
+              SSH (ed25519) to VM 34.21.232.188 as user xis108floren
               cd /opt/app
               docker compose pull <svc>
               docker compose up -d --no-deps <svc>

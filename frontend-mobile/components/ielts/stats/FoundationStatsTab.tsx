@@ -53,11 +53,17 @@ export default function FoundationStatsTab({ stats, loading }: FoundationStatsTa
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
       {/* 1. Vocabulary Progress Card */}
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Vocabulary Lab</Text>
+        <Text style={styles.cardTitle}>Vocabulary</Text>
         <Text style={styles.sectionSubtitle}>Progress across vocabulary learning books</Text>
 
         <View style={styles.progressCircleRow}>
-          <ProgressCircle value={vocabulary.progress} max={100} size={70} strokeWidth={7} color={COLORS.skill.reading} />
+          <ProgressCircle
+            value={vocabulary.progress}
+            max={100}
+            size={70}
+            strokeWidth={7}
+            color={COLORS.skill.reading}
+          />
           <View style={styles.progressCircleTextCol}>
             <Text style={styles.progressNumberText}>
               {vocabulary.wordsLearned} / {vocabulary.totalWords}
@@ -87,7 +93,12 @@ export default function FoundationStatsTab({ stats, loading }: FoundationStatsTa
                     />
                   </View>
                   <View style={styles.progressBarWrapper}>
-                    <ProgressBar value={book.progress} max={100} height={6} color={COLORS.skill.reading} />
+                    <ProgressBar
+                      value={book.progress}
+                      max={100}
+                      height={6}
+                      color={COLORS.skill.reading}
+                    />
                     <Text style={styles.progressPercentText}>{Math.round(book.progress)}%</Text>
                   </View>
                 </View>
@@ -105,7 +116,13 @@ export default function FoundationStatsTab({ stats, loading }: FoundationStatsTa
         <Text style={styles.sectionSubtitle}>Track completed grammar units</Text>
 
         <View style={styles.progressCircleRow}>
-          <ProgressCircle value={grammar.progress} max={100} size={70} strokeWidth={7} color={COLORS.skill.writing} />
+          <ProgressCircle
+            value={grammar.progress}
+            max={100}
+            size={70}
+            strokeWidth={7}
+            color={COLORS.skill.writing}
+          />
           <View style={styles.progressCircleTextCol}>
             <Text style={styles.progressNumberText}>{Math.round(grammar.progress)}%</Text>
             <Text style={styles.progressLabelText}>Overall Completion</Text>
@@ -133,7 +150,12 @@ export default function FoundationStatsTab({ stats, loading }: FoundationStatsTa
                     />
                   </View>
                   <View style={styles.progressBarWrapper}>
-                    <ProgressBar value={book.progress} max={100} height={6} color={COLORS.skill.writing} />
+                    <ProgressBar
+                      value={book.progress}
+                      max={100}
+                      height={6}
+                      color={COLORS.skill.writing}
+                    />
                     <Text style={styles.progressPercentText}>{Math.round(book.progress)}%</Text>
                   </View>
                 </View>
@@ -166,7 +188,8 @@ export default function FoundationStatsTab({ stats, loading }: FoundationStatsTa
               <Ionicons name="mic-circle" size={18} color={colors.info} />
             </View>
             <Text style={styles.pronStatVal}>
-              {pronunciation.soundsPracticed} <Text style={styles.pronStatValSub}>/ {pronunciation.totalSounds}</Text>
+              {pronunciation.soundsPracticed}{' '}
+              <Text style={styles.pronStatValSub}>/ {pronunciation.totalSounds}</Text>
             </Text>
             <Text style={styles.pronStatLbl}>Sounds Practiced</Text>
           </View>
@@ -177,9 +200,16 @@ export default function FoundationStatsTab({ stats, loading }: FoundationStatsTa
             <Text style={styles.subSectionTitle}>Mastery Progress</Text>
             <Badge label={`Avg: ${Math.round(pronunciation.averageScore)}`} variant="info" />
           </View>
-          <ProgressBar value={pronunciation.progress} max={100} height={8} color={COLORS.skill.speaking} />
+          <ProgressBar
+            value={pronunciation.progress}
+            max={100}
+            height={8}
+            color={COLORS.skill.speaking}
+          />
           <View style={styles.pronProgressLabels}>
-            <Text style={styles.pronProgressPercent}>{Math.round(pronunciation.progress)}% Mastered</Text>
+            <Text style={styles.pronProgressPercent}>
+              {Math.round(pronunciation.progress)}% Mastered
+            </Text>
           </View>
         </View>
       </View>

@@ -43,11 +43,21 @@ export function MatchingSentenceEndingsGroup({
 }) {
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
 
-  const usedIds = group.questions
+  const questions = group.questions || [];
+  let options = group.options || [];
+  if (options.length === 0 && (group as any).options_box?.options) {
+    const boxOpts = (group as any).options_box.options;
+    options = Object.entries(boxOpts).map(([letter, text]) => ({
+      id: letter,
+      text: String(text),
+    }));
+  }
+
+  const usedIds = questions
     .map(q => (answers[q.question_number] ?? '').toUpperCase())
     .filter(Boolean);
 
-  const qNums = group.questions.map(q => q.question_number);
+  const qNums = questions.map(q => q.question_number);
 
   return (
     <div className="mb-8">
@@ -63,10 +73,10 @@ export function MatchingSentenceEndingsGroup({
 
       {/* Sentence starter + dropdown rows */}
       <div className="space-y-4 mb-6">
-        {group.questions.map(q => {
+        {questions.map(q => {
           const selected = (answers[q.question_number] ?? '').toUpperCase();
           const isCorrect = submitted && selected === q.answer.toUpperCase();
-          const selectedOption = group.options.find(o => o.id.toUpperCase() === selected);
+          const selectedOption = options.find(o => o.id.toUpperCase() === selected);
 
           return (
             <div id={`question-${q.question_number}`} key={q.question_number}>
@@ -85,7 +95,7 @@ export function MatchingSentenceEndingsGroup({
                     {q.question_number}
                   </span>
                   <p className="text-[14px] font-medium text-gray-800 leading-snug pt-0.5">
-                    {q.text}
+                    {q.text || (q as any).question_text}
                   </p>
                 </div>
 
@@ -104,7 +114,7 @@ export function MatchingSentenceEndingsGroup({
                       {!isCorrect && showAnswers && (
                         <span className="inline-flex items-center gap-1.5 border border-green-400 bg-green-50 text-green-800 rounded px-2.5 py-1 text-[13px] font-semibold">
                           <span className="font-bold">{q.answer}</span>
-                          <span className="font-normal">· {group.options.find(o => o.id === q.answer)?.text}</span>
+                          <span className="font-normal">· {options.find(o => o.id === q.answer)?.text}</span>
                         </span>
                       )}
                     </div>
@@ -115,7 +125,7 @@ export function MatchingSentenceEndingsGroup({
                       className="border border-gray-300 rounded-md px-3 py-1.5 text-[13px] text-gray-800 bg-white outline-none focus:border-[#FFC107] transition-colors cursor-pointer w-full max-w-xs"
                     >
                       <option value="">— Select an ending —</option>
-                      {group.options.map(opt => (
+                      {options.map(opt => (
                         <option
                           key={opt.id}
                           value={opt.id}
@@ -154,25 +164,27 @@ export function MatchingSentenceEndingsGroup({
       </div>
 
       {/* Options bank */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
-        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Options</p>
-        <div className="space-y-2">
-          {group.options.map(opt => {
-            const isUsed = usedIds.includes(opt.id.toUpperCase()) && !submitted;
-            const isCorrectAns = showAnswers && group.questions.some(q => q.answer.toUpperCase() === opt.id.toUpperCase());
-            return (
-              <div key={opt.id} className={`flex items-baseline gap-2 text-[13px] transition-colors ${
-                submitted
-                  ? isCorrectAns ? 'text-green-700 font-semibold' : 'text-gray-400'
-                  : isUsed ? 'text-yellow-600' : 'text-gray-700'
-              }`}>
-                <span className="font-bold shrink-0 w-4">{opt.id}</span>
-                <span>{opt.text}</span>
-              </div>
-            );
-          })}
+      {options.length > 0 && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Options</p>
+          <div className="space-y-2">
+            {options.map(opt => {
+              const isUsed = usedIds.includes(opt.id.toUpperCase()) && !submitted;
+              const isCorrectAns = showAnswers && questions.some(q => q.answer.toUpperCase() === opt.id.toUpperCase());
+              return (
+                <div key={opt.id} className={`flex items-baseline gap-2 text-[13px] transition-colors ${
+                  submitted
+                    ? isCorrectAns ? 'text-green-700 font-semibold' : 'text-gray-400'
+                    : isUsed ? 'text-yellow-600' : 'text-gray-700'
+                }`}>
+                  <span className="font-bold shrink-0 w-4">{opt.id}</span>
+                  <span>{opt.text}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

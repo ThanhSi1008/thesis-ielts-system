@@ -171,13 +171,13 @@ function IntensiveSkeleton() {
   );
 }
 
-export default function IntensiveTab() {
+export default function IntensiveTab({ studentId }: { studentId?: string }) {
   const [data, setData] = useState<IeltsIntensiveStats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    ieltsStatisticsApi.getIntensive().then(setData).catch(() => setData(null)).finally(() => setLoading(false));
-  }, []);
+    ieltsStatisticsApi.getIntensive(studentId).then(setData).catch(() => setData(null)).finally(() => setLoading(false));
+  }, [studentId]);
 
   if (loading) return <IntensiveSkeleton />;
 

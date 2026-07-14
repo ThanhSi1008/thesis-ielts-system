@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { vocabLabApi } from '@/services/vocabLab.api';
 import type { StudyCard } from '@/types';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import { Volume2 } from 'lucide-react';
 
 
 // ── Style helpers ─────────────────────────────────────────────────────────────
@@ -108,6 +112,7 @@ export default function StudyPage() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRefetching, setIsRefetching] = useState(false);
+  const [hasMoreCards, setHasMoreCards] = useState(true);
 
   const fetchStudyCards = async (isInitial = true) => {
     if (isInitial) setLoading(true);
@@ -124,6 +129,8 @@ export default function StudyPage() {
         
         if (newDueCards.length > 0) {
           setCards(prev => [...prev, ...newDueCards]);
+        } else {
+          setHasMoreCards(false);
         }
       }
     } catch (error) {
@@ -142,11 +149,11 @@ export default function StudyPage() {
 
   // Refetch when reaching the end of the queue
   useEffect(() => {
-    if (!loading && cards.length > 0 && currentIndex === cards.length && !isRefetching) {
+    if (!loading && cards.length > 0 && currentIndex === cards.length && !isRefetching && hasMoreCards) {
       fetchStudyCards(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIndex, cards.length, loading, isRefetching]);
+  }, [currentIndex, cards.length, loading, isRefetching, hasMoreCards]);
 
   const currentCard = cards[currentIndex];
   const isComplete = !loading && !isRefetching && cards.length > 0 && currentIndex >= cards.length;
@@ -333,7 +340,9 @@ export default function StudyPage() {
             ) : isNoCards ? (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center max-w-md w-full self-center mt-12">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">🎉</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                  </svg>
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 mb-2">You're all caught up!</h2>
                 <p className="text-sm text-gray-600 mb-6">There are no cards left to study in this deck right now.</p>
@@ -381,12 +390,25 @@ export default function StudyPage() {
                     </div>
                   )}
 
+                  {/* Pronunciation audio (e.g. AI-generated) — press to listen */}
+                  {currentCard.audioUrl && (
+                    <button
+                      type="button"
+                      onClick={() => { void new Audio(currentCard.audioUrl as string).play(); }}
+                      className="mb-3 inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 transition-colors"
+                      aria-label="Play pronunciation"
+                      title="Play pronunciation"
+                    >
+                      <Volume2 className="w-5 h-5" />
+                    </button>
+                  )}
+
                   {/* Front side */}
                   <div className="flex flex-col gap-4 w-full">
                     {!currentCard.cardType ? (
                       // Legacy fallback
-                      <div className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-6 leading-tight w-full whitespace-pre-wrap">
-                        {currentCard.front}
+                      <div className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-6 leading-tight w-full whitespace-pre-wrap prose max-w-none dark:prose-invert [&_*]:text-inherit">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{currentCard.front}</ReactMarkdown>
                       </div>
                     ) : (
                       // New dynamic fields for front
@@ -410,8 +432,10 @@ export default function StudyPage() {
                           <div key={fieldId} className="text-xl sm:text-2xl font-semibold leading-tight w-full prose max-w-none prose-sm sm:prose-base [&_img]:max-w-[280px] [&_img]:max-h-[280px] [&_img]:w-auto [&_img]:mx-auto [&_img]:rounded-xl [&_video]:max-w-[280px] [&_video]:max-h-[280px] [&_video]:w-auto [&_video]:mx-auto [&_video]:rounded-xl"
                             style={css} dangerouslySetInnerHTML={{ __html: value }} />
                         ) : (
-                          <div key={fieldId} className="text-xl sm:text-2xl font-semibold leading-tight w-full whitespace-pre-wrap"
-                            style={css}>{value}</div>
+                          <div key={fieldId} className="text-xl sm:text-2xl font-semibold leading-tight w-full prose max-w-none prose-sm sm:prose-base dark:prose-invert [&_*]:text-inherit"
+                            style={css}>
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{value}</ReactMarkdown>
+                          </div>
                         );
                       })
                     )}
@@ -424,8 +448,8 @@ export default function StudyPage() {
                       <div className="flex flex-col gap-5 w-full">
                         {!currentCard.cardType ? (
                           // Legacy fallback
-                          <div className="text-lg sm:text-xl text-gray-700 whitespace-pre-wrap leading-relaxed">
-                            {currentCard.back}
+                          <div className="text-lg sm:text-xl text-gray-700 whitespace-pre-wrap leading-relaxed prose max-w-none dark:prose-invert [&_*]:text-inherit">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{currentCard.back}</ReactMarkdown>
                           </div>
                         ) : (
                           // New dynamic fields for back
@@ -450,8 +474,10 @@ export default function StudyPage() {
                               <div key={fieldId} className="text-lg sm:text-xl leading-relaxed prose max-w-none prose-sm sm:prose-base [&_img]:max-w-[280px] [&_img]:max-h-[280px] [&_img]:w-auto [&_img]:mx-auto [&_img]:rounded-xl [&_video]:max-w-[280px] [&_video]:max-h-[280px] [&_video]:w-auto [&_video]:mx-auto [&_video]:rounded-xl"
                                 style={css} dangerouslySetInnerHTML={{ __html: value }} />
                             ) : (
-                              <div key={fieldId} className="text-lg sm:text-xl leading-relaxed whitespace-pre-wrap"
-                                style={css}>{value}</div>
+                              <div key={fieldId} className="text-lg sm:text-xl leading-relaxed prose max-w-none prose-sm sm:prose-base dark:prose-invert [&_*]:text-inherit"
+                                style={css}>
+                                <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{value}</ReactMarkdown>
+                              </div>
                             );
                           })
                         )}
@@ -476,53 +502,94 @@ export default function StudyPage() {
                       </button>
                     ) : (
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 animate-fade-in-up">
-                        <button
-                          onClick={() => handleRating(1)}
-                          disabled={isSubmitting}
-                          className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg border border-red-200 transition-colors disabled:opacity-50 group"
-                        >
-                          <span className="font-bold text-sm mb-0.5">Again</span>
-                          <div className="flex items-center text-[10px] opacity-70">
-                            <span>&lt;10m</span>
-                            <span className="ml-1.5 px-1 py-px bg-red-100 group-hover:bg-red-200 rounded hidden sm:block">1</span>
-                          </div>
-                        </button>
+                        {/* Helper to calculate precise FSRS-v5 intervals for button previews */}
+                        {(() => {
+                          const getRatingInterval = (rating: number) => {
+                            const isNew = currentCard.cardState === 'NEW' || !currentCard.reps;
+                            const isLearning = currentCard.cardState === 'LEARNING' || (currentCard.reps === 1 && currentCard.scheduledDays === 0);
 
-                        <button
-                          onClick={() => handleRating(2)}
-                          disabled={isSubmitting}
-                          className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-lg border border-orange-200 transition-colors disabled:opacity-50 group"
-                        >
-                          <span className="font-bold text-sm mb-0.5">Hard</span>
-                          <div className="flex items-center text-[10px] opacity-70">
-                            <span>{currentCard.scheduledDays > 0 ? `${Math.max(1, Math.round(currentCard.scheduledDays * 1.2))}d` : '1d'}</span>
-                            <span className="ml-1.5 px-1 py-px bg-orange-100 group-hover:bg-orange-200 rounded hidden sm:block">2</span>
-                          </div>
-                        </button>
+                            if (isNew) {
+                              switch (rating) {
+                                case 1: return '<10m';
+                                case 2: return '<12m';
+                                case 3: return '<15m';
+                                case 4: return '8d';
+                                default: return '—';
+                              }
+                            }
 
-                        <button
-                          onClick={() => handleRating(3)}
-                          disabled={isSubmitting}
-                          className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg border border-blue-200 transition-colors disabled:opacity-50 group"
-                        >
-                          <span className="font-bold text-sm mb-0.5">Good</span>
-                          <div className="flex items-center text-[10px] opacity-70">
-                            <span>{currentCard.scheduledDays > 0 ? `${Math.max(2, Math.round(currentCard.scheduledDays * 2.5))}d` : '3d'}</span>
-                            <span className="ml-1.5 px-1 py-px bg-blue-100 group-hover:bg-blue-200 rounded hidden sm:block">3</span>
-                          </div>
-                        </button>
+                            if (isLearning) {
+                              switch (rating) {
+                                case 1: return '<10m';
+                                case 2: return '<12m';
+                                case 3: return '<15m';
+                                case 4: return '1d';
+                                default: return '—';
+                              }
+                            }
 
-                        <button
-                          onClick={() => handleRating(4)}
-                          disabled={isSubmitting}
-                          className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg border border-green-200 transition-colors disabled:opacity-50 group"
-                        >
-                          <span className="font-bold text-sm mb-0.5">Easy</span>
-                          <div className="flex items-center text-[10px] opacity-70">
-                            <span>{currentCard.scheduledDays > 0 ? `${Math.max(3, Math.round(currentCard.scheduledDays * 3.5))}d` : '5d'}</span>
-                            <span className="ml-1.5 px-1 py-px bg-green-100 group-hover:bg-green-200 rounded hidden sm:block">4</span>
-                          </div>
-                        </button>
+                            const base = currentCard.scheduledDays || 1;
+                            switch (rating) {
+                              case 1: return '<10m';
+                              case 2: return `${Math.max(1, Math.round(base * 1.2))}d`;
+                              case 3: return `${Math.max(2, Math.round(base * 2.5))}d`;
+                              case 4: return `${Math.max(3, Math.round(base * 3.5))}d`;
+                              default: return '—';
+                            }
+                          };
+
+                          return (
+                            <>
+                              <button
+                                onClick={() => handleRating(1)}
+                                disabled={isSubmitting}
+                                className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg border border-red-200 transition-colors disabled:opacity-50 group"
+                              >
+                                <span className="font-bold text-sm mb-0.5">Again</span>
+                                <div className="flex items-center text-[10px] opacity-70">
+                                  <span>{getRatingInterval(1)}</span>
+                                  <span className="ml-1.5 px-1 py-px bg-red-100 group-hover:bg-red-200 rounded hidden sm:block">1</span>
+                                </div>
+                              </button>
+
+                              <button
+                                onClick={() => handleRating(2)}
+                                disabled={isSubmitting}
+                                className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-lg border border-orange-200 transition-colors disabled:opacity-50 group"
+                              >
+                                <span className="font-bold text-sm mb-0.5">Hard</span>
+                                <div className="flex items-center text-[10px] opacity-70">
+                                  <span>{getRatingInterval(2)}</span>
+                                  <span className="ml-1.5 px-1 py-px bg-orange-100 group-hover:bg-orange-200 rounded hidden sm:block">2</span>
+                                </div>
+                              </button>
+
+                              <button
+                                onClick={() => handleRating(3)}
+                                disabled={isSubmitting}
+                                className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg border border-blue-200 transition-colors disabled:opacity-50 group"
+                              >
+                                <span className="font-bold text-sm mb-0.5">Good</span>
+                                <div className="flex items-center text-[10px] opacity-70">
+                                  <span>{getRatingInterval(3)}</span>
+                                  <span className="ml-1.5 px-1 py-px bg-blue-100 group-hover:bg-blue-200 rounded hidden sm:block">3</span>
+                                </div>
+                              </button>
+
+                              <button
+                                onClick={() => handleRating(4)}
+                                disabled={isSubmitting}
+                                className="flex flex-col items-center justify-center py-1.5 sm:py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg border border-green-200 transition-colors disabled:opacity-50 group"
+                              >
+                                <span className="font-bold text-sm mb-0.5">Easy</span>
+                                <div className="flex items-center text-[10px] opacity-70">
+                                  <span>{getRatingInterval(4)}</span>
+                                  <span className="ml-1.5 px-1 py-px bg-green-100 group-hover:bg-green-200 rounded hidden sm:block">4</span>
+                                </div>
+                              </button>
+                            </>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>

@@ -88,10 +88,26 @@
           {
             "question_number": 27,
             "answer": "H"
+          },
+          {
+            "question_number": 28,
+            "answer": "J"
+          },
+          {
+            "question_number": 29,
+            "answer": "F"
+          },
+          {
+            "question_number": 30,
+            "answer": "B"
+          },
+          {
+            "question_number": 31,
+            "answer": "D"
           }
         ],
         "instruction": "Complete the summary using the list of phrases, A–J, below.",
-        "summary": "Charles II's father was executed by the Parliamentarian forces in 1649. Charles II then formed a {{27}} with the Scots, and in order to become King of Scots, he abandoned an important 28 [blank] that was held by his father and had contributed to his father's death. The opposing sides then met outside Worcester in 1651. The battle led to a 29 [blank] for the Parliamentarians and Charles had to flee for his life. A 30 [blank] was offered for Charles's capture, but after six weeks spent in hiding, he eventually managed to reach the 31 [blank] of continental Europe."
+        "summary": "Charles II's father was executed by the Parliamentarian forces in 1649. Charles II then formed a {{27}} with the Scots, and in order to become King of Scots, he abandoned an important {{28}} that was held by his father and had contributed to his father's death. The opposing sides then met outside Worcester in 1651. The battle led to a {{29}} for the Parliamentarians and Charles had to flee for his life. A {{30}} was offered for Charles's capture, but after six weeks spent in hiding, he eventually managed to reach the {{31}} of continental Europe."
       },
       {
         "type": "yes_no_not_given",

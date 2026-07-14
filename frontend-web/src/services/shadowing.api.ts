@@ -41,7 +41,7 @@ export const shadowingApi = {
   getVideoById: (id: string) => api.get<ShadowingVideo>(`/shadowing/videos/${id}`).then(r => r.data),
   createVideo: (dto: { title: string; youtubeVideoId: string; folder?: string; category?: string; duration: string; sentences: any[] }) =>
     api.post<ShadowingVideo>('/shadowing/videos', dto).then(r => r.data),
-  updateVideo: (id: string, dto: { title?: string; folder?: string; category?: string }) =>
+  updateVideo: (id: string, dto: Partial<ShadowingVideo>) =>
     api.patch<ShadowingVideo>(`/shadowing/videos/${id}`, dto).then(r => r.data),
   deleteVideo: (id: string) => api.delete(`/shadowing/videos/${id}`).then(r => r.data),
   importVideo: (data: { youtubeUrl: string; title: string; folder?: string }) =>

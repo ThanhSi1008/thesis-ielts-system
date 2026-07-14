@@ -6,6 +6,7 @@ export interface NoteQuestion {
   answer: string;
   acceptable_answers?: string[];
   explanation?: any;
+  question_text?: string;
 }
 
 // notes can be flat strings OR grouped objects with subheadings
@@ -66,7 +67,7 @@ function NoteLine({
   return (
     <li className="flex items-baseline gap-2 text-[14px] text-gray-800 leading-relaxed">
       <span className="mt-[6px] w-1.5 h-1.5 rounded-full bg-gray-500 shrink-0" />
-      <span className="flex-1 flex flex-wrap items-baseline gap-1">
+      <span className="flex-1 whitespace-normal">
         {segments.map((seg, si) => {
           if (seg.type === 'text') {
             return <span key={si}>{seg.value}</span>;
@@ -81,7 +82,7 @@ function NoteLine({
             <span
               key={si}
               id={`question-${qNum}`}
-              className={`inline-flex items-center border rounded px-2 py-0.5 min-w-[120px] transition-colors ${
+              className={`inline-flex items-center border rounded px-2 py-0.5 w-24 transition-colors ${
                 submitted
                   ? isCorrect
                     ? 'border-green-400 bg-green-50'
@@ -137,7 +138,8 @@ export function NoteCompletionGroup({
   onLocate: (qNum: number) => void;
 }) {
   const [showExplanation, setShowExplanation] = useState<number | null>(null);
-  const qMap = Object.fromEntries(group.questions.map(q => [q.question_number, q]));
+  const questions = Array.isArray(group.questions) ? group.questions : [];
+  const qMap = Object.fromEntries(questions.map(q => [q.question_number, q]));
 
   const checkAnswer = (q: NoteQuestion, userAns: string) => {
     const acceptable = q.acceptable_answers
@@ -146,7 +148,7 @@ export function NoteCompletionGroup({
     return acceptable.includes(userAns.toLowerCase().trim());
   };
 
-  const qNums = group.questions.map(q => q.question_number);
+  const qNums = questions.map(q => q.question_number);
 
   return (
     <div className="mb-8">
@@ -161,8 +163,79 @@ export function NoteCompletionGroup({
           {group.instruction || 'Complete the notes below.'}
         </p>
 
-        {/* Note Title Box */}
-        {group.note_title && (
+        {/* Notes block or plain questions fallback */}
+        {!group.note_title || !group.notes || group.notes.length === 0 ? (
+          <div className="space-y-4">
+            {questions.map((q) => {
+              const userAnswer = String(answers[q.question_number] || '');
+              const isCorrect = checkAnswer(q, userAnswer);
+              const text = q.question_text || '';
+              const blankRegex = /_+|\[blank\]/gi;
+              const hasBlank = blankRegex.test(text);
+
+              const renderBlankInput = () => (
+                <span
+                  id={`question-${q.question_number}`}
+                  className={`inline-flex items-center border rounded px-2 py-0.5 mx-1 w-24 transition-colors ${
+                    submitted
+                      ? isCorrect
+                        ? 'border-green-400 bg-green-50'
+                        : 'border-red-300 bg-red-50'
+                      : 'border-gray-400 bg-white focus-within:border-[#FFC107]'
+                  }`}
+                >
+                  <span className={`text-[11px] font-bold mr-1.5 shrink-0 ${
+                    submitted ? (isCorrect ? 'text-green-600' : 'text-red-400') : 'text-gray-400'
+                  }`}>
+                    {q.question_number}
+                  </span>
+                  {submitted ? (
+                    <>
+                      <span className={`text-[13px] font-semibold ${isCorrect ? 'text-green-700' : 'text-red-500 line-through'}`}>
+                        {userAnswer || '—'}
+                      </span>
+                      {!isCorrect && showAnswers && (
+                        <span className="ml-1.5 text-[12px] text-green-600 font-bold">({q.answer})</span>
+                      )}
+                    </>
+                  ) : (
+                    <input
+                      type="text"
+                      value={userAnswer}
+                      onChange={e => onAnswer(q.question_number, e.target.value)}
+                      autoComplete="off"
+                      spellCheck={false}
+                      className="outline-none bg-transparent text-[13px] text-gray-800 min-w-[80px] w-full font-medium caret-yellow-500"
+                    />
+                  )}
+                </span>
+              );
+
+              if (hasBlank) {
+                const parts = text.split(blankRegex);
+                return (
+                  <div key={q.question_number} className="text-[14px] text-gray-800 leading-relaxed pl-1 py-1.5 whitespace-normal">
+                    <span className="mr-2 font-bold text-gray-500">{q.question_number}.</span>
+                    {parts.map((part: string, pi: number) => (
+                      <React.Fragment key={pi}>
+                        <span>{part}</span>
+                        {pi < parts.length - 1 && renderBlankInput()}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                );
+              }
+
+              return (
+                <div key={q.question_number} className="text-[14px] text-gray-800 leading-relaxed pl-1 py-1.5 whitespace-normal">
+                  <span className="mr-2 font-bold text-gray-500">{q.question_number}.</span>
+                  <span className="mr-2">{text}</span>
+                  {renderBlankInput()}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
           <div className="border border-gray-300 rounded-lg overflow-hidden">
             <div className="bg-gray-100 border-b border-gray-300 px-4 py-2 text-center">
               <span className="text-[13px] font-bold text-gray-800">{group.note_title}</span>
@@ -170,7 +243,6 @@ export function NoteCompletionGroup({
 
             <div className="px-5 py-3 space-y-4">
               {group.notes.map((entry, ni) => {
-                // --- Grouped format: { subheading, points[] } ---
                 if (typeof entry === 'object' && 'points' in entry) {
                   return (
                     <div key={ni}>
@@ -193,7 +265,6 @@ export function NoteCompletionGroup({
                   );
                 }
 
-                // --- Flat format: plain string ---
                 return (
                   <ul key={ni} className="space-y-2">
                     <NoteLine
@@ -216,7 +287,7 @@ export function NoteCompletionGroup({
       {/* Post-submit action buttons per question */}
       {showAnswers && (
         <div className="mt-3 space-y-2">
-          {group.questions.map(q => (
+          {questions.map(q => (
             <div key={q.question_number} className="flex flex-wrap items-center gap-2">
               <span className="text-[11px] font-bold text-gray-400 w-6 shrink-0">Q{q.question_number}</span>
               <button onClick={() => onLocate(q.question_number)} className="flex items-center gap-1 text-[11px] font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-md transition-colors">

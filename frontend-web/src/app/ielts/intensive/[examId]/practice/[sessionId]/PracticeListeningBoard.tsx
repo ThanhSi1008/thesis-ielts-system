@@ -39,7 +39,7 @@ export default function PracticeListeningBoard({
 }: PracticeListeningBoardProps) {
   const activePartIdx = partIndex ?? 0;
   const [focusedQn, setFocusedQn] = useState<number | null>(null);
-  const [hasStartedAudio, setHasStartedAudio] = useState(false);
+  const [hasStartedAudio, setHasStartedAudio] = useState(true);
   const [isConfirmingSubmit, setIsConfirmingSubmit] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playingAudioIdx, setPlayingAudioIdx] = useState(0);
@@ -145,7 +145,7 @@ export default function PracticeListeningBoard({
         </div>
       </header>
 
-      <main className="flex-1 min-h-0 bg-[#f5f5f5] relative overflow-hidden">
+      <main className="flex-1 min-h-0 bg-white relative overflow-hidden">
         <audio
           ref={audioRef}
           src={(playingAudioPart?.audio_url as string) || (playingAudioPart?.audioUrl as string)}
@@ -164,7 +164,7 @@ export default function PracticeListeningBoard({
           className="hidden"
         />
         <div key={activePartIdx} id="main-scroll-container" className="h-full custom-scrollbar overflow-y-auto overflow-x-hidden relative" onClick={() => setFocusedQn(null)}>
-          <div className="w-full mx-auto bg-white pt-10 px-8 pb-32 min-h-full border-x border-gray-200 shadow-sm" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full bg-white pt-10 px-8 pb-32 min-h-full" onClick={(e) => e.stopPropagation()}>
             <div className="bg-[#f2f1ef] border border-[#e2e1df] rounded py-3 px-4 mb-8 text-[#1a1a1a] shadow-sm">
               <div className="font-bold text-[17px] mb-1">{getPartTitle(activePart)}</div>
               <div className="text-[17px]">
@@ -292,28 +292,6 @@ export default function PracticeListeningBoard({
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Start Audio Overlay */}
-      {!hasStartedAudio && (
-        <div className="fixed inset-0 z-[150] bg-black/70 flex flex-col items-center justify-center text-white px-6">
-          <svg viewBox="0 0 24 24" className="w-[100px] h-[100px] mb-8 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 3a9 9 0 0 0-9 9v7c0 1.1.9 2 2 2h3v-8H5v-1a7 7 0 1 1 14 0v1h-3v8h3a2 2 0 0 0 2-2v-7a9 9 0 0 0-9-9z" />
-          </svg>
-          <div className="text-[20px] font-medium text-center max-w-3xl mb-6 leading-relaxed">
-            You will be listening to an audio clip during this test.
-          </div>
-          <div className="text-[19px] font-medium mb-8">To continue, click Play.</div>
-          <button
-            onClick={handleStartAudio}
-            className="flex items-center gap-3 bg-black hover:bg-[#1a1a1a] px-8 py-3.5 rounded-[3px] font-bold text-[18px] text-white transition-colors border border-gray-700"
-          >
-            <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center pl-0.5">
-              <svg viewBox="0 0 24 24" className="w-4 h-4 text-black fill-current"><path d="M8 5v14l11-7z" /></svg>
-            </div>
-            Play
-          </button>
         </div>
       )}
 

@@ -20,6 +20,7 @@ interface WritingTaskBoardProps {
   secondsLeft: number | null;
   formatTime: (s: number) => string;
   examTitle: string;
+  initialAnswers?: { task1?: string; task2?: string };
 }
 
 export default function WritingTaskBoard({
@@ -29,13 +30,27 @@ export default function WritingTaskBoard({
   submitting,
   secondsLeft,
   formatTime,
+  initialAnswers,
 }: WritingTaskBoardProps) {
   const task1 = tasks.find((t) => t.task_number === 1);
   const task2 = tasks.find((t) => t.task_number === 2);
 
-  const [activeTask, setActiveTask] = useState(1);
-  const [essay1, setEssay1] = useState("");
-  const [essay2, setEssay2] = useState("");
+  // Initialize activeTask to the first available task number in the array
+  const defaultTask = tasks.length > 0 ? tasks[0].task_number : 1;
+  const [activeTask, setActiveTask] = useState(defaultTask);
+
+  const [essay1, setEssay1] = useState(initialAnswers?.task1 || "");
+  const [essay2, setEssay2] = useState(initialAnswers?.task2 || "");
+
+  // Sync draft answers when they load asynchronously
+  useEffect(() => {
+    if (initialAnswers?.task1 && !essay1) {
+      setEssay1(initialAnswers.task1);
+    }
+    if (initialAnswers?.task2 && !essay2) {
+      setEssay2(initialAnswers.task2);
+    }
+  }, [initialAnswers]);
 
   const wordCount1 = useMemo(
     () => (essay1.trim() ? essay1.trim().split(/\s+/).length : 0),
@@ -113,19 +128,29 @@ export default function WritingTaskBoard({
           >
             <div className="text-[#1a1a1a] leading-[1.7] text-[15px]">
               {activeTask === 2 && currentTask.instruction && (
-                <p className="mb-6">{currentTask.instruction}</p>
-              )}
-              {currentTask.prompt.split("\n\n").map((para, i) => (
                 <p
-                  key={i}
-                  className={`mb-5 ${(activeTask === 2 && i < 2) || (activeTask === 1 && i === 0)
-                    ? "font-bold text-[16px]"
-                    : ""
-                    }`}
-                >
-                  {para}
-                </p>
-              ))}
+                  className="mb-6"
+                  dangerouslySetInnerHTML={{
+                    __html: currentTask.instruction
+                      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                      .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+                  }}
+                />
+              )}
+              {currentTask.prompt.split("\n\n").map((para, i) => {
+                let htmlContent = para.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                htmlContent = htmlContent.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+                return (
+                  <p
+                    key={i}
+                    className={`mb-5 ${(activeTask === 2 && i < 2) || (activeTask === 1 && i === 0)
+                      ? "font-bold text-[16px]"
+                      : ""
+                      }`}
+                    dangerouslySetInnerHTML={{ __html: htmlContent }}
+                  />
+                );
+              })}
               {currentTask.image_url && (
                 <div className="mt-8">
                   <img
@@ -170,65 +195,67 @@ export default function WritingTaskBoard({
       )}
 
       {/* Authentic Footer Ribbon */}
-      <footer className="h-[52px] flex-shrink-0 flex items-center justify-between z-20 shadow-[0_-2px_10px_rgba(0,0,0,0.02)]">
+      {tasks.length > 1 && (
+        <footer className="h-[52px] flex-shrink-0 flex items-center justify-between z-20 shadow-[0_-2px_10px_rgba(0,0,0,0.02)]">
+          {/* Left Tabs */}
+          <div className="flex items-center h-full w-full">
+            <button
+              onClick={() => setActiveTask(1)}
+              className={`px-4 flex-1 flex items-center h-full w-full relative transition-colors ${activeTask === 1 ? 'bg-white font-bold' : 'hover:bg-[#f1f2ec] font-medium text-[#333]'}`}
+            >
+              {(task1Completed || activeTask === 1) && <div className={`absolute top-[-2px] left-0 w-full h-[3px] ${task1Completed ? 'bg-[#319c28]' : 'bg-[#dcdcdc]'}`} />}
+              {task1Completed && <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] text-[#319c28] fill-current mr-2 -ml-1" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>}
+              <span className="text-[14px] tracking-wide">Task 1</span>
+            </button>
 
-        {/* Left Tabs */}
-        <div className="flex items-center h-full w-full">
-          <button
-            onClick={() => setActiveTask(1)}
-            className={`px-4 flex-1 flex items-center h-full w-full relative transition-colors ${activeTask === 1 ? 'bg-white font-bold' : 'hover:bg-[#f1f2ec] font-medium text-[#333]'}`}
-          >
-            {(task1Completed || activeTask === 1) && <div className={`absolute top-[-2px] left-0 w-full h-[3px] ${task1Completed ? 'bg-[#319c28]' : 'bg-[#dcdcdc]'}`} />}
-            {task1Completed && <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] text-[#319c28] fill-current mr-2 -ml-1" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>}
-            <span className="text-[14px] tracking-wide">Task 1</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTask(2)}
-            className={`px-4 flex-1 flex items-center h-full relative transition-colors ${activeTask === 2 ? 'bg-white font-bold' : 'hover:bg-[#f1f2ec] font-medium text-[#333]'}`}
-          >
-            {(task2Completed || activeTask === 2) && <div className={`absolute top-[-2px] left-0 w-full h-[3px] ${task2Completed ? 'bg-[#319c28]' : 'bg-[#dcdcdc]'}`} />}
-            {task2Completed && <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] text-[#319c28] fill-current mr-2 -ml-1" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>}
-            <span className="text-[14px] tracking-wide">Task 2</span>
-          </button>
-        </div>
-
-      </footer>
+            <button
+              onClick={() => setActiveTask(2)}
+              className={`px-4 flex-1 flex items-center h-full relative transition-colors ${activeTask === 2 ? 'bg-white font-bold' : 'hover:bg-[#f1f2ec] font-medium text-[#333]'}`}
+            >
+              {(task2Completed || activeTask === 2) && <div className={`absolute top-[-2px] left-0 w-full h-[3px] ${task2Completed ? 'bg-[#319c28]' : 'bg-[#dcdcdc]'}`} />}
+              {task2Completed && <svg viewBox="0 0 24 24" className="w-[18px] h-[18px] text-[#319c28] fill-current mr-2 -ml-1" xmlns="http://www.w3.org/2000/svg"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>}
+              <span className="text-[14px] tracking-wide">Task 2</span>
+            </button>
+          </div>
+        </footer>
+      )}
 
       {/* Floating Navigation Arrows */}
-      <div className="absolute bottom-[68px] right-8 flex gap-1 z-30 opacity-90 transition-opacity hover:opacity-100 shadow-md">
-        {/* Back Arrow */}
-        <button
-          onClick={() => setActiveTask(1)}
-          disabled={activeTask === 1}
-          className="w-[52px] h-[52px] flex items-center justify-center transition-colors border"
-          style={{
-            backgroundColor: activeTask === 1 ? '#f2f2f2' : '#424242',
-            borderColor: activeTask === 1 ? '#d6d6d6' : '#282828',
-            cursor: activeTask === 1 ? 'not-allowed' : 'pointer'
-          }}
-        >
-          <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className={`w-[26px] h-[26px] stroke-current stroke-[2.5] fill-none ${activeTask === 1 ? 'text-[#7f7f7f]' : 'text-white'}`}>
-            <path d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
+      {tasks.length > 1 && (
+        <div className="absolute bottom-[68px] right-8 flex gap-1 z-30 opacity-90 transition-opacity hover:opacity-100 shadow-md">
+          {/* Back Arrow */}
+          <button
+            onClick={() => setActiveTask(1)}
+            disabled={activeTask === 1}
+            className="w-[52px] h-[52px] flex items-center justify-center transition-colors border"
+            style={{
+              backgroundColor: activeTask === 1 ? '#f2f2f2' : '#424242',
+              borderColor: activeTask === 1 ? '#d6d6d6' : '#282828',
+              cursor: activeTask === 1 ? 'not-allowed' : 'pointer'
+            }}
+          >
+            <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className={`w-[26px] h-[26px] stroke-current stroke-[2.5] fill-none ${activeTask === 1 ? 'text-[#7f7f7f]' : 'text-white'}`}>
+              <path d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
 
-        {/* Forward Arrow */}
-        <button
-          onClick={() => setActiveTask(2)}
-          disabled={activeTask === 2}
-          className="w-[52px] h-[52px] flex items-center justify-center transition-colors border"
-          style={{
-            backgroundColor: activeTask === 2 ? '#f2f2f2' : '#333333',
-            borderColor: activeTask === 2 ? '#d6d6d6' : '#111111',
-            cursor: activeTask === 2 ? 'not-allowed' : 'pointer'
-          }}
-        >
-          <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className={`w-[26px] h-[26px] stroke-current stroke-[2.5] fill-none ${activeTask === 2 ? 'text-[#7f7f7f]' : 'text-white'}`}>
-            <path d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
+          {/* Forward Arrow */}
+          <button
+            onClick={() => setActiveTask(2)}
+            disabled={activeTask === 2}
+            className="w-[52px] h-[52px] flex items-center justify-center transition-colors border"
+            style={{
+              backgroundColor: activeTask === 2 ? '#f2f2f2' : '#333333',
+              borderColor: activeTask === 2 ? '#d6d6d6' : '#111111',
+              cursor: activeTask === 2 ? 'not-allowed' : 'pointer'
+            }}
+          >
+            <svg viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" className={`w-[26px] h-[26px] stroke-current stroke-[2.5] fill-none ${activeTask === 2 ? 'text-[#7f7f7f]' : 'text-white'}`}>
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      )}
 
     </div>
   );

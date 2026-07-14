@@ -14,8 +14,10 @@ interface Props {
     text?: string;
     instructions?: string;
     question_numbers?: number[];
-    options?: Option[];
+    options?: any;
     answers?: string[]; // correct answer letters (used for scoring; not shown during practice)
+    items?: any[];
+    [key: string]: any;
   };
   groupIdx: number; // index in content array — used to build the 'mcm-{idx}' answer key
   answer: string; // current value: comma-separated selected letters, e.g. "A,C"
@@ -35,9 +37,31 @@ function MCMultipleBlockComponent({
   const { colors, isDark } = useTheme();
   const ansKey = `mcm-${groupIdx}`;
   const selectedLetters: string[] = answer ? answer.split(',').filter(Boolean) : [];
-  const numRequired = group.answers?.length ?? 2;
-  const options: Option[] = group.options ?? [];
-  const qNums: number[] = group.question_numbers ?? [];
+
+  const item = (group.items && group.items[0]) || group;
+  const qNums: number[] = item.question_numbers || group.question_numbers || [];
+  const rawOptions = item.options || group.options || [];
+  const correctLetters = (group.answers || item.answers || [])
+    .map((s: any) => String(s).trim().toUpperCase());
+  const numRequired = correctLetters.length || qNums.length || 2;
+
+  const options: Option[] = Array.isArray(rawOptions)
+    ? rawOptions.map((opt: any, i: number) => {
+        if (opt && typeof opt === 'object') {
+          return {
+            letter: opt.letter || opt.val || String.fromCharCode(65 + i),
+            text: opt.text || opt.label || String(opt),
+          };
+        }
+        return {
+          letter: String.fromCharCode(65 + i),
+          text: String(opt),
+        };
+      })
+    : Object.entries(rawOptions).map(([letter, text]) => ({
+        letter,
+        text: String(text),
+      }));
 
   const toggle = (letter: string) => {
     if (mode === 'review') return;
@@ -51,10 +75,6 @@ function MCMultipleBlockComponent({
     }
     onAnswer(ansKey, next.join(','));
   };
-
-  const correctLetters = group.answers
-    ? group.answers.map((s) => s.trim().toUpperCase())
-    : [];
 
   const styles = StyleSheet.create({
     container: {

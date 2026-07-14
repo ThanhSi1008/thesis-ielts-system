@@ -243,18 +243,19 @@ export default function PracticeResultScreen() {
     }
   }, [session, exam, examType, practicePart, band, correctCount, totalQuestions, mm, ss, isWritingOrSpeaking]);
 
-  const rawSpeakingFeedback = session?.result?.feedback;
-  const speakingFeedback = useMemo(() => {
-    if (!rawSpeakingFeedback) return null;
-    if (typeof rawSpeakingFeedback === 'string') {
+  // Writing & speaking AI feedback both live in the `feedback` JSON column.
+  const rawAiFeedback = session?.result?.feedback;
+  const aiFeedback = useMemo(() => {
+    if (!rawAiFeedback) return null;
+    if (typeof rawAiFeedback === 'string') {
       try {
-        return JSON.parse(rawSpeakingFeedback);
+        return JSON.parse(rawAiFeedback);
       } catch {
         return null;
       }
     }
-    return rawSpeakingFeedback;
-  }, [rawSpeakingFeedback]);
+    return rawAiFeedback;
+  }, [rawAiFeedback]);
 
   const toggleReview = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
@@ -348,13 +349,9 @@ export default function PracticeResultScreen() {
               <Text style={styles.aiTitle}>Phân Tích AI Chi Tiết</Text>
             </View>
 
-            {examType === 'WRITING' && session.result && (
+            {examType === 'WRITING' && aiFeedback && (
               <WritingRubricView
-                feedback={
-                  typeof session.result.writingFeedback === 'string'
-                    ? JSON.parse(session.result.writingFeedback)
-                    : session.result.writingFeedback || session.result
-                }
+                feedback={aiFeedback}
                 answers={{
                   task1: session.answers?.task1 ?? session.answers?.['1'],
                   task2: session.answers?.task2 ?? session.answers?.['2'],
@@ -364,8 +361,8 @@ export default function PracticeResultScreen() {
               />
             )}
 
-            {examType === 'SPEAKING' && speakingFeedback && (
-              <SpeakingRubricView feedback={speakingFeedback} />
+            {examType === 'SPEAKING' && aiFeedback && (
+              <SpeakingRubricView feedback={aiFeedback} />
             )}
           </View>
         )}

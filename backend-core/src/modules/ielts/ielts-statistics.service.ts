@@ -2,6 +2,26 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../../common/prisma/prisma.service";
 import * as dayjs from "dayjs";
 
+// ── IELTS Band Conversion (same as frontend bands.ts) ──
+function rawToBand(score: number, type: "LISTENING" | "READING" = "LISTENING"): number {
+  if (score >= 39) return 9.0;
+  if (score >= 37) return 8.5;
+  if (score >= 35) return 8.0;
+  if (score >= 32) return 7.5;
+  if (score >= 30) return 7.0;
+  if (score >= 26) return 6.5;
+  if (score >= 23) return 6.0;
+  if (score >= 18) return 5.5;
+  if (score >= 16) return 5.0;
+  if (score >= 13) return 4.5;
+  if (score >= 10) return 4.0;
+  if (score >= 8) return 3.5;
+  if (score >= 6) return 3.0;
+  if (score >= 4) return 2.5;
+  if (score >= 2) return 2.0;
+  return 1.0;
+}
+
 @Injectable()
 export class IeltsStatisticsService {
   private readonly logger = new Logger(IeltsStatisticsService.name);
@@ -9,40 +29,54 @@ export class IeltsStatisticsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getOverviewStats(userId: string) {
-    // 1.1 Estimated Overall Band & Target Gap
-    // Computed from Intensive mock history vs IeltsProfile.targetBand
+    // ── Profile ──
     const profile = await this.prisma.ieltsProfile.findUnique({
       where: { userId },
     });
 
-    const recentMocks = await this.prisma.ieltsIntensiveSession.findMany({
+    // ── All completed mock sessions with results ──
+    const completedMocks = await this.prisma.ieltsIntensiveSession.findMany({
       where: {
         userId,
         status: { in: ["COMPLETED", "GRADED"] },
         ieltsIntensiveResult: { isNot: null },
       },
-      include: { ieltsIntensiveResult: true },
+      include: {
+        ieltsIntensiveResult: true,
+        ieltsIntensiveExam: { select: { type: true, title: true } },
+      },
       orderBy: { createdAt: "desc" },
-      take: 5,
     });
 
-    let estimatedBand = null;
-    if (recentMocks.length > 0) {
-      const bands = recentMocks.map((mock: any) => {
-        const result = mock.ieltsIntensiveResult;
-        return result?.totalScore || 0;
-      }).filter((band: number) => band > 0);
-      if (bands.length > 0) {
-        estimatedBand = bands.reduce((sum, b) => sum + b, 0) / bands.length;
+    // ── 1.1 Estimated Band ──
+    // Convert raw scores to IELTS bands, then average the latest result per exam
+    let estimatedBand: number | null = null;
+    const latestByExamType = new Map<string, number>(); // per exam type, keep latest band
+    for (const mock of completedMocks) {
+      const result = mock.ieltsIntensiveResult;
+      if (!result) continue;
+      const examType = mock.ieltsIntensiveExam.type;
+      if (latestByExamType.has(examType)) continue; // already have the latest for this type
+
+      let band: number;
+      if (examType === "LISTENING" || examType === "READING") {
+        band = rawToBand(result.totalScore, examType as any);
+      } else {
+        // Writing/Speaking: totalScore is already the band score (float)
+        band = result.totalScore;
       }
+      latestByExamType.set(examType, band);
+    }
+    if (latestByExamType.size > 0) {
+      const bands = [...latestByExamType.values()];
+      estimatedBand = Math.round((bands.reduce((s, b) => s + b, 0) / bands.length) * 2) / 2; // round to nearest 0.5
     }
 
     const targetBand = profile?.targetBand || null;
-    const bandGap = targetBand && estimatedBand ? Math.max(0, targetBand - estimatedBand) : null;
+    const bandGap = targetBand && estimatedBand ? Math.max(0, +(targetBand - estimatedBand).toFixed(1)) : null;
 
-    // 1.2 IELTS-Specific Daily Goal Tracker
+    // ── 1.2 Daily Practice Time ──
     const today = dayjs().startOf("day").toDate();
-    // Calculate total time taken today across all IELTS modules
     const advancedWritingToday = await this.prisma.ieltsAdvancedWritingSession.aggregate({
       where: { userId, createdAt: { gte: today } },
       _sum: { timeTaken: true },
@@ -51,32 +85,103 @@ export class IeltsStatisticsService {
       where: { userId, createdAt: { gte: today } },
       _sum: { timeTaken: true },
     });
-    // This is an approximation, we can expand later
+    const intensiveToday = await this.prisma.ieltsIntensiveSession.findMany({
+      where: { userId, status: { in: ["COMPLETED", "GRADED"] }, submittedAt: { gte: today } },
+      select: { timeTaken: true },
+    });
+    const intensiveTimeSec = intensiveToday.reduce((s, m) => s + (m.timeTaken || 0), 0);
+
     const dailyMinutesPracticed = Math.floor(
       ((advancedWritingToday._sum.timeTaken || 0) +
-        (advancedSpeakingToday._sum.timeTaken || 0)) /
-        60,
+        (advancedSpeakingToday._sum.timeTaken || 0) +
+        intensiveTimeSec) / 60,
     );
     const dailyCommitmentMins = profile?.dailyCommitmentMins || 30;
 
-    // 1.3 Weekly IELTS Activity Heatmap
-    // Placeholder implementation for heatmap data
+    // ── 1.3 Tests Taken ──
+    const testsTaken = completedMocks.length;
+    const weekAgo = dayjs().subtract(7, "day").toDate();
+    const testsThisWeek = completedMocks.filter(
+      (m) => m.submittedAt && new Date(m.submittedAt) >= weekAgo,
+    ).length;
+
+    // ── 1.4 Weekly Activity Heatmap ──
     const heatmap = [];
     for (let i = 6; i >= 0; i--) {
+      const dayStart = dayjs().subtract(i, "day").startOf("day").toDate();
+      const dayEnd = dayjs().subtract(i, "day").endOf("day").toDate();
+
+      const sessionsForDay = await this.prisma.ieltsIntensiveSession.findMany({
+        where: {
+          userId,
+          status: { in: ["COMPLETED", "GRADED"] },
+          submittedAt: { gte: dayStart, lte: dayEnd },
+        },
+        select: { timeTaken: true },
+      });
+      const minutes = Math.floor(
+        sessionsForDay.reduce((s, m) => s + (m.timeTaken || 0), 0) / 60,
+      );
       heatmap.push({
         date: dayjs().subtract(i, "day").format("YYYY-MM-DD"),
-        minutes: Math.floor(Math.random() * 60), // TODO: implement real query
+        minutes,
       });
     }
 
-    // 1.4 Recent IELTS Activity Feed
-    // Placeholder
-    const recentActivity = [];
+    // ── 1.5 Recent Activity ──
+    const recentActivity = completedMocks.slice(0, 5).map((m) => {
+      const result = m.ieltsIntensiveResult;
+      const examType = m.ieltsIntensiveExam.type;
+      let band: number | null = null;
+      if (result) {
+        if (examType === "LISTENING" || examType === "READING") {
+          band = rawToBand(result.totalScore, examType as any);
+        } else {
+          band = result.totalScore;
+        }
+      }
+      return {
+        label: `${m.ieltsIntensiveExam.title} — Band ${band?.toFixed(1) || "?"}`,
+        date: dayjs(m.submittedAt || m.createdAt).format("MMM D, YYYY"),
+      };
+    });
 
-    // 1.5 IeltsIntensiveExam Countdown & Readiness Score
+    // ── 1.6 Exam Countdown ──
     const examDate = profile?.examDate;
     const daysToExam = examDate ? dayjs(examDate).diff(dayjs(), "day") : null;
-    const readinessScore = estimatedBand && targetBand ? Math.min(100, Math.round((estimatedBand / targetBand) * 100)) : null;
+    const readinessScore =
+      estimatedBand && targetBand
+        ? Math.min(100, Math.round((estimatedBand / targetBand) * 100))
+        : null;
+
+    // ── 1.7 Progress Over Time (monthly averages for last 6 months) ──
+    const progressOverTime = [];
+    for (let i = 5; i >= 0; i--) {
+      const monthStart = dayjs().subtract(i, "month").startOf("month").toDate();
+      const monthEnd = dayjs().subtract(i, "month").endOf("month").toDate();
+      const monthMocks = completedMocks.filter((m) => {
+        const d = m.submittedAt || m.createdAt;
+        return d >= monthStart && d <= monthEnd;
+      });
+
+      let avgBand: number | null = null;
+      if (monthMocks.length > 0) {
+        const bands = monthMocks.map((m) => {
+          const result = m.ieltsIntensiveResult!;
+          const type = m.ieltsIntensiveExam.type;
+          return type === "LISTENING" || type === "READING"
+            ? rawToBand(result.totalScore, type as any)
+            : result.totalScore;
+        });
+        avgBand = bands.reduce((s, b) => s + b, 0) / bands.length;
+      }
+
+      progressOverTime.push({
+        month: dayjs().subtract(i, "month").format("MMM"),
+        band: avgBand,
+        count: monthMocks.length,
+      });
+    }
 
     return {
       estimatedBand,
@@ -84,10 +189,13 @@ export class IeltsStatisticsService {
       bandGap,
       dailyMinutesPracticed,
       dailyCommitmentMins,
+      testsTaken,
+      testsThisWeek,
       heatmap,
       recentActivity,
       daysToExam,
       readinessScore,
+      progressOverTime,
     };
   }
 
@@ -116,9 +224,6 @@ export class IeltsStatisticsService {
     const pronunciationNew = await this.prisma.foundationPronunciationProgress.count({
       where: { userId, status: "NEW" },
     });
-
-    // 2.4 Average Foundation Accuracy
-    // 2.5 Foundation Time Balance
     
     return {
       vocabulary: { wordsLearned, totalWords },
@@ -182,13 +287,6 @@ export class IeltsStatisticsService {
   }
 
   async getAdvancedStats(userId: string) {
-    // 4.1 Question Type Accuracy Heatmap
-    // 4.2 Weak Spots Identification
-    // 4.3 Advanced Score Trend Line
-    // 4.4 Writing AI Feedback Summary
-    // 4.5 Speaking AI Feedback Summary
-    
-    // Returning dummy data for now
     return {
       heatmap: [],
       weakSpots: [],
@@ -199,19 +297,126 @@ export class IeltsStatisticsService {
   }
 
   async getIntensiveStats(userId: string) {
-    // 5.1 Overall Mock Band Trend
-    // 5.2 Individual Skill Band Trends
-    // 5.3 Score Distribution Histogram
-    // 5.4 Time Management Analytics
-    // 5.5 Best vs Worst Skill Gap
-    
-    // Returning dummy data for now
+    const completedMocks = await this.prisma.ieltsIntensiveSession.findMany({
+      where: {
+        userId,
+        status: { in: ["COMPLETED", "GRADED"] },
+        ieltsIntensiveResult: { isNot: null },
+      },
+      include: {
+        ieltsIntensiveResult: true,
+        ieltsIntensiveExam: { select: { type: true, title: true, duration: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+
+    // ── Per-skill trends (array of { date, band } for each skill) ──
+    const skillTrends: Record<string, { date: string; band: number }[]> = {
+      listening: [],
+      reading: [],
+      writing: [],
+      speaking: [],
+    };
+
+    const bandCounts = new Map<number, number>();
+
+    for (const mock of completedMocks) {
+      const result = mock.ieltsIntensiveResult;
+      if (!result) continue;
+      const type = mock.ieltsIntensiveExam.type.toLowerCase();
+
+      let band: number;
+      if (type === "listening" || type === "reading") {
+        band = rawToBand(result.totalScore, type.toUpperCase() as any);
+      } else {
+        band = result.totalScore;
+      }
+
+      if (skillTrends[type]) {
+        skillTrends[type].push({
+          date: dayjs(mock.submittedAt || mock.createdAt).format("MMM D"),
+          band: Math.round(band * 2) / 2,
+        });
+      }
+
+      // Count for distribution
+      const roundedBand = Math.round(band * 2) / 2;
+      bandCounts.set(roundedBand, (bandCounts.get(roundedBand) || 0) + 1);
+    }
+
+    // ── Score Distribution ──
+    const scoreDistribution: { band: number; count: number }[] = [];
+    for (let b = 1; b <= 9; b += 0.5) {
+      const count = bandCounts.get(b) || 0;
+      if (count > 0 || (b >= 2 && b <= 9)) {
+        scoreDistribution.push({ band: b, count });
+      }
+    }
+
+    // ── Time Management ──
+    const timeTakenValues = completedMocks
+      .map((m) => m.timeTaken)
+      .filter((t): t is number => t != null && t > 0);
+    const averageTimeTaken =
+      timeTakenValues.length > 0
+        ? Math.round(timeTakenValues.reduce((s, t) => s + t, 0) / timeTakenValues.length)
+        : 0;
+
+    // ── Skill Gap: best vs worst average band ──
+    const skillAvgs: Record<string, { sum: number; count: number }> = {};
+    for (const [skill, points] of Object.entries(skillTrends)) {
+      if (points.length > 0) {
+        skillAvgs[skill] = {
+          sum: points.reduce((s, p) => s + p.band, 0),
+          count: points.length,
+        };
+      }
+    }
+
+    let bestSkill = "—";
+    let worstSkill = "—";
+    let bestAvg = 0;
+    let worstAvg = 9;
+
+    for (const [skill, { sum, count }] of Object.entries(skillAvgs)) {
+      const avg = sum / count;
+      if (avg > bestAvg) {
+        bestAvg = avg;
+        bestSkill = skill.charAt(0).toUpperCase() + skill.slice(1);
+      }
+      if (avg < worstAvg) {
+        worstAvg = avg;
+        worstSkill = skill.charAt(0).toUpperCase() + skill.slice(1);
+      }
+    }
+
+    const gap = Object.keys(skillAvgs).length >= 2
+      ? Math.round((bestAvg - worstAvg) * 2) / 2
+      : 0;
+
+    // ── Overall Band Trend ──
+    const overallTrend = completedMocks.map((mock) => {
+      const result = mock.ieltsIntensiveResult!;
+      const type = mock.ieltsIntensiveExam.type;
+      let band: number;
+      if (type === "LISTENING" || type === "READING") {
+        band = rawToBand(result.totalScore, type as any);
+      } else {
+        band = result.totalScore;
+      }
+      return {
+        date: dayjs(mock.submittedAt || mock.createdAt).format("MMM D"),
+        band: Math.round(band * 2) / 2,
+      };
+    });
+
     return {
-      overallTrend: [],
-      skillTrends: { listening: [], reading: [], writing: [], speaking: [] },
-      scoreDistribution: [],
-      timeManagement: { averageTimeTaken: 0, optimalTime: 10800 },
-      skillGap: { bestSkill: "Reading", worstSkill: "Writing", gap: 1.5 },
+      overallTrend,
+      skillTrends,
+      scoreDistribution,
+      timeManagement: { averageTimeTaken, optimalTime: 2400 }, // 40min optimal
+      skillGap: { bestSkill, worstSkill, gap },
     };
   }
 }
+

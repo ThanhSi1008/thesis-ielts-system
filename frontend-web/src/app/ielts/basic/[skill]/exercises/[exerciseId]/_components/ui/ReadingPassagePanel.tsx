@@ -14,7 +14,7 @@ export function ReadingPassagePanel({
   const segments = passageWithLocations;
 
   // Before submitting: render passage as plain text (no Q markers)
-  const plainText = segments
+  const plainText = Array.isArray(segments) && segments.length > 0
     ? segments.map((seg) => (typeof seg === "string" ? seg : seg.text)).join("")
     : passage ?? "";
 
@@ -50,7 +50,7 @@ export function ReadingPassagePanel({
 
   // Grouping logic for submitted state with segments
   const groupedSections: Array<{ label: string | null; segments: PassageSegment[] }> = [];
-  if (segments) {
+  if (Array.isArray(segments)) {
     segments.forEach((seg) => {
       const text = typeof seg === "string" ? seg : seg.text;
       const label = getSectionLabel(text);

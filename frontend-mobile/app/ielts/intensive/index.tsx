@@ -11,7 +11,7 @@ import {
   Animated,
 } from 'react-native';
 import { Image } from 'expo-image';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES, navigation } from '@/constants';
@@ -384,9 +384,9 @@ export default function IntensiveScreen() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
-  const fetchCatalog = async (skill: string) => {
+  const fetchCatalog = useCallback(async (skill: string, opts?: { silent?: boolean }) => {
     try {
-      setLoading(true);
+      if (!opts?.silent) setLoading(true);
       const data = await ieltsExamsApi.getIntensiveCatalog(skill);
       setCatalog(data);
     } catch (e) {
@@ -395,11 +395,20 @@ export default function IntensiveScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, []);
 
-  useEffect(() => {
-    fetchCatalog(activeSkill);
-  }, [activeSkill]);
+  // Re-fetch the catalog whenever the screen regains focus so newly added
+  // tests show up without a manual pull-to-refresh. The skeleton only shows on
+  // first load and skill switches (where the displayed catalog is stale);
+  // returning to the same skill does a silent background refresh.
+  const lastFocusSkill = useRef<string | null>(null);
+  useFocusEffect(
+    useCallback(() => {
+      const sameSkillReFocus = lastFocusSkill.current === activeSkill;
+      lastFocusSkill.current = activeSkill;
+      fetchCatalog(activeSkill, { silent: sameSkillReFocus });
+    }, [activeSkill, fetchCatalog])
+  );
 
   // Reset filters when skill changes
   useEffect(() => {
@@ -742,7 +751,7 @@ export default function IntensiveScreen() {
                       refreshing={refreshing}
                       onRefresh={() => {
                         setRefreshing(true);
-                        fetchCatalog(activeSkill);
+                        fetchCatalog(activeSkill, { silent: true });
                       }}
                     />
                   }

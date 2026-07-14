@@ -52,6 +52,26 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     backend_core_url: str = "http://localhost:3000/api/v1"
 
+    # Cloudinary (audio/image CDN — same account configured in backend-core).
+    # Used to host the .mp3 files synthesised for IELTS Intensive Speaking mock exams.
+    cloudinary_cloud_name: str = ""
+    cloudinary_api_key: str = ""
+    cloudinary_api_secret: str = ""
+
+    # IELTS Intensive Speaking mock-exam TTS configuration
+    # en-GB-SoniaNeural = high-quality British English female voice (matches a female examiner persona).
+    speaking_tts_voice: str = "en-GB-SoniaNeural"
+    speaking_examiner_name: str = "Amber Bennett"
+    speaking_examiner_role: str = "IELTS Examiner"
+    speaking_examiner_avatar_url: str = (
+        "https://res.cloudinary.com/demo/image/upload/examiner_placeholder.png"
+    )
+
+    # Vocab Lab flashcard TTS — the voice used when the AI agent generates
+    # pronunciation audio for a card's front (word/term). en-US-AriaNeural is a
+    # clear, neutral US English voice well suited to single words and phrases.
+    vocab_tts_voice: str = "en-US-AriaNeural"
+
     class Config:
         env_file = ".env"
         case_sensitive = False

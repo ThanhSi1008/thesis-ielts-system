@@ -10,15 +10,33 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     const redisUrl = this.configService.get<string>("REDIS_URL");
-    this.client = new Redis(redisUrl);
+    this.client = new Redis(redisUrl, {
+      // Prevent "max retries" exceptions from crashing the process
+      maxRetriesPerRequest: null,
+      // Auto-reconnect with exponential backoff (cap at 5s)
+      retryStrategy(times) {
+        const delay = Math.min(times * 200, 5000);
+        console.warn(`🔄 Redis reconnecting... attempt ${times} (delay: ${delay}ms)`);
+        return delay;
+      },
+      // Don't connect until first command — avoids startup crash if Redis is slow
+      lazyConnect: true,
+    });
 
     this.client.on("connect", () => {
       console.log("✅ Redis connected successfully");
     });
 
     this.client.on("error", (error) => {
-      console.error("❌ Redis connection error:", error);
+      console.error("❌ Redis connection error:", error.message);
     });
+
+    // Explicitly connect (with error handling)
+    try {
+      await this.client.connect();
+    } catch (error) {
+      console.error("❌ Redis initial connect failed, will retry automatically:", error.message);
+    }
   }
 
   async onModuleDestroy() {

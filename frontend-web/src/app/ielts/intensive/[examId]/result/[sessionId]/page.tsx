@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { examsApi } from "@/services/exams.api";
@@ -10,6 +10,7 @@ import { extractAllItemsFromPart, type NormalizedItem } from "@/lib/exam-parser"
 import WritingResultView from "@/components/WritingResultView";
 import SpeakingResultView from "@/components/SpeakingResultView";
 import FloatingSelectionManager from "@/components/FloatingSelectionManager";
+import { parseTextAndBlanks } from "@/components/AnswerField";
 // Auth helpers
 // ─────────────────────────────────────────────────────────────
 
@@ -100,6 +101,24 @@ function extractTimestamps(obj: any, map: Map<string, number>) {
       }
     } else {
       Object.values(obj).forEach((v) => extractTimestamps(v, map));
+    }
+  }
+}
+
+// Extract explanations per question number
+function extractExplanations(obj: any, map: Map<string, string>) {
+  if (!obj || typeof obj !== "object") return;
+  if (Array.isArray(obj)) {
+    obj.forEach((x) => extractExplanations(x, map));
+  } else {
+    if ("question_number" in obj && "explanation" in obj && typeof obj.explanation === "string") {
+      map.set(String(obj.question_number), obj.explanation);
+    } else if ("question_numbers" in obj && "explanation" in obj && typeof obj.explanation === "string") {
+      for (const n of obj.question_numbers as number[]) {
+        map.set(String(n), obj.explanation);
+      }
+    } else {
+      Object.values(obj).forEach((v) => extractExplanations(v, map));
     }
   }
 }
@@ -421,11 +440,12 @@ function QnBadge({ n, txt }: { n: number; txt?: string }) {
 
 
 function ReviewActions({
-  qNum, timestamp, onSeek, onLocate, onNoteToggle, hasNote, isNoteOpen
+  qNum, timestamp, onSeek, onLocate, onNoteToggle, hasNote, isNoteOpen, explanation, isExplainOpen, onExplainToggle
 }: {
   qNum: number; timestamp?: number;
   onSeek: (t: number) => void; onLocate: (qNum: number) => void;
   onNoteToggle: () => void; hasNote: boolean; isNoteOpen: boolean;
+  explanation?: string; isExplainOpen?: boolean; onExplainToggle?: () => void;
 }) {
   const btnClass = "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#fdfaf0] hover:bg-[#fff7d9] text-[13px] font-semibold text-[#1a1a1a] shadow-sm border border-[#faeeb1] transition-colors focus:outline-none focus:ring-1 focus:ring-[#f6c604]";
   const activeBtnClass = "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#faeeb1] text-[13px] font-semibold text-[#1a1a1a] shadow-md border border-[#f6c604] transition-colors focus:outline-none";
@@ -440,9 +460,15 @@ function ReviewActions({
       <button onClick={() => onLocate(qNum)} className={btnClass}>
         <MapPin strokeWidth={2.5} className="w-[15px] h-[15px]" /> Locate
       </button>
-      <button disabled className={`${btnClass} opacity-60 cursor-not-allowed`} title="AI Explanation coming soon">
-        <Lightbulb strokeWidth={2.5} className="w-[15px] h-[15px]" /> Explain
-      </button>
+      {explanation ? (
+        <button onClick={onExplainToggle} className={isExplainOpen ? activeBtnClass : btnClass}>
+          <Lightbulb strokeWidth={2.5} className="w-[15px] h-[15px]" /> Explain
+        </button>
+      ) : (
+        <button disabled className={`${btnClass} opacity-60 cursor-not-allowed`} title="No explanation available">
+          <Lightbulb strokeWidth={2.5} className="w-[15px] h-[15px]" /> Explain
+        </button>
+      )}
       <button onClick={onNoteToggle} className={isNoteOpen ? activeBtnClass : (hasNote ? btnClass.replace('bg-[#fdfaf0]', 'bg-[#faeeb1]') : btnClass)}>
         <StickyNote strokeWidth={2.5} className="w-[15px] h-[15px]" /> Note{hasNote ? "" : ""}
       </button>
@@ -451,19 +477,23 @@ function ReviewActions({
 }
 
 function ReviewItemField({
-  item, userAnswers, correctMap, examId, userId, noteMap, onSeek, onLocate, onNoteReady
+  item, userAnswers, correctMap, explanationMap, examId, userId, noteMap, onSeek, onLocate, onNoteReady
 }: {
   item: NormalizedItem; userAnswers: Record<string, any>; correctMap: Map<string, any>;
+  explanationMap: Map<string, string>;
   examId: string; userId: string; noteMap: Map<number, QuestionNote>;
   onSeek: (t: number) => void; onLocate: (qNum: number) => void;
   onNoteReady: (note: QuestionNote) => void;
 }) {
   const [openNoteQn, setOpenNoteQn] = useState<number | null>(null);
+  const [openExplainQn, setOpenExplainQn] = useState<number | null>(null);
   const toggleNote = (q: number) => setOpenNoteQn(p => p === q ? null : q);
+  const toggleExplain = (q: number) => setOpenExplainQn(p => p === q ? null : q);
 
   // Helper to render the actions bar below a question group
   const renderActions = (qNum: number, overrideTimestamp?: number) => {
     const ts = overrideTimestamp !== undefined ? overrideTimestamp : item.timestamp;
+    const explanation = explanationMap.get(String(qNum));
     return (
       <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-300">
         <ReviewActions
@@ -474,7 +504,23 @@ function ReviewItemField({
           onNoteToggle={() => toggleNote(qNum)}
           hasNote={noteMap.has(qNum)}
           isNoteOpen={openNoteQn === qNum}
+          explanation={explanation}
+          isExplainOpen={openExplainQn === qNum}
+          onExplainToggle={() => toggleExplain(qNum)}
         />
+        {openExplainQn === qNum && explanation && (
+          <div className="mt-3 p-4 rounded-xl bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200/60 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="flex items-start gap-2.5">
+              <div className="mt-0.5 flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center">
+                <Lightbulb strokeWidth={2.5} className="w-3.5 h-3.5 text-amber-600" />
+              </div>
+              <div>
+                <div className="text-[11px] font-bold text-amber-700 uppercase tracking-wider mb-1">Explanation</div>
+                <div className="text-[13.5px] text-gray-800 leading-relaxed">{explanation}</div>
+              </div>
+            </div>
+          </div>
+        )}
         {openNoteQn === qNum && (
           <div className="mt-3">
             <NoteEditor questionNumber={qNum} examId={examId} userId={userId} initialNote={noteMap.get(qNum)} onSaved={onNoteReady} />
@@ -500,7 +546,7 @@ function ReviewItemField({
     const userAns = normalizeAnswer(userAnswers[key]);
     const correctAns = normalizeAnswer(correctMap.get(key));
     const isCorr = correctMap.has(key) ? isCorrect(userAns, correctAns) : null;
-    const parts = (item.text || "").split(/_+|\.{3,}|\[blank\]/i);
+    const parts = parseTextAndBlanks(item.text || "");
 
     const renderInputBox = () => {
       if (isCorr === true) {
@@ -535,27 +581,27 @@ function ReviewItemField({
 
         <div className="flex items-start gap-[8px]">
           <span className="mt-[10px] w-1.5 h-1.5 rounded-full bg-[#1a1a1a] flex-shrink-0"></span>
-          <div className="flex items-center gap-[6px] flex-wrap flex-1">
+          <div className="text-[17px] leading-[2.1] flex-1">
             {parts.length > 1 ? (
               parts.map((p, idx) => (
-                <span key={idx} className="flex items-center gap-[6px] flex-wrap leading-[2]">
-                  <span className="text-[17px] leading-relaxed">{p}</span>
+                <React.Fragment key={idx}>
+                  <span>{p}</span>
                   {idx < parts.length - 1 && (
-                    <span className="inline-flex items-center gap-1 mx-1 align-middle">
+                    <span className="inline-flex items-center gap-1 mx-1.5 align-middle">
                       <span className="text-[12px] font-bold text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{item.qn}</span>
                       {renderInputBox()}
                     </span>
                   )}
-                </span>
+                </React.Fragment>
               ))
             ) : (
-              <div className="flex items-center gap-[6px] flex-wrap leading-relaxed">
-                <div className="text-[17px] font-medium leading-relaxed">{item.text}</div>
-                <span className="inline-flex items-center gap-1 mx-1 align-middle">
+              <span className="inline">
+                <span className="font-medium">{item.text}</span>
+                <span className="inline-flex items-center gap-1 mx-1.5 align-middle">
                   <span className="text-[12px] font-bold text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{item.qn}</span>
                   {renderInputBox()}
                 </span>
-              </div>
+              </span>
             )}
           </div>
         </div>
@@ -592,7 +638,7 @@ function ReviewItemField({
                     const userAns = normalizeAnswer(userAnswers[key]);
                     const correctAns = normalizeAnswer(correctMap.get(key));
                     const isCorr = correctMap.has(key) ? isCorrect(userAns, correctAns) : null;
-                    const parts = (cell.text || "").split(/_+|\.{3,}|\[blank\]/i);
+                    const parts = parseTextAndBlanks(cell.text || "");
 
                     const renderInputBox = () => {
                       if (isCorr === true) {
@@ -614,10 +660,10 @@ function ReviewItemField({
 
                     return (
                       <td key={cIdx} className="border border-[#e2e1df] px-3 py-4 align-middle">
-                        <div id={`review-question-${qn}`} className="flex items-center gap-[6px] flex-wrap leading-[2]">
+                        <div id={`review-question-${qn}`} className="text-[15px] leading-[1.8]">
                           {parts.length > 1 ? (
                             parts.map((p, idx) => (
-                              <span key={idx} className="flex items-center gap-[6px] flex-wrap leading-[2]">
+                              <React.Fragment key={idx}>
                                 {p && <span className="leading-relaxed">{p}</span>}
                                 {idx < parts.length - 1 && (
                                   <span className="inline-flex items-center gap-1 mx-1 align-middle">
@@ -625,16 +671,16 @@ function ReviewItemField({
                                     {renderInputBox()}
                                   </span>
                                 )}
-                              </span>
+                              </React.Fragment>
                             ))
                           ) : (
-                            <>
+                            <span className="inline">
                               {cell.text && <span className="leading-relaxed">{cell.text}</span>}
                               <span className="inline-flex items-center gap-1 mx-1 align-middle">
                                 <span className="text-[12px] font-bold text-gray-500 bg-gray-100 rounded-full px-1.5 py-0.5">{qn}</span>
                                 {renderInputBox()}
                               </span>
-                            </>
+                            </span>
                           )}
                         </div>
                         <div className="mt-2">
@@ -1036,9 +1082,11 @@ function ReviewItemField({
               )}
             </div>
           </div>
-          <div className="w-full lg:w-[320px] shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm p-2">
-            <img src={item.imageUrl} alt="Plan/Map/Diagram" className="w-full h-auto rounded-lg" />
-          </div>
+          {item.imageUrl && (
+            <div className="w-full lg:w-[320px] shrink-0 rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm p-2">
+              <img src={item.imageUrl} alt="Plan/Map/Diagram" className="w-full h-auto rounded-lg" />
+            </div>
+          )}
         </div>
         {renderActions(item.qn)}
       </div>
@@ -1052,9 +1100,9 @@ function ReviewItemField({
 // Review & Explanation Section
 // ─────────────────────────────────────────────────────────────
 function ReviewSection({
-  exam, correctMap, userAnswers, examId, userId, aiFeedback, practicePart,
+  exam, correctMap, explanationMap, userAnswers, examId, userId, aiFeedback, practicePart,
 }: {
-  exam: any; correctMap: Map<string, any>; userAnswers: Record<string, any>; examId: string; userId: string; aiFeedback?: any; practicePart?: number;
+  exam: any; correctMap: Map<string, any>; explanationMap: Map<string, string>; userAnswers: Record<string, any>; examId: string; userId: string; aiFeedback?: any; practicePart?: number;
 }) {
   const [open, setOpen] = useState(true);
   const [activePartIdx, setActivePartIdx] = useState(0);
@@ -1180,9 +1228,8 @@ function ReviewSection({
             })}
           </div>
 
-          {/* ── SPEAKING-SPECIFIC LAYOUT ── */}
           {isSpeaking ? (
-            <div className="flex divide-x divide-gray-100" style={{ minHeight: 400, maxHeight: 700 }}>
+            <div className="flex divide-x divide-gray-100" style={{ minHeight: 500, maxHeight: "calc(100vh - 280px)" }}>
               {/* Left: Questions with recorded audio */}
               <div className="w-1/2 overflow-y-auto px-6 py-4 custom-scrollbar">
                 <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Question Review</div>
@@ -1338,7 +1385,7 @@ function ReviewSection({
               )}
 
               {/* Split panel */}
-              <div className="flex divide-x divide-gray-100" style={{ minHeight: 400, maxHeight: 600 }}>
+              <div className="flex divide-x divide-gray-100" style={{ minHeight: 500, maxHeight: "calc(100vh - 280px)" }}>
                 {/* Left: Question Review */}
                 <div key={`left-${activePartIdx}`} className="flex-1 overflow-y-auto px-8 py-4 bg-white shrink-[2] min-w-[50%] custom-scrollbar">
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Question Review</div>
@@ -1349,6 +1396,7 @@ function ReviewSection({
                       item={item}
                       userAnswers={userAnswers}
                       correctMap={correctMap}
+                      explanationMap={explanationMap}
                       examId={examId}
                       userId={userId}
                       noteMap={noteMap}
@@ -1577,6 +1625,12 @@ export default function IeltsResultPage() {
     return map;
   }, [exam]);
 
+  const explanationMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (exam?.questions) extractExplanations(exam.questions, map);
+    return map;
+  }, [exam]);
+
   const isPractice = !!session?.practicePart;
   const practicePart = session?.practicePart as number | undefined;
 
@@ -1670,7 +1724,7 @@ export default function IeltsResultPage() {
   return (
     <FloatingSelectionManager>
       <div className="min-h-screen bg-gray-50 font-sans">
-        <div className="container px-6 py-8 space-y-6">
+        <div className="w-full max-w-full px-6 py-8 space-y-6">
           <Breadcrumbs />
 
           {/* ── Result Card ── */}
@@ -1824,6 +1878,7 @@ export default function IeltsResultPage() {
             <ReviewSection
               exam={exam}
               correctMap={isPractice ? practiceCorrectMap : correctMap}
+              explanationMap={explanationMap}
               userAnswers={userAnswers}
               examId={examId}
               userId={session?.user?.id ?? ""}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAudioPlayer } from 'expo-audio';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES } from '@/constants';
+import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, ROUTES, API_BASE_URL } from '@/constants';
 import { ieltsExamsApi } from '@/services/ielts.api';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button, toast } from '@/components/ui';
@@ -693,8 +693,17 @@ export default function ResultScreen() {
   const [noteMap, setNoteMap] = useState<Map<number, QuestionNote>>(new Map());
   const [volume, setVolume] = useState(1.0);
 
-  const audioUrl = session?.exam?.questions?.audio_url || '';
-  const player = useAudioPlayer(audioUrl);
+  const rawAudioUrl = session?.exam?.questions?.audio_url
+    ?? session?.exam?.questions?.audioUrl
+    ?? '';
+  const audioUrl = useMemo(() => {
+    if (!rawAudioUrl) return '';
+    if (rawAudioUrl.startsWith('http')) return rawAudioUrl;
+    const cleanUrl = rawAudioUrl.startsWith('/') ? rawAudioUrl : `/${rawAudioUrl}`;
+    const baseAssetUrl = API_BASE_URL.replace(/\/api\/v\d+\/?$/, '').replace(/\/+$/, '');
+    return `${baseAssetUrl}${cleanUrl}`;
+  }, [rawAudioUrl]);
+  const player = useAudioPlayer(audioUrl, { downloadFirst: true });
 
   useEffect(() => {
     if (player) player.volume = volume;
@@ -833,18 +842,19 @@ export default function ResultScreen() {
   const userAnswers: Record<string, any> = session.answers ?? {};
   const totalQuestions = correctMap.size > 0 ? correctMap.size : 40;
 
-  const rawSpeakingFeedback = session.result?.feedback;
-  const speakingFeedback =
-    rawSpeakingFeedback != null
-      ? typeof rawSpeakingFeedback === 'string'
+  // Writing & speaking AI feedback both live in the `feedback` JSON column.
+  const rawAiFeedback = session.result?.feedback;
+  const aiFeedback =
+    rawAiFeedback != null
+      ? typeof rawAiFeedback === 'string'
         ? (() => {
             try {
-              return JSON.parse(rawSpeakingFeedback);
+              return JSON.parse(rawAiFeedback);
             } catch {
               return null;
             }
           })()
-        : rawSpeakingFeedback
+        : rawAiFeedback
       : null;
 
   return (
@@ -1034,9 +1044,9 @@ export default function ResultScreen() {
           />
         )}
 
-        {!isPending && examType === 'WRITING' && session.result?.writingFeedback && (
+        {!isPending && examType === 'WRITING' && aiFeedback && (
           <WritingRubricView
-            feedback={session.result.writingFeedback}
+            feedback={aiFeedback}
             answers={{
               task1: session.answers?.task1 ?? session.answers?.['1'],
               task2: session.answers?.task2 ?? session.answers?.['2'],
@@ -1045,9 +1055,9 @@ export default function ResultScreen() {
           />
         )}
 
-        {!isPending && examType === 'SPEAKING' && speakingFeedback && (
+        {!isPending && examType === 'SPEAKING' && aiFeedback && (
           <SpeakingRubricView
-            feedback={speakingFeedback}
+            feedback={aiFeedback}
             answers={session.answers ?? {}}
             exam={session.exam}
           />

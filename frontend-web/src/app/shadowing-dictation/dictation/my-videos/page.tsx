@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { dictationApi, DictationVideo } from '@/services/dictation.api';
-import { PlayCircle, Clock, Trash2, FolderPlus, Plus, Loader2 } from 'lucide-react';
+import { PlayCircle, Clock, Trash2, FolderPlus, Plus, Loader2, Edit2 } from 'lucide-react';
 import Link from 'next/link';
 import AddDictationModal from './_components/AddDictationModal';
 import FeatureLock from '@/components/FeatureLock';
@@ -16,6 +16,31 @@ export default function DictationMyVideosPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Poll for PROCESSING videos so the UI updates automatically (ignoring stuck tasks > 30 mins old)
+  useEffect(() => {
+    const hasRecentProcessing = videos.some(v => 
+      v.status === 'PROCESSING' && 
+      (Date.now() - new Date(v.createdAt).getTime() < 30 * 60 * 1000)
+    );
+    if (!hasRecentProcessing) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const updated = await dictationApi.getVideos();
+        setVideos(updated);
+        const hasStillProcessing = updated.some(v => 
+          v.status === 'PROCESSING' && 
+          (Date.now() - new Date(v.createdAt).getTime() < 30 * 60 * 1000)
+        );
+        if (!hasStillProcessing) {
+          clearInterval(interval);
+        }
+      } catch { /* ignore */ }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [videos]);
 
   const fetchData = async () => {
     try {
@@ -120,13 +145,22 @@ export default function DictationMyVideosPage() {
                   <span className="text-xs text-gray-400 dark:text-gray-500">
                     {new Date(video.createdAt).toLocaleDateString()}
                   </span>
-                  <button 
-                    onClick={() => handleDelete(video.id)}
-                    className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                    title="Delete Video"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <Link
+                      href={`/shadowing-dictation/dictation/my-videos/${video.id}/edit`}
+                      className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded transition-colors"
+                      title="Edit Video"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </Link>
+                    <button 
+                      onClick={() => handleDelete(video.id)}
+                      className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                      title="Delete Video"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

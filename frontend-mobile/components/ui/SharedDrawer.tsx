@@ -67,7 +67,7 @@ const DRAWER_GROUPS: DrawerGroup[] = [
         label: 'Vocabulary',
         iconOutline: 'book-outline',
         iconFilled: 'book',
-        route: '/vocab-lab',
+        route: '/ielts/foundation/vocabulary',
       },
       {
         key: 'grammar',

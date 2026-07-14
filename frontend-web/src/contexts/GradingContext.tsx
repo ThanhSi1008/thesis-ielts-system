@@ -63,14 +63,14 @@ export function GradingProvider({ children }: { children: React.ReactNode }) {
     pollRefs.current[sessionId] = window.setInterval(async () => {
       try {
         const session = await examsApi.getSession(sessionId);
-        
+
         if (session.status === "GRADING_FAILED") {
           window.clearInterval(pollRefs.current[sessionId]);
           delete pollRefs.current[sessionId];
           patchJob(sessionId, { status: "ERROR", error: "AI grading failed. Please retry." });
           return;
         }
-        
+
         const res = session?.ieltsIntensiveResult;
         const isGraded =
           res &&

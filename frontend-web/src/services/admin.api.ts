@@ -86,3 +86,94 @@ export const adminDictationApi = {
     api.post<DictationVideo>('/admin/dictation/lessons/import', dto).then(r => r.data),
 };
 
+// ─── IELTS Intensive Admin ───
+export const adminIeltsIntensiveApi = {
+  getAll: (type?: string) =>
+    api.get<any[]>('/admin/ielts/intensive', { params: { type } }).then(r => r.data),
+  getById: (id: string) =>
+    api.get<any>(`/admin/ielts/intensive/${id}`).then(r => r.data),
+  create: (dto: any) =>
+    api.post<any>('/admin/ielts/intensive', dto).then(r => r.data),
+  update: (id: string, dto: any) =>
+    api.patch<any>(`/admin/ielts/intensive/${id}`, dto).then(r => r.data),
+  delete: (id: string) =>
+    api.delete(`/admin/ielts/intensive/${id}`).then(r => r.data),
+  publish: (id: string) =>
+    api.patch<any>(`/admin/ielts/intensive/${id}/publish`).then(r => r.data),
+};
+
+// ─── IELTS Advanced Admin ───
+export const adminIeltsAdvancedApi = {
+  // Listening Parts
+  getListening: () => api.get<any[]>('/admin/ielts/advanced/listening').then(r => r.data),
+  getListeningById: (id: string) => api.get<any>(`/admin/ielts/advanced/listening/${id}`).then(r => r.data),
+  createListening: (dto: any) => api.post<any>('/admin/ielts/advanced/listening', dto).then(r => r.data),
+  updateListening: (id: string, dto: any) => api.patch<any>(`/admin/ielts/advanced/listening/${id}`, dto).then(r => r.data),
+  deleteListening: (id: string) => api.delete(`/admin/ielts/advanced/listening/${id}`).then(r => r.data),
+  publishListening: (id: string) => api.patch<any>(`/admin/ielts/advanced/listening/${id}/publish`).then(r => r.data),
+
+  // Reading Parts
+  getReading: () => api.get<any[]>('/admin/ielts/advanced/reading').then(r => r.data),
+  getReadingById: (id: string) => api.get<any>(`/admin/ielts/advanced/reading/${id}`).then(r => r.data),
+  createReading: (dto: any) => api.post<any>('/admin/ielts/advanced/reading', dto).then(r => r.data),
+  updateReading: (id: string, dto: any) => api.patch<any>(`/admin/ielts/advanced/reading/${id}`, dto).then(r => r.data),
+  deleteReading: (id: string) => api.delete(`/admin/ielts/advanced/reading/${id}`).then(r => r.data),
+  publishReading: (id: string) => api.patch<any>(`/admin/ielts/advanced/reading/${id}/publish`).then(r => r.data),
+
+  // Writing Prompts
+  getWriting: () => api.get<any[]>('/admin/ielts/advanced/writing').then(r => r.data),
+  getWritingById: (id: string) => api.get<any>(`/admin/ielts/advanced/writing/${id}`).then(r => r.data),
+  createWriting: (dto: any) => api.post<any>('/admin/ielts/advanced/writing', dto).then(r => r.data),
+  updateWriting: (id: string, dto: any) => api.patch<any>(`/admin/ielts/advanced/writing/${id}`, dto).then(r => r.data),
+  deleteWriting: (id: string) => api.delete(`/admin/ielts/advanced/writing/${id}`).then(r => r.data),
+  publishWriting: (id: string) => api.patch<any>(`/admin/ielts/advanced/writing/${id}/publish`).then(r => r.data),
+
+  // Speaking Parts
+  getSpeaking: () => api.get<any[]>('/admin/ielts/advanced/speaking').then(r => r.data),
+  getSpeakingById: (id: string) => api.get<any>(`/admin/ielts/advanced/speaking/${id}`).then(r => r.data),
+  createSpeaking: (dto: any) => api.post<any>('/admin/ielts/advanced/speaking', dto).then(r => r.data),
+  updateSpeaking: (id: string, dto: any) => api.patch<any>(`/admin/ielts/advanced/speaking/${id}`, dto).then(r => r.data),
+  deleteSpeaking: (id: string) => api.delete(`/admin/ielts/advanced/speaking/${id}`).then(r => r.data),
+  publishSpeaking: (id: string) => api.patch<any>(`/admin/ielts/advanced/speaking/${id}/publish`).then(r => r.data),
+};
+
+// ─── IELTS Import Admin ───
+export const ieltsImportApi = {
+  createJob: (dto: {
+    targetSystem: string;
+    skill: string;
+    sourceType: string;
+    sourceRef: string;
+    audioscriptRef?: string;
+    provenance: Record<string, any>;
+    mediaAssets?: any[];
+    audioUrls?: string[];
+  }) => api.post<any>('/admin/ielts/import', dto).then(r => r.data),
+
+  getAllJobs: () => api.get<any[]>('/admin/ielts/import').then(r => r.data),
+  getJobById: (id: string) => api.get<any>(`/admin/ielts/import/${id}`).then(r => r.data),
+  saveDraft: (id: string, dto: { structuredJson: any; provenance?: any; mediaAssets?: any[]; version: number }) =>
+    api.patch<any>(`/admin/ielts/import/${id}/draft`, dto).then(r => r.data),
+  commitJob: (id: string, dto?: { overwrite?: boolean; isPublished?: boolean }) =>
+    api.post<string>(`/admin/ielts/import/${id}/commit`, dto).then(r => r.data),
+  discardJob: (id: string) => api.delete(`/admin/ielts/import/${id}`).then(r => r.data),
+  retryJob: (id: string) => api.post<any>(`/admin/ielts/import/${id}/retry`).then(r => r.data),
+  uploadFile: (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return api.post<{ url: string }>('/admin/ielts/import/upload', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data.url);
+  },
+  // AI-assisted Refinement: send the current JSON + instruction + optional screenshot
+  // (multipart/form-data) and receive the repaired structured JSON.
+  refine: (form: FormData) =>
+    api.post<{ structuredJson: any }>('/admin/ielts/import/refine', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data),
+  discardSkill: (id: string) => api.delete(`/admin/ielts/import/${id}/discard-skill`).then(r => r.data),
+  abandonGroup: (groupId: string) => api.delete(`/admin/ielts/import/group/${groupId}/abandon`).then(r => r.data),
+  commitGroup: (groupId: string, dto?: { isPublished?: boolean }) =>
+    api.post<any>(`/admin/ielts/import/group/${groupId}/commit`, dto).then(r => r.data),
+};
+

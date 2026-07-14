@@ -88,7 +88,7 @@ export function useShadowingMode({ lessonId, mode, userId }: UseShadowingModePro
   const [trackWidth, setTrackWidth] = useState(0);
 
   const playerRef = useRef<any>(null);
-  const audioPlayer = useAudioPlayer(lesson?.audioUrl || '');
+  const audioPlayer = useAudioPlayer(lesson?.audioUrl || '', { downloadFirst: true });
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // JS-clock based tracking

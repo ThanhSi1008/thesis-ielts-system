@@ -521,7 +521,11 @@ export default function ExerciseViewerScreen() {
             url={
               exercise.audioUrl.startsWith('http')
                 ? exercise.audioUrl
-                : `${API_BASE_URL}${exercise.audioUrl}`
+                : (() => {
+                    const cleanUrl = exercise.audioUrl.startsWith('/') ? exercise.audioUrl : `/${exercise.audioUrl}`;
+                    const baseAssetUrl = API_BASE_URL.replace(/\/api\/v\d+\/?$/, '').replace(/\/+$/, '');
+                    return `${baseAssetUrl}${cleanUrl}`;
+                  })()
             }
           />
         )}
@@ -552,7 +556,11 @@ export default function ExerciseViewerScreen() {
                     source={{
                       uri: exercise.diagramUrl.startsWith('http')
                         ? exercise.diagramUrl
-                        : `${API_BASE_URL}${exercise.diagramUrl}`,
+                        : (() => {
+                            const cleanUrl = exercise.diagramUrl.startsWith('/') ? exercise.diagramUrl : `/${exercise.diagramUrl}`;
+                            const baseAssetUrl = API_BASE_URL.replace(/\/api\/v\d+\/?$/, '').replace(/\/+$/, '');
+                            return `${baseAssetUrl}${cleanUrl}`;
+                          })()
                     }}
                     style={{ width: width - SPACING.lg * 4, height: 200 }}
                     resizeMode="contain"

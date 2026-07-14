@@ -34,9 +34,37 @@ export default function IntensiveTestTakePage() {
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [answers, setAnswers] = useState<AnswersState>({});
 
+  const [currentSection, setCurrentSection] = useState<"listening" | "reading" | "writing" | "speaking">("listening");
+  const [accumulatedTime, setAccumulatedTime] = useState(0);
+
   const [submitting, setSubmitting] = useState(false);
   const [submitResult, setSubmitResult] = useState<any>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const getSubExam = (
+    section: "listening" | "reading" | "writing" | "speaking",
+    fullExam: ExamDetail
+  ) => {
+    if (!fullExam || !fullExam.questions) return null;
+    const questionsObj = fullExam.questions as any;
+
+    const durations = {
+      listening: 40,
+      reading: 60,
+      writing: 60,
+      speaking: 15,
+    };
+
+    const sectionName = section.charAt(0).toUpperCase() + section.slice(1);
+
+    return {
+      ...fullExam,
+      title: `${fullExam.title} - ${sectionName}`,
+      type: section.toUpperCase() as any,
+      questions: questionsObj[section] || {},
+      duration: durations[section],
+    };
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -50,8 +78,32 @@ export default function IntensiveTestTakePage() {
 
         setExam(res);
         setSessionInfo(session);
+
+        let startSection: "listening" | "reading" | "writing" | "speaking" = "listening";
+        if (session?.answers && res.type === "FULL_TEST") {
+          const keys = Object.keys(session.answers);
+          if (keys.some((k) => k.startsWith("s-"))) {
+            startSection = "speaking";
+          } else if (keys.some((k) => k.startsWith("w-"))) {
+            startSection = "speaking"; // finished writing, now on speaking
+          } else if (keys.some((k) => k.startsWith("R"))) {
+            startSection = "writing"; // finished reading, now on writing
+          } else if (keys.some((k) => k.startsWith("L"))) {
+            startSection = "reading"; // finished listening, now on reading
+          }
+        }
+        setCurrentSection(startSection);
+
+        const durations = {
+          listening: 40,
+          reading: 60,
+          writing: 60,
+          speaking: 15,
+        };
+        const activeDuration = res.type === "FULL_TEST" ? durations[startSection] : res.duration;
+
         if (!customTime) {
-          setSecondsLeft(res.duration * 60);
+          setSecondsLeft(activeDuration * 60);
         } else {
           setSecondsLeft(parseInt(customTime) * 60);
         }
@@ -60,7 +112,7 @@ export default function IntensiveTestTakePage() {
           setAnswers(session.answers as AnswersState);
         }
 
-        if (session?.status === "COMPLETED") {
+        if (session?.status === "COMPLETED" || session?.status === "GRADED") {
           router.replace(
             `/ielts/intensive/${encodeURIComponent(examId)}/result/${encodeURIComponent(sessionId)}`
           );
@@ -75,8 +127,10 @@ export default function IntensiveTestTakePage() {
       }
     }
     load();
-    return () => { mounted = false; };
-  }, [examId, sessionId, router]);
+    return () => {
+      mounted = false;
+    };
+  }, [examId, sessionId, router, customTime]);
 
   // Global countdown (used only by Listening/Reading boards; Writing/Speaking own their timer via secondsLeft prop)
   useEffect(() => {
@@ -95,7 +149,68 @@ export default function IntensiveTestTakePage() {
     }
   }, [submitResult, examId, sessionId, router]);
 
+  const handleSectionComplete = async (data: any) => {
+    if (!exam) return;
+    
+    const sectionAnswers = data.answers || {};
+    const sectionTimeTaken = data.timeTaken || 0;
+
+    const prefix =
+      currentSection === "listening"
+        ? "L"
+        : currentSection === "reading"
+        ? "R"
+        : currentSection === "writing"
+        ? "w-"
+        : "s-";
+
+    const namespaced: Record<string, any> = {};
+    Object.entries(sectionAnswers).forEach(([k, v]) => {
+      namespaced[prefix + k] = v;
+    });
+
+    const nextAnswers = { ...answers, ...namespaced };
+    const nextAccumulatedTime = accumulatedTime + sectionTimeTaken;
+
+    setAnswers(nextAnswers);
+    setAccumulatedTime(nextAccumulatedTime);
+
+    if (currentSection === "listening") {
+      await examsApi.saveSessionProgress(sessionId, nextAnswers, nextAccumulatedTime);
+      setCurrentSection("reading");
+      const readingExam = getSubExam("reading", exam);
+      setSecondsLeft((readingExam?.duration || 60) * 60);
+    } else if (currentSection === "reading") {
+      await examsApi.saveSessionProgress(sessionId, nextAnswers, nextAccumulatedTime);
+      setCurrentSection("writing");
+      const writingExam = getSubExam("writing", exam);
+      setSecondsLeft((writingExam?.duration || 60) * 60);
+    } else if (currentSection === "writing") {
+      await examsApi.saveSessionProgress(sessionId, nextAnswers, nextAccumulatedTime);
+      setCurrentSection("speaking");
+      const speakingExam = getSubExam("speaking", exam);
+      setSecondsLeft((speakingExam?.duration || 15) * 60);
+    } else {
+      // It was speaking section - finish and submit the entire test!
+      setSubmitting(true);
+      setSubmitError(null);
+      try {
+        const result = await examsApi.submitSession(sessionId, nextAnswers, nextAccumulatedTime);
+        setSubmitResult(result);
+        return result;
+      } catch (err: any) {
+        setSubmitError(err.message || "Failed to submit answers");
+        setSubmitting(false);
+        throw err;
+      }
+    }
+  };
+
   const submitAndTrack = async (data: any) => {
+    if (exam?.type === "FULL_TEST") {
+      return handleSectionComplete(data);
+    }
+
     setSubmitting(true);
     setSubmitError(null);
     try {
@@ -131,24 +246,29 @@ export default function IntensiveTestTakePage() {
     );
   }
 
+  // Determine active render state (under normal exam or FULL_TEST)
+  const activeExam = exam.type === "FULL_TEST" ? getSubExam(currentSection, exam)! : exam;
+
   return (
     <>
-      {exam.type === "WRITING" ? (
+      {activeExam.type === "WRITING" ? (
         <TakeWritingBoard
-          exam={exam}
+          exam={activeExam}
           sessionInfo={sessionInfo}
           secondsLeft={secondsLeft}
           formatTime={formatTime}
+          submitAndTrack={submitAndTrack}
         />
-      ) : exam.type === "SPEAKING" ? (
+      ) : activeExam.type === "SPEAKING" ? (
         <TakeSpeakingBoard
-          exam={exam}
+          exam={activeExam}
           sessionInfo={sessionInfo}
           secondsLeft={secondsLeft}
+          submitAndTrack={submitAndTrack}
         />
-      ) : exam.type === "READING" ? (
+      ) : activeExam.type === "READING" ? (
         <TakeReadingBoard
-          exam={exam}
+          exam={activeExam}
           sessionInfo={sessionInfo}
           answers={answers}
           setAnswers={setAnswers}
@@ -161,7 +281,7 @@ export default function IntensiveTestTakePage() {
         />
       ) : (
         <TakeListeningBoard
-          exam={exam}
+          exam={activeExam}
           sessionInfo={sessionInfo}
           answers={answers}
           setAnswers={setAnswers}
@@ -176,3 +296,4 @@ export default function IntensiveTestTakePage() {
     </>
   );
 }
+

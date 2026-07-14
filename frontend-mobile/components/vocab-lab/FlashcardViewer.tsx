@@ -46,6 +46,7 @@ export interface ViewerCard {
   id: string;
   front?: string;
   back?: string;
+  audioUrl?: string | null;
   tags?: string[];
   fieldValues?: Record<string, string>;
   fieldStyles?: Record<string, Record<string, string>>;
@@ -140,7 +141,7 @@ function detectKind(value: string, fieldType?: string): ContentKind {
 
 // ─── Audio Player ─────────────────────────────────────────────────────────────
 function AudioField({ url }: { url: string }) {
-  const player = useAudioPlayer(url);
+  const player = useAudioPlayer(url, { downloadFirst: true });
   const [playing, setPlaying] = useState(false);
 
   const toggle = useCallback(async () => {
