@@ -74,6 +74,8 @@ prisma/migrations/
 
 # VM deployment — SSL certs không commit, .example files được commit
 docs/deployment/vm-config/nginx/ssl/
+docs/deployment/vm-config/.env.backend-core
+docs/deployment/vm-config/.env.backend-ai
 
 # OS
 Thumbs.db
