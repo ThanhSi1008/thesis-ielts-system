@@ -81,6 +81,9 @@ export class AuthService {
       this.configService.get<string>("GOOGLE_ANDROID_CLIENT_ID"), // Android
     ].filter(Boolean); // loại bỏ undefined nếu chưa có
 
+    console.log("[Google Auth Debug] Configured audience:", audience);
+    console.log("[Google Auth Debug] Received idToken snippet:", idToken ? idToken.substring(0, 20) + "..." : "undefined");
+
     let ticket: any;
     try {
       ticket = await this.googleClient.verifyIdToken({
