@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   nginx:
@@ -28,7 +28,8 @@ services:
       - "3000"
     env_file: .env.backend-core
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/v1/health || exit 1"]
+      test:
+        ["CMD-SHELL", "wget -qO- http://localhost:3000/api/v1/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -49,16 +50,20 @@ services:
       - whisper-cache:/root/.cache/huggingface
       - /tmp/audio:/tmp/audio
     healthcheck:
-      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      test:
+        [
+          "CMD-SHELL",
+          'python3 -c "import urllib.request; urllib.request.urlopen(''http://localhost:8000/health'')"',
+        ]
       interval: 30s
       timeout: 15s
       retries: 3
-      start_period: 120s
+      start_period: 600s
     deploy:
       resources:
         limits:
           memory: 10G
-          cpus: '3'
+          cpus: "3"
     logging:
       driver: "json-file"
       options:
