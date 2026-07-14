@@ -143,6 +143,11 @@ jobs:
           chmod 600 ~/.ssh/vm_key
           ssh-keyscan -H ${{ env.VM_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Copy config files to VM
+        run: |
+          scp -i ~/.ssh/vm_key docs/deployment/vm-config/docker-compose.yml ${{ env.VM_USER }}@${{ env.VM_HOST }}:/opt/app/
+          scp -i ~/.ssh/vm_key -r docs/deployment/vm-config/nginx ${{ env.VM_USER }}@${{ env.VM_HOST }}:/opt/app/
+
       - name: Deploy to VM
         run: |
           ssh -i ~/.ssh/vm_key ${{ env.VM_USER }}@${{ env.VM_HOST }} << 'ENDSSH'
