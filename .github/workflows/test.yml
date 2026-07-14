@@ -2,9 +2,9 @@ name: Backend Tests
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
   workflow_dispatch:
 
 # Tránh chạy nhiều job trùng nhau khi push liên tiếp lên cùng nhánh.
