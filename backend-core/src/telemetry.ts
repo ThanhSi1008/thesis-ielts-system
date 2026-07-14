@@ -21,5 +21,9 @@ const sdk = new NodeSDK({
   ],
 });
 
-sdk.start();
-console.log('[Telemetry] OpenTelemetry SDK started, sending to:', process.env.OTEL_EXPORTER_OTLP_ENDPOINT);
+if (process.env.OTEL_SDK_DISABLED === 'true') {
+  console.log('[Telemetry] OpenTelemetry SDK is disabled via OTEL_SDK_DISABLED=true');
+} else {
+  sdk.start();
+  console.log('[Telemetry] OpenTelemetry SDK started, sending to:', process.env.OTEL_EXPORTER_OTLP_ENDPOINT);
+}

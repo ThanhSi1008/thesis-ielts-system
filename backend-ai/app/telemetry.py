@@ -7,6 +7,9 @@ from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExport
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 def setup_telemetry(app):
+    if os.getenv("OTEL_SDK_DISABLED") == "true":
+        print("[Telemetry] OpenTelemetry SDK is disabled via OTEL_SDK_DISABLED=true")
+        return
     resource = Resource(attributes={"service.name": "backend-ai"})
     provider = TracerProvider(resource=resource)
     provider.add_span_processor(
