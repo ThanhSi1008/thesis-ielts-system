@@ -152,7 +152,7 @@ NestJS/FastAPI ──traces──→ Alloy ──OTLP─────────
            ▼                  ▼
 ┌──────────────────────────────────────────────────────────┐
 │  GCP VM (n2-standard-4, 16GB RAM, asia-southeast1-b)     │
-│  dedangdown.io.vn (34.143.226.199)                       │
+│  dedangdown.io.vn (34.21.232.188)                       │
 │                                                           │
 │  ┌───────────────────────────────────────────────┐       │
 │  │  Nginx (SSL termination, reverse proxy)       │       │
