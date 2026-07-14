@@ -315,9 +315,9 @@ NestJS + FastAPI ── OTLP traces           ──▶ Alloy (OTLP receiver)   
 
 - Trigger: push to `main` or `deploy`.
 - `dorny/paths-filter@v3` detects which of `frontend-web/`, `backend-core/`, `backend-ai/` changed.
-- Builds multi-arch `linux/amd64` Docker images, pushes to **Google Container Registry** (`gcr.io/ielts-master-495612/...`) tagged with both `:${{ github.sha }}` and `:latest`.
+- Builds multi-arch `linux/amd64` Docker images, pushes to **Google Container Registry** (`gcr.io/ielts-master-502414/...`) tagged with both `:${{ github.sha }}` and `:latest`.
 - `frontend-web` → `gcloud run deploy frontend-web --region asia-southeast1` with `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_GOOGLE_CLIENT_ID` env vars.
-- Backend → SSH (ed25519 key in `VM_SSH_PRIVATE_KEY`) to VM `34.143.226.199` as user `xis108`: `cd /opt/app && docker compose pull <svc> && docker compose up -d --no-deps <svc> && docker image prune -f`.
+- Backend → SSH (ed25519 key in `VM_SSH_PRIVATE_KEY`) to VM `34.21.232.188` as user `xis108floren`: `cd /opt/app && docker compose pull <svc> && docker compose up -d --no-deps <svc> && docker image prune -f`.
 
 ## Key Conventions
 

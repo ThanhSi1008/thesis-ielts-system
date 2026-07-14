@@ -44,7 +44,7 @@
 - [x] [ME] Khởi động `backend-core` — healthy, log thấy Database + Redis + RabbitMQ connected
 - [x] [ME] Khởi động `backend-ai` — healthy, Whisper loaded + tất cả consumers started
 - [x] [ME] Khởi động `nginx` — cả 3 containers healthy
-- [x] [ME] Test health check qua Nginx — `http://34.143.226.199/api/v1/health` ✅ và `http://34.143.226.199/ai/health` ✅
+- [x] [ME] Test health check qua Nginx — `http://34.21.232.188/api/v1/health` ✅ và `http://34.21.232.188/ai/health` ✅
 - [x] [ME] Đo TTFB — 72ms (HTTP, Singapore → VN, chấp nhận được)
 - [x] [ME] Test HTTPS — `https://dedangdown.io.vn/api/v1/health` ✅ và `https://dedangdown.io.vn/ai/health` ✅
 - [x] [ME] Fix CORS — `CORS_ORIGIN` hỗ trợ comma-separated, đã thêm `https://ielts-master.io.vn`

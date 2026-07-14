@@ -238,7 +238,7 @@ services:
     restart: unless-stopped
 
   backend-core:
-    image: gcr.io/ielts-master-495612/backend-core:latest
+    image: gcr.io/ielts-master-502414/backend-core:latest
     expose: ["3000"]
     env_file: .env.backend-core
     healthcheck:
@@ -255,7 +255,7 @@ services:
     restart: unless-stopped
 
   backend-ai:
-    image: gcr.io/ielts-master-495612/backend-ai:latest
+    image: gcr.io/ielts-master-502414/backend-ai:latest
     expose: ["8000"]
     env_file: .env.backend-ai
     volumes:
@@ -489,7 +489,7 @@ deploy-backend:
     needs.changes.outputs.backend-ai == 'true'
   runs-on: ubuntu-latest
   env:
-    PROJECT_ID: ielts-master-495612
+    PROJECT_ID: ielts-master-502414
     SHA: ${{ github.sha }}
   steps:
     - uses: actions/checkout@v4
@@ -597,12 +597,12 @@ Nếu VM gặp vấn đề, rollback về Cloud Run trong < 5 phút:
 
 ```bash
 gcloud run deploy backend-core \
-  --image gcr.io/ielts-master-495612/backend-core:latest \
+  --image gcr.io/ielts-master-502414/backend-core:latest \
   --region asia-southeast1 \
   --allow-unauthenticated
 
 gcloud run deploy backend-ai \
-  --image gcr.io/ielts-master-495612/backend-ai:latest \
+  --image gcr.io/ielts-master-502414/backend-ai:latest \
   --region asia-southeast1 \
   --allow-unauthenticated
 ```
