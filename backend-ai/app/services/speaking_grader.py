@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 _GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 _client = genai.Client(api_key=_GEMINI_API_KEY) if _GEMINI_API_KEY else None
 
-MODEL = "gemini-1.5-flash-8b"
+MODEL = "gemini-1.5-flash"
 
 SYSTEM_PROMPT = """You are an expert IELTS examiner. Grade the user's speaking test responses according to the official IELTS Speaking band descriptors.
 

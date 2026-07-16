@@ -66,7 +66,7 @@ class ExtractionService:
         """
         try:
             response = await self.client.aio.models.generate_content(
-                model="gemini-1.5-flash-8b",
+                model="gemini-1.5-flash",
                 contents=file_parts + [
                     "What type of IELTS test content does this document contain? "
                     "Reply with EXACTLY one word from this list: LISTENING, READING, WRITING, SPEAKING, FULL_TEST. "
@@ -265,8 +265,8 @@ class ExtractionService:
         schema_model, system_prompt = self._get_schema_and_prompt(skill, target_system)
         
         # Models configuration for tiering
-        flash_model = "gemini-1.5-flash-8b"
-        pro_model = "gemini-1.5-flash-8b"
+        flash_model = "gemini-1.5-flash"
+        pro_model = "gemini-1.5-flash"
         
         selected_model = flash_model
         result_dict = {}

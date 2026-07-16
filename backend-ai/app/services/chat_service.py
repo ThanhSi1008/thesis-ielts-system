@@ -21,7 +21,7 @@ def _get_client():
             _client = genai.Client(api_key=api_key)
     return _client
 
-MODEL = "gemini-1.5-flash-8b"
+MODEL = "gemini-1.5-flash"
 
 def is_client_configured() -> bool:
     return _get_client() is not None
