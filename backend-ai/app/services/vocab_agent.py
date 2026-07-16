@@ -21,7 +21,7 @@ from app.services.vocab_tts_service import synthesize_vocab_audio
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-MODEL = "gemini-flash-latest"
+MODEL = "gemini-1.5-flash-8b"
 
 # ─── Tool Declarations ────────────────────────────────────────────────────────
 # Each tool maps to an existing backend-core REST endpoint.
