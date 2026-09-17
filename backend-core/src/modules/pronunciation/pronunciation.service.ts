@@ -52,11 +52,13 @@ export class PronunciationService {
     const cacheKey = `${CACHE_PREFIX}:sounds`;
     const cached: any = await this.redis.getJson(cacheKey);
     if (cached) {
-      return {
-        monophthongs: (cached.monophthongs || []).map((s: any) => this.sanitizeSound(s)!),
-        diphthongs: (cached.diphthongs || []).map((s: any) => this.sanitizeSound(s)!),
-        consonants: (cached.consonants || []).map((s: any) => this.sanitizeSound(s)!),
-      };
+      const sanitizedCached: any = { ...cached };
+      for (const key of ["monophthongs", "diphthongs", "consonants"]) {
+        if (Array.isArray(sanitizedCached[key])) {
+          sanitizedCached[key] = sanitizedCached[key].map((s: any) => this.sanitizeSound(s)!);
+        }
+      }
+      return sanitizedCached;
     }
 
     const sounds = await this.prisma.foundationPronunciationSound.findMany({
