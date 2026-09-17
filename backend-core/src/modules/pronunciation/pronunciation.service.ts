@@ -25,12 +25,39 @@ export class PronunciationService {
     private gamificationService: GamificationService,
   ) {}
 
+  private sanitizeWordAudio(word: string, audioUrl?: string | null): string {
+    if (!audioUrl || audioUrl.includes("api.dictionaryapi.dev")) {
+      return `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${encodeURIComponent(word)}`;
+    }
+    return audioUrl;
+  }
+
+  private sanitizeSound<T extends { exampleWords?: Array<{ word: string; audioUrl?: string | null }> }>(sound: T | null): T | null {
+    if (!sound) return null;
+    if (sound.exampleWords && Array.isArray(sound.exampleWords)) {
+      return {
+        ...sound,
+        exampleWords: sound.exampleWords.map((ew) => ({
+          ...ew,
+          audioUrl: this.sanitizeWordAudio(ew.word, ew.audioUrl),
+        })),
+      };
+    }
+    return sound;
+  }
+
   // ==================== READ OPERATIONS ====================
 
   async getAllSounds() {
     const cacheKey = `${CACHE_PREFIX}:sounds`;
-    const cached = await this.redis.getJson(cacheKey);
-    if (cached) return cached;
+    const cached: any = await this.redis.getJson(cacheKey);
+    if (cached) {
+      return {
+        monophthongs: (cached.monophthongs || []).map((s: any) => this.sanitizeSound(s)!),
+        diphthongs: (cached.diphthongs || []).map((s: any) => this.sanitizeSound(s)!),
+        consonants: (cached.consonants || []).map((s: any) => this.sanitizeSound(s)!),
+      };
+    }
 
     const sounds = await this.prisma.foundationPronunciationSound.findMany({
       orderBy: [{ type: "asc" }, { order: "asc" }],
@@ -41,10 +68,12 @@ export class PronunciationService {
       },
     });
 
+    const sanitizedSounds = sounds.map((s) => this.sanitizeSound(s)!);
+
     const grouped = {
-      monophthongs: sounds.filter((s) => s.type === "monophthong"),
-      diphthongs: sounds.filter((s) => s.type === "diphthong"),
-      consonants: sounds.filter((s) => s.type === "consonant"),
+      monophthongs: sanitizedSounds.filter((s) => s.type === "monophthong"),
+      diphthongs: sanitizedSounds.filter((s) => s.type === "diphthong"),
+      consonants: sanitizedSounds.filter((s) => s.type === "consonant"),
     };
 
     await this.redis.setJson(cacheKey, grouped, CACHE_TTL);
@@ -54,7 +83,7 @@ export class PronunciationService {
   async getSoundBySymbol(symbol: string) {
     const cacheKey = `${CACHE_PREFIX}:sound:${symbol}`;
     const cached = await this.redis.getJson(cacheKey);
-    if (cached) return cached;
+    if (cached) return this.sanitizeSound(cached);
 
     const sound = await this.prisma.foundationPronunciationSound.findUnique({
       where: { symbol },
@@ -65,8 +94,9 @@ export class PronunciationService {
       },
     });
 
-    if (sound) await this.redis.setJson(cacheKey, sound, CACHE_TTL);
-    return sound;
+    const sanitized = this.sanitizeSound(sound);
+    if (sanitized) await this.redis.setJson(cacheKey, sanitized, CACHE_TTL);
+    return sanitized;
   }
 
   // ==================== SOUND CRUD ====================

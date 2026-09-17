@@ -41,12 +41,53 @@ export default function ExampleWordCard({
 }: ExampleWordCardProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
+  const speakWithWebSpeech = (text: string) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.85;
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = () => setIsPlaying(false);
+      window.speechSynthesis.speak(utterance);
+      return true;
+    }
+    return false;
+  };
+
   const playAudio = () => {
-    if (!audioUrl) return;
+    if (!word) return;
     setIsPlaying(true);
-    const audio = new Audio(audioUrl);
-    audio.onended = () => setIsPlaying(false);
-    audio.play().catch(() => setIsPlaying(false));
+
+    // If audioUrl is missing or points to known hanging service, prefer Google TTS or Web Speech directly
+    const targetUrl =
+      audioUrl && !audioUrl.includes('api.dictionaryapi.dev')
+        ? audioUrl
+        : `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${encodeURIComponent(word)}`;
+
+    const audio = new Audio(targetUrl);
+    let handled = false;
+
+    const fallbackToSpeech = () => {
+      if (handled) return;
+      handled = true;
+      if (!speakWithWebSpeech(word)) {
+        setIsPlaying(false);
+      }
+    };
+
+    audio.onended = () => {
+      handled = true;
+      setIsPlaying(false);
+    };
+
+    audio.onerror = () => {
+      fallbackToSpeech();
+    };
+
+    audio.play().catch(() => {
+      fallbackToSpeech();
+    });
   };
 
   const handleResult = (result: PronunciationResult) => {
@@ -87,10 +128,10 @@ export default function ExampleWordCard({
           <div className="flex items-center gap-2">
             <button
               onClick={playAudio}
-              disabled={!audioUrl}
+              disabled={!word}
               aria-label={`Play audio for ${word}`}
               className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors
-                ${audioUrl ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40' : 'bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed'}
+                ${word ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40' : 'bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed'}
                 ${isPlaying ? 'animate-pulse' : ''}
               `}
             >

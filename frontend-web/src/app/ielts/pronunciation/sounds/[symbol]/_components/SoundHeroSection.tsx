@@ -11,15 +11,35 @@ interface SoundHeroSectionProps {
 export default function SoundHeroSection({ symbol, name, type, audioUrl, voiced }: SoundHeroSectionProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
+  const speakFallback = (text: string) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.8;
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = () => setIsPlaying(false);
+      window.speechSynthesis.speak(utterance);
+      return true;
+    }
+    return false;
+  };
+
   const playAudio = () => {
-    if (!audioUrl) return;
     setIsPlaying(true);
-    const audio = new Audio(audioUrl);
-    audio.onended = () => setIsPlaying(false);
-    audio.play().catch(e => {
-      console.error("Audio playback failed", e);
-      setIsPlaying(false);
-    });
+    if (audioUrl) {
+      const audio = new Audio(audioUrl);
+      audio.onended = () => setIsPlaying(false);
+      audio.onerror = () => {
+        if (!speakFallback(name || symbol)) setIsPlaying(false);
+      };
+      audio.play().catch(e => {
+        console.warn("Audio playback failed, falling back to speech synthesis:", e);
+        if (!speakFallback(name || symbol)) setIsPlaying(false);
+      });
+    } else {
+      if (!speakFallback(name || symbol)) setIsPlaying(false);
+    }
   };
 
   let typeColor = 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300';

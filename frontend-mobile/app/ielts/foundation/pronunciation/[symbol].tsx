@@ -18,7 +18,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { FadeIn, FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { useAudioPlayer } from 'expo-audio';
+import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
 
 import { COLORS, SPACING, RADIUS, FONT_SIZES, FONTS, API_BASE_URL } from '@/constants';
 import { useAuth } from '@/contexts/AuthContext';
@@ -159,6 +159,14 @@ const getFullUrl = (url?: string) => {
   return `${baseAssetUrl}${cleanUrl}`;
 };
 
+// Helper to get reliable word audio URL (falling back to fast TTS if URL is missing or points to broken external services)
+const getWordAudioUrl = (word: string, audioUrl?: string) => {
+  if (!audioUrl || audioUrl.includes('api.dictionaryapi.dev')) {
+    return `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${encodeURIComponent(word)}`;
+  }
+  return getFullUrl(audioUrl);
+};
+
 // ─── Exponential Backoff Poller ───────────────────────────────────────────────
 function useExponentialPoller() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -227,13 +235,16 @@ function WordCard({
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const { startPolling, stopPolling } = useExponentialPoller();
 
-  // Play word example audio using expo-audio
-  const player = useAudioPlayer(audioUrl ? getFullUrl(audioUrl) : '', { downloadFirst: true });
+  const resolvedAudioUrl = useMemo(() => getWordAudioUrl(word, audioUrl), [word, audioUrl]);
 
-  const playWordAudio = () => {
-    if (!audioUrl || !player) return;
+  // Play word example audio using expo-audio (downloadFirst: false avoids hanging on slow/broken network)
+  const player = useAudioPlayer(resolvedAudioUrl, { downloadFirst: false });
+
+  const playWordAudio = async () => {
+    if (!player) return;
     try {
       setIsAudioPlaying(true);
+      await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: false }).catch(() => {});
       player.seekTo(0);
       player.play();
       
@@ -426,13 +437,13 @@ function WordCard({
             <TouchableOpacity
               style={[styles.audioPlayBtn, isAudioPlaying && styles.audioPlayBtnActive, { backgroundColor: isDark ? '#1E293B' : '#EFF6FF', borderColor: isDark ? '#334155' : '#DBEAFE' }]}
               onPress={playWordAudio}
-              disabled={!audioUrl}
+              disabled={!resolvedAudioUrl}
               accessibilityLabel={`Play sound sample for ${word}`}
             >
               <Ionicons
                 name="volume-high"
                 size={18}
-                color={audioUrl ? '#2563EB' : colors.textDisabled}
+                color={resolvedAudioUrl ? '#2563EB' : colors.textDisabled}
               />
             </TouchableOpacity>
 
@@ -525,13 +536,35 @@ export default function IeltsSoundDetailScreen() {
     }
   }, [user, sound]);
 
-  // Setup main sound audio player
-  const heroPlayer = useAudioPlayer(sound?.audioUrl ? getFullUrl(sound.audioUrl) : '', { downloadFirst: true });
+  useEffect(() => {
+    const initAudio = async () => {
+      try {
+        await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: false });
+      } catch (e) {
+        if (__DEV__) console.warn('Failed to set audio mode in detail screen:', e);
+      }
+    };
+    initAudio();
+  }, []);
 
-  const playHeroAudio = () => {
-    if (!sound?.audioUrl || !heroPlayer) return;
+  const heroAudioUrl = useMemo(() => {
+    if (sound?.audioUrl && !sound.audioUrl.includes('api.dictionaryapi.dev')) {
+      return getFullUrl(sound.audioUrl);
+    }
+    if (sound?.word) {
+      return `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${encodeURIComponent(sound.word)}`;
+    }
+    return '';
+  }, [sound]);
+
+  // Setup main sound audio player
+  const heroPlayer = useAudioPlayer(heroAudioUrl, { downloadFirst: false });
+
+  const playHeroAudio = async () => {
+    if (!heroPlayer) return;
     try {
       setIsPlayingHeroAudio(true);
+      await setAudioModeAsync({ playsInSilentMode: true, allowsRecording: false }).catch(() => {});
       heroPlayer.seekTo(0);
       heroPlayer.play();
       setTimeout(() => setIsPlayingHeroAudio(false), 2000);
@@ -610,7 +643,7 @@ export default function IeltsSoundDetailScreen() {
               <Text style={[styles.heroSymbolText, { color: colors.text }]}>{sound.symbol}</Text>
               <Text style={[styles.heroNameText, { color: colors.textSecondary }]}>{sound.name || 'Phonetic Sound'}</Text>
 
-              {sound.audioUrl ? (
+              {heroAudioUrl ? (
                 <TouchableOpacity
                   style={[
                     styles.heroPlayButton, 

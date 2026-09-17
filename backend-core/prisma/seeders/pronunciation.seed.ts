@@ -7,19 +7,27 @@ export async function seedPronunciation(prisma: PrismaClient) {
   for (const sound of pronunciationSounds) {
     const { exampleWords, ...soundData } = sound;
 
+    const processedExampleWords = exampleWords.map((ew) => ({
+      ...ew,
+      audioUrl:
+        !ew.audioUrl || ew.audioUrl.includes("api.dictionaryapi.dev")
+          ? `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${encodeURIComponent(ew.word)}`
+          : ew.audioUrl,
+    }));
+
     const created = await prisma.foundationPronunciationSound.upsert({
       where: { symbol: soundData.symbol },
       update: {
         ...soundData,
         exampleWords: {
           deleteMany: {},
-          create: exampleWords,
+          create: processedExampleWords,
         },
       },
       create: {
         ...soundData,
         exampleWords: {
-          create: exampleWords,
+          create: processedExampleWords,
         },
       },
     });
