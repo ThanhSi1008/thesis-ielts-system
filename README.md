@@ -721,7 +721,7 @@ push to main/develop
         │
         └── deploy-backend
               Build changed images → push to GCR
-              SSH (ed25519) to VM 34.21.232.188 as user xis108floren
+              SSH (ed25519) to VM dedangdown.io.vn (34.142.131.206) as user xis108floren
               cd /opt/app
               docker compose pull <svc>
               docker compose up -d --no-deps <svc>

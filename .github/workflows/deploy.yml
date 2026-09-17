@@ -13,7 +13,7 @@ concurrency:
 env:
   PROJECT_ID: ielts-master-502414
   REGION: asia-southeast1
-  VM_HOST: 34.21.232.188
+  VM_HOST: dedangdown.io.vn
   VM_USER: xis108floren
 
 permissions:
@@ -137,20 +137,22 @@ jobs:
           fi
 
       - name: Setup SSH key
+        env:
+          SSH_KEY: ${{ secrets.VM_SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.VM_SSH_PRIVATE_KEY }}" > ~/.ssh/vm_key
+          printf "%s\n" "$SSH_KEY" > ~/.ssh/vm_key
           chmod 600 ~/.ssh/vm_key
-          ssh-keyscan -H ${{ env.VM_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ env.VM_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Copy config files to VM
         run: |
-          scp -i ~/.ssh/vm_key docs/deployment/vm-config/docker-compose.yml ${{ env.VM_USER }}@${{ env.VM_HOST }}:/opt/app/
-          scp -i ~/.ssh/vm_key -r docs/deployment/vm-config/nginx ${{ env.VM_USER }}@${{ env.VM_HOST }}:/opt/app/
+          scp -o StrictHostKeyChecking=accept-new -i ~/.ssh/vm_key docs/deployment/vm-config/docker-compose.yml ${{ env.VM_USER }}@${{ env.VM_HOST }}:/opt/app/
+          scp -o StrictHostKeyChecking=accept-new -i ~/.ssh/vm_key -r docs/deployment/vm-config/nginx ${{ env.VM_USER }}@${{ env.VM_HOST }}:/opt/app/
 
       - name: Deploy to VM
         run: |
-          ssh -i ~/.ssh/vm_key ${{ env.VM_USER }}@${{ env.VM_HOST }} << 'ENDSSH'
+          ssh -o StrictHostKeyChecking=accept-new -i ~/.ssh/vm_key ${{ env.VM_USER }}@${{ env.VM_HOST }} << 'ENDSSH'
             set -e
             cd /opt/app
 
